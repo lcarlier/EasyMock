@@ -8,7 +8,7 @@ MainCodeGenerator::MainCodeGenerator(const std::string filename, CodeParserItf &
 
 bool MainCodeGenerator::generateCode(const std::string &outDir)
 {
-  ElementToStubVector elem;
+  ElementToMockVector elem;
   m_codeParserItf.setFilename(m_filename);
   m_codeParserItf.getElementToStub(elem);
   m_codeGeneratorItf.generateCode(outDir, m_filename, elem);

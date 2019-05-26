@@ -7,7 +7,7 @@
 
 class CodeGeneratorItf {
 public:
-  virtual bool generateCode(const std::string& outDir, const std::string &headerToMock, const ElementToStubVector& elem) const = 0;
+  virtual bool generateCode(const std::string& outDir, const std::string &headerToMock, const ElementToMockVector& elem) const = 0;
 };
 
 #endif /* CODEGENERATORITF_H */

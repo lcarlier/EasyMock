@@ -4,74 +4,139 @@
 #include <sys/select.h>
 #include <dlfcn.h>
 #include <easyMock.h>
+#include <boost/filesystem.hpp>
+#include <boost/algorithm/string.hpp>
+#include <unistd.h>
 
 #define PIPE_READ 0
 #define PIPE_WRITE 1
 
 #include "CodeGeneratorCTemplate.h"
-#include <test/stub_header.h>
 
 #include <string>
+#include <limits.h>
 
-static void createDir(const char *dir);
+static void createDir(const std::string &dir);
+static void rmDir(const std::string &dir);
 static void executeCmd(const char * const aArguments[], std::string *stdOut, std::string *stdErr, int *status);
 static void readStdoutStderrUntilEnd(int fdStdOut, int fdStdErr, std::string *stdOut, std::string *stdErr);
 static void appendReadIntoString(int fd, std::string *str, const char *strName, bool *noMoreToRead);
 static void loadSo(const char *pathToSo, const char *functionToLoad, void **funcPtr, void **functExpectPtr, void **handle);
+static void prepareTest(const ElementToMockVector &elem, const std::string &fullPathToFileToMock, const std::string &mockDir, void **funcPtr, void **functExpectPtr, void **handle);
 
-TEST(GenerateStub, voidFunction_void)
+class voidFunVoidTestCase : public ::testing::Test
 {
-  CodeGeneratorCTemplate generate;
-  ElementToStubVector elem;
-  Function *f = new Function("function", "void",{});
-  elem.push_back(f);
+protected:
 
-  createDir("test");
-  generate.generateCode("test", "header.h", elem);
-  std::string stdOut;
-  std::string stdErr;
-  int status;
-  const char * const compileStubCmd[] = {"g++", "-Wall", "-Werror", "-g", "-fpic", "-I", "test", "-I", PROJECT_ROOT_DIR"/src/easyMockFramework/include", "-o", "test/stub_header.o", "-c", "test/stub_header.cpp", NULL};
-  executeCmd(compileStubCmd, &stdOut, &stdErr, &status);
-  ASSERT_EQ(status, 0) << std::endl << "Compilation stub failed " << std::endl << "stdout: " << std::endl << stdOut << std::endl << "stderr:" << std::endl << stdErr << std::endl;
-
-  /*const char * const compileEasyMock[] = {"g++", "-Wall", "-Werror", "-g", "-fpic", "-I", "test", "-I", PROJECT_ROOT_DIR"/src/easyMockFramework/include", "-o", "test/easyMock.o", "-c", PROJECT_ROOT_DIR"/src/easyMockFramework/src/easyMock.cpp", NULL};
-  executeCmd(compileEasyMock, &stdOut, &stdErr, &status);
-  ASSERT_EQ(status, 0) << std::endl << "Compilation stub failed " << std::endl << "stdout: " << std::endl << stdOut << std::endl << "stderr:" << std::endl << stdErr << std::endl;*/
-
-  const char * const compileLibCmd[] = {"g++", "-shared", "-o", "test/libtest.so", "test/stub_header.o", "test/easyMock.o", NULL};
-  executeCmd(compileLibCmd, &stdOut, &stdErr, &status);
-  ASSERT_EQ(status, 0) << std::endl << "Compilation lib failed " << std::endl << "stdout: " << std::endl << stdOut << std::endl << "stderr:" << std::endl << stdErr << std::endl;
-
-  void *handle;
   void (*fptr)();
   void (*fptr_expect)();
-  loadSo("test/libtest.so", "function", (void **) &fptr, (void **)&fptr_expect, &handle);
+  void *handle;
+
+  void SetUp() override
+  {
+    ElementToMockVector elem;
+    Function *f = new Function("voidFunVoid", "void",{});
+    elem.push_back(f);
+
+    prepareTest(elem, "include/voidFunVoid.h", "mockvoidFunVoid", (void **) &fptr, (void **) &fptr_expect, &handle);
+
+    easyMock_init();
+  }
+
+  void TearDown() override
+  {
+    int error;
+    dlerror(); /* Clear any existing error */
+
+    error = dlclose(handle);
+    char *errorStr = dlerror();
+    ASSERT_EQ(error, 0) << "Error dlclose" << std::endl << errorStr;
+    rmDir("mockvoidFunVoid");
+  }
+};
+
+TEST_F(voidFunVoidTestCase, OneExpect)
+{
   fptr_expect();
   fptr();
   int check = easyMock_check();
   EXPECT_EQ(check, 1);
 
   const char *error = easyMock_getErrorStr();
-  ASSERT_NE(error, nullptr);
-  printf("%s", error);
-
-  //Close handle after check because easyMock_check and easyMock_getErrorStr uses some function of the .so
-  dlclose(handle);
-
+  ASSERT_EQ(error, nullptr) << error;
 }
 
-static void createDir(const char *dir)
+TEST_F(voidFunVoidTestCase, NoExpect)
 {
+  fptr();
+  int check = easyMock_check();
+  EXPECT_EQ(check, 0);
+
+  const char *error = easyMock_getErrorStr();
+  ASSERT_NE(error, nullptr);
+  ASSERT_TRUE(boost::algorithm::starts_with(error, "Error : unexpected call of 'void voidFunVoid()'\n\r\tat EasyMock::addError")) << error;
+}
+
+TEST_F(voidFunVoidTestCase, NotEnoughCall)
+{
+  fptr_expect();
+  fptr_expect();
+  fptr_expect();
+  fptr();
+  fptr();
+  int check = easyMock_check();
+  EXPECT_EQ(check, 0);
+
+  const char *error = easyMock_getErrorStr();
+  ASSERT_NE(error, nullptr);
+  ASSERT_TRUE(boost::algorithm::starts_with(error, "Error: For function 'void voidFunVoid()' bad number of call. Expected 3, got 2\n\r")) << error;
+}
+
+static void prepareTest(const ElementToMockVector &elem, const std::string &fullPathToFileToMock, const std::string &mockDir, void **fptr, void **fptr_expect, void **handle)
+{
+  char cwd[PATH_MAX];
+  ASSERT_NE(getcwd(cwd, PATH_MAX), nullptr) << std::endl << "getcwd error. errno: " << errno << "(" << strerror(errno) << ")" << std::endl;
+  CodeGeneratorCTemplate generate;
+
+  std::string pathAndfileNameToMock = boost::filesystem::path(fullPathToFileToMock).stem().string();
+  std::string fileNameToMock = boost::filesystem::path(pathAndfileNameToMock).filename().string();
+  createDir(mockDir);
+  bool codeGen = generate.generateCode(mockDir, fullPathToFileToMock, elem);
+  ASSERT_TRUE(codeGen) << std::endl << "Generation failed." << std::endl << "cwd: " << cwd << std::endl;
   std::string stdOut;
   std::string stdErr;
   int status;
-  const char * const cmdMkDir[] = {"mkdir", "-p", dir, NULL};
-  executeCmd(cmdMkDir, &stdOut, &stdErr, &status);
-  ASSERT_EQ(status, 0) << "Couldn't create directory" << dir << std::endl
-          << "stdout: " << std::endl
-          << stdOut << std::endl
-          << stdErr;
+
+  std::string objFile(mockDir);
+  objFile.append("/easyMock_");
+  objFile.append(pathAndfileNameToMock);
+  std::string fileToCompile(objFile);
+  objFile.append(".o");
+  fileToCompile.append(".cpp");
+  const char * const compileMockCmd[] = {"g++", "-Wall", "-Werror", "-g", "-fpic", "-I", mockDir.c_str(), "-I", PROJECT_ROOT_DIR"/src/easyMockFramework/include", "-I", PROJECT_ROOT_DIR"/test/easyMockGenerate/include", "-o", objFile.c_str(), "-c", fileToCompile.c_str(), NULL};
+  executeCmd(compileMockCmd, &stdOut, &stdErr, &status);
+  ASSERT_EQ(status, 0) << std::endl << "Compilation mock failed " << std::endl << "cwd: " << cwd << std::endl << "stdout: " << std::endl << stdOut << std::endl << "stderr:" << std::endl << stdErr << std::endl;
+
+  std::string pathToLib(mockDir);
+  pathToLib.append("/lib");
+  pathToLib.append(fileNameToMock);
+  pathToLib.append(".so");
+  const char * const compileLibCmd[] = {"g++", "-shared", "-o", pathToLib.c_str(), objFile.c_str(), NULL};
+  executeCmd(compileLibCmd, &stdOut, &stdErr, &status);
+  ASSERT_EQ(status, 0) << std::endl << "Compilation lib failed " << std::endl << "cwd: " << cwd << std::endl << "stdout: " << std::endl << stdOut << std::endl << "stderr:" << std::endl << stdErr << std::endl;
+
+  loadSo(pathToLib.c_str(), "voidFunVoid", fptr, fptr_expect, handle);
+}
+
+static void createDir(const std::string &dir)
+{
+  bool rv = boost::filesystem::create_directories(dir);
+  ASSERT_TRUE(rv);
+}
+
+static void rmDir(const std::string &dir)
+{
+  boost::filesystem::remove_all(dir);
 }
 
 static void executeCmd(const char * const aArguments[], std::string *stdOut, std::string *stdErr, int *status)
@@ -141,11 +206,15 @@ static void executeCmd(const char * const aArguments[], std::string *stdOut, std
   {
     int wstatus;
     rv = close(pipeStdOut[PIPE_WRITE]);
-    ASSERT_EQ(rv, 0) << "close stdout failed: %s" << strerror(errno);
+    ASSERT_EQ(rv, 0) << "close stdout write failed: %s" << strerror(errno);
     rv = close(pipeStdErr[PIPE_WRITE]);
-    ASSERT_EQ(rv, 0) << "close stderr failed: %s" << strerror(errno);
+    ASSERT_EQ(rv, 0) << "close stderr write failed: %s" << strerror(errno);
 
     readStdoutStderrUntilEnd(pipeStdOut[PIPE_READ], pipeStdErr[PIPE_READ], stdOut, stdErr);
+    rv = close(pipeStdOut[PIPE_READ]);
+    ASSERT_EQ(rv, 0) << "close stdout read failed: %s" << strerror(errno);
+    rv = close(pipeStdErr[PIPE_READ]);
+    ASSERT_EQ(rv, 0) << "close stdout read failed: %s" << strerror(errno);
     do
     {
       pid_t w = waitpid(cpid, &wstatus, WUNTRACED | WCONTINUED);
@@ -250,5 +319,4 @@ static void loadSo(const char *pathToSo, const char *functionToLoad, void **func
   *funcPtr_expect = dlsym(*handle, expectStr.c_str());
   error = dlerror();
   ASSERT_EQ(error, nullptr) << "couldn't load expect function " << functionToLoad << ": " << error;
-
 }

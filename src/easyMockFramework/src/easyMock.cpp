@@ -4,7 +4,7 @@
 
 #include <cstdio>
 #include <string>
-#include <vector>
+#include <map>
 #include <queue>
 #include <bits/stl_queue.h>
 #include <stdarg.h>
@@ -23,7 +23,7 @@
  */
 
 
-typedef std::vector<const easyMock_mockedFileRegister_t *> MockVector_t;
+typedef std::map<const easyMock_mockedFileRegister_t *,const easyMock_mockedFileRegister_t *> MockMap_t;
 typedef std::queue<std::string> FifoCall_t;
 typedef std::queue<std::string> FifoError_t;
 
@@ -37,14 +37,19 @@ public:
 
   void registerMock(const easyMock_mockedFileRegister_t *args)
   {
-    m_registeredMock.push_back(args);
+    m_registeredMock[args] = args;
+  }
+
+  void unregisterMock(const easyMock_mockedFileRegister_t *args)
+  {
+    m_registeredMock.erase(args);
   }
 
   void initRegisteredMockedFile()
   {
-    for (MockVector_t::const_iterator it = m_registeredMock.begin(); it != m_registeredMock.end(); ++it)
+    for (MockMap_t::const_iterator it = m_registeredMock.begin(); it != m_registeredMock.end(); ++it)
     {
-      const easyMock_mockedFileRegister_t *f = *it;
+      const easyMock_mockedFileRegister_t *f = it->second;
       f->resetMockedFile();
     }
   }
@@ -52,9 +57,9 @@ public:
   int verifyRegisteredMockedFile()
   {
     int rv = 1;
-    for (MockVector_t::const_iterator it = m_registeredMock.begin(); it != m_registeredMock.end(); ++it)
+    for (MockMap_t::const_iterator it = m_registeredMock.begin(); it != m_registeredMock.end(); ++it)
     {
-      const easyMock_mockedFileRegister_t *f = *it;
+      const easyMock_mockedFileRegister_t *f = it->second;
       if (!f->verifyMockedFile())
       {
         rv = 0;
@@ -83,15 +88,22 @@ public:
       allErrorStr.append("\n\r");
       m_error.pop();
     }
-    return allErrorStr.c_str();
+    if(allErrorStr.size() == 0)
+    {
+      return NULL;
+    }
+    else
+    {
+      return allErrorStr.c_str();
+    }
   }
 
-  void addCall(const char *name)
+  void addCall(const std::string name)
   {
     m_fifoCall.push(name);
   }
 
-  const char *popCurrentCall()
+  const std::string popCurrentCall()
   {
     if (m_fifoCall.empty())
     {
@@ -100,7 +112,7 @@ public:
     }
     const std::string currentCall = m_fifoCall.front();
     m_fifoCall.pop();
-    return currentCall.c_str();
+    return currentCall;
   }
 private:
 
@@ -141,6 +153,7 @@ private:
               NULL, NULL, NULL, NULL, NULL, NULL, NULL);
       append_string(error, "in %s", module_name);
     }
+    dwfl_end(dwfl);
   }
 
   void append_backtrace(std::string &error)
@@ -228,7 +241,7 @@ private:
     str.append(strToCopy);
   }
 
-  MockVector_t m_registeredMock;
+  MockMap_t m_registeredMock;
   bool m_checkFifoCall;
   FifoCall_t m_fifoCall;
   FifoError_t m_error;
@@ -241,12 +254,17 @@ void easyMock_registerMock(const easyMock_mockedFileRegister_t *args)
   easyMock.registerMock(args);
 }
 
-const char *easyMock_popCurrentCall()
+void easyMock_unregisterMock(const easyMock_mockedFileRegister_t *args)
+{
+  easyMock.unregisterMock(args);
+}
+
+std::string easyMock_popCurrentCall()
 {
   return easyMock.popCurrentCall();
 }
 
-void easyMock_addCall(const char *call)
+void easyMock_addCall(const std::string call)
 {
   easyMock.addCall(call);
 }
@@ -301,9 +319,9 @@ bool MockedFunction::addActuallCall()
   return true;
 }
 
-const char *MockedFunction::getName()
+const std::string &MockedFunction::getName()
 {
-  return m_name.c_str();
+  return m_name;
 }
 
 void MockedFunction::reset()

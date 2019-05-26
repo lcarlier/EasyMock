@@ -9,7 +9,7 @@ public:
   MockedFunction(const std::string name);
   void addExpectedCall();
   bool addActuallCall();
-  const char *getName();
+  const std::string &getName();
   void reset();
   bool verify();
 private:

@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <cstring>
 #include "CodeGeneratorCTemplate.h"
+#include <boost/filesystem.hpp>
 
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -88,174 +89,11 @@ MOCK_FRAMEWORK_NAME "_verifyAllMocksInThisHeader"
 #define END_GENERATE_COMMENT \
 "//----------------- END GENERATION '" TEMPLATE_FUNCTION_TO_BE_MOCKED "' -----------------"
 
-#if 0
 static const char templateText[] =
         "#include <" TEMPLATE_VAR(MOCKED_HEADER_FILENAME) ">" CARRIAGE_RETURN
-        "#include <stdio.h>" CARRIAGE_RETURN
-        "#include <string.h>" CARRIAGE_RETURN
-        CARRIAGE_RETURN
-        "static void " MOCK_FRAMEWORK_NAME "_reset_all_mocks_in_this_header();" CARRIAGE_RETURN
-        "static void " MOCK_FRAMEWORK_NAME "_verify_all_mocks_in_this_header();" CARRIAGE_RETURN
-        CARRIAGE_RETURN
-        TEMPLATE_BEG_SECTION(FUNCTION_SECTION)
-GENERATE_COMMENT CARRIAGE_RETURN
-        "typedef struct" CARRIAGE_RETURN
-        "{" CARRIAGE_RETURN
-        TEMPLATE_BEG_SECTION(FUNCTION_PARAM_SECTION)
-"    " TEMPLATE_VAR(FUNCTION_PARAM_TYPE)" " TEMPLATE_VAR(FUNCTION_PARAM_NAME) ";" CARRIAGE_RETURN
-TEMPLATE_END_SECTION(FUNCTION_PARAM_SECTION)
-TEMPLATE_BEG_SECTION(FUNCTION_PARAM_SECTION)
-"    " MOCK_FRAMEWORK_NAME_UPPER "_MATCHER match_" TEMPLATE_VAR(FUNCTION_PARAM_NAME) ";" CARRIAGE_RETURN
-TEMPLATE_END_SECTION(FUNCTION_PARAM_SECTION)
-TEMPLATE_BEG_SECTION(FUNCTION_RETURN_VALUE_PARAM_SECTION)
-"    " TEMPLATE_VAR(FUNCTION_RETURN_VALUE) " to_return;" CARRIAGE_RETURN
-TEMPLATE_END_SECTION(FUNCTION_RETURN_VALUE_PARAM_SECTION)
-"    char check_params;" CARRIAGE_RETURN
-        "} " TEMPLATE_VAR(FUNCTION_NAME) "_call;" CARRIAGE_RETURN
-CARRIAGE_RETURN
-        "typedef struct" CARRIAGE_RETURN
-        "{" CARRIAGE_RETURN
-        "    int expectedCalls;" CARRIAGE_RETURN
-        "    int actualCalls;" CARRIAGE_RETURN
-        "    " MOCK_FRAMEWORK_NAME_UPPER "_" TEMPLATE_VAR(FUNCTION_NAME_UPPER) "_CALLBACK callback;" CARRIAGE_RETURN
-        "    " TEMPLATE_VAR(FUNCTION_NAME) "_call calls[MAX_FUNC_CALL];" CARRIAGE_RETURN
-        "} " TEMPLATE_VAR(FUNCTION_NAME) "_struct;" CARRIAGE_RETURN
-CARRIAGE_RETURN
-        "static " TEMPLATE_VAR(FUNCTION_NAME) "_struct " TEMPLATE_VAR(FUNCTION_NAME) "_struct_inst;" CARRIAGE_RETURN
-CARRIAGE_RETURN
-TEMPLATE_FUNCTION_TO_BE_MOCKED CARRIAGE_RETURN
-        "{" CARRIAGE_RETURN
-        TEMPLATE_BEG_SECTION(FUNCTION_RETURN_VALUE_PARAM_SECTION)
-"    " TEMPLATE_VAR(FUNCTION_RETURN_VALUE) " default_res = " TEMPLATE_VAR(FUNCTION_NAME) "_struct_inst.calls[0].to_return;" CARRIAGE_RETURN
-TEMPLATE_END_SECTION(FUNCTION_RETURN_VALUE_PARAM_SECTION)
-"    int " MOCK_FRAMEWORK_NAME "_i;" CARRIAGE_RETURN
-        "    " TEMPLATE_VAR(FUNCTION_NAME) "_struct_inst.actualCalls++;" CARRIAGE_RETURN
-CARRIAGE_RETURN
-        "    if (" TEMPLATE_VAR(FUNCTION_NAME) "_struct_inst.callback != NULL)" CARRIAGE_RETURN
-        "    {" CARRIAGE_RETURN
-        "        " IF_RETURN_VALUE("default_res = ") TEMPLATE_VAR(FUNCTION_NAME) "_struct_inst.callback(" FUNCTION_PARAM_LIST IF_PARAM_LIST(", ") TEMPLATE_VAR(FUNCTION_NAME) "_struct_inst.actualCalls)" ";" CARRIAGE_RETURN
-        "        return" IF_RETURN_VALUE(" default_res") ";" CARRIAGE_RETURN
-        "    }" CARRIAGE_RETURN
-        "    if (" TEMPLATE_VAR(FUNCTION_NAME) "_struct_inst.expectedCalls == 0)" CARRIAGE_RETURN
-        "    {" CARRIAGE_RETURN
-        "        " MOCK_FRAMEWORK_NAME "_add_error_message((char *) \"WARNING : unexpected call of '" TEMPLATE_VAR(FUNCTION_NAME) "', returning random value.\");" CARRIAGE_RETURN
-        "        return" IF_RETURN_VALUE(" default_res") ";" CARRIAGE_RETURN
-        "    }" CARRIAGE_RETURN
-        CARRIAGE_RETURN
-        "    if(strcmp(" MOCK_FRAMEWORK_NAME "_get_current_call(), \"int " TEMPLATE_VAR(FUNCTION_NAME) "(" FUNCTION_PARAM_LIST ")\") != 0)" CARRIAGE_RETURN
-        "    {" CARRIAGE_RETURN
-        "        char buffer[OP_ERROR_MESSAGE_LENGTH];" CARRIAGE_RETURN
-        "        snprintf(buffer, OP_ERROR_MESSAGE_LENGTH, \"WARNING : got call to 'int " TEMPLATE_VAR(FUNCTION_NAME) "(" FUNCTION_PARAM_LIST ")',  but was expecting call to '%s'\", " MOCK_FRAMEWORK_NAME "_get_current_call());" CARRIAGE_RETURN
-        "        " MOCK_FRAMEWORK_NAME "_add_error_message(buffer);" CARRIAGE_RETURN
-        "    }" CARRIAGE_RETURN
-        "    " MOCK_FRAMEWORK_NAME "_pop_call();" CARRIAGE_RETURN
-        CARRIAGE_RETURN
-        IF_PARAM_LIST(
-        "    if (" TEMPLATE_VAR(FUNCTION_NAME) "}}_struct_inst.calls[0].check_params == 1)" CARRIAGE_RETURN
-        "    {" CARRIAGE_RETURN
-        TEMPLATE_BEG_SECTION(FUNCTION_PARAM_SECTION)
-        "        if(" TEMPLATE_VAR(FUNCTION_NAME) "_struct_inst.calls[0].match_" TEMPLATE_VAR(FUNCTION_PARAM_NAME) ") {" CARRIAGE_RETURN
-        "            void * val1 = (void *) &" TEMPLATE_VAR(FUNCTION_NAME) "_struct_inst.calls[0]." TEMPLATE_VAR(FUNCTION_PARAM_NAME) ";" CARRIAGE_RETURN
-        "            void * val2 = (void *) &" TEMPLATE_VAR(FUNCTION_PARAM_NAME) ";" CARRIAGE_RETURN
-        "            int match_result = " TEMPLATE_VAR(FUNCTION_NAME) "_struct_inst.calls[0].match_" TEMPLATE_VAR(FUNCTION_PARAM_NAME) "(val1, val2, \"" TEMPLATE_VAR(FUNCTION_PARAM_NAME) "\", get_matcher_message());" CARRIAGE_RETURN
-        "            if(match_result){" CARRIAGE_RETURN
-        "                char buffer[OP_ERROR_MESSAGE_LENGTH];" CARRIAGE_RETURN
-        "                snprintf(buffer, OP_ERROR_MESSAGE_LENGTH, \"WARNING : on call number %d of '" TEMPLATE_VAR(FUNCTION_NAME) "', %s\"," TEMPLATE_VAR(FUNCTION_NAME) "_struct_inst.actualCalls, get_matcher_message());" CARRIAGE_RETURN
-        "                " MOCK_FRAMEWORK_NAME "_add_error_message((char *) buffer);" CARRIAGE_RETURN
-        "            }" CARRIAGE_RETURN
-        "        }" CARRIAGE_RETURN
-        TEMPLATE_END_SECTION(FUNCTION_PARAM_SECTION)
-        "    }" CARRIAGE_RETURN
-        )
-CARRIAGE_RETURN
-        "    for(" MOCK_FRAMEWORK_NAME "_i = 1; " MOCK_FRAMEWORK_NAME "_i < " TEMPLATE_VAR(FUNCTION_NAME) "_struct_inst.expectedCalls; " MOCK_FRAMEWORK_NAME "_i++) {" CARRIAGE_RETURN
-        "        " TEMPLATE_VAR(FUNCTION_NAME) "_struct_inst.calls[" MOCK_FRAMEWORK_NAME "_i - 1] = " TEMPLATE_VAR(FUNCTION_NAME) "_struct_inst.calls[" MOCK_FRAMEWORK_NAME "_i];" CARRIAGE_RETURN
-        "    }" CARRIAGE_RETURN
-        CARRIAGE_RETURN
-        "    " TEMPLATE_VAR(FUNCTION_NAME) "_struct_inst.expectedCalls--;" CARRIAGE_RETURN
-        "    return" IF_RETURN_VALUE(" default_res") ";" CARRIAGE_RETURN
-        "}" CARRIAGE_RETURN
-        CARRIAGE_RETURN
-        "void " TEMPLATE_VAR(FUNCTION_NAME) "_MockReset()" CARRIAGE_RETURN
-        "{" CARRIAGE_RETURN
-        "    " TEMPLATE_VAR(FUNCTION_NAME) "_struct_inst.expectedCalls = 0;" CARRIAGE_RETURN
-        "    " TEMPLATE_VAR(FUNCTION_NAME) "_struct_inst.actualCalls = 0;" CARRIAGE_RETURN
-        "    " TEMPLATE_VAR(FUNCTION_NAME) "_struct_inst.callback = NULL;" CARRIAGE_RETURN
-        "}" CARRIAGE_RETURN
-        CARRIAGE_RETURN
-        "void " TEMPLATE_VAR(FUNCTION_NAME) "_MockWithCallback(" MOCK_FRAMEWORK_NAME_UPPER "_" TEMPLATE_VAR(FUNCTION_NAME_UPPER) "_CALLBACK callback)" CARRIAGE_RETURN
-        "{" CARRIAGE_RETURN
-        "    " MOCK_FRAMEWORK_NAME "_add_reset_callback(" MOCK_FRAMEWORK_NAME "_reset_all_mocks_in_this_header);" CARRIAGE_RETURN
-        "    " MOCK_FRAMEWORK_NAME "_add_verify_callback(" MOCK_FRAMEWORK_NAME "_verify_all_mocks_in_this_header);" CARRIAGE_RETURN
-        "    " TEMPLATE_VAR(FUNCTION_NAME) "_struct_inst.callback = callback;" CARRIAGE_RETURN
-        "    " TEMPLATE_VAR(FUNCTION_NAME) "_struct_inst.expectedCalls = 0;" CARRIAGE_RETURN
-        "    " TEMPLATE_VAR(FUNCTION_NAME) "_struct_inst.actualCalls = 0;" CARRIAGE_RETURN
-        "}" CARRIAGE_RETURN
-        CARRIAGE_RETURN
-        "void " TEMPLATE_VAR(FUNCTION_NAME) "_VerifyMock()" CARRIAGE_RETURN
-        "{" CARRIAGE_RETURN
-        "    if (" TEMPLATE_VAR(FUNCTION_NAME) "_struct_inst.expectedCalls != 0) {" CARRIAGE_RETURN
-        "        char buffer[OP_ERROR_MESSAGE_LENGTH];" CARRIAGE_RETURN
-        "        snprintf(buffer, OP_ERROR_MESSAGE_LENGTH, \"WARNING : Bad number of calls (%d) for '" TEMPLATE_VAR(FUNCTION_NAME) "'\"," TEMPLATE_VAR(FUNCTION_NAME) "_struct_inst.actualCalls);" CARRIAGE_RETURN
-        "        " MOCK_FRAMEWORK_NAME "_add_error_message((char *) buffer);" CARRIAGE_RETURN
-        "    }" CARRIAGE_RETURN
-        "}" CARRIAGE_RETURN
-        CARRIAGE_RETURN
-        FUNCTION_EXPECT_AND_RETURN_SIGNATURE CARRIAGE_RETURN
-        "{" CARRIAGE_RETURN
-        "    if(" TEMPLATE_VAR(FUNCTION_NAME) "_struct_inst.callback != NULL)" CARRIAGE_RETURN
-        "    {" CARRIAGE_RETURN
-        "        " TEMPLATE_VAR(FUNCTION_NAME) "_MockReset();" CARRIAGE_RETURN
-        "    }" CARRIAGE_RETURN
-        CARRIAGE_RETURN
-        "    if(" TEMPLATE_VAR(FUNCTION_NAME) "_struct_inst.expectedCalls >= MAX_FUNC_CALL)" CARRIAGE_RETURN
-        "    {" CARRIAGE_RETURN
-        "        printf(\"WARNING : aborting " TEMPLATE_VAR(FUNCTION_NAME) "_ExpectAndReturn, call stack overload.\");" CARRIAGE_RETURN
-        "        return;" CARRIAGE_RETURN
-        "    }" CARRIAGE_RETURN
-        CARRIAGE_RETURN
-        "    " MOCK_FRAMEWORK_NAME "_add_reset_callback(" MOCK_FRAMEWORK_NAME "_reset_all_mocks_in_this_header);" CARRIAGE_RETURN
-        "    " MOCK_FRAMEWORK_NAME "_add_verify_callback(" MOCK_FRAMEWORK_NAME "_verify_all_mocks_in_this_header);" CARRIAGE_RETURN
-        "    " MOCK_FRAMEWORK_NAME "_add_call((char *)\"int " TEMPLATE_VAR(FUNCTION_NAME) "(" FUNCTION_PARAM_LIST ")\");" CARRIAGE_RETURN
-TEMPLATE_BEG_SECTION(FUNCTION_PARAM_SECTION)
-"    " TEMPLATE_VAR(FUNCTION_NAME) "_struct_inst.calls[" TEMPLATE_VAR(FUNCTION_NAME) "_struct_inst.expectedCalls]." TEMPLATE_VAR(FUNCTION_PARAM_NAME) " = " TEMPLATE_VAR(FUNCTION_PARAM_NAME) ";" CARRIAGE_RETURN
-TEMPLATE_END_SECTION(FUNCTION_PARAM_SECTION)
-TEMPLATE_BEG_SECTION(FUNCTION_PARAM_SECTION)
-"    " TEMPLATE_VAR(FUNCTION_NAME) "_struct_inst.calls[" TEMPLATE_VAR(FUNCTION_NAME) "_struct_inst.expectedCalls].match_" TEMPLATE_VAR(FUNCTION_PARAM_NAME) " = match_" TEMPLATE_VAR(FUNCTION_PARAM_NAME) ";" CARRIAGE_RETURN
-TEMPLATE_END_SECTION(FUNCTION_PARAM_SECTION)
-"    " TEMPLATE_VAR(FUNCTION_NAME) "_struct_inst.calls[" TEMPLATE_VAR(FUNCTION_NAME) "_struct_inst.expectedCalls].to_return = to_return;" CARRIAGE_RETURN
-        "    " TEMPLATE_VAR(FUNCTION_NAME) "_struct_inst.calls[" TEMPLATE_VAR(FUNCTION_NAME) "_struct_inst.expectedCalls].check_params = 1;" CARRIAGE_RETURN
-        "    " TEMPLATE_VAR(FUNCTION_NAME) "_struct_inst.expectedCalls++;" CARRIAGE_RETURN
-        "}" CARRIAGE_RETURN
-        CARRIAGE_RETURN
-        END_GENERATE_COMMENT CARRIAGE_RETURN
-        CARRIAGE_RETURN
-        TEMPLATE_END_SECTION(FUNCTION_SECTION)
-CARRIAGE_RETURN
-        "static void " MOCK_FRAMEWORK_NAME "_reset_all_mocks_in_this_header()" CARRIAGE_RETURN
-        "{" CARRIAGE_RETURN
-        TEMPLATE_BEG_SECTION(FUNCTION_SECTION)
-"    " TEMPLATE_VAR(FUNCTION_NAME) "_MockReset();" CARRIAGE_RETURN
-TEMPLATE_END_SECTION(FUNCTION_SECTION)
-"}" CARRIAGE_RETURN
-CARRIAGE_RETURN
-        "static void " MOCK_FRAMEWORK_NAME "_verify_all_mocks_in_this_header()" CARRIAGE_RETURN
-        "{" CARRIAGE_RETURN
-        TEMPLATE_BEG_SECTION(FUNCTION_SECTION)
-"    " TEMPLATE_VAR(FUNCTION_NAME) "_VerifyMock();" CARRIAGE_RETURN
-TEMPLATE_END_SECTION(FUNCTION_SECTION)
-"}" CARRIAGE_RETURN
-        "static " MOCK_FRAMEWORK_NAME "_mockedFileRegister_t mockedRegister = {\"" TEMPLATE_VAR(MOCKED_HEADER_FILENAME) "\", &" MOCK_FRAMEWORK_NAME "_reset_all_mocks_in_this_header, &" MOCK_FRAMEWORK_NAME "_verify_all_mocks_in_this_header };" CARRIAGE_RETURN
-        "static void __attribute__((constructor(102))) " MOCK_FRAMEWORK_NAME "_register_this_header()" CARRIAGE_RETURN
-        "{" CARRIAGE_RETURN
-        "    " MOCK_FRAMEWORK_NAME "_registerMock(&mockedRegister);" CARRIAGE_RETURN
-        "}" CARRIAGE_RETURN;
-#endif
-static const char templateText[] =
-        "#include <" TEMPLATE_VAR(MOCKED_HEADER_FILENAME) ">" CARRIAGE_RETURN
-        "#include <stub_" TEMPLATE_VAR(MOCKED_HEADER_FILENAME) ">" CARRIAGE_RETURN
+        "#include <" MOCK_FRAMEWORK_NAME "_" TEMPLATE_VAR(MOCKED_HEADER_FILENAME) ">" CARRIAGE_RETURN
         "#include <easyMock_framework.h>" CARRIAGE_RETURN
-        "#include <string.h>" CARRIAGE_RETURN
+        "#include <string>" CARRIAGE_RETURN
         CARRIAGE_RETURN
         FUNCTION_RESET_ALL_MOCK_SIGNATURE ";" CARRIAGE_RETURN
         FUNCTION_VERIFY_ALL_MOCK_SIGNATURE ";" CARRIAGE_RETURN
@@ -269,14 +107,15 @@ GENERATE_COMMENT CARRIAGE_RETURN
         "    bool printCallStack = true;" CARRIAGE_RETURN
         "    if(!" TEMPLATE_MOCKED_FUN_CLASS ".addActuallCall())" CARRIAGE_RETURN
         "    {" CARRIAGE_RETURN
-        "        easyMock_addError(printCallStack, \"Error : unexpected call of '%s'\", " TEMPLATE_MOCKED_FUN_CLASS ".getName());" CARRIAGE_RETURN
+        "        easyMock_addError(printCallStack, \"Error : unexpected call of '%s'\", " TEMPLATE_MOCKED_FUN_CLASS ".getName().c_str());" CARRIAGE_RETURN
         "        return;" CARRIAGE_RETURN
         "    }" CARRIAGE_RETURN
         CARRIAGE_RETURN
-        "    const char *currentCall = easyMock_popCurrentCall();" CARRIAGE_RETURN
-        "    if(strcmp(currentCall, " TEMPLATE_MOCKED_FUN_CLASS ".getName()) != 0)" CARRIAGE_RETURN
+        "    const std::string currentCall = easyMock_popCurrentCall();" CARRIAGE_RETURN
+        "    const std::string &curFuncCall = " TEMPLATE_MOCKED_FUN_CLASS ".getName();" CARRIAGE_RETURN
+        "    if(currentCall.compare(curFuncCall) != 0)" CARRIAGE_RETURN
         "    {" CARRIAGE_RETURN
-        "        easyMock_addError(printCallStack, \"Error : got call to '%s',  but was expecting call to '%s'\", " TEMPLATE_MOCKED_FUN_CLASS ".getName(), currentCall);" CARRIAGE_RETURN
+        "        easyMock_addError(printCallStack, \"Error : got call to '%s',  but was expecting call to '%s'\", " TEMPLATE_MOCKED_FUN_CLASS ".getName().c_str(), currentCall.c_str());" CARRIAGE_RETURN
         "        return;" CARRIAGE_RETURN
         "    }" CARRIAGE_RETURN
         "}" CARRIAGE_RETURN
@@ -309,15 +148,22 @@ GENERATE_COMMENT CARRIAGE_RETURN
         TEMPLATE_END_SECTION(FUNCTION_SECTION)
         "    return rv;" CARRIAGE_RETURN
         "}" CARRIAGE_RETURN
+        CARRIAGE_RETURN
         "static " MOCK_FRAMEWORK_NAME "_mockedFileRegister_t mockedRegister = {\"" TEMPLATE_VAR(MOCKED_HEADER_FILENAME) "\", &" RESET_ALL_MOCK_FUNCTION_NAME ", &" VERIFY_ALL_MOCK_FUNCTION_NAME " };" CARRIAGE_RETURN
+        CARRIAGE_RETURN
         "static void __attribute__((constructor(102))) " MOCK_FRAMEWORK_NAME "_register_this_header()" CARRIAGE_RETURN
         "{" CARRIAGE_RETURN
         "    " MOCK_FRAMEWORK_NAME "_registerMock(&mockedRegister);" CARRIAGE_RETURN
+        "}" CARRIAGE_RETURN
+        CARRIAGE_RETURN
+        "static void __attribute__((destructor)) " MOCK_FRAMEWORK_NAME "_unregister_this_header()" CARRIAGE_RETURN
+        "{" CARRIAGE_RETURN
+        "    " MOCK_FRAMEWORK_NAME "_unregisterMock(&mockedRegister);" CARRIAGE_RETURN
         "}" CARRIAGE_RETURN;
 
 static const char headerFileTemplate[] =
-        "#ifndef _" TEMPLATE_VAR(MOCKED_FILE_NAME_WITHOUT_EXT_UPPER) "_STUB_H" CARRIAGE_RETURN
-        "#define _" TEMPLATE_VAR(MOCKED_FILE_NAME_WITHOUT_EXT_UPPER) "_STUB_H" CARRIAGE_RETURN
+        "#ifndef _" TEMPLATE_VAR(MOCKED_FILE_NAME_WITHOUT_EXT_UPPER) "_" MOCK_FRAMEWORK_NAME_UPPER "_H" CARRIAGE_RETURN
+        "#define _" TEMPLATE_VAR(MOCKED_FILE_NAME_WITHOUT_EXT_UPPER) "_" MOCK_FRAMEWORK_NAME_UPPER "_H" CARRIAGE_RETURN
 CARRIAGE_RETURN
         "#include <" TEMPLATE_VAR(MOCKED_HEADER_FILENAME) ">" CARRIAGE_RETURN
         "#include <" MOCK_FRAMEWORK_NAME ".h>" CARRIAGE_RETURN
@@ -337,11 +183,11 @@ CARRIAGE_RETURN
         "#endif" CARRIAGE_RETURN
         "#endif" CARRIAGE_RETURN;
 
-static void fillInTemplateVariables(ctemplate::TemplateDictionary *dict, const std::string &mockedHeader, const ElementToStubVector &fList);
+static void fillInTemplateVariables(ctemplate::TemplateDictionary *dict, const std::string &mockedHeader, const ElementToMockVector &fList);
 static void generateFunctionParamSection(ctemplate::TemplateDictionary *dict, const ParameterVector *functionParam);
 static bool generateCodeToFile(const std::string &outDir, const std::string &filename, const std::string &extension, const std::string &generatedCode);
 
-bool CodeGeneratorCTemplate::generateCode(const std::string& outDir, const std::string &headerToMock, const ElementToStubVector& elem) const
+bool CodeGeneratorCTemplate::generateCode(const std::string& outDir, const std::string &fullPathToHeaderToMock, const ElementToMockVector& elem) const
 {
   ctemplate::StringToTemplateCache("programTemplate", templateText, ctemplate::DO_NOT_STRIP);
   ctemplate::StringToTemplateCache("headerTemplate", headerFileTemplate, ctemplate::DO_NOT_STRIP);
@@ -349,19 +195,20 @@ bool CodeGeneratorCTemplate::generateCode(const std::string& outDir, const std::
   ctemplate::TemplateDictionary dict("generateCode");
   ctemplate::TemplateDictionary headerDict("headerCode");
 
-  fillInTemplateVariables(&dict, headerToMock, elem);
-  fillInTemplateVariables(&headerDict, headerToMock, elem);
+  std::string filenameToMock = boost::filesystem::path(fullPathToHeaderToMock).filename().string();
+  fillInTemplateVariables(&dict, filenameToMock, elem);
+  fillInTemplateVariables(&headerDict, filenameToMock, elem);
 
   std::string generatedCode;
   ctemplate::ExpandTemplate("programTemplate", ctemplate::DO_NOT_STRIP, &dict, &generatedCode);
-  if (!generateCodeToFile(outDir, headerToMock, "cpp", generatedCode))
+  if (!generateCodeToFile(outDir, filenameToMock, "cpp", generatedCode))
   {
     return false;
   }
 
   generatedCode.clear();
   ctemplate::ExpandTemplate("headerTemplate", ctemplate::DO_NOT_STRIP, &headerDict, &generatedCode);
-  if (!generateCodeToFile(outDir, headerToMock, "h", generatedCode))
+  if (!generateCodeToFile(outDir, filenameToMock, "h", generatedCode))
   {
     return false;
   }
@@ -369,16 +216,16 @@ bool CodeGeneratorCTemplate::generateCode(const std::string& outDir, const std::
   return true;
 }
 
-static void fillInTemplateVariables(ctemplate::TemplateDictionary *rootDictionnary, const std::string &mockedHeader, const ElementToStubVector &fList)
+static void fillInTemplateVariables(ctemplate::TemplateDictionary *rootDictionnary, const std::string &mockedHeader, const ElementToMockVector &fList)
 {
   rootDictionnary->SetValue(MOCKED_HEADER_FILENAME, mockedHeader);
   std::string fileNameWithoutExtUpper = mockedHeader.substr(0, mockedHeader.find_last_of("."));
   std::transform(fileNameWithoutExtUpper.begin(), fileNameWithoutExtUpper.end(), fileNameWithoutExtUpper.begin(), ::toupper);
   rootDictionnary->SetValue(MOCKED_FILE_NAME_WITHOUT_EXT_UPPER, fileNameWithoutExtUpper);
-  for (ElementToStubVector::const_iterator it = fList.begin(); it != fList.end(); ++it)
+  for (ElementToMockVector::const_iterator it = fList.begin(); it != fList.end(); ++it)
   {
-    const ElementToStub *f = *it;
-    switch (*f->getStubType())
+    const ElementToMock *f = *it;
+    switch (*f->getMockType())
     {
       case ETS_function:
       {
@@ -423,7 +270,7 @@ static bool generateCodeToFile(const std::string &outDir, const std::string &fil
   bool rv = true;
   FILE *f = NULL;
   std::string outFilename(outDir);
-  outFilename.append("/stub_");
+  outFilename.append("/" MOCK_FRAMEWORK_NAME "_");
   outFilename.append(filename.substr(0, filename.find_last_of(".")));
   outFilename.append(".");
   outFilename.append(extension);
