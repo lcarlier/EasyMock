@@ -1,6 +1,8 @@
 
 add_executable(test_easyMockGenerate
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/test_voidFunVoid.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/test_intFunVoid.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/test_common.cpp
     ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/CodeGeneratorCTemplate.cpp
     ${EasyMock_SOURCE_DIR}/src/easyMockFramework/src/easyMock.cpp)
 target_compile_options(test_easyMockGenerate PRIVATE -g -O0 -Werror -Wall -DPROJECT_ROOT_DIR="${PROJECT_SOURCE_DIR}")
