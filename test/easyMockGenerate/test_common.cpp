@@ -13,6 +13,8 @@
 #include <easyMock.h>
 #include <CodeGeneratorCTemplate.h>
 
+#include <easyMock.cpp> //To access easyMock static object
+
 #define PIPE_READ 0
 #define PIPE_WRITE 1
 
@@ -20,25 +22,43 @@ static void readStdoutStderrUntilEnd(int fdStdOut, int fdStdErr, std::string *st
 static void appendReadIntoString(int fd, std::string *str, const char *strName, bool *noMoreToRead);
 static void loadSo(const char *pathToSo, const char *functionToLoad, void **funcPtr, void **functExpectPtr, void **handle);
 static void executeCmd(const char * const aArguments[], std::string *stdOut, std::string *stdErr, int *status);
+static void prepareTest(const ElementToMockVector &elem, const std::string &functionToMock, const std::string &fullPathToFileToMock, const std::string &mockDir, void **funcPtr, void **functExpectPtr, void **handle);
+static void cleanTest(void **handle, const std::string &mockDir, bool rmDirectory);
 
-easyMockGenerate_baseTestCase::easyMockGenerate_baseTestCase(const std::string pathToFileToMock, const std::string mockDir) :
+easyMockGenerate_baseTestCase::easyMockGenerate_baseTestCase(const std::string functionToMock, const std::string pathToFileToMock, const std::string mockDir, bool rmDir) :
 ::testing::Test(),
+m_functionToMock(functionToMock),
 m_pathToFileToMock(pathToFileToMock),
-m_mockDir(mockDir)
+m_mockDir(mockDir),
+m_rmDir(rmDir)
 {
 }
 
+bool isFifoCallEmpty()
+{
+  return easyMock.m_fifoCall.empty();
+}
+
+std::string getCurrentFifoCall()
+{
+  return easyMock.m_fifoCall.front();
+}
+
+int fifoCallSize()
+{
+  return easyMock.m_fifoCall.size();
+}
 
 void easyMockGenerate_baseTestCase::SetUp()
 {
-  prepareTest(m_elem, "include/voidFunVoid.h", m_mockDir, (void **) &m_fptr, (void **) &m_fptr_expect, &handle);
+  prepareTest(m_elem, m_functionToMock, m_pathToFileToMock, m_mockDir, (void **) &m_fptr, (void **) &m_fptr_expect, &handle);
 
   easyMock_init();
 }
 
 void easyMockGenerate_baseTestCase::TearDown()
 {
-  cleanTest(&handle, m_mockDir);
+  cleanTest(&handle, m_mockDir, m_rmDir);
 }
 
 void easyMockGenerate_baseTestCase::getFunPtr(void** fPtr, void** fExpectPtr)
@@ -47,20 +67,21 @@ void easyMockGenerate_baseTestCase::getFunPtr(void** fPtr, void** fExpectPtr)
   *fExpectPtr = m_fptr_expect;
 }
 
-
-
 void createDir(const std::string &dir)
 {
-  bool rv = boost::filesystem::create_directories(dir);
-  ASSERT_TRUE(rv);
+  boost::system::error_code errCode;
+  boost::filesystem::create_directories(dir, errCode);
+  ASSERT_EQ(errCode.value(), 0) << "Error creating directory " << dir << " errCode: " << errCode.message();
 }
 
 void rmDir(const std::string &dir)
 {
-  boost::filesystem::remove_all(dir);
+  boost::system::error_code errCode;
+  boost::filesystem::remove_all(dir, errCode);
+  ASSERT_EQ(errCode.value(), 0) << "Error removing directory " << dir << " errCode: " << errCode.message();
 }
 
-void prepareTest(const ElementToMockVector &elem, const std::string &fullPathToFileToMock, const std::string &mockDir, void **fptr, void **fptr_expect, void **handle)
+static void prepareTest(const ElementToMockVector &elem, const std::string &functionToMock, const std::string &fullPathToFileToMock, const std::string &mockDir, void **fptr, void **fptr_expect, void **handle)
 {
   char cwd[PATH_MAX];
   ASSERT_NE(getcwd(cwd, PATH_MAX), nullptr) << std::endl << "getcwd error. errno: " << errno << "(" << strerror(errno) << ")" << std::endl;
@@ -93,10 +114,10 @@ void prepareTest(const ElementToMockVector &elem, const std::string &fullPathToF
   executeCmd(compileLibCmd, &stdOut, &stdErr, &status);
   ASSERT_EQ(status, 0) << std::endl << "Compilation lib failed " << std::endl << "cwd: " << cwd << std::endl << "stdout: " << std::endl << stdOut << std::endl << "stderr:" << std::endl << stdErr << std::endl;
 
-  loadSo(pathToLib.c_str(), "voidFunVoid", fptr, fptr_expect, handle);
+  loadSo(pathToLib.c_str(), functionToMock.c_str(), fptr, fptr_expect, handle);
 }
 
-void cleanTest(void **handle, const std::string &mockDir)
+static void cleanTest(void **handle, const std::string &mockDir, bool rmDirectory)
 {
   int error;
   dlerror(); /* Clear any existing error */
@@ -104,7 +125,10 @@ void cleanTest(void **handle, const std::string &mockDir)
   error = dlclose(*handle);
   char *errorStr = dlerror();
   ASSERT_EQ(error, 0) << "Error dlclose" << std::endl << errorStr;
-  rmDir(mockDir);
+  if(rmDirectory)
+  {
+    rmDir(mockDir);
+  }
 }
 
 static void readStdoutStderrUntilEnd(int fdStdOut, int fdStdErr, std::string *stdOut, std::string *stdErr)
@@ -272,8 +296,10 @@ static void loadSo(const char *pathToSo, const char *functionToLoad, void **func
 {
   char *error;
 
+  dlerror(); /* Clear any existing error */
   *handle = dlopen(pathToSo, RTLD_NOW | RTLD_LOCAL);
-  ASSERT_NE(*handle, nullptr) << "couldn't open shared library " << pathToSo << ": " << strerror(errno);
+  error = dlerror();
+  ASSERT_NE(*handle, nullptr) << "couldn't open shared library " << pathToSo << ": " << error;
 
   dlerror(); /* Clear any existing error */
 

@@ -17,11 +17,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <boost/core/demangle.hpp>
-/*
- * Thanks to https://gist.github.com/banthar/1343977
- * for stack trace print
- */
-
 
 typedef std::map<const easyMock_mockedFileRegister_t *,const easyMock_mockedFileRegister_t *> MockMap_t;
 typedef std::queue<std::string> FifoCall_t;
@@ -45,25 +40,18 @@ public:
     m_registeredMock.erase(args);
   }
 
-  void initRegisteredMockedFile()
+  void init()
   {
-    for (MockMap_t::const_iterator it = m_registeredMock.begin(); it != m_registeredMock.end(); ++it)
-    {
-      const easyMock_mockedFileRegister_t *f = it->second;
-      f->resetMockedFile();
-    }
+    initRegisteredMockedFile();
+    emptyFifoCall();
   }
 
-  int verifyRegisteredMockedFile()
+  int verifyEasyMock()
   {
     int rv = 1;
-    for (MockMap_t::const_iterator it = m_registeredMock.begin(); it != m_registeredMock.end(); ++it)
+    if(!verifyRegisteredMockedFile())
     {
-      const easyMock_mockedFileRegister_t *f = it->second;
-      if (!f->verifyMockedFile())
-      {
-        rv = 0;
-      }
+      rv = 0;
     }
     return rv;
   }
@@ -115,7 +103,41 @@ public:
     return currentCall;
   }
 private:
+  void initRegisteredMockedFile()
+  {
+    for (MockMap_t::const_iterator it = m_registeredMock.begin(); it != m_registeredMock.end(); ++it)
+    {
+      const easyMock_mockedFileRegister_t *f = it->second;
+      f->resetMockedFile();
+    }
+  }
 
+  bool verifyRegisteredMockedFile()
+  {
+    bool rv = true;
+    for (MockMap_t::const_iterator it = m_registeredMock.begin(); it != m_registeredMock.end(); ++it)
+    {
+      const easyMock_mockedFileRegister_t *f = it->second;
+      if (!f->verifyMockedFile())
+      {
+        rv = 0;
+      }
+    }
+    return rv;
+  }
+
+  void emptyFifoCall()
+  {
+    while(!m_fifoCall.empty())
+    {
+      m_fifoCall.pop();
+    }
+  }
+
+/*
+ * Thanks to https://gist.github.com/banthar/1343977
+ * for stack trace print
+ */
   void debugInfo(std::string &error, const void* ip)
   {
 
@@ -188,42 +210,6 @@ private:
       skip--;
 
     }
-#if 0
-    unw_cursor_t cursor;
-    unw_context_t context;
-
-    unw_getcontext(&context);
-    unw_init_local(&cursor, &context);
-
-    int n = 0;
-    while (unw_step(&cursor))
-    {
-      unw_word_t ip, sp, off;
-
-      unw_get_reg(&cursor, UNW_REG_IP, &ip);
-      unw_get_reg(&cursor, UNW_REG_SP, &sp);
-
-      char symbol[256] = {"<unknown>"};
-      char *name = symbol;
-
-      if (!unw_get_proc_name(&cursor, symbol, sizeof (symbol), &off))
-      {
-        int status;
-        if ((name = abi::__cxa_demangle(symbol, NULL, NULL, &status)) == 0)
-          name = symbol;
-      }
-
-      append_string(error, "#%-2d 0x%016" PRIxPTR " sp=0x%016" PRIxPTR " %s + 0x%" PRIxPTR "\n",
-              ++n,
-              static_cast<uintptr_t> (ip),
-              static_cast<uintptr_t> (sp),
-              name,
-              static_cast<uintptr_t> (off));
-
-      if (name != symbol)
-        free(name);
-    }
-#endif
   }
 
   void append_string(std::string &str, const char *fmt, ...)
@@ -287,55 +273,15 @@ void easyMock_addError(bool callstack, const char *fmt, ...)
 
 extern "C" void easyMock_init()
 {
-  easyMock.initRegisteredMockedFile();
+  easyMock.init();
 }
 
 extern "C" int easyMock_check()
 {
-  return easyMock.verifyRegisteredMockedFile();
+  return easyMock.verifyEasyMock();
 }
 
 extern "C" const char *easyMock_getErrorStr()
 {
   return easyMock.getErrorStr();
-}
-
-MockedFunction::MockedFunction(const std::string name) :
-m_name(name), m_expectedCall(0), m_actualCall(0) { }
-
-void MockedFunction::addExpectedCall()
-{
-  m_expectedCall++;
-}
-
-bool MockedFunction::addActuallCall()
-{
-  //Increment the actualCall anyway becayse very will check the equality of m_actualCall and m_expectedCall
-  m_actualCall++;
-  if ((m_actualCall - 1) == m_expectedCall)
-  {
-    return false;
-  }
-  return true;
-}
-
-const std::string &MockedFunction::getName()
-{
-  return m_name;
-}
-
-void MockedFunction::reset()
-{
-  m_expectedCall = 0;
-  m_actualCall = 0;
-}
-
-bool MockedFunction::verify()
-{
-  if (m_expectedCall != m_actualCall)
-  {
-    easyMock_addError(false, "Error: For function '%s' bad number of call. Expected %d, got %d", m_name.c_str(), m_expectedCall, m_actualCall);
-    return false;
-  }
-  return true;
 }

@@ -78,6 +78,11 @@ MOCK_FRAMEWORK_NAME "_verifyAllMocksInThisHeader"
 #define FUNCTION_VERIFY_ALL_MOCK_SIGNATURE \
 "static bool " VERIFY_ALL_MOCK_FUNCTION_NAME "()"
 
+#define FUNCTION_MOCK_DATA_TYPE \
+TEMPLATE_VAR(FUNCTION_NAME) "_data"
+
+#define FUNCTION_MOCK_DATA_RETURN_VALUE_VARIABLE \
+TEMPLATE_VAR(FUNCTION_NAME) "_returnValue"
 
 #define TEMPLATE_FUNCTION_TO_BE_MOCKED TEMPLATE_VAR(FUNCTION_RETURN_VALUE) " " TEMPLATE_VAR(FUNCTION_NAME) "(" FUNCTION_PARAM_LIST ")"
 #define MOCKED_FUN_CLASS(F_NAME) "mocked_" F_NAME
@@ -93,36 +98,54 @@ static const char templateText[] =
         "#include <" TEMPLATE_VAR(MOCKED_HEADER_FILENAME) ">" CARRIAGE_RETURN
         "#include <" MOCK_FRAMEWORK_NAME "_" TEMPLATE_VAR(MOCKED_HEADER_FILENAME) ">" CARRIAGE_RETURN
         "#include <easyMock_framework.h>" CARRIAGE_RETURN
+        "#include <MockedFunction.h>" CARRIAGE_RETURN
         "#include <string>" CARRIAGE_RETURN
         CARRIAGE_RETURN
         FUNCTION_RESET_ALL_MOCK_SIGNATURE ";" CARRIAGE_RETURN
         FUNCTION_VERIFY_ALL_MOCK_SIGNATURE ";" CARRIAGE_RETURN
         CARRIAGE_RETURN
         TEMPLATE_BEG_SECTION(FUNCTION_SECTION)
-GENERATE_COMMENT CARRIAGE_RETURN
-        "static MockedFunction " TEMPLATE_MOCKED_FUN_CLASS "(\"" TEMPLATE_FUNCTION_TO_BE_MOCKED "\");" CARRIAGE_RETURN
+        GENERATE_COMMENT CARRIAGE_RETURN
+        "typedef struct {" CARRIAGE_RETURN
+        IF_RETURN_VALUE("    " TEMPLATE_VAR(FUNCTION_RETURN_VALUE) " " FUNCTION_MOCK_DATA_RETURN_VALUE_VARIABLE ";" CARRIAGE_RETURN)
+        "} " FUNCTION_MOCK_DATA_TYPE";" CARRIAGE_RETURN
+        CARRIAGE_RETURN
+        "static MockedFunction<" FUNCTION_MOCK_DATA_TYPE "> " TEMPLATE_MOCKED_FUN_CLASS "(\"" TEMPLATE_FUNCTION_TO_BE_MOCKED "\");" CARRIAGE_RETURN
         CARRIAGE_RETURN
         "extern \"C\" " TEMPLATE_FUNCTION_TO_BE_MOCKED CARRIAGE_RETURN
         "{" CARRIAGE_RETURN
         "    bool printCallStack = true;" CARRIAGE_RETURN
+        CARRIAGE_RETURN
+        IF_RETURN_VALUE("    " TEMPLATE_VAR(FUNCTION_RETURN_VALUE) " default_res;" CARRIAGE_RETURN CARRIAGE_RETURN)
         "    if(!" TEMPLATE_MOCKED_FUN_CLASS ".addActuallCall())" CARRIAGE_RETURN
         "    {" CARRIAGE_RETURN
-        "        easyMock_addError(printCallStack, \"Error : unexpected call of '%s'\", " TEMPLATE_MOCKED_FUN_CLASS ".getName().c_str());" CARRIAGE_RETURN
-        "        return;" CARRIAGE_RETURN
+        "        easyMock_addError(printCallStack, \"Error : unexpected call of '%s'." IF_RETURN_VALUE(" " TEMPLATE_VAR(FUNCTION_NAME) " is returning a random value.") "\", " TEMPLATE_MOCKED_FUN_CLASS ".getName().c_str());" CARRIAGE_RETURN
+        "        return" IF_RETURN_VALUE(" " TEMPLATE_VAR(FUNCTION_RETURN_VALUE) "()") ";" CARRIAGE_RETURN
         "    }" CARRIAGE_RETURN
         CARRIAGE_RETURN
+        "    " FUNCTION_MOCK_DATA_TYPE " currentDataCall;" CARRIAGE_RETURN
+        "    if (!" TEMPLATE_MOCKED_FUN_CLASS ".getCurrentCallParam(currentDataCall))" CARRIAGE_RETURN
+        "    {" CARRIAGE_RETURN
+        "        easyMock_addError(printCallStack, \"BUG IN EASYMOCK: CONTACT DEVELOPPER TO FIX THIS\");" CARRIAGE_RETURN
+        "        return" IF_RETURN_VALUE(" " TEMPLATE_VAR(FUNCTION_RETURN_VALUE) "()") ";" CARRIAGE_RETURN
+        "    }" CARRIAGE_RETURN
+        CARRIAGE_RETURN
+        IF_RETURN_VALUE("    default_res = currentDataCall." FUNCTION_MOCK_DATA_RETURN_VALUE_VARIABLE ";" CARRIAGE_RETURN)
         "    const std::string currentCall = easyMock_popCurrentCall();" CARRIAGE_RETURN
         "    const std::string &curFuncCall = " TEMPLATE_MOCKED_FUN_CLASS ".getName();" CARRIAGE_RETURN
         "    if(currentCall.compare(curFuncCall) != 0)" CARRIAGE_RETURN
         "    {" CARRIAGE_RETURN
         "        easyMock_addError(printCallStack, \"Error : got call to '%s',  but was expecting call to '%s'\", " TEMPLATE_MOCKED_FUN_CLASS ".getName().c_str(), currentCall.c_str());" CARRIAGE_RETURN
-        "        return;" CARRIAGE_RETURN
+        "        return" IF_RETURN_VALUE(" default_res") ";" CARRIAGE_RETURN
         "    }" CARRIAGE_RETURN
+        IF_RETURN_VALUE(CARRIAGE_RETURN "    return default_res;" CARRIAGE_RETURN)
         "}" CARRIAGE_RETURN
         CARRIAGE_RETURN
         "extern \"C\" " FUNCTION_EXPECT_AND_RETURN_SIGNATURE CARRIAGE_RETURN CARRIAGE_RETURN
         "{" CARRIAGE_RETURN
-        "    " TEMPLATE_MOCKED_FUN_CLASS ".addExpectedCall();" CARRIAGE_RETURN
+        "    " FUNCTION_MOCK_DATA_TYPE " mockedData;" CARRIAGE_RETURN
+        IF_RETURN_VALUE("    mockedData." FUNCTION_MOCK_DATA_RETURN_VALUE_VARIABLE " = to_return;" CARRIAGE_RETURN)
+        "    " TEMPLATE_MOCKED_FUN_CLASS ".addExpectedCall(mockedData);" CARRIAGE_RETURN
         "    easyMock_addCall(" TEMPLATE_MOCKED_FUN_CLASS ".getName());" CARRIAGE_RETURN
         "}" CARRIAGE_RETURN
         CARRIAGE_RETURN
@@ -164,7 +187,7 @@ GENERATE_COMMENT CARRIAGE_RETURN
 static const char headerFileTemplate[] =
         "#ifndef _" TEMPLATE_VAR(MOCKED_FILE_NAME_WITHOUT_EXT_UPPER) "_" MOCK_FRAMEWORK_NAME_UPPER "_H" CARRIAGE_RETURN
         "#define _" TEMPLATE_VAR(MOCKED_FILE_NAME_WITHOUT_EXT_UPPER) "_" MOCK_FRAMEWORK_NAME_UPPER "_H" CARRIAGE_RETURN
-CARRIAGE_RETURN
+        CARRIAGE_RETURN
         "#include <" TEMPLATE_VAR(MOCKED_HEADER_FILENAME) ">" CARRIAGE_RETURN
         "#include <" MOCK_FRAMEWORK_NAME ".h>" CARRIAGE_RETURN
         CARRIAGE_RETURN
@@ -253,7 +276,7 @@ static void generateFunctionParamSection(ctemplate::TemplateDictionary *function
 {
   if (functionParam->size() > 0)
   {
-    //This specific section to show the comma ',' conditionaly for the expect and return function generation
+    //This specific section to show the comma ',' conditionally for the expect and return function generation
     functionSectionDict->AddSectionDictionary(FUNCTION_PARAM_LIST_SECTION);
   }
   for (ParameterVector::const_iterator it = functionParam->begin(); it != functionParam->end(); ++it)

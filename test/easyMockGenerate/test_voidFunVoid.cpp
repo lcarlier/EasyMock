@@ -13,7 +13,7 @@ typedef void (*funExpectPtr)();
 class voidFunVoid_testCase : public easyMockGenerate_baseTestCase
 {
 public:
-  voidFunVoid_testCase() : easyMockGenerate_baseTestCase("include/voidFunVoid.h", "mockVoidFunVoid")
+  voidFunVoid_testCase() : easyMockGenerate_baseTestCase("voidFunVoid", "include/voidFunVoid.h", "mockVoidFunVoid")
   {
     Function *f = new Function("voidFunVoid", "void",{});
     m_elem.push_back(f);
@@ -32,6 +32,8 @@ TEST_F(voidFunVoid_testCase, OneExpect)
 
   const char *error = easyMock_getErrorStr();
   ASSERT_EQ(error, nullptr) << error;
+
+  ASSERT_TRUE(isFifoCallEmpty());
 }
 
 TEST_F(voidFunVoid_testCase, NoExpect)
@@ -45,7 +47,9 @@ TEST_F(voidFunVoid_testCase, NoExpect)
 
   const char *error = easyMock_getErrorStr();
   ASSERT_NE(error, nullptr);
-  ASSERT_TRUE(boost::algorithm::starts_with(error, "Error : unexpected call of 'void voidFunVoid()'\n\r\tat EasyMock::addError")) << error;
+  ASSERT_TRUE(boost::algorithm::starts_with(error, "Error : unexpected call of 'void voidFunVoid()'.\n\r\tat EasyMock::addError")) << error;
+
+  ASSERT_TRUE(isFifoCallEmpty());
 }
 
 TEST_F(voidFunVoid_testCase, NotEnoughCall)
@@ -63,5 +67,10 @@ TEST_F(voidFunVoid_testCase, NotEnoughCall)
 
   const char *error = easyMock_getErrorStr();
   ASSERT_NE(error, nullptr);
-  ASSERT_TRUE(boost::algorithm::starts_with(error, "Error: For function 'void voidFunVoid()' bad number of call. Expected 3, got 2\n\r")) << error;
+  ASSERT_STREQ(error, "Error: For function 'void voidFunVoid()' bad number of call. Expected 3, got 2\n\r") << error;
+
+  ASSERT_FALSE(isFifoCallEmpty());
+  ASSERT_EQ(fifoCallSize(), 1);
+  std::string curCall = getCurrentFifoCall();
+  ASSERT_STREQ(curCall.c_str(), "void voidFunVoid()");
 }

@@ -1,7 +1,6 @@
 #ifndef EASYMOCK_FRAMEWORK_H
 #define EASYMOCK_FRAMEWORK_H
 
-#include <MockedFunction.h>
 #include <string>
 
 typedef struct

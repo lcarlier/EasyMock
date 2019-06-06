@@ -8,17 +8,20 @@
 
 void createDir(const std::string &dir);
 void rmDir(const std::string &dir);
-void prepareTest(const ElementToMockVector &elem, const std::string &fullPathToFileToMock, const std::string &mockDir, void **funcPtr, void **functExpectPtr, void **handle);
-void cleanTest(void **handle, const std::string &mockDir);
+bool isFifoCallEmpty();
+std::string getCurrentFifoCall();
+int fifoCallSize();
 
 class easyMockGenerate_baseTestCase : public ::testing::Test
 {
 public:
-  easyMockGenerate_baseTestCase(const std::string pathToFileToMock, const std::string mockDir);
+  easyMockGenerate_baseTestCase(const std::string functionToMock, const std::string pathToFileToMock, const std::string mockDir, bool rmDir = true);
 protected:
+  const std::string m_functionToMock;
   const std::string m_pathToFileToMock;
   const std::string m_mockDir;
   ElementToMockVector m_elem;
+  bool m_rmDir;
 
   void SetUp() override;
 
