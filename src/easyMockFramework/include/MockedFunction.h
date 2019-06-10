@@ -36,7 +36,7 @@ public:
     return true;
   }
 
-  bool addActuallCall()
+  bool addActualCall()
   {
     //Increment the actualCall anyway because verify() will check the equality of m_actualCall and m_expectedCall
     m_actualCall++;
@@ -45,6 +45,11 @@ public:
       return false;
     }
     return true;
+  }
+
+  unsigned int getNbActualCall()
+  {
+    return m_actualCall;
   }
 
   const std::string &getName()

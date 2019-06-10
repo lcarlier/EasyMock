@@ -18,7 +18,9 @@
 #include <unistd.h>
 #include <boost/core/demangle.hpp>
 
-typedef std::map<const easyMock_mockedFileRegister_t *,const easyMock_mockedFileRegister_t *> MockMap_t;
+static void append_string(std::string &str, const char *fmt, ...);
+
+typedef std::map<const easyMock_mockedFileRegister_t *, const easyMock_mockedFileRegister_t *> MockMap_t;
 typedef std::queue<std::string> FifoCall_t;
 typedef std::queue<std::string> FifoError_t;
 
@@ -49,7 +51,11 @@ public:
   int verifyEasyMock()
   {
     int rv = 1;
-    if(!verifyRegisteredMockedFile())
+    if (!verifyRegisteredMockedFile())
+    {
+      rv = 0;
+    }
+    if (!m_error.empty())
     {
       rv = 0;
     }
@@ -76,7 +82,7 @@ public:
       allErrorStr.append("\n\r");
       m_error.pop();
     }
-    if(allErrorStr.size() == 0)
+    if (allErrorStr.size() == 0)
     {
       return NULL;
     }
@@ -103,6 +109,7 @@ public:
     return currentCall;
   }
 private:
+
   void initRegisteredMockedFile()
   {
     for (MockMap_t::const_iterator it = m_registeredMock.begin(); it != m_registeredMock.end(); ++it)
@@ -128,16 +135,16 @@ private:
 
   void emptyFifoCall()
   {
-    while(!m_fifoCall.empty())
+    while (!m_fifoCall.empty())
     {
       m_fifoCall.pop();
     }
   }
 
-/*
- * Thanks to https://gist.github.com/banthar/1343977
- * for stack trace print
- */
+  /*
+   * Thanks to https://gist.github.com/banthar/1343977
+   * for stack trace print
+   */
   void debugInfo(std::string &error, const void* ip)
   {
 
@@ -212,21 +219,6 @@ private:
     }
   }
 
-  void append_string(std::string &str, const char *fmt, ...)
-  {
-    //https://en.cppreference.com/w/cpp/io/c/vfprintf
-    va_list args1;
-    va_start(args1, fmt);
-    va_list args2;
-    va_copy(args2, args1);
-    std::vector<char> buf(1 + std::vsnprintf(nullptr, 0, fmt, args1));
-    va_end(args1);
-    std::vsnprintf(buf.data(), buf.size(), fmt, args2);
-    va_end(args2);
-    std::string strToCopy(buf.begin(), buf.end() - 1); //-1 to remove the \0 added by vsnprintf. The std::string takes to terminate the string correctly
-    str.append(strToCopy);
-  }
-
   MockMap_t m_registeredMock;
   bool m_checkFifoCall;
   FifoCall_t m_fifoCall;
@@ -285,3 +277,46 @@ extern "C" const char *easyMock_getErrorStr()
 {
   return easyMock.getErrorStr();
 }
+
+static void append_string(std::string &str, const char *fmt, ...)
+{
+  //https://en.cppreference.com/w/cpp/io/c/vfprintf
+  va_list args1;
+  va_start(args1, fmt);
+  va_list args2;
+  va_copy(args2, args1);
+  std::vector<char> buf(1 + std::vsnprintf(nullptr, 0, fmt, args1));
+  va_end(args1);
+  std::vsnprintf(buf.data(), buf.size(), fmt, args2);
+  va_end(args2);
+  std::string strToCopy(buf.begin(), buf.end() - 1); //-1 to remove the \0 added by vsnprintf. The std::string takes to terminate the string correctly
+  str.append(strToCopy);
+}
+
+#define IMPLEMENT_MATCHER(typeName, cType, printFormat) \
+  DECLARE_MATCHER(typeName) \
+  { \
+    cType currentCall_val = *((cType *)currentCall_ptr); \
+    cType expectedCall_val = *((cType *)expectedCall_ptr); \
+    if(currentCall_val == expectedCall_val) { \
+      return 0; \
+    } \
+     snprintf(errorMessage, EASYMOCK_MAX_CMP_ERR, \
+     "Parameter '%s' has value '" printFormat "', was expecting '" printFormat "'", \
+           paramName, currentCall_val, expectedCall_val); \
+    return -1; \
+  }
+
+IMPLEMENT_MATCHER(char, char, "%c");
+IMPLEMENT_MATCHER(u_char, unsigned char, "%c");
+IMPLEMENT_MATCHER(short, short, "%hi");
+IMPLEMENT_MATCHER(u_short, unsigned short, "%hu");
+IMPLEMENT_MATCHER(int, int, "%d");
+IMPLEMENT_MATCHER(u_int, unsigned int, "%u");
+IMPLEMENT_MATCHER(long, long, "%li");
+IMPLEMENT_MATCHER(u_long, unsigned long, "%lu");
+IMPLEMENT_MATCHER(long_long, long long, "%lli");
+IMPLEMENT_MATCHER(u_long_long, unsigned long long, "%llu");
+IMPLEMENT_MATCHER(float, float, "%f");
+IMPLEMENT_MATCHER(double, double, "%lf");
+IMPLEMENT_MATCHER(long_double, long double, "%Lf");

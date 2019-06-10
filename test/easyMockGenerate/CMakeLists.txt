@@ -13,6 +13,7 @@ set(TEST_LINK_LIB ${LINK_LIB} gtest_main dl)
 set(TEST_COMPILE_FLAGS -g -O0 -Werror -Wall -fno-access-control -DPROJECT_ROOT_DIR="${PROJECT_SOURCE_DIR}")
 
 add_executable(test_easyMockGenerate
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/test_intFunIntInt.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/test_voidFunVoid.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/test_intFunVoid.cpp
     ${TEST_COMMON_SRC_DIR})

@@ -29,7 +29,7 @@ class ElementToMock
 {
 public:
   ElementToMock(ElementToMock_Type stubType, std::string name, ParameterVector functionParameters)
-: m_stubType(stubType), m_name(name) { }
+: m_stubType(stubType), m_name(name), m_parameters(functionParameters) { }
   const std::string *getName() const { return &m_name; }
   const ElementToMock_Type *getMockType() const { return &m_stubType; }
   const ParameterVector *getFunctionsParameters() const { return &m_parameters; }

@@ -10,7 +10,6 @@
 #include <errno.h>
 #include <stdlib.h>
 
-#include <easyMock.h>
 #include <CodeGeneratorCTemplate.h>
 
 #include <easyMock.cpp> //To access easyMock static object
@@ -30,7 +29,8 @@ easyMockGenerate_baseTestCase::easyMockGenerate_baseTestCase(const std::string f
 m_functionToMock(functionToMock),
 m_pathToFileToMock(pathToFileToMock),
 m_mockDir(mockDir),
-m_rmDir(rmDir)
+m_rmDir(rmDir),
+handle(NULL)
 {
 }
 
@@ -122,9 +122,13 @@ static void cleanTest(void **handle, const std::string &mockDir, bool rmDirector
   int error;
   dlerror(); /* Clear any existing error */
 
-  error = dlclose(*handle);
-  char *errorStr = dlerror();
-  ASSERT_EQ(error, 0) << "Error dlclose" << std::endl << errorStr;
+  if(*handle)
+  {
+    error = dlclose(*handle);
+    char *errorStr = dlerror();
+    ASSERT_EQ(error, 0) << "Error dlclose" << std::endl << errorStr;
+    *handle = NULL;
+  }
   if(rmDirectory)
   {
     rmDir(mockDir);
