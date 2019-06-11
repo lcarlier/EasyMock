@@ -6,6 +6,8 @@ extern "C"
 {
 #endif
 
+#include <stdbool.h>
+
 #define EASYMOCK_MAX_CMP_ERR 256
 
 #define EASYMOCK_MATCHER_PARAM void *currentCall_ptr, void *expectedCall_ptr, const char *paramName, char *errorMessage
@@ -18,6 +20,8 @@ extern "C"
   void easyMock_init();
   int easyMock_check();
   const char *easyMock_getErrorStr();
+  void easyMock_printCallStack(bool val);
+  void easyMock_checkFifoCall(bool val);
 
   DECLARE_MATCHER(char);
   DECLARE_MATCHER(u_char);

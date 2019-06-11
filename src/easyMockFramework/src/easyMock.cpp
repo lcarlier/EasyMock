@@ -30,7 +30,8 @@ class EasyMock
 {
 public:
 
-  EasyMock() { };
+  EasyMock() :
+  m_checkFifoCall(false), m_printCallStack(true) { };
 
   void registerMock(const easyMock_mockedFileRegister_t *args)
   {
@@ -107,6 +108,26 @@ public:
     const std::string currentCall = m_fifoCall.front();
     m_fifoCall.pop();
     return currentCall;
+  }
+
+  bool checkFifoCall()
+  {
+    return m_checkFifoCall;
+  }
+
+  bool printCallStack()
+  {
+    return m_printCallStack;
+  }
+
+  void setPrintCallStack(bool val)
+  {
+    m_printCallStack = val;
+  }
+
+  void setCheckFifoCall(bool val)
+  {
+    m_checkFifoCall = val;
   }
 private:
 
@@ -219,8 +240,9 @@ private:
     }
   }
 
-  MockMap_t m_registeredMock;
   bool m_checkFifoCall;
+  bool m_printCallStack;
+  MockMap_t m_registeredMock;
   FifoCall_t m_fifoCall;
   FifoError_t m_error;
 };
@@ -263,6 +285,16 @@ void easyMock_addError(bool callstack, const char *fmt, ...)
   easyMock.addError(error, callstack);
 }
 
+bool easyMock_checkFifoCall()
+{
+  return easyMock.checkFifoCall();
+}
+
+bool easyMock_printCallStack()
+{
+  return easyMock.printCallStack();
+}
+
 extern "C" void easyMock_init()
 {
   easyMock.init();
@@ -276,6 +308,16 @@ extern "C" int easyMock_check()
 extern "C" const char *easyMock_getErrorStr()
 {
   return easyMock.getErrorStr();
+}
+
+extern "C" void easyMock_printCallStack(bool val)
+{
+  easyMock.setPrintCallStack(val);
+}
+
+extern "C" void easyMock_checkFifoCall(bool val)
+{
+  easyMock.setCheckFifoCall(val);
 }
 
 static void append_string(std::string &str, const char *fmt, ...)
@@ -294,7 +336,7 @@ static void append_string(std::string &str, const char *fmt, ...)
 }
 
 #define IMPLEMENT_MATCHER(typeName, cType, printFormat) \
-  DECLARE_MATCHER(typeName) \
+  extern "C" DECLARE_MATCHER(typeName) \
   { \
     cType currentCall_val = *((cType *)currentCall_ptr); \
     cType expectedCall_val = *((cType *)expectedCall_ptr); \

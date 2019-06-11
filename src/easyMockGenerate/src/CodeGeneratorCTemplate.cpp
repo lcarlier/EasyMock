@@ -138,7 +138,8 @@ static const char templateText[] =
         CARRIAGE_RETURN
         "extern \"C\" " TEMPLATE_FUNCTION_TO_BE_MOCKED CARRIAGE_RETURN
         "{" CARRIAGE_RETURN
-        "    bool printCallStack = true;" CARRIAGE_RETURN
+        "    bool printCallStack = easyMock_printCallStack();" CARRIAGE_RETURN
+        "    bool checkFifoCall = easyMock_checkFifoCall();" CARRIAGE_RETURN
         CARRIAGE_RETURN
         IF_RETURN_VALUE("    " FUNCTION_RETURN_VALUE_TYPE " default_res;" CARRIAGE_RETURN CARRIAGE_RETURN)
         "    if(!" TEMPLATE_MOCKED_FUN_CLASS ".addActualCall())" CARRIAGE_RETURN
@@ -170,12 +171,16 @@ static const char templateText[] =
         CARRIAGE_RETURN
         TEMPLATE_END_SECTION(FUNCTION_PARAM_SECTION)
         IF_RETURN_VALUE("    default_res = currentDataCall." FUNCTION_MOCK_DATA_RETURN_VALUE_VARIABLE ";" CARRIAGE_RETURN)
+        CARRIAGE_RETURN
         "    const std::string currentCall = easyMock_popCurrentCall();" CARRIAGE_RETURN
-        "    const std::string &curFuncCall = " TEMPLATE_MOCKED_FUN_CLASS ".getName();" CARRIAGE_RETURN
-        "    if(currentCall.compare(curFuncCall) != 0)" CARRIAGE_RETURN
+        "    if(checkFifoCall)" CARRIAGE_RETURN
         "    {" CARRIAGE_RETURN
-        "        easyMock_addError(printCallStack, \"Error : got call to '%s',  but was expecting call to '%s'\", " TEMPLATE_MOCKED_FUN_CLASS ".getName().c_str(), currentCall.c_str());" CARRIAGE_RETURN
-        "        return" IF_RETURN_VALUE(" default_res") ";" CARRIAGE_RETURN
+        "        const std::string &curFuncCall = " TEMPLATE_MOCKED_FUN_CLASS ".getName();" CARRIAGE_RETURN
+        "        if(currentCall.compare(curFuncCall) != 0)" CARRIAGE_RETURN
+        "        {" CARRIAGE_RETURN
+        "            easyMock_addError(printCallStack, \"Error : got call to '%s',  but was expecting call to '%s'\", " TEMPLATE_MOCKED_FUN_CLASS ".getName().c_str(), currentCall.c_str());" CARRIAGE_RETURN
+        "            return" IF_RETURN_VALUE(" default_res") ";" CARRIAGE_RETURN
+        "        }" CARRIAGE_RETURN
         "    }" CARRIAGE_RETURN
         IF_RETURN_VALUE(CARRIAGE_RETURN "    return default_res;" CARRIAGE_RETURN)
         "}" CARRIAGE_RETURN
