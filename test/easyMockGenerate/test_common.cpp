@@ -34,6 +34,17 @@ handle(NULL)
 {
 }
 
+std::stringstream &operator<<(std::stringstream &out, const EasyMock_ErrorArrayPrinter &obj)
+{
+  const char **curArrChar = obj.m_in;
+  const char *curChar;
+  for(curChar = *curArrChar; curChar != NULL; curArrChar++, curChar = *curArrChar)
+  {
+    out << curChar << std::endl;
+  }
+  return out;
+}
+
 bool isFifoCallEmpty()
 {
   return easyMock.m_fifoCall.empty();

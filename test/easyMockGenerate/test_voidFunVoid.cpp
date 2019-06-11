@@ -30,8 +30,7 @@ TEST_F(voidFunVoid_testCase, OneExpect)
   int check = easyMock_check();
   EXPECT_EQ(check, 1);
 
-  const char *error = easyMock_getErrorStr();
-  ASSERT_EQ(error, nullptr) << error;
+  ASSERT_NO_ERROR;
 
   ASSERT_TRUE(isFifoCallEmpty());
 }
@@ -45,9 +44,13 @@ TEST_F(voidFunVoid_testCase, NoExpect)
   int check = easyMock_check();
   EXPECT_EQ(check, 0);
 
-  const char *error = easyMock_getErrorStr();
-  ASSERT_NE(error, nullptr);
-  ASSERT_TRUE(boost::algorithm::starts_with(error, "Error : unexpected call of 'void voidFunVoid()'.\n\r\tat EasyMock::addError")) << error;
+  unsigned int size;
+  const char **errorArr = easyMock_getErrorArr(&size);
+  ASSERT_NE(errorArr, nullptr);
+  ASSERT_EQ(size, 2) << EasyMock_ErrorArrayPrinter(errorArr);
+  ASSERT_TRUE(boost::algorithm::starts_with(errorArr[0], "Error : unexpected call of 'void voidFunVoid()'.\n\r\tat EasyMock::addError")) << "errorArr[0]: " << errorArr[0];
+  ASSERT_STREQ(errorArr[1], "Error: For function 'void voidFunVoid()' bad number of call. Expected 0, got 1") << "errorArr[1]: " << errorArr[1];
+  ASSERT_EQ(errorArr[2], nullptr);
 
   ASSERT_TRUE(isFifoCallEmpty());
 }
@@ -65,9 +68,18 @@ TEST_F(voidFunVoid_testCase, NotEnoughCall)
   int check = easyMock_check();
   EXPECT_EQ(check, 0);
 
+#define ERROR_TO_EXPECT "Error: For function 'void voidFunVoid()' bad number of call. Expected 3, got 2"
   const char *error = easyMock_getErrorStr();
   ASSERT_NE(error, nullptr);
-  ASSERT_STREQ(error, "Error: For function 'void voidFunVoid()' bad number of call. Expected 3, got 2\n\r") << error;
+  ASSERT_STREQ(error, ERROR_TO_EXPECT "\n\r") << "error: " << error;
+
+  unsigned int size;
+  const char **errorArr = easyMock_getErrorArr(&size);
+  ASSERT_NE(errorArr, nullptr);
+  ASSERT_EQ(size, 1);
+  ASSERT_STREQ(errorArr[0], ERROR_TO_EXPECT) << "errorArr[0]: " << errorArr[0];
+  ASSERT_EQ(errorArr[1], nullptr);
+#undef ERROR_TO_EXPECT
 
   ASSERT_FALSE(isFifoCallEmpty());
   ASSERT_EQ(fifoCallSize(), 1);

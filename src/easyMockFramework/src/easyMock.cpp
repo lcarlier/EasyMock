@@ -6,6 +6,7 @@
 #include <string>
 #include <map>
 #include <queue>
+#include <vector>
 #include <bits/stl_queue.h>
 #include <stdarg.h>
 #define UNW_LOCAL_ONLY
@@ -22,9 +23,10 @@ static void append_string(std::string &str, const char *fmt, ...);
 
 typedef std::map<const easyMock_mockedFileRegister_t *, const easyMock_mockedFileRegister_t *> MockMap_t;
 typedef std::queue<std::string> FifoCall_t;
-typedef std::queue<std::string> FifoError_t;
+typedef std::vector<std::string> FifoError_t;
 
 static std::string allErrorStr;
+static std::vector<const char*> cError;
 
 class EasyMock
 {
@@ -47,6 +49,7 @@ public:
   {
     initRegisteredMockedFile();
     emptyFifoCall();
+    emptyError();
   }
 
   int verifyEasyMock()
@@ -70,18 +73,18 @@ public:
       error.append("\n\r");
       append_backtrace(error);
     }
-    m_error.push(error);
+    m_error.push_back(error);
   }
 
   const char *getErrorStr()
   {
     allErrorStr.clear();
-    while (!m_error.empty())
+    FifoError_t::iterator it;
+    for(it = m_error.begin(); it != m_error.end(); it++)
     {
-      std::string &curErr = m_error.front();
+      std::string &curErr = *it;
       allErrorStr.append(curErr);
       allErrorStr.append("\n\r");
-      m_error.pop();
     }
     if (allErrorStr.size() == 0)
     {
@@ -90,6 +93,25 @@ public:
     else
     {
       return allErrorStr.c_str();
+    }
+  }
+
+  const char **getErrorArr(unsigned int *size)
+  {
+    cError.clear();
+    std::transform(begin(m_error), end(m_error),
+                   std::back_inserter(cError),
+                   [](std::string &s) { return s.c_str(); }
+                  );
+    *size = cError.size();
+    if(*size > 0)
+    {
+      cError.push_back(NULL);
+      return &cError[0];
+    }
+    else
+    {
+      return NULL;
     }
   }
 
@@ -160,6 +182,11 @@ private:
     {
       m_fifoCall.pop();
     }
+  }
+
+  void emptyError()
+  {
+    m_error.clear();
   }
 
   /*
@@ -308,6 +335,11 @@ extern "C" int easyMock_check()
 extern "C" const char *easyMock_getErrorStr()
 {
   return easyMock.getErrorStr();
+}
+
+extern "C" const char **easyMock_getErrorArr(unsigned int *size)
+{
+  return easyMock.getErrorArr(size);
 }
 
 extern "C" void easyMock_printCallStack(bool val)

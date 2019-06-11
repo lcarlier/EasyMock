@@ -20,6 +20,7 @@ extern "C"
   void easyMock_init();
   int easyMock_check();
   const char *easyMock_getErrorStr();
+  const char ** easyMock_getErrorArr(unsigned int *size);
   void easyMock_printCallStack(bool val);
   void easyMock_checkFifoCall(bool val);
 

@@ -36,8 +36,7 @@ TEST_F(intFunIntInt_testCase, OneExpect)
   int check = easyMock_check();
   EXPECT_EQ(check, 1);
 
-  const char *error = easyMock_getErrorStr();
-  ASSERT_EQ(error, nullptr) << error;
+  ASSERT_NO_ERROR;
 
   ASSERT_TRUE(isFifoCallEmpty());
 }
@@ -59,9 +58,18 @@ TEST_F(intFunIntInt_testCase, OneExpectFirstArgBad)
   int check = easyMock_check();
   EXPECT_EQ(check, 0);
 
+#define ERROR_EXPECT "Error : at call 1 of 'int intFunIntInt(int a, int b)': Parameter 'a' has value '255', was expecting '5'\n\r\tat EasyMock::addError"
   const char *error = easyMock_getErrorStr();
   ASSERT_NE(error, nullptr);
-  ASSERT_TRUE(boost::algorithm::starts_with(error, "Error : at call 1 of 'int intFunIntInt(int a, int b)': Parameter 'a' has value '255', was expecting '5'")) << error;
+  ASSERT_TRUE(boost::algorithm::starts_with(error, ERROR_EXPECT)) << "error: " << error;
+
+  unsigned int size;
+  const char **errorArr = easyMock_getErrorArr(&size);
+  ASSERT_NE(errorArr, nullptr);
+  ASSERT_EQ(size, 1) << EasyMock_ErrorArrayPrinter(errorArr);
+  ASSERT_TRUE(boost::algorithm::starts_with(errorArr[0], ERROR_EXPECT)) << "errorArr[0]: " << errorArr[0];
+  ASSERT_EQ(errorArr[1], nullptr) << "errorArr[1]: " << errorArr[1];
+#undef ERROR_EXPECT
 
   ASSERT_TRUE(isFifoCallEmpty());
 }
@@ -83,9 +91,18 @@ TEST_F(intFunIntInt_testCase, OneExpectSecondArgBad)
   int check = easyMock_check();
   EXPECT_EQ(check, 0);
 
+#define ERROR_EXPECT "Error : at call 1 of 'int intFunIntInt(int a, int b)': Parameter 'b' has value '255', was expecting '6'\n\r\tat EasyMock::addError"
   const char *error = easyMock_getErrorStr();
   ASSERT_NE(error, nullptr);
-  ASSERT_TRUE(boost::algorithm::starts_with(error, "Error : at call 1 of 'int intFunIntInt(int a, int b)': Parameter 'b' has value '255', was expecting '6'")) << error;
+  ASSERT_TRUE(boost::algorithm::starts_with(error, ERROR_EXPECT)) << error;
+
+  unsigned int size;
+  const char **errorArr = easyMock_getErrorArr(&size);
+  ASSERT_NE(errorArr, nullptr);
+  ASSERT_EQ(size, 1) << EasyMock_ErrorArrayPrinter(errorArr);
+  ASSERT_TRUE(boost::algorithm::starts_with(errorArr[0], ERROR_EXPECT)) << "errorArr[0]: " << errorArr[0];
+  ASSERT_EQ(errorArr[1], nullptr) << "errorArr[1]: " << errorArr[1];
+#undef ERROR_EXPECT
 
   ASSERT_TRUE(isFifoCallEmpty());
 }
@@ -112,9 +129,18 @@ TEST_F(intFunIntInt_testCase, TwoExpectSecondCallArgBad)
   int check = easyMock_check();
   EXPECT_EQ(check, 0);
 
+#define ERROR_EXPECT "Error : at call 2 of 'int intFunIntInt(int a, int b)': Parameter 'b' has value '255', was expecting '6'\n\r\tat EasyMock::addError"
   const char *error = easyMock_getErrorStr();
   ASSERT_NE(error, nullptr);
-  ASSERT_TRUE(boost::algorithm::starts_with(error, "Error : at call 2 of 'int intFunIntInt(int a, int b)': Parameter 'b' has value '255', was expecting '6'")) << error;
+  ASSERT_TRUE(boost::algorithm::starts_with(error, ERROR_EXPECT)) << error;
+
+  unsigned int size;
+  const char **errorArr = easyMock_getErrorArr(&size);
+  ASSERT_NE(errorArr, nullptr);
+  ASSERT_EQ(size, 1) << EasyMock_ErrorArrayPrinter(errorArr);
+  ASSERT_TRUE(boost::algorithm::starts_with(errorArr[0], ERROR_EXPECT)) << "errorArr[0]: " << errorArr[0];
+  ASSERT_EQ(errorArr[1], nullptr) << "errorArr[1]: " << errorArr[1];
+#undef ERROR_EXPECT
 
   ASSERT_TRUE(isFifoCallEmpty());
 }
@@ -145,8 +171,7 @@ TEST_F(intFunIntInt_testCase, ThreeExpect)
   int check = easyMock_check();
   EXPECT_EQ(check, 1);
 
-  const char *error = easyMock_getErrorStr();
-  ASSERT_EQ(error, nullptr) << error;
+  ASSERT_NO_ERROR;
 
   ASSERT_TRUE(isFifoCallEmpty());
 }
@@ -166,9 +191,13 @@ TEST_F(intFunIntInt_testCase, NoExpect)
   int check = easyMock_check();
   EXPECT_EQ(check, 0);
 
-  const char *error = easyMock_getErrorStr();
-  ASSERT_NE(error, nullptr);
-  ASSERT_TRUE(boost::algorithm::starts_with(error, "Error : unexpected call of 'int intFunIntInt(int a, int b)'. intFunIntInt is returning a random value.\n\r\tat EasyMock::addError")) << error;
+  unsigned int size;
+  const char **errorArr = easyMock_getErrorArr(&size);
+  ASSERT_NE(errorArr, nullptr);
+  ASSERT_EQ(size, 2) << EasyMock_ErrorArrayPrinter(errorArr);
+  ASSERT_TRUE(boost::algorithm::starts_with(errorArr[0], "Error : unexpected call of 'int intFunIntInt(int a, int b)'. intFunIntInt is returning a random value.\n\r\tat EasyMock::addError")) << "errorArr[0]: " << errorArr[0];
+  ASSERT_STREQ(errorArr[1], "Error: For function 'int intFunIntInt(int a, int b)' bad number of call. Expected 0, got 1") << "errorArr[1]: " << errorArr[1];
+  ASSERT_EQ(errorArr[2], nullptr);
 
   ASSERT_TRUE(isFifoCallEmpty());
 }
@@ -196,9 +225,18 @@ TEST_F(intFunIntInt_testCase, NotEnoughCall)
   int check = easyMock_check();
   EXPECT_EQ(check, 0);
 
+#define ERROR_TO_EXPECT "Error: For function 'int intFunIntInt(int a, int b)' bad number of call. Expected 3, got 2"
   const char *error = easyMock_getErrorStr();
   ASSERT_NE(error, nullptr);
-  ASSERT_TRUE(boost::algorithm::starts_with(error, "Error: For function 'int intFunIntInt(int a, int b)' bad number of call. Expected 3, got 2\n\r")) << error;
+  ASSERT_STREQ(error, ERROR_TO_EXPECT "\n\r") << "error: " << error;
+
+  unsigned int size;
+  const char **errorArr = easyMock_getErrorArr(&size);
+  ASSERT_NE(errorArr, nullptr);
+  ASSERT_EQ(size, 1);
+  ASSERT_STREQ(errorArr[0], ERROR_TO_EXPECT) << "errorArr[0]: " << errorArr[0];
+  ASSERT_EQ(errorArr[1], nullptr);
+#undef ERROR_TO_EXPECT
 
   ASSERT_FALSE(isFifoCallEmpty());
   ASSERT_EQ(fifoCallSize(), 1);
