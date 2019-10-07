@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 2.6)
 project (EasyMock)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 find_package(PkgConfig REQUIRED)
@@ -17,6 +17,9 @@ find_program(LLVM NAMES llvm-config-${LLVM_VERSION})
 if (NOT LLVM)
     message (FATAL_ERROR "llvm-config-${LLVM_VERSION} command not found")
 endif()
+
+set(EASYMOCK_DEFAULT_CFLAGS -fsanitize=address -fno-omit-frame-pointer -g -O0 -Werror -Wall -fno-access-control)
+set(EASYMOCK_DEFAULT_LDFLAGS -fsanitize=address)
 
 set(LLVM_PATH llvm-${LLVM_VERSION}/lib) #relative to /usr/lib
 set(LINK_LIB ${CTEMPLATE_LIBRARIES} ${LIBUNWIND_LIBRARIES} ${LIBDW_LIBRARIES} ${Boost_FILESYSTEM_LIBRARY} ${Boost_SYSTEM_LIBRARY})

@@ -7,7 +7,7 @@
 class CodeGeneratorCTemplate : public CodeGeneratorItf
 {
 public:
-  bool generateCode(const std::string& outDir, const std::string &headerToMock, const ElementToMockVector& elem) const;
+  bool generateCode(const std::string& outDir, const std::string &headerToMock, const ElementToMock::Vector& elem) const;
 
 };
 

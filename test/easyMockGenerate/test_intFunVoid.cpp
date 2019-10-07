@@ -6,6 +6,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include "test_common.h"
+#include "Function.h"
 
 typedef int (*funPtr)();
 typedef void (*funExpectPtr)(int rv);
@@ -16,7 +17,7 @@ public:
 
   intFunVoid_testCase() : easyMockGenerate_baseTestCase("intFunVoid", "include/intFunVoid.h", "mockIntFunVoid")
   {
-    Function *f = new Function("intFunVoid", "int",{});
+    ElementToMock  *f = new Function("intFunVoid", TypedReturnValue("int"),{});
     m_elem.push_back(f);
   }
 };

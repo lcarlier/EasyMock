@@ -6,6 +6,8 @@
 #include <boost/algorithm/string.hpp>
 
 #include "test_common.h"
+#include "EasyMockGenerateTypes.h"
+#include "Function.h"
 
 typedef int (*funPtr)(int a, int b);
 typedef void (*funExpectPtr)(int a, int b, int rv, EasyMock_Matcher match_a, EasyMock_Matcher match_b);
@@ -15,7 +17,11 @@ class intFunIntInt_testCase : public easyMockGenerate_baseTestCase
 public:
   intFunIntInt_testCase() : easyMockGenerate_baseTestCase("intFunIntInt", "include/intFunIntInt.h", "mockIntFunIntInt")
   {
-    Function *f = new Function("intFunIntInt", "int",{Parameter("int", "a"), Parameter("int", "b")});
+    Parameter::Vector funParam = {
+      NamedParameter(CTYPE_INT, "a"),
+      NamedParameter(CTYPE_INT, "b")
+    };
+    ElementToMock *f = new Function("intFunIntInt", TypedReturnValue("int"), funParam);
     m_elem.push_back(f);
   }
 };
@@ -165,7 +171,7 @@ TEST_F(intFunIntInt_testCase, ThreeExpect)
   for(unsigned int expect_nr = 0; expect_nr < NB_EXPECT; expect_nr++)
   {
     int rv = fptr(aOneToExpect + expect_nr, aTwoToExpect + expect_nr);
-    EXPECT_EQ(rv, rvToExpect + expect_nr) << "with expect_nr == " << rvToExpect + expect_nr;
+    EXPECT_EQ(rv, rvToExpect + expect_nr) << "with expect_nr == " << expect_nr;
   }
 
   int check = easyMock_check();

@@ -7,7 +7,7 @@ class CodeParserCLang : public CodeParserItf
 {
 public:
   CodeParserCLang(const std::string filename);
-  CodeParser_errCode getElementToStub(ElementToMockVector& elem) const;
+  CodeParser_errCode getElementToStub(ElementToMock::Vector& elem) const;
 };
 
 #endif /* CODEPARSERCLANG_H */

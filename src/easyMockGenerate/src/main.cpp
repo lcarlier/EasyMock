@@ -1,14 +1,15 @@
 #include "CodeGeneratorCTemplate.h"
 #include "CodeParserCLang.h"
 #include "MainCodeGenerator.h"
+#include "Function.h"
 
 class OneFun : public CodeParserItf
 {
 public:
   OneFun():CodeParserItf(){}
-  CodeParser_errCode getElementToStub(ElementToMockVector& elem) const
+  CodeParser_errCode getElementToStub(ElementToMock::Vector& elem) const
   {
-    Function *f = new Function("function", "void", {});
+    ElementToMock *f  = new Function("function", VoidReturnValue(), {});
     elem.push_back(f);
 
     return cp_OK;

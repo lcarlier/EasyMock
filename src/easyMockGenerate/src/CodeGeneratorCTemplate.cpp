@@ -3,6 +3,7 @@
 #include <ctemplate/template.h>
 #include <string>
 #include <vector>
+#include <cassert>
 #include <algorithm>
 #include <cstring>
 #include "CodeGeneratorCTemplate.h"
@@ -10,6 +11,8 @@
 
 #include <sys/stat.h>
 #include <fcntl.h>
+
+#include "TypeItf.h"
 
 #define TEMPLATE_VAR(VAR_NAME) "{{" VAR_NAME "}}"
 #define TEMPLATE_BEG_SECTION(SECTION_NAME) "{{#" SECTION_NAME "}}"
@@ -24,6 +27,17 @@
 #define MOCKED_FILE_NAME_WITHOUT_EXT_UPPER "MOCKED_FILE_NAME_WITHOUT_EXT_UPPER"
 #define FUNCTION_SECTION "FUNCTION_SECTION"
 #define FUNCTION_PARAM_SECTION "FUNCTION_PARAM_SECTION"
+#define STRUCT_COMPARE_SECTION "STRUCT_COMPARE_SECTION"
+#define STRUCT_COMPARE_PRE_IF_SECTION "STRUCT_COMPARE_PRE_IF_SECTION"
+#define STRUCT_COMPARE_PRE_IF_SECTION_VAR_NAME "STRUCT_COMPARE_PRE_IF_SECTION_VAR_NAME"
+#define STRUCT_COMPARE_PRE_IF_SECTION_FIELD_NAME "STRUCT_COMPARE_PRE_IF_SECTION_FIELD_NAME"
+#define STRUCT_NAME "STRUCT_NAME"
+#define STRUCT_COMPARE_PARAM_SECTION "STRUCT_COMPARE_PARAM_SECTION"
+#define COMPARE_CONDITION "COMPARE_CONDITION"
+#define STRUCT_COMPARE_ERROR "STRUCT_COMPARE_ERROR"
+#define STRUCT_COMPARE_FIELD "STRUCT_COMPARE_FIELD"
+#define STRUCT_COMPARE_TYPE "STRUCT_COMPARE_TYPE"
+#define STRUCT_COMPARE_PRINTF_FORMAT "STRUCT_COMPARE_PRINTF_FORMAT"
 #define FUNCTION_PARAM_SECTION_SEPARATOR FUNCTION_PARAM_SECTION "_separator"
 #define FUNCTION_PARAM_TYPE "TYPEDEF_PARAM_RETURN_VALUE"
 #define FUNCTION_PARAM_NAME "TYPEDEF_PARAM_NAME"
@@ -108,6 +122,15 @@ TEMPLATE_VAR(FUNCTION_NAME) "_match_" PARAMETER_NAME
 #define MOCKED_FUN_CLASS(F_NAME) "mocked_" F_NAME
 #define TEMPLATE_MOCKED_FUN_CLASS MOCKED_FUN_CLASS(TEMPLATE_VAR(FUNCTION_NAME))
 
+#define STRUCT_COMPARE_SECTION_STRUCT_NAME_VAR TEMPLATE_VAR(STRUCT_NAME)
+#define STRUCT_COMPARE_PARAM_SECTION_COMPARE_CONDITION_VAR TEMPLATE_VAR(COMPARE_CONDITION)
+#define STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_FIELD_VAR TEMPLATE_VAR(STRUCT_COMPARE_FIELD)
+#define STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_PRINTF_FORMAT_VAR TEMPLATE_VAR(STRUCT_COMPARE_PRINTF_FORMAT)
+#define STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_STRUCT_TYPE_VAR TEMPLATE_VAR(STRUCT_COMPARE_TYPE)
+
+#define STRUCT_COMPARE_FUNCTION_SIGNATURE \
+"int cmp_struct_" STRUCT_COMPARE_SECTION_STRUCT_NAME_VAR "( void *currentCall_ptr, void *expectedCall_ptr, const char *paramName, char *errorMessage )"
+
 #define GENERATE_COMMENT \
 "//------------------- GENERATING '" TEMPLATE_FUNCTION_TO_BE_MOCKED "' -------------------"
 
@@ -124,6 +147,28 @@ static const char templateText[] =
         FUNCTION_RESET_ALL_MOCK_SIGNATURE ";" CARRIAGE_RETURN
         FUNCTION_VERIFY_ALL_MOCK_SIGNATURE ";" CARRIAGE_RETURN
         CARRIAGE_RETURN
+        TEMPLATE_BEG_SECTION(STRUCT_COMPARE_SECTION)
+        "extern \"C\" " STRUCT_COMPARE_FUNCTION_SIGNATURE CARRIAGE_RETURN
+        "{" CARRIAGE_RETURN
+        "    struct " STRUCT_COMPARE_SECTION_STRUCT_NAME_VAR " currentCall_val = *(( struct " STRUCT_COMPARE_SECTION_STRUCT_NAME_VAR " *)currentCall_ptr);" CARRIAGE_RETURN
+        "    struct " STRUCT_COMPARE_SECTION_STRUCT_NAME_VAR " expectedCall_val = *(( struct " STRUCT_COMPARE_SECTION_STRUCT_NAME_VAR " *)expectedCall_ptr);" CARRIAGE_RETURN
+        TEMPLATE_BEG_SECTION(STRUCT_COMPARE_PARAM_SECTION)
+        TEMPLATE_BEG_SECTION(STRUCT_COMPARE_PRE_IF_SECTION)
+        "    std::string " TEMPLATE_VAR(STRUCT_COMPARE_PRE_IF_SECTION_VAR_NAME) "(paramName);" CARRIAGE_RETURN
+        "    " TEMPLATE_VAR(STRUCT_COMPARE_PRE_IF_SECTION_VAR_NAME) ".append(\"." TEMPLATE_VAR(STRUCT_COMPARE_PRE_IF_SECTION_FIELD_NAME) "\");" CARRIAGE_RETURN
+        TEMPLATE_END_SECTION(STRUCT_COMPARE_PRE_IF_SECTION)
+        "    if(" STRUCT_COMPARE_PARAM_SECTION_COMPARE_CONDITION_VAR ")" CARRIAGE_RETURN
+        "    {" CARRIAGE_RETURN
+        TEMPLATE_BEG_SECTION(STRUCT_COMPARE_ERROR)
+        "        snprintf(errorMessage, 256 , \"Parameter '%s' which is a struct of type '" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_STRUCT_TYPE_VAR "' has field '" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_FIELD_VAR "' with value '%" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_PRINTF_FORMAT_VAR "', was expecting '%" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_PRINTF_FORMAT_VAR "'\", paramName, currentCall_val." STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_FIELD_VAR ", expectedCall_val." STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_FIELD_VAR ");" CARRIAGE_RETURN
+        TEMPLATE_END_SECTION(STRUCT_COMPARE_ERROR)
+        "        return -1;" CARRIAGE_RETURN
+        "    }" CARRIAGE_RETURN
+        TEMPLATE_END_SECTION(STRUCT_COMPARE_PARAM_SECTION)
+        "    return 0;" CARRIAGE_RETURN
+        "}" CARRIAGE_RETURN
+        CARRIAGE_RETURN
+        TEMPLATE_END_SECTION(STRUCT_COMPARE_SECTION)
         TEMPLATE_BEG_SECTION(FUNCTION_SECTION)
         GENERATE_COMMENT CARRIAGE_RETURN
         "typedef struct {" CARRIAGE_RETURN
@@ -135,24 +180,25 @@ static const char templateText[] =
         "} " FUNCTION_MOCK_DATA_TYPE";" CARRIAGE_RETURN
         CARRIAGE_RETURN
         "static MockedFunction<" FUNCTION_MOCK_DATA_TYPE "> " TEMPLATE_MOCKED_FUN_CLASS "(\"" TEMPLATE_FUNCTION_TO_BE_MOCKED "\");" CARRIAGE_RETURN
+        IF_RETURN_VALUE("static " FUNCTION_RETURN_VALUE_TYPE " dummyRes;" CARRIAGE_RETURN)
         CARRIAGE_RETURN
         "extern \"C\" " TEMPLATE_FUNCTION_TO_BE_MOCKED CARRIAGE_RETURN
         "{" CARRIAGE_RETURN
         "    bool printCallStack = easyMock_printCallStack();" CARRIAGE_RETURN
         "    bool checkFifoCall = easyMock_checkFifoCall();" CARRIAGE_RETURN
         CARRIAGE_RETURN
-        IF_RETURN_VALUE("    " FUNCTION_RETURN_VALUE_TYPE " default_res;" CARRIAGE_RETURN CARRIAGE_RETURN)
+        IF_RETURN_VALUE("    " FUNCTION_RETURN_VALUE_TYPE " default_res = dummyRes;" CARRIAGE_RETURN CARRIAGE_RETURN)
         "    if(!" TEMPLATE_MOCKED_FUN_CLASS ".addActualCall())" CARRIAGE_RETURN
         "    {" CARRIAGE_RETURN
         "        easyMock_addError(printCallStack, \"Error : unexpected call of '%s'." IF_RETURN_VALUE(" " TEMPLATE_VAR(FUNCTION_NAME) " is returning a random value.") "\", " TEMPLATE_MOCKED_FUN_CLASS ".getName().c_str());" CARRIAGE_RETURN
-        "        return" IF_RETURN_VALUE(" " FUNCTION_RETURN_VALUE_TYPE "()") ";" CARRIAGE_RETURN
+        "        return" IF_RETURN_VALUE(" default_res") ";" CARRIAGE_RETURN
         "    }" CARRIAGE_RETURN
         CARRIAGE_RETURN
         "    " FUNCTION_MOCK_DATA_TYPE " " CURRENT_DATA_CALL ";" CARRIAGE_RETURN
         "    if (!" TEMPLATE_MOCKED_FUN_CLASS ".getCurrentCallParam(" CURRENT_DATA_CALL "))" CARRIAGE_RETURN
         "    {" CARRIAGE_RETURN
         "        easyMock_addError(printCallStack, \"BUG IN EASYMOCK: CONTACT DEVELOPPER TO FIX THIS\");" CARRIAGE_RETURN
-        "        return" IF_RETURN_VALUE(" " FUNCTION_RETURN_VALUE_TYPE "()") ";" CARRIAGE_RETURN
+        "        return" IF_RETURN_VALUE(" default_res") ";" CARRIAGE_RETURN
         "    }" CARRIAGE_RETURN
         CARRIAGE_RETURN
         TEMPLATE_BEG_SECTION(FUNCTION_PARAM_SECTION)
@@ -185,7 +231,7 @@ static const char templateText[] =
         IF_RETURN_VALUE(CARRIAGE_RETURN "    return default_res;" CARRIAGE_RETURN)
         "}" CARRIAGE_RETURN
         CARRIAGE_RETURN
-        "extern \"C\" " FUNCTION_EXPECT_AND_RETURN_SIGNATURE CARRIAGE_RETURN CARRIAGE_RETURN
+        "extern \"C\" " FUNCTION_EXPECT_AND_RETURN_SIGNATURE CARRIAGE_RETURN
         "{" CARRIAGE_RETURN
         "    " FUNCTION_MOCK_DATA_TYPE " " MOCKED_DATA ";" CARRIAGE_RETURN
         CARRIAGE_RETURN
@@ -245,6 +291,9 @@ static const char headerFileTemplate[] =
         "extern \"C\" {" CARRIAGE_RETURN
         "#endif" CARRIAGE_RETURN
         CARRIAGE_RETURN
+        TEMPLATE_BEG_SECTION(STRUCT_COMPARE_SECTION)
+        STRUCT_COMPARE_FUNCTION_SIGNATURE ";" CARRIAGE_RETURN
+        TEMPLATE_END_SECTION(STRUCT_COMPARE_SECTION)
         TEMPLATE_BEG_SECTION(FUNCTION_SECTION)
         "//------------------- GENERATING '" TEMPLATE_FUNCTION_TO_BE_MOCKED "' -------------------" CARRIAGE_RETURN
         FUNCTION_EXPECT_AND_RETURN_SIGNATURE ";" CARRIAGE_RETURN
@@ -256,21 +305,21 @@ static const char headerFileTemplate[] =
         "#endif" CARRIAGE_RETURN
         "#endif" CARRIAGE_RETURN;
 
-static void fillInTemplateVariables(ctemplate::TemplateDictionary *dict, const std::string &mockedHeader, const ElementToMockVector &fList);
-static void generateFunctionParamSection(ctemplate::TemplateDictionary *dict, const ParameterVector *functionParam);
+static void fillInTemplateVariables(ctemplate::TemplateDictionary *dict, const std::string &mockedHeader, const ElementToMock::Vector &fList);
+static void generateFunctionSection(ctemplate::TemplateDictionary *rootDictionnary, const ElementToMock *f);
+static void generateFunctionParamSection(ctemplate::TemplateDictionary *rootDictionnary, ctemplate::TemplateDictionary *dict, const Parameter::Vector *functionParam);
+static void generateStructCompareSection(ctemplate::TemplateDictionary *rootDictionnary, const TypeItf *structType);
 static bool generateCodeToFile(const std::string &outDir, const std::string &filename, const std::string &extension, const std::string &generatedCode);
 
-bool CodeGeneratorCTemplate::generateCode(const std::string& outDir, const std::string &fullPathToHeaderToMock, const ElementToMockVector& elem) const
+bool CodeGeneratorCTemplate::generateCode(const std::string& outDir, const std::string &fullPathToHeaderToMock, const ElementToMock::Vector& elem) const
 {
-  ctemplate::StringToTemplateCache("programTemplate", templateText, ctemplate::DO_NOT_STRIP);
-  ctemplate::StringToTemplateCache("headerTemplate", headerFileTemplate, ctemplate::DO_NOT_STRIP);
-
   ctemplate::TemplateDictionary dict("generateCode");
-  ctemplate::TemplateDictionary headerDict("headerCode");
 
   std::string filenameToMock = boost::filesystem::path(fullPathToHeaderToMock).filename().string();
   fillInTemplateVariables(&dict, filenameToMock, elem);
-  fillInTemplateVariables(&headerDict, filenameToMock, elem);
+
+  ctemplate::StringToTemplateCache("programTemplate", templateText, ctemplate::DO_NOT_STRIP);
+  ctemplate::StringToTemplateCache("headerTemplate", headerFileTemplate, ctemplate::DO_NOT_STRIP);
 
   std::string generatedCode;
   ctemplate::ExpandTemplate("programTemplate", ctemplate::DO_NOT_STRIP, &dict, &generatedCode);
@@ -280,7 +329,7 @@ bool CodeGeneratorCTemplate::generateCode(const std::string& outDir, const std::
   }
 
   generatedCode.clear();
-  ctemplate::ExpandTemplate("headerTemplate", ctemplate::DO_NOT_STRIP, &headerDict, &generatedCode);
+  ctemplate::ExpandTemplate("headerTemplate", ctemplate::DO_NOT_STRIP, &dict, &generatedCode);
   if (!generateCodeToFile(outDir, filenameToMock, "h", generatedCode))
   {
     return false;
@@ -289,31 +338,20 @@ bool CodeGeneratorCTemplate::generateCode(const std::string& outDir, const std::
   return true;
 }
 
-static void fillInTemplateVariables(ctemplate::TemplateDictionary *rootDictionnary, const std::string &mockedHeader, const ElementToMockVector &fList)
+static void fillInTemplateVariables(ctemplate::TemplateDictionary *rootDictionnary, const std::string &mockedHeader, const ElementToMock::Vector &fList)
 {
   rootDictionnary->SetValue(MOCKED_HEADER_FILENAME, mockedHeader);
   std::string fileNameWithoutExtUpper = mockedHeader.substr(0, mockedHeader.find_last_of("."));
   std::transform(fileNameWithoutExtUpper.begin(), fileNameWithoutExtUpper.end(), fileNameWithoutExtUpper.begin(), ::toupper);
   rootDictionnary->SetValue(MOCKED_FILE_NAME_WITHOUT_EXT_UPPER, fileNameWithoutExtUpper);
-  for (ElementToMockVector::const_iterator it = fList.begin(); it != fList.end(); ++it)
+  for (ElementToMock::Vector::const_iterator it = fList.begin(); it != fList.end(); ++it)
   {
     const ElementToMock *f = *it;
-    switch (*f->getMockType())
+    switch (f->getMockType())
     {
       case ETS_function:
       {
-        ctemplate::TemplateDictionary *functionSectionDict = rootDictionnary->AddSectionDictionary(FUNCTION_SECTION);
-        functionSectionDict->SetValue(FUNCTION_NAME, *f->getName());
-        std::string upperString(*f->getName());
-        std::transform(upperString.begin(), upperString.end(), upperString.begin(), ::toupper);
-        functionSectionDict->SetValue(FUNCTION_NAME_UPPER, upperString);
-        functionSectionDict->SetValue(FUNCTION_RETURN_VALUE, *f->getReturnType());
-        if (*f->getReturnType() != VOID_FUNCTION_RETURN_VALUE)
-        {
-          ctemplate::TemplateDictionary *returnValParamDict = functionSectionDict->AddSectionDictionary(FUNCTION_RETURN_VALUE_PARAM_SECTION);
-          returnValParamDict->SetValue(FUNCTION_RETURN_VALUE, *f->getReturnType());
-        }
-        generateFunctionParamSection(functionSectionDict, f->getFunctionsParameters());
+        generateFunctionSection(rootDictionnary, f);
         break;
       }
       default:
@@ -322,19 +360,136 @@ static void fillInTemplateVariables(ctemplate::TemplateDictionary *rootDictionna
   }
 }
 
-static void generateFunctionParamSection(ctemplate::TemplateDictionary *functionSectionDict, const ParameterVector *functionParam)
+static void generateFunctionSection(ctemplate::TemplateDictionary *rootDictionnary, const ElementToMock *f)
+{
+  ctemplate::TemplateDictionary *functionSectionDict = rootDictionnary->AddSectionDictionary(FUNCTION_SECTION);
+  functionSectionDict->SetValue(FUNCTION_NAME, *f->getName());
+  std::string upperString(*f->getName());
+  std::transform(upperString.begin(), upperString.end(), upperString.begin(), ::toupper);
+  functionSectionDict->SetValue(FUNCTION_NAME_UPPER, upperString);
+
+  const ReturnValue *returnValue = f->getReturnType();
+  std::string returnTypeStr;
+  if (returnValue->isVoid)
+  {
+    returnTypeStr.append("void");
+  }
+  else if (returnValue->isStruct)
+  {
+    returnTypeStr.append("struct ");
+  }
+  returnTypeStr.append(returnValue->type);
+  functionSectionDict->SetValue(FUNCTION_RETURN_VALUE, returnTypeStr);
+  if (!returnValue->isVoid)
+  {
+    ctemplate::TemplateDictionary *returnValParamDict = functionSectionDict->AddSectionDictionary(FUNCTION_RETURN_VALUE_PARAM_SECTION);
+    returnValParamDict->SetValue(FUNCTION_RETURN_VALUE, returnTypeStr);
+  }
+  generateFunctionParamSection(rootDictionnary, functionSectionDict, f->getFunctionsParameters());
+}
+
+static void generateFunctionParamSection(ctemplate::TemplateDictionary *rootDictionnary, ctemplate::TemplateDictionary *functionSectionDict, const Parameter::Vector *functionParam)
 {
   if (functionParam->size() > 0)
   {
     //This specific section to show the comma ',' conditionally for the expect and return function generation
     functionSectionDict->AddSectionDictionary(FUNCTION_PARAM_LIST_SECTION);
   }
-  for (ParameterVector::const_iterator it = functionParam->begin(); it != functionParam->end(); ++it)
+  for (Parameter::Vector::const_iterator it = functionParam->begin(); it != functionParam->end(); ++it)
   {
     ctemplate::TemplateDictionary* newTypedefParamSection = functionSectionDict->AddSectionDictionary(FUNCTION_PARAM_SECTION);
-    const Parameter &fParam = *it;
-    newTypedefParamSection->SetValue(FUNCTION_PARAM_TYPE, fParam.type);
-    newTypedefParamSection->SetValue(FUNCTION_PARAM_NAME, fParam.name);
+    const Parameter *fParam = *it;
+    std::string argType;
+    if(fParam->getType()->isStruct())
+    {
+      argType.append("struct ");
+      generateStructCompareSection(rootDictionnary, fParam->getType());
+    }
+    argType.append(fParam->getType()->getName());
+    newTypedefParamSection->SetValue(FUNCTION_PARAM_TYPE, argType);
+    newTypedefParamSection->SetValue(FUNCTION_PARAM_NAME, fParam->getName());
+  }
+}
+
+/*
+ * e.g
+extern "C" int cmp_struct_s ( void *currentCall_ptr, void *expectedCall_ptr, const char *paramName, char *errorMessage ) {
+  struct s currentCall_val = *(( struct s *)currentCall_ptr);
+  struct s expectedCall_val = *(( struct s *)expectedCall_ptr);
+  if(currentCall_val.f1 != expectedCall_val.f1) {
+    snprintf(errorMessage, 256 , "Parameter '%s' has field f1 with value '" "%c" "', was expecting '" "%c" "'", paramName, currentCall_val.f1, expectedCall_val.f1);
+    return -1;
+  }
+  if(currentCall_val.f2 != expectedCall_val.f2) {
+    snprintf(errorMessage, 256 , "Parameter '%s' has field f2 with value '" "%c" "', was expecting '" "%c" "'", paramName, currentCall_val.f1, expectedCall_val.f1);
+    return -1;
+  }
+  if(cmp_struct_s2 (&currentCall_val.f3, expectedCall_val.f3, "f3", errorMessage) != 0)
+  {
+    return -1;
+  }
+  return 0;
+}
+ * TEMPLATED VERSION
+{{BEGIN_STRUCT_COMPARE_SECTION}}
+extern "C" int cmp_struct_{{STRUCT_NAME}} ( void *currentCall_ptr, void *expectedCall_ptr, const char *paramName, char *errorMessage ) {
+  struct {{STRUCT_NAME}} currentCall_val = *(( struct {{STRUCT_NAME}} *)currentCall_ptr);
+  struct {{STRUCT_NAME}} expectedCall_val = *(( struct {{STRUCT_NAME}} *)expectedCall_ptr);
+  {{BEGIN_STRUCT_COMPARE_PARAM_SECTION}}
+  if({{COMPARE_CONDITION}}) {
+    {{BEGIN_STRUCT_COMPARE_ERROR}}
+    snprintf(errorMessage, 256 , "Parameter '%s' which is a struct of type {{STRUCT_COMPARE_TYPE}} has field {{STRUCT_COMPARE_FIELD}} with value '" "%{{STRUCT_COMPARE_PRINTF_FORMAT}}" "', was expecting '" "%{{STRUCT_COMPARE_PRINTF_FORMAT}}" "'", paramName, currentCall_val.{{STRUCT_COMPARE_FIELD}}, expectedCall_val.{{STRUCT_COMPARE_FIELD}});
+    {{END_STRUCT_COMPARE_ERROR}}
+    return -1;
+  }
+  {{END_STRUCT_COMPARE_PARAM_SECTION}}
+  return 0;
+}
+{{END_STRUCT_COMPARE_SECTION}}
+ */
+static void generateStructCompareSection(ctemplate::TemplateDictionary *rootDictionnary, const TypeItf *structType)
+{
+  ctemplate::TemplateDictionary *compareDict = rootDictionnary->AddSectionDictionary(STRUCT_COMPARE_SECTION);
+  compareDict->SetValue(STRUCT_NAME, structType->getName());
+  const StructField::Vector *vectField = structType->getContainedFields();
+  for (StructField::Vector::const_iterator it = vectField->begin(); it != vectField->end(); ++it)
+  {
+    std::string condition;
+    ctemplate::TemplateDictionary *paramSectDict = compareDict->AddSectionDictionary(STRUCT_COMPARE_PARAM_SECTION);
+    const StructField *curField = *it;
+    const TypeItf *curType = curField->getType();
+    if(curType->isStruct())
+    {
+      ctemplate::TemplateDictionary *ifPreSectionDict = paramSectDict->AddSectionDictionary(STRUCT_COMPARE_PRE_IF_SECTION);
+      std::string preFieldVarName(curField->getName());
+      preFieldVarName.append("_parameter");
+      ifPreSectionDict->SetValue(STRUCT_COMPARE_PRE_IF_SECTION_VAR_NAME, preFieldVarName.c_str());
+      ifPreSectionDict->SetValue(STRUCT_COMPARE_PRE_IF_SECTION_FIELD_NAME, curField->getName());
+      condition.append("cmp_struct_");
+      condition.append(curField->getType()->getName());
+      condition.append("(&currentCall_val.");
+      condition.append(curField->getName());
+      condition.append(", ");
+      condition.append("&expectedCall_val.");
+      condition.append(curField->getName());
+      condition.append(", ");
+      condition.append(preFieldVarName.c_str());
+      condition.append(".c_str(), errorMessage)");
+      generateStructCompareSection(rootDictionnary, curType);
+    } else if (curType->isCType()) {
+      condition.append("currentCall_val.");
+      condition.append(curField->getName());
+      condition.append(" != expectedCall_val.");
+      condition.append(curField->getName());
+      ctemplate::TemplateDictionary *errorDict = paramSectDict->AddSectionDictionary(STRUCT_COMPARE_ERROR);
+      errorDict->SetValue(STRUCT_COMPARE_FIELD, curField->getName());
+      errorDict->SetValue(STRUCT_COMPARE_TYPE, structType->getName());
+      errorDict->SetValue(STRUCT_COMPARE_PRINTF_FORMAT, easyMock_printfFormat[curType->getCType()]);
+    } else {
+      std::fprintf(stderr, "Type %s unexpected here. Contact owner for bug fixing\n\r", curType->getName().c_str());
+      assert(false);
+    }
+    paramSectDict->SetValue(COMPARE_CONDITION, condition);
   }
 }
 

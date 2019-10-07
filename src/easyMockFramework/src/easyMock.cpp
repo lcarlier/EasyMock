@@ -307,7 +307,7 @@ void easyMock_addError(bool callstack, const char *fmt, ...)
   va_end(args1);
   std::vsnprintf(buf.data(), buf.size(), fmt, args2);
   va_end(args2);
-  std::string error(buf.begin(), buf.end() - 1); //-1 to remove the \0 added by vsnprintf. The std::string takes to terminate the string correctly
+  std::string error(buf.begin(), buf.end() - 1); //-1 to remove the \0 added by vsnprintf. The std::string takes care to terminate the string correctly
 
   easyMock.addError(error, callstack);
 }

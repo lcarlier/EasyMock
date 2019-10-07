@@ -1,0 +1,27 @@
+#ifndef EASYMOCKGENERATETYPES_H
+#define EASYMOCKGENERATETYPES_H
+
+typedef enum
+{
+  CTYPE_CHAR,
+  CTYPE_UCHAR,
+  CTYPE_SHORT,
+  CTYPE_USHORT,
+  CTYPE_INT,
+  CTYPE_UINT,
+  CTYPE_LONG,
+  CTYPE_ULONG,
+  CTYPE_LONG_LONG,
+  CTYPE_ULONG_LONG,
+  CTYPE_FLOAT,
+  CTYPE_DOUBLE,
+  CTYPE_LONG_DOUBLE,
+  CTYPE_VOID,
+  CTYPE_INVALID
+} easyMock_cTypes_t;
+
+extern const char *easyMock_arrayCTypeStr[];
+extern const char *easyMock_printfFormat[];
+
+#endif /* EASYMOCKGENERATETYPES_H */
+
