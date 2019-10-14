@@ -2,8 +2,7 @@
 #define CODEGENERATORITF_H
 
 #include <string>
-#include "CodeGeneratorItf.h"
-#include "CodeParserItf.h"
+#include "ElementToMock.h"
 
 class CodeGeneratorItf {
 public:
