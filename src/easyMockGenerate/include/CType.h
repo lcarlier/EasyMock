@@ -20,9 +20,12 @@
 class CType : public TypeItf
 {
 public:
+  CType();
   CType(const easyMock_cTypes_t p_cType);
   bool isCType() const;
   const easyMock_cTypes_t getCType() const;
+  bool setUnsigned(bool val);
+  void setCType(easyMock_cTypes_t p_cType);
 
   CType(const CType &other) = default;
   CType& operator=(const CType &other) = default;

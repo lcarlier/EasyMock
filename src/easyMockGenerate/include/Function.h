@@ -8,7 +8,7 @@ class Function : public ElementToMock
 {
 public:
   Function(std::string functionName, ReturnValue functionReturnType, Parameter::Vector functionParameters);
-  const ElementToMock_Type getMockType() const;
+  ElementToMock_Type getMockType() const;
   const ReturnValue *getReturnType() const;
 
   Function(const Function &other) = default;
@@ -20,6 +20,11 @@ public:
   bool operator!=(const Function &other) const;
 
   virtual Function* clone() const;
+
+  static Function& toFunction(ElementToMock& elem)
+  {
+    return dynamic_cast<Function&>(elem);
+  }
 private:
   ReturnValue m_returnTypeStr;
 };

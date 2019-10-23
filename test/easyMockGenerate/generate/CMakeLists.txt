@@ -1,4 +1,5 @@
 add_executable(test_easyMockGenerate_generate
+    ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/CTemplateGenerator/CodeGeneratorCTemplate.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/generate/test_common.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/generate/test_structFunStruct.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/generate/test_intFunIntInt.cpp

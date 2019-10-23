@@ -32,7 +32,7 @@ TEST(moveCopy, Function)
   Function f2(f1);
   ASSERT_EQ(f1, f2);
 
-  Function f3("bar", TypedReturnValue("int"), {});
+  Function f3("bar", TypedReturnValue(CTYPE_INT), {});
   ASSERT_NE(f3,f1);
   f3 = f1;
   ASSERT_EQ(f3,f1);
@@ -40,7 +40,7 @@ TEST(moveCopy, Function)
   Function f4 = std::move(f3);
   ASSERT_EQ(f4, f1);
 
-  Function f6("bar", TypedReturnValue("int"), {});
+  Function f6("bar", TypedReturnValue(CTYPE_INT), {});
   ASSERT_NE(f6, f2);
   f6 = std::move(f2);
   ASSERT_EQ(f6, f1);
@@ -72,7 +72,7 @@ TEST(moveCopy, ReturnValue)
   ReturnValue rv2(rv1);
   ASSERT_EQ(rv1, rv2);
 
-  ReturnValue rv3 = StructReturnValue("int");
+  ReturnValue rv3 = StructReturnValue(new StructType("s1", {new StructField(CTYPE_INT, "a")}));
   ASSERT_NE(rv3,rv1);
   rv3 = rv1;
   ASSERT_EQ(rv3,rv1);
@@ -80,7 +80,7 @@ TEST(moveCopy, ReturnValue)
   ReturnValue rv4 = std::move(rv3);
   ASSERT_EQ(rv4, rv1);
 
-  ReturnValue rv6 = StructReturnValue("int");
+  ReturnValue rv6 = StructReturnValue(new StructType("s1", {new StructField(CTYPE_INT, "a")}));
   ASSERT_NE(rv6, rv2);
   rv6 = std::move(rv2);
   ASSERT_EQ(rv6, rv1);

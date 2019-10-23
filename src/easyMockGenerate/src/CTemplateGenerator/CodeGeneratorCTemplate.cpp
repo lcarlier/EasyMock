@@ -369,18 +369,16 @@ static void generateFunctionSection(ctemplate::TemplateDictionary *rootDictionna
   functionSectionDict->SetValue(FUNCTION_NAME_UPPER, upperString);
 
   const ReturnValue *returnValue = f->getReturnType();
+  const TypeItf* rvType = returnValue->getType();
   std::string returnTypeStr;
-  if (returnValue->isVoid)
-  {
-    returnTypeStr.append("void");
-  }
-  else if (returnValue->isStruct)
+  bool isRvVoid = rvType->isCType() && rvType->getCType() == CTYPE_VOID;
+  if (rvType->isStruct())
   {
     returnTypeStr.append("struct ");
   }
-  returnTypeStr.append(returnValue->type);
+  returnTypeStr.append(rvType->getName());
   functionSectionDict->SetValue(FUNCTION_RETURN_VALUE, returnTypeStr);
-  if (!returnValue->isVoid)
+  if (!isRvVoid)
   {
     ctemplate::TemplateDictionary *returnValParamDict = functionSectionDict->AddSectionDictionary(FUNCTION_RETURN_VALUE_PARAM_SECTION);
     returnValParamDict->SetValue(FUNCTION_RETURN_VALUE, returnTypeStr);

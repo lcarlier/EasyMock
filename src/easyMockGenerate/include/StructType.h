@@ -6,9 +6,11 @@
 class StructType : public TypeItf
 {
 public:
+  explicit StructType(const std::string p_name);
   StructType(const std::string p_name, const StructField::Vector p_elem);
   bool isStruct() const;
   const StructField::Vector *getContainedFields() const;
+  void addStructField(StructField *newField);
 
   StructType(const StructType& other) = default;
   StructType& operator=(const StructType& other) = default;

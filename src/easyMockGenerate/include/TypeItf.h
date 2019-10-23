@@ -42,7 +42,7 @@ public:
 
   virtual TypeItf* clone() const = 0;
   virtual ~TypeItf();
-private:
+protected:
   //Don't make it const because otherwise TypeItf objects and its derivatives are not assignable or movable anymore
   /* const */std::string m_name;
 };

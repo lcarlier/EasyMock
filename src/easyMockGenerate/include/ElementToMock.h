@@ -18,7 +18,7 @@ public:
 
   const std::string *getName() const;
   const Parameter::Vector *getFunctionsParameters() const;
-  virtual const ElementToMock_Type getMockType() const = 0;
+  virtual ElementToMock_Type getMockType() const = 0;
   virtual const ReturnValue *getReturnType() const = 0;
 
   ElementToMock(const ElementToMock &other) = default;

@@ -11,6 +11,7 @@
 #include "CType.h"
 #include "Function.h"
 #include "StructType.h"
+#include <test_structFunStruct.h>
 
 typedef struct s1 (*funPtr)(struct s2);
 typedef void (*funExpectPtr)(struct s2 a, struct s1 rv, EasyMock_Matcher match_a);
@@ -21,10 +22,7 @@ class structFunStruct_testCase : public easyMockGenerate_baseTestCase
 public:
   structFunStruct_testCase() : easyMockGenerate_baseTestCase("structFunStruct", "include/structFunStruct.h", "mockStructFunStruct")
   {
-    StructField *s1 = new StructField(new StructType("s1",{new StructField(CTYPE_INT, "a"), new StructField(CTYPE_FLOAT, "b")}), "s");
-    Parameter* p = StructParameter("s2", "a", { new StructField(CTYPE_INT, "c"), new StructField(CTYPE_FLOAT, "d"), s1});
-    Parameter::Vector funParameter = {p};
-    ElementToMock *f = new Function("structFunStruct", StructReturnValue("s1"),funParameter);
+    ElementToMock *f = newFunctionFactory<StructFunStructFactory>();
     setParamToMatch("s2");
     m_elem.push_back(f);
   }

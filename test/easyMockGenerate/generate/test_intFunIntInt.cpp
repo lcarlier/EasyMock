@@ -8,6 +8,7 @@
 #include "test_common.h"
 #include "EasyMockGenerateTypes.h"
 #include "Function.h"
+#include "test_intFunIntInt.h"
 
 typedef int (*funPtr)(int a, int b);
 typedef void (*funExpectPtr)(int a, int b, int rv, EasyMock_Matcher match_a, EasyMock_Matcher match_b);
@@ -17,11 +18,7 @@ class intFunIntInt_testCase : public easyMockGenerate_baseTestCase
 public:
   intFunIntInt_testCase() : easyMockGenerate_baseTestCase("intFunIntInt", "include/intFunIntInt.h", "mockIntFunIntInt")
   {
-    Parameter::Vector funParam = {
-      NamedParameter(CTYPE_INT, "a"),
-      NamedParameter(CTYPE_INT, "b")
-    };
-    ElementToMock *f = new Function("intFunIntInt", TypedReturnValue("int"), funParam);
+    ElementToMock *f = newFunctionFactory<IntFunIntIntFactory>();
     m_elem.push_back(f);
   }
 };

@@ -35,8 +35,8 @@ TEST(equality, FunctionWithSameParamsButWithDifferentName)
 
 TEST(equality, FunctionWithSameParamsButReturnValueIsDifferent)
 {
-  Function f1("foo", TypedReturnValue("int"), {NamedParameter(CTYPE_INT, "foo")});
-  Function f2("foo", TypedReturnValue("double"), {NamedParameter(CTYPE_INT, "bar")});
+  Function f1("foo", TypedReturnValue(CTYPE_INT), {NamedParameter(CTYPE_INT, "foo")});
+  Function f2("foo", TypedReturnValue(CTYPE_DOUBLE), {NamedParameter(CTYPE_INT, "bar")});
 
   ASSERT_NE(f1, f2);
 }
@@ -77,7 +77,7 @@ TEST(equality, ReturnValueSame)
 TEST(equality, ReturnValueDifferent)
 {
   ReturnValue rv1 = VoidReturnValue();
-  ReturnValue rv2 = TypedReturnValue("int");
+  ReturnValue rv2 = TypedReturnValue(CTYPE_INT);
 
   ASSERT_NE(rv1, rv2);
 }

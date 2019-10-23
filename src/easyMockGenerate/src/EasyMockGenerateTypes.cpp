@@ -15,7 +15,7 @@ const char *easyMock_arrayCTypeStr[] =
   "float",
   "double",
   "long double",
-  "void"
+  "void",
   "invalid"
 };
 

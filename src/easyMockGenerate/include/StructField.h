@@ -25,7 +25,7 @@ class StructField
 {
 public:
   StructField(const easyMock_cTypes_t p_ctype, std::string p_name);
-  StructField(TypeItf *p_type, std::string p_name);;
+  StructField(TypeItf *p_type, std::string p_name);
 
   typedef AutoCleanVectorPtr<StructField> Vector;
 

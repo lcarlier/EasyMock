@@ -5,6 +5,8 @@
 
 #include <boost/algorithm/string.hpp>
 
+#include <test_voidFunVoid.h>
+
 #include "test_common.h"
 #include "Function.h"
 
@@ -16,7 +18,7 @@ class voidFunVoid_testCase : public easyMockGenerate_baseTestCase
 public:
   voidFunVoid_testCase() : easyMockGenerate_baseTestCase("voidFunVoid", "include/voidFunVoid.h", "mockVoidFunVoid")
   {
-    ElementToMock *f = new Function("voidFunVoid", VoidReturnValue(),{});
+    ElementToMock *f = newFunctionFactory<VoidFunVoidFactory>();
     m_elem.push_back(f);
   }
 };

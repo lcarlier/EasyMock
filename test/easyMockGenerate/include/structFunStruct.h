@@ -19,7 +19,7 @@ extern "C"
     struct s1 s;
   };
 
-  struct s1 structFunStruct(s2 s);
+  struct s1 structFunStruct(struct s2 s);
 
 
 #ifdef __cplusplus

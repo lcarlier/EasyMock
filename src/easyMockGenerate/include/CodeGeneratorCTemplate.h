@@ -1,7 +1,7 @@
 #ifndef CODEGENERATORCTEMPLATE_H
 #define CODEGENERATORCTEMPLATE_H
 
-#include "CodeGeneratorItf.h"
+#include <CodeGeneratorItf.h>
 
 class CodeGeneratorCTemplate : public CodeGeneratorItf
 {

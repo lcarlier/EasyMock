@@ -8,7 +8,7 @@ Function* Function::clone() const
   return new Function(*this);
 }
 
-const ElementToMock_Type Function::getMockType() const
+ElementToMock_Type Function::getMockType() const
 {
   return ETS_function;
 }
