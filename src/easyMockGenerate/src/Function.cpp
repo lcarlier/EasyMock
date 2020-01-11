@@ -1,7 +1,8 @@
 #include "Function.h"
+#include "TypeItf.h"
 
 Function::Function(std::string functionName, ReturnValue functionReturnType, Parameter::Vector functionParameters) :
-ElementToMock(functionName, functionParameters), m_returnTypeStr(functionReturnType) { }
+ElementToMock(functionName, functionParameters), m_returnType(functionReturnType) { }
 
 Function* Function::clone() const
 {
@@ -15,12 +16,12 @@ ElementToMock_Type Function::getMockType() const
 
 const ReturnValue* Function::getReturnType() const
 {
-  return &m_returnTypeStr;
+  return &m_returnType;
 }
 
 bool Function::operator==(const Function& other) const
 {
-  return ElementToMock::operator==(other) && this->m_returnTypeStr == other.m_returnTypeStr;
+  return ElementToMock::operator==(other) && this->m_returnType == other.m_returnType;
 }
 
 bool Function::operator!=(const Function& other) const
@@ -28,3 +29,33 @@ bool Function::operator!=(const Function& other) const
   return (*this == other) == false;
 }
 
+const std::string Function::getFunctionPrototype() const
+{
+  std::string rv_funcProto;
+  if(m_returnType.getType()->isStruct())
+  {
+    rv_funcProto.append("struct ");
+  }
+  rv_funcProto.append(m_returnType.getTypeName());
+  rv_funcProto.append(" ");
+  rv_funcProto.append(m_name);
+  rv_funcProto.append("(");
+  for (Parameter::Vector::const_iterator it = m_parameters.begin(); it != m_parameters.end(); ++it)
+  {
+    if(it != m_parameters.begin())
+    {
+      rv_funcProto.append(", ");
+    }
+    const Parameter *fParam = *it;
+    if(fParam->getType()->isStruct())
+    {
+      rv_funcProto.append("struct ");
+    }
+    rv_funcProto.append(fParam->getType()->getName());
+    rv_funcProto.append(" ");
+    rv_funcProto.append(fParam->getName());
+  }
+  rv_funcProto.append(")");
+
+  return rv_funcProto;
+}

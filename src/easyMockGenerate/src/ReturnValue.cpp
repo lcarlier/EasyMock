@@ -41,6 +41,10 @@ void ReturnValue::setType(TypeItf* type)
   m_type = type;
 }
 
+const std::string& ReturnValue::getTypeName() const
+{
+  return m_type->getName();
+}
 
 void swap(ReturnValue &first, ReturnValue &second)
 {

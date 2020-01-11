@@ -32,7 +32,7 @@ public:
   virtual ElementToMock* clone() const = 0;
   virtual ~ElementToMock();
 
-private:
+protected:
   std::string m_name;
   Parameter::Vector m_parameters;
 };

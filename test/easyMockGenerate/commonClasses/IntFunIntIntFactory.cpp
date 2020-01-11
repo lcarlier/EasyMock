@@ -1,0 +1,74 @@
+#include <IntFunIntIntFactory.h>
+
+Function IntFunIntIntFactory::functionFactory()
+{
+  Parameter::Vector funParam = {
+      NamedParameter(CTYPE_INT, "a"),
+      NamedParameter(CTYPE_INT, "b")
+  };
+  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_INT),funParam);
+  return f;
+}
+
+Function* IntFunIntIntFactory::newFunctionFactory()
+{
+  return functionFactory().clone();
+}
+
+
+std::string IntFunIntIntFactory::functionGetFunctionName()
+{
+  return std::string("intFunIntInt");
+}
+
+std::string IntFunIntIntFactory::getFilename()
+{
+   return "intFunIntInt.h";
+}
+
+void IntFunIntIntFactory::setupTestCase(EasyMockTestCase::TestCase tc)
+{
+  switch(tc)
+  {
+    case EasyMockTestCase::OneExpect:
+      m_rv.push_back(5);
+      m_expects.push_back(std::make_tuple(6, 7));
+      m_params.push_back(std::make_tuple(6, 7));
+      m_compare.push_back(std::make_tuple(&cmp_int, &cmp_int));
+      break;
+    case EasyMockTestCase::ThreeExpects:
+    {
+      int aOneToExpect = 5;
+      int aTwoToExpect = 6;
+      int rvToExpect = 7;
+      for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::ThreeExpects_NbExpects; expectIdx++)
+      {
+        m_rv.push_back(rvToExpect + expectIdx);
+        m_expects.push_back(std::make_tuple(aOneToExpect + expectIdx, aTwoToExpect + expectIdx));
+        m_params.push_back(std::make_tuple(aOneToExpect + expectIdx, aTwoToExpect + expectIdx));
+        m_compare.push_back(std::make_tuple(&cmp_int, &cmp_int));
+      }
+      break;
+    }
+    case EasyMockTestCase::OneExpectArgIsBad:
+      m_rv.push_back(5);
+      m_expects.push_back(std::make_tuple(6, 7));
+      m_params.push_back(std::make_tuple(7, 7));
+      m_compare.push_back(std::make_tuple(&cmp_int, &cmp_int));
+      break;
+    case EasyMockTestCase::SecondExpectArgIsBad:
+      m_rv.push_back(5);
+      m_expects.push_back(std::make_tuple(6, 7));
+      m_params.push_back(std::make_tuple(6, 7));
+      m_compare.push_back(std::make_tuple(&cmp_int, &cmp_int));
+
+      m_rv.push_back(6);
+      m_expects.push_back(std::make_tuple(7, 8));
+      m_params.push_back(std::make_tuple(8, 8)); //Second call fails
+      m_compare.push_back(std::make_tuple(&cmp_int, &cmp_int));
+      break;
+    case EasyMockTestCase::NoExpect:
+    case EasyMockTestCase::NotEnoughCall:
+      break;
+  }
+}

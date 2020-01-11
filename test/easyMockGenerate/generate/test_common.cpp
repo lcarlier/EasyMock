@@ -74,11 +74,14 @@ void easyMockGenerate_baseTestCase::SetUp()
   prepareTest(m_elem, m_functionToMock, m_paramToMatch, m_pathToFileToMock, m_mockDir, (void **) &m_fptr, (void **) &m_fptr_expect, (void **) &m_fptr_matcher, &handle);
 
   easyMock_init();
+
+  ExtraSetup();
 }
 
 void easyMockGenerate_baseTestCase::TearDown()
 {
   cleanTest(&handle, m_mockDir, m_rmDir);
+  ExtraTearDown();
 }
 
 void easyMockGenerate_baseTestCase::getFunPtr(void** fPtr, void** fExpectPtr)

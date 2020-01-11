@@ -34,6 +34,7 @@ class ReturnValue
 
   const TypeItf* getType() const;
   void setType(TypeItf* type);
+  const std::string& getTypeName() const;
 
   bool operator==(const ReturnValue &other) const;
   bool operator!=(const ReturnValue &other) const;

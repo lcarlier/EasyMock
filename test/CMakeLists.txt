@@ -34,6 +34,7 @@ set(TEST_INCLUDE_DIR ${EasyMock_SOURCE_DIR}/src/common/include
                      ${EasyMock_SOURCE_DIR}/src/easyMockFramework/src
                      ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/include
                      ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/include
+                     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/includeCommonClasses
                      ${CMAKE_CURRENT_BINARY_DIR}
                      ${CMAKE_CURRENT_BINARY_DIR}/test)
 
@@ -48,6 +49,24 @@ set(TEST_COMMON_SRC_DIR
     ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/CType.cpp
     ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/StructType.cpp
     ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/EasyMockGenerateTypes.cpp
+    ${EasyMock_SOURCE_DIR}/src/easyMockFramework/src/easyMock_matcher.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/VoidFunVoidFactory.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/CharFunCharFactory.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/IntFunVoidFactory.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/DoubleFunDoubleFactory.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/IntFunIntIntFactory.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/LongDoubleFunLongDoubleFactory.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/LongFunLongFactory.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/LongLongFunLongLongFactory.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/StructFunStructFactory.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/UnsCharFunUnsCharFactory.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/UnsIntFunUnsIntIntFactory.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/UnsIntFunVoidFactory.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/UnsLongFunUnsLongFactory.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/UnsLongLongFunUnsLongLongFactory.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/FloatFunFloatFactory.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/UnsShortFunUnsShortFactory.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/ShortFunShortFactory.cpp
 )
 
 set(TEST_LINK_LIB ${EASYMOCK_DEFAULT_FULL_LD_PARAM} gtest_main dl)

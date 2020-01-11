@@ -48,8 +48,10 @@ protected:
   bool m_rmDir;
 
   void SetUp() override;
+  virtual void ExtraSetup() {}
 
   void TearDown() override;
+  virtual void ExtraTearDown() {}
 
   void getFunPtr(void **fPtr, void **fExpectPtr);
   void getFunPtr(void **fPtr, void **fExpectPtr, void **fMatcherPtr);

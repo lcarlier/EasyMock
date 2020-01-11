@@ -11,28 +11,28 @@
 #include "CType.h"
 #include "Function.h"
 #include "StructType.h"
-#include <test_structFunStruct.h>
-
-typedef struct s1 (*funPtr)(struct s2);
-typedef void (*funExpectPtr)(struct s2 a, struct s1 rv, EasyMock_Matcher match_a);
-typedef int (*funMatcherPtr)(EASYMOCK_MATCHER_PARAM);
+#include <StructFunStructFactory.h>
 
 class structFunStruct_testCase : public easyMockGenerate_baseTestCase
 {
 public:
   structFunStruct_testCase() : easyMockGenerate_baseTestCase("structFunStruct", "include/structFunStruct.h", "mockStructFunStruct")
   {
-    ElementToMock *f = newFunctionFactory<StructFunStructFactory>();
+    StructFunStructFactory factory;
+    ElementToMock *f = factory.newFunctionFactory();
     setParamToMatch("s2");
     m_elem.push_back(f);
   }
 };
 
+/*
+ * Same as generic test case but test the matcher for positive case
+ */
 TEST_F(structFunStruct_testCase, OneExpect)
 {
-  funPtr fptr;
-  funExpectPtr fptr_expect;
-  funMatcherPtr fptr_matcher;
+  structFunStruct_funPtr fptr;
+  structFunStruct_funExpectPtr fptr_expect;
+  structFunStruct_funMatcherPtr fptr_matcher;
   getFunPtr((void **)&fptr, (void **)&fptr_expect, (void **)&fptr_matcher);
   ASSERT_NE(fptr, nullptr);
   ASSERT_NE(fptr_expect, nullptr);
@@ -63,9 +63,9 @@ TEST_F(structFunStruct_testCase, OneExpect)
 
 TEST_F(structFunStruct_testCase, OneExpectFirstElemtOfStructWrong)
 {
-  funPtr fptr;
-  funExpectPtr fptr_expect;
-  funMatcherPtr fptr_matcher;
+  structFunStruct_funPtr fptr;
+  structFunStruct_funExpectPtr fptr_expect;
+  structFunStruct_funMatcherPtr fptr_matcher;
   getFunPtr((void **)&fptr, (void **)&fptr_expect, (void **)&fptr_matcher);
   ASSERT_NE(fptr, nullptr);
   ASSERT_NE(fptr_expect, nullptr);
@@ -113,9 +113,9 @@ TEST_F(structFunStruct_testCase, OneExpectFirstElemtOfStructWrong)
 
 TEST_F(structFunStruct_testCase, OneExpectSecondElemtOfStructWrong)
 {
-  funPtr fptr;
-  funExpectPtr fptr_expect;
-  funMatcherPtr fptr_matcher;
+  structFunStruct_funPtr fptr;
+  structFunStruct_funExpectPtr fptr_expect;
+  structFunStruct_funMatcherPtr fptr_matcher;
   getFunPtr((void **)&fptr, (void **)&fptr_expect, (void **)&fptr_matcher);
   ASSERT_NE(fptr, nullptr);
   ASSERT_NE(fptr_expect, nullptr);
@@ -163,9 +163,9 @@ TEST_F(structFunStruct_testCase, OneExpectSecondElemtOfStructWrong)
 
 TEST_F(structFunStruct_testCase, OneExpectSubStructWrong)
 {
-  funPtr fptr;
-  funExpectPtr fptr_expect;
-  funMatcherPtr fptr_matcher;
+  structFunStruct_funPtr fptr;
+  structFunStruct_funExpectPtr fptr_expect;
+  structFunStruct_funMatcherPtr fptr_matcher;
   getFunPtr((void **)&fptr, (void **)&fptr_expect, (void **)&fptr_matcher);
   ASSERT_NE(fptr, nullptr);
   ASSERT_NE(fptr_expect, nullptr);
@@ -213,9 +213,9 @@ TEST_F(structFunStruct_testCase, OneExpectSubStructWrong)
 
 TEST_F(structFunStruct_testCase, TwoExpectSecondCallArgBad)
 {
-  funPtr fptr;
-  funExpectPtr fptr_expect;
-  funMatcherPtr fptr_matcher;
+  structFunStruct_funPtr fptr;
+  structFunStruct_funExpectPtr fptr_expect;
+  structFunStruct_funMatcherPtr fptr_matcher;
   getFunPtr((void **)&fptr, (void **)&fptr_expect, (void **)&fptr_matcher);
   ASSERT_NE(fptr, nullptr);
   ASSERT_NE(fptr_expect, nullptr);
@@ -267,148 +267,4 @@ TEST_F(structFunStruct_testCase, TwoExpectSecondCallArgBad)
 #undef ERROR_EXPECT
 
   ASSERT_TRUE(isFifoCallEmpty());
-}
-
-TEST_F(structFunStruct_testCase, ThreeExpect)
-{
-  funPtr fptr;
-  funExpectPtr fptr_expect;
-  funMatcherPtr fptr_matcher;
-  getFunPtr((void **)&fptr, (void **)&fptr_expect, (void **)&fptr_matcher);
-  ASSERT_NE(fptr, nullptr);
-  ASSERT_NE(fptr_expect, nullptr);
-  ASSERT_NE(fptr_matcher, nullptr);
-
-  struct s2 aOneExpect;
-  aOneExpect.c = 9;
-  aOneExpect.d = 4.5;
-  struct s1 rvToExpect;
-  rvToExpect.a = 42;
-  rvToExpect.b = 6.5;
-
-  const unsigned int NB_EXPECT = 3;
-
-  for(unsigned int expect_nr = 0; expect_nr < NB_EXPECT; expect_nr++)
-  {
-    struct s2 param = aOneExpect;
-    param.c += expect_nr;
-    param.d += expect_nr;
-    struct s1 rvToExpectParam = rvToExpect;
-    rvToExpectParam.a += expect_nr;
-    rvToExpectParam.b += expect_nr;
-    fptr_expect(param, rvToExpectParam, fptr_matcher);
-  }
-
-  for(unsigned int expect_nr = 0; expect_nr < NB_EXPECT; expect_nr++)
-  {
-    struct s2 param = aOneExpect;
-    param.c += expect_nr;
-    param.d += expect_nr;
-    struct s1 rv = fptr(param);
-    EXPECT_EQ(rv.a, rvToExpect.a + expect_nr) << "with expect_nr == " << expect_nr;
-    EXPECT_EQ(rv.b, rvToExpect.b + expect_nr) << "with expect_nr == " << expect_nr;
-  }
-
-  int check = easyMock_check();
-  EXPECT_EQ(check, 1);
-
-  ASSERT_NO_ERROR;
-
-  ASSERT_TRUE(isFifoCallEmpty());
-}
-
-TEST_F(structFunStruct_testCase, NoExpect)
-{
-  funPtr fptr;
-  funExpectPtr fptr_expect;
-  funMatcherPtr fptr_matcher;
-  getFunPtr((void **)&fptr, (void **)&fptr_expect, (void **)&fptr_matcher);
-  ASSERT_NE(fptr, nullptr);
-  ASSERT_NE(fptr_expect, nullptr);
-  ASSERT_NE(fptr_matcher, nullptr);
-
-  struct s2 aOneToExpect;
-  aOneToExpect.c = 9;
-  aOneToExpect.d = 4.5;
-  struct s1 rvToExpect;
-  rvToExpect.a = 42;
-  rvToExpect.b = 6.5;
-
-  struct s1 rv = fptr(aOneToExpect);
-  EXPECT_NE(rv.a, rvToExpect.a);
-  EXPECT_NE(rv.b, rvToExpect.b);
-  int check = easyMock_check();
-  EXPECT_EQ(check, 0);
-
-  unsigned int size;
-  const char **errorArr = easyMock_getErrorArr(&size);
-  ASSERT_NE(errorArr, nullptr);
-  ASSERT_EQ(size, 2) << EasyMock_ErrorArrayPrinter(errorArr);
-  ASSERT_TRUE(boost::algorithm::starts_with(errorArr[0], "Error : unexpected call of 'struct s1 structFunStruct(struct s2 a)'. structFunStruct is returning a random value.\n\r\tat EasyMock::addError")) << "errorArr[0]: " << errorArr[0];
-  ASSERT_STREQ(errorArr[1], "Error: For function 'struct s1 structFunStruct(struct s2 a)' bad number of call. Expected 0, got 1") << "errorArr[1]: " << errorArr[1];
-  ASSERT_EQ(errorArr[2], nullptr);
-
-  ASSERT_TRUE(isFifoCallEmpty());
-}
-
-TEST_F(structFunStruct_testCase, NotEnoughCall)
-{
-  funPtr fptr;
-  funExpectPtr fptr_expect;
-  funMatcherPtr fptr_matcher;
-  getFunPtr((void **)&fptr, (void **)&fptr_expect, (void **)&fptr_matcher);
-  ASSERT_NE(fptr, nullptr);
-  ASSERT_NE(fptr_expect, nullptr);
-  ASSERT_NE(fptr_matcher, nullptr);
-
-  struct s2 aOneExpect;
-  aOneExpect.c = 9;
-  aOneExpect.d = 4.5;
-  struct s1 rvToExpect;
-  rvToExpect.a = 42;
-  rvToExpect.b = 6.5;
-
-  const unsigned int NB_EXPECT = 3;
-
-  for(unsigned int expect_nr = 0; expect_nr < NB_EXPECT; expect_nr++)
-  {
-    struct s2 param = aOneExpect;
-    param.c += expect_nr;
-    param.d += expect_nr;
-    struct s1 rvToExpectParam = rvToExpect;
-    rvToExpectParam.a += expect_nr;
-    rvToExpectParam.b += expect_nr;
-    fptr_expect(param, rvToExpectParam, fptr_matcher);
-  }
-
-  for(unsigned int expect_nr = 0; expect_nr < NB_EXPECT - 1; expect_nr++)
-  {
-    struct s2 param = aOneExpect;
-    param.c += expect_nr;
-    param.d += expect_nr;
-    struct s1 rv = fptr(param);
-    EXPECT_EQ(rv.a, rvToExpect.a + expect_nr) << "with expect_nr == " << expect_nr;
-    EXPECT_EQ(rv.b, rvToExpect.b + expect_nr) << "with expect_nr == " << expect_nr;
-  }
-
-  int check = easyMock_check();
-  EXPECT_EQ(check, 0);
-
-#define ERROR_TO_EXPECT "Error: For function 'struct s1 structFunStruct(struct s2 a)' bad number of call. Expected 3, got 2"
-  const char *error = easyMock_getErrorStr();
-  ASSERT_NE(error, nullptr);
-  ASSERT_STREQ(error, ERROR_TO_EXPECT "\n\r") << "error: " << error;
-
-  unsigned int size;
-  const char **errorArr = easyMock_getErrorArr(&size);
-  ASSERT_NE(errorArr, nullptr);
-  ASSERT_EQ(size, 1);
-  ASSERT_STREQ(errorArr[0], ERROR_TO_EXPECT) << "errorArr[0]: " << errorArr[0];
-  ASSERT_EQ(errorArr[1], nullptr);
-#undef ERROR_TO_EXPECT
-
-  ASSERT_FALSE(isFifoCallEmpty());
-  ASSERT_EQ(fifoCallSize(), 1);
-  std::string curCall = getCurrentFifoCall();
-  ASSERT_STREQ(curCall.c_str(), "struct s1 structFunStruct(struct s2 a)");
 }

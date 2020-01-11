@@ -6,7 +6,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include "test_common.h"
-#include "test_intFunVoid.h"
+#include <IntFunVoidFactory.h>
 #include "Function.h"
 
 typedef int (*funPtr)();
@@ -18,7 +18,8 @@ public:
 
   intFunVoid_testCase() : easyMockGenerate_baseTestCase("intFunVoid", "include/intFunVoid.h", "mockIntFunVoid")
   {
-    ElementToMock  *f = newFunctionFactory<IntFunVoidFactory>();
+    IntFunVoidFactory factory;
+    ElementToMock  *f = factory.newFunctionFactory();
     m_elem.push_back(f);
   }
 };

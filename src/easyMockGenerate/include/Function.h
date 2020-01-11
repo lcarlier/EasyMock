@@ -4,12 +4,15 @@
 #include "ElementToMock.h"
 #include "ReturnValue.h"
 
+#include <string>
+
 class Function : public ElementToMock
 {
 public:
   Function(std::string functionName, ReturnValue functionReturnType, Parameter::Vector functionParameters);
   ElementToMock_Type getMockType() const;
   const ReturnValue *getReturnType() const;
+  const std::string getFunctionPrototype() const;
 
   Function(const Function &other) = default;
   Function& operator=(const Function &other) = default;
@@ -26,7 +29,7 @@ public:
     return dynamic_cast<Function&>(elem);
   }
 private:
-  ReturnValue m_returnTypeStr;
+  ReturnValue m_returnType;
 };
 
 #endif /* FUNCTION_H */
