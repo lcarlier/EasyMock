@@ -18,6 +18,7 @@
 #include <UnsLongLongFunUnsLongLongFactory.h>
 #include <UnsShortFunUnsShortFactory.h>
 #include <StructFunStructFactory.h>
+#include <PtrFunPtrGenericFactory.h>
 
 typedef ::testing::Types
 <
@@ -37,7 +38,21 @@ typedef ::testing::Types
         FloatFunFloatFactory,
         DoubleFunDoubleFactory,
         LongDoubleFunLongDoubleFactory,
-        StructFunStructFactory
+        StructFunStructFactory,
+        VoidPtrFunVoidPtrFactory,
+        CharPtrFunCharPtrFactory,
+        UnsCharPtrFunUnsCharPtrFactory,
+        ShortPtrFunShortPtrFactory,
+        UnsShortPtrFunUnsShortPtrFactory,
+        IntPtrFunIntPtrFactory,
+        UnsIntPtrFunUnsIntPtrFactory,
+        LongPtrFunLongPtrFactory,
+        UnsLongLongFunUnsLongLongFactory,
+        LongLongPtrFunLongLongPtrFactory,
+        UnsLongLongPtrFunUnsLongLongPtrFactory,
+        FloatPtrFunFloatPtrFactory,
+        DoublePtrFunDoublePtrFactory,
+        LongDoublePtrFunLongDoublePtrFactory
 > TestTypes;
 
 #endif /* TESTTYPES_H */

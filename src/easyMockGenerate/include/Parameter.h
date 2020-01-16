@@ -54,7 +54,7 @@ private:
 };
 
 Parameter *VoidParameter(std::string p_name);
-Parameter *NamedParameter(easyMock_cTypes_t p_type, std::string p_name);
+Parameter *NamedParameter(easyMock_cTypes_t p_type, std::string p_name, bool p_isPointer = false);
 Parameter *StructParameter(std::string type, std::string name, const StructField::Vector elem);
 
 

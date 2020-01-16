@@ -22,7 +22,7 @@
 class TypeItf
 {
 public:
-  TypeItf(const std::string p_name);
+  TypeItf(const std::string p_name, bool p_isPointer = false);
 
   typedef AutoCleanVectorPtr<TypeItf> Vector;
 
@@ -36,6 +36,8 @@ public:
   virtual const StructField::Vector *getContainedFields() const;
   virtual bool isCType() const;
   virtual const easyMock_cTypes_t getCType() const;
+  bool isPointer() const;
+  bool setPointer(bool isPointer);
 
   bool operator==(const TypeItf &other) const;
   bool operator!=(const TypeItf &other) const;
@@ -43,8 +45,10 @@ public:
   virtual TypeItf* clone() const = 0;
   virtual ~TypeItf();
 protected:
-  //Don't make it const because otherwise TypeItf objects and its derivatives are not assignable or movable anymore
-  /* const */std::string m_name;
+  void setName(std::string p_name);
+private:
+  std::string m_name;
+  bool m_isPointer;
 };
 
 #endif /* TYPEITF_H */

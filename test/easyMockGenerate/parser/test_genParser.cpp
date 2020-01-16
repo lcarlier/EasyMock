@@ -21,8 +21,8 @@ TYPED_TEST(GenericParser_testCase, parser)
   fileName.append(funFactory.getFilename());
   parser.setFilename(fileName);
   parser.getElementToStub(elem);
-  EXPECT_EQ(elem.size(), 1);
+  ASSERT_EQ(elem.size(), 1);
   Function& fp = Function::toFunction(elem[0]);
   Function f = funFactory.functionFactory();
-  EXPECT_EQ(f, fp);
+  ASSERT_EQ(f, fp);
 }

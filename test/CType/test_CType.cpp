@@ -19,8 +19,25 @@ TEST_P(ctype_unsigned_testcase, ctypeConstructor)
   CType signedT = CType(params.signedType);
   ASSERT_EQ(signedT.getName(), easyMock_arrayCTypeStr[params.signedType]);
 
-  CType unsignedT = CType(params.signedType);
-  ASSERT_EQ(unsignedT.getName(), easyMock_arrayCTypeStr[params.signedType]);
+  CType unsignedT = CType(params.unsignedType);
+  ASSERT_EQ(unsignedT.getName(), easyMock_arrayCTypeStr[params.unsignedType]);
+}
+
+TEST_P(ctype_unsigned_testcase, ctypeConstructorPointer)
+{
+  const ParamType &params = GetParam();
+
+  std::string signedPointerName(easyMock_arrayCTypeStr[params.signedType]);
+  signedPointerName.push_back('*');
+  CType signedPtrT = CType(params.signedType, true);
+  ASSERT_TRUE(signedPtrT.isPointer());
+  ASSERT_EQ(signedPtrT.getName(), signedPointerName.c_str());
+
+  std::string unsignedPointerName(easyMock_arrayCTypeStr[params.unsignedType]);
+  unsignedPointerName.push_back('*');
+  CType unsignedPtrT = CType(params.unsignedType, true);
+  ASSERT_TRUE(unsignedPtrT.isPointer());
+  ASSERT_EQ(unsignedPtrT.getName(), unsignedPointerName.c_str());
 }
 
 TEST_P(ctype_unsigned_testcase, ctypeSetUnsigned)
@@ -39,6 +56,25 @@ TEST_P(ctype_unsigned_testcase, ctypeSetUnsigned)
   ASSERT_EQ(t.getCType(), params.signedType);
   ASSERT_EQ(t.getName(), easyMock_arrayCTypeStr[params.signedType]);
 }
+
+#if 0
+TEST_P(ctype_unsigned_testcase, ctypeSetPointers)
+{
+  const ParamType &params = GetParam();
+
+  CType t = CType(params.signedType);
+
+  ASSERT_FALSE(t.isPointer());
+
+  ASSERT_EQ(t.getCType(), params.unsignedType);
+  ASSERT_EQ(t.getName(), easyMock_arrayCTypeStr[params.unsignedType]);
+
+  ASSERT_TRUE(t.set(false));
+
+  ASSERT_EQ(t.getCType(), params.signedType);
+  ASSERT_EQ(t.getName(), easyMock_arrayCTypeStr[params.signedType]);
+}
+#endif
 
 static ctype_params test_unsigned_params[]
 {

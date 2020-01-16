@@ -130,6 +130,15 @@ private:
     return sType;
   }
 
+  TypeItf* getFromPointerType(const clang::Type &type)
+  {
+    const clang::Type &pointeeType = *type.getPointeeType().getTypePtr();
+    TypeItf *rv = getEasyMocktype(pointeeType);
+    rv->setPointer(true);
+
+    return rv;
+  }
+
   TypeItf* getEasyMocktype(const clang::Type &clangType)
   {
     TypeItf *type = nullptr;
@@ -140,6 +149,10 @@ private:
     else if(clangType.isStructureType())
     {
       type = getFromStructType(clangType);
+    }
+    else if(clangType.isPointerType())
+    {
+      type = getFromPointerType(clangType);
     }
 
     return type;

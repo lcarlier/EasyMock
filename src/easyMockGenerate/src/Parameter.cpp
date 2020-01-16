@@ -47,9 +47,9 @@ Parameter* VoidParameter(std::string p_name)
   return p;
 }
 
-Parameter* NamedParameter(easyMock_cTypes_t p_type, std::string p_name)
+Parameter* NamedParameter(easyMock_cTypes_t p_type, std::string p_name, bool p_isPointer)
 {
-  Parameter *p = new Parameter(new CType(p_type), p_name);
+  Parameter *p = new Parameter(new CType(p_type, p_isPointer), p_name);
 
   return p;
 }

@@ -75,3 +75,4 @@ set(TEST_COMPILE_FLAGS ${EASYMOCK_DEFAULT_FULL_CC_PARAM} -DPROJECT_ROOT_DIR="${P
 
 add_subdirectory(easyMockGenerate)
 add_subdirectory(CType)
+add_subdirectory(StructType)

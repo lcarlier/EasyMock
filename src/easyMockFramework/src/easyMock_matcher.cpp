@@ -28,5 +28,6 @@ IMPLEMENT_MATCHER(u_long_long, unsigned long long, "%llu");
 IMPLEMENT_MATCHER(float, float, "%f");
 IMPLEMENT_MATCHER(double, double, "%lf");
 IMPLEMENT_MATCHER(long_double, long double, "%Lf");
+IMPLEMENT_MATCHER(pointer, void *, "%p");
 
 

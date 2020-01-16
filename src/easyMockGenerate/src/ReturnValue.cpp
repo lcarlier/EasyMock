@@ -56,9 +56,9 @@ ReturnValue::~ReturnValue()
   delete m_type;
 }
 
-ReturnValue VoidReturnValue ()
+ReturnValue VoidReturnValue (bool p_isPointer)
 {
-  ReturnValue rv = ReturnValue(new CType(CTYPE_VOID));
+  ReturnValue rv = ReturnValue(new CType(CTYPE_VOID, p_isPointer));
   return rv;
 }
 

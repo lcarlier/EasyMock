@@ -371,7 +371,7 @@ static void generateFunctionSection(ctemplate::TemplateDictionary *rootDictionna
   const ReturnValue *returnValue = f->getReturnType();
   const TypeItf* rvType = returnValue->getType();
   std::string returnTypeStr;
-  bool isRvVoid = rvType->isCType() && rvType->getCType() == CTYPE_VOID;
+  bool isRvVoid = rvType->isCType() && rvType->getCType() == CTYPE_VOID && !rvType->isPointer();
   if (rvType->isStruct())
   {
     returnTypeStr.append("struct ");

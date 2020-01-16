@@ -126,6 +126,26 @@ TEST(moveCopy, StructType)
   ASSERT_EQ(st6, st1);
 }
 
+TEST(moveCopy, PointerStructType)
+{
+  StructType st1("s", {new StructField(CTYPE_CHAR, "f")}, true);
+  StructType st2(st1);
+  ASSERT_EQ(st1, st2);
+
+  StructType st3("s", {new StructField(CTYPE_INT, "i")}, true);
+  ASSERT_NE(st3,st1);
+  st3 = st1;
+  ASSERT_EQ(st3,st1);
+
+  StructType st4 = std::move(st3);
+  ASSERT_EQ(st4, st1);
+
+  StructType st6("s", {new StructField(CTYPE_INT, "i")}, true);
+  ASSERT_NE(st6, st2);
+  st6 = std::move(st2);
+  ASSERT_EQ(st6, st1);
+}
+
 TEST(moveCopy, AutoCleanVectorPtr)
 {
   AutoCleanVectorPtr<StructField> v1({new StructField(CTYPE_INT, "i"), new StructField(CTYPE_DOUBLE, "d")});

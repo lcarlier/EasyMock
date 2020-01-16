@@ -1,12 +1,11 @@
 #include "StructType.h"
 
 StructType::StructType(const std::string p_name) :
-StructType(p_name, {})
-{
-}
+StructType(p_name, {}, false)
+{ }
 
-StructType::StructType(const std::string p_name, const StructField::Vector p_elem) :
-TypeItf(p_name), elem(p_elem)
+StructType::StructType(const std::string p_name, const StructField::Vector p_elem, bool p_isPointer) :
+TypeItf(p_name, p_isPointer), elem(p_elem)
 { }
 
 bool StructType::operator==(const StructType& other) const

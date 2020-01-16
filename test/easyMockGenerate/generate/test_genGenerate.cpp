@@ -14,6 +14,8 @@
 
 
 static std::string getElementOfTupleInsideQueue(const unsigned int idx, const auto &theQueue);
+static void printElIntoStream(std::ostringstream &s1, auto* elem);
+static void printElIntoStream(std::ostringstream &s1, auto elem);
 
 template <typename... Args,
 typename std::enable_if<(sizeof...(Args) > 0), int>::type = 0>
@@ -316,7 +318,7 @@ static std::string getElementOfTupleInsideQueue(const unsigned int idx, const au
   auto firstElem = theQueue[idx];
   auto elem = getFirstTupleElem(firstElem);
   std::ostringstream s1;
-  s1 << std::fixed << std::setprecision(6) << elem;
+  printElIntoStream(s1, elem);
   return s1.str();
 }
 
@@ -332,4 +334,22 @@ typename std::enable_if<(sizeof...(Args) == 0), int>::type = 0>
 static auto getFirstTupleElem(std::tuple<Args...>& t)
 {
   return 0;
+}
+
+/*
+ * When auto is char* or unsigned char*, the ostringstream class
+ * is (too) smart and try to derefence the pointer. In the UT in general
+ * I provide dummy pointers with dummy addresses.
+ * Since I'm only interested in the value of the pointer (not to what it
+ * points), I have a redefinition of printElIntoStream which cast the pointer
+ * to void* and is selected whenever elem is a pointer of any type.
+ */
+static void printElIntoStream(std::ostringstream &s1, auto* elem)
+{
+    s1 << (void*)elem;
+}
+
+static void printElIntoStream(std::ostringstream &s1, auto elem)
+{
+  s1 << std::fixed << std::setprecision(6) << elem;
 }

@@ -121,10 +121,31 @@ TEST(equality, StructTypeSame)
   ASSERT_EQ(s3, s4);
 }
 
+TEST(equality, PointerStructTypeSame)
+{
+  StructType s1("s", {}, true);
+  StructType s2("s", {}, true);
+
+  ASSERT_EQ(s1, s2);
+
+  StructType s3("s", {new StructField(CTYPE_CHAR, "f")}, true);
+  StructType s4("s", {new StructField(CTYPE_CHAR, "f")}, true);
+
+  ASSERT_EQ(s3, s4);
+}
+
 TEST(equality, StructTypeDifferent)
 {
   StructType s1("s", {});
   StructType s2("s", {new StructField(CTYPE_CHAR, "f")});
+
+  ASSERT_NE(s1,s2);
+}
+
+TEST(equality, PointerStructTypeDifferent)
+{
+  StructType s1("s", {}, true);
+  StructType s2("s", {new StructField(CTYPE_CHAR, "f")}, true);
 
   ASSERT_NE(s1,s2);
 }

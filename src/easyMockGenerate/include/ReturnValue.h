@@ -17,7 +17,7 @@
 #include <string>
 #include <EasyMockGenerateTypes.h>
 
-//Forward declare to avoid circle dependencies
+//Forward declare to avoid cycle dependencies
 class TypeItf;
 class StructType;
 
@@ -46,7 +46,7 @@ private:
   friend void swap(ReturnValue &first, ReturnValue &second);
 };
 
-ReturnValue VoidReturnValue();
+ReturnValue VoidReturnValue(bool p_isPointer = false);
 ReturnValue TypedReturnValue(easyMock_cTypes_t p_type);
 ReturnValue StructReturnValue(StructType* type);
 

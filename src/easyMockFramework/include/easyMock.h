@@ -37,6 +37,7 @@ extern "C"
   DECLARE_MATCHER(float);
   DECLARE_MATCHER(double);
   DECLARE_MATCHER(long_double);
+  DECLARE_MATCHER(pointer);
 
 #ifdef __cplusplus
 }
