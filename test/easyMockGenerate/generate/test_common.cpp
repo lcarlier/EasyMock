@@ -19,28 +19,35 @@
 
 static void readStdoutStderrUntilEnd(int fdStdOut, int fdStdErr, std::string *stdOut, std::string *stdErr);
 static void appendReadIntoString(int fd, std::string *str, const char *strName, bool *noMoreToRead);
-static void loadSo(const char *pathToSo, const char *functionToLoad, const char *paramToMatch, void **funcPtr, void **functExpectPtr, void **functMatcherPtr, void **handle);
+static void loadSo(const char *pathToSo, const char *functionToLoad, const char *paramToMatch, void **funcPtr, void **functExpectPtr, void **functMatcherPtr, void **functOutputPtr, void **handle);
 static void executeCmd(const char * const aArguments[], std::string *stdOut, std::string *stdErr, int *status);
-static void prepareTest(const ElementToMock::Vector &elem, const std::string &functionToMock, std::string &paramToMatch, const std::string &fullPathToFileToMock, const std::string &mockDir, void **funcPtr, void **functExpectPtr, void **functMatcherPtr, void **handle);
+static void prepareTest(const ElementToMock::Vector &elem, const std::string &functionToMock, std::string &paramToMatch, std::string &ptrOutputTypeToMatch, const std::string &fullPathToFileToMock, const std::string &mockDir, void **funcPtr, void **functExpectPtr, void **functMatcherPtr, void **functOutputPtr, void **handle);
 static void cleanTest(void **handle, const std::string &mockDir, bool rmDirectory);
 
 easyMockGenerate_baseTestCase::easyMockGenerate_baseTestCase(const std::string functionToMock, const std::string pathToFileToMock, const std::string mockDir, bool rmDir) :
 ::testing::Test(),
 m_functionToMock(functionToMock),
-m_paramToMatch(""),
+m_strucTypeToMatch(""),
+m_ptrOutputTypeToMatch(""),
 m_pathToFileToMock(pathToFileToMock),
 m_mockDir(mockDir),
 m_rmDir(rmDir),
 handle(NULL),
 m_fptr(NULL),
 m_fptr_expect(NULL),
-m_fptr_matcher(NULL)
+m_fptr_matcher(NULL),
+m_fptr_output_ptr(NULL)
 {
 }
 
-void easyMockGenerate_baseTestCase::setParamToMatch(const std::string paramToMatch)
+void easyMockGenerate_baseTestCase::setStructTypeToMatch(const std::string structTypeToMatch)
 {
-  m_paramToMatch = paramToMatch;
+  m_strucTypeToMatch = structTypeToMatch;
+}
+
+void easyMockGenerate_baseTestCase::setPtrOutputTypeToMatch(const std::string ptrOutputTypeToMatch)
+{
+  m_ptrOutputTypeToMatch = ptrOutputTypeToMatch;
 }
 
 std::stringstream &operator<<(std::stringstream &out, const EasyMock_ErrorArrayPrinter &obj)
@@ -71,7 +78,7 @@ int fifoCallSize()
 
 void easyMockGenerate_baseTestCase::SetUp()
 {
-  prepareTest(m_elem, m_functionToMock, m_paramToMatch, m_pathToFileToMock, m_mockDir, (void **) &m_fptr, (void **) &m_fptr_expect, (void **) &m_fptr_matcher, &handle);
+  prepareTest(m_elem, m_functionToMock, m_strucTypeToMatch, m_ptrOutputTypeToMatch, m_pathToFileToMock, m_mockDir, (void **) &m_fptr, (void **) &m_fptr_expect, (void **) &m_fptr_matcher, (void **)&m_fptr_output_ptr, &handle);
 
   easyMock_init();
 
@@ -86,14 +93,32 @@ void easyMockGenerate_baseTestCase::TearDown()
 
 void easyMockGenerate_baseTestCase::getFunPtr(void** fPtr, void** fExpectPtr)
 {
-  *fPtr = m_fptr;
-  *fExpectPtr = m_fptr_expect;
+  if(fPtr)
+  {
+    *fPtr = m_fptr;
+  }
+  if(fExpectPtr)
+  {
+    *fExpectPtr = m_fptr_expect;
+  }
 }
 
 void easyMockGenerate_baseTestCase::getFunPtr(void** fPtr, void** fExpectPtr, void **fMatcher)
 {
   getFunPtr(fPtr, fExpectPtr);
-  *fMatcher = m_fptr_matcher;
+  if(fMatcher)
+  {
+    *fMatcher = m_fptr_matcher;
+  }
+}
+
+void easyMockGenerate_baseTestCase::getFunPtr(void** fPtr, void** fExpectPtr, void** fMatcherPtr, void** fOutputPtr)
+{
+  getFunPtr(fPtr, fExpectPtr, fMatcherPtr);
+  if(fOutputPtr)
+  {
+    *fOutputPtr = m_fptr_output_ptr;
+  }
 }
 
 void createDir(const std::string &dir)
@@ -110,7 +135,7 @@ void rmDir(const std::string &dir)
   ASSERT_EQ(errCode.value(), 0) << "Error removing directory " << dir << " errCode: " << errCode.message();
 }
 
-static void prepareTest(const ElementToMock::Vector &elem, const std::string &functionToMock, std::string &paramToMatch, const std::string &fullPathToFileToMock, const std::string &mockDir, void **fptr, void **fptr_expect, void **fptr_matcher, void **handle)
+static void prepareTest(const ElementToMock::Vector &elem, const std::string &functionToMock, std::string &structTypeToMatch, std::string &ptrOutputTypeToMatch, const std::string &fullPathToFileToMock, const std::string &mockDir, void **fptr, void **fptr_expect, void **fptr_matcher, void **fptr_output_ptr, void **handle)
 {
   char cwd[PATH_MAX];
   ASSERT_NE(getcwd(cwd, PATH_MAX), nullptr) << std::endl << "getcwd error. errno: " << errno << "(" << strerror(errno) << ")" << std::endl;
@@ -143,7 +168,7 @@ static void prepareTest(const ElementToMock::Vector &elem, const std::string &fu
   executeCmd(compileLibCmd, &stdOut, &stdErr, &status);
   ASSERT_EQ(status, 0) << std::endl << "Compilation lib failed " << std::endl << "cwd: " << cwd << std::endl << "stdout: " << std::endl << stdOut << std::endl << "stderr:" << std::endl << stdErr << std::endl;
 
-  loadSo(pathToLib.c_str(), functionToMock.c_str(), paramToMatch.c_str(), fptr, fptr_expect, fptr_matcher, handle);
+  loadSo(pathToLib.c_str(), functionToMock.c_str(), structTypeToMatch.c_str(), fptr, fptr_expect, fptr_matcher, fptr_output_ptr, handle);
 }
 
 static void cleanTest(void **handle, const std::string &mockDir, bool rmDirectory)
@@ -325,7 +350,7 @@ static void executeCmd(const char * const aArguments[], std::string *stdOut, std
   }
 }
 
-static void loadSo(const char *pathToSo, const char *functionToLoad, const char *paramToMatch, void **funcPtr, void **funcPtr_expect, void **funcPtr_matcher, void **handle)
+static void loadSo(const char *pathToSo, const char *functionToLoad, const char *structTypeToMatch, void **funcPtr, void **funcPtr_expect, void **funcPtr_matcher, void **funcPtr_output_ptr, void **handle)
 {
   char *error;
 
@@ -343,11 +368,17 @@ static void loadSo(const char *pathToSo, const char *functionToLoad, const char 
   std::string expectStr(functionToLoad);
   expectStr.append("_ExpectAndReturn");
 
+  dlerror(); /* Clear any existing error */
+
   *funcPtr_expect = dlsym(*handle, expectStr.c_str());
   error = dlerror();
   ASSERT_EQ(error, nullptr) << "couldn't load expect function " << functionToLoad << ": " << error;
 
   std::string matchStr("cmp_struct_");
-  matchStr.append(paramToMatch);
+  matchStr.append(structTypeToMatch);
   *funcPtr_matcher = dlsym(*handle, matchStr.c_str());
+
+  std::string funPtrOutPtr(functionToLoad);
+  funPtrOutPtr.append("_ExpectReturnAndOutput");
+  *funcPtr_output_ptr = dlsym(*handle, funPtrOutPtr.c_str());
 }

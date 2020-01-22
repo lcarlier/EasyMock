@@ -11,7 +11,7 @@
 #include <sstream>
 
 #include <TestTypes.h>
-
+#include <StructCommonHelper.h>
 
 static std::string getElementOfTupleInsideQueue(const unsigned int idx, const auto &theQueue);
 static void printElIntoStream(std::ostringstream &s1, auto* elem);
@@ -50,7 +50,7 @@ public:
 template<class T>
 T genGenerate_testCase<T>::m_factory;
 
-TYPED_TEST_CASE(genGenerate_testCase, TestTypes);
+TYPED_TEST_CASE(genGenerate_testCase, GenerateTestTypes);
 
 TYPED_TEST(genGenerate_testCase, OneExpect)
 {
@@ -65,7 +65,7 @@ TYPED_TEST(genGenerate_testCase, OneExpect)
   int check = easyMock_check();
   EXPECT_EQ(check, 1);
 
-  ASSERT_NO_ERROR;
+  EASYMOCK_ASSERT_NO_ERROR;
 
   ASSERT_TRUE(isFifoCallEmpty());
 }
@@ -174,7 +174,7 @@ TYPED_TEST(genGenerate_testCase, ThreeExpects)
   int check = easyMock_check();
   EXPECT_EQ(check, 1);
 
-  ASSERT_NO_ERROR;
+  EASYMOCK_ASSERT_NO_ERROR;
 
   ASSERT_TRUE(isFifoCallEmpty());
 }

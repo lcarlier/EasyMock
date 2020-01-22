@@ -20,6 +20,7 @@
 
 #define MOCK_FRAMEWORK_NAME "easyMock"
 #define MOCK_FRAMEWORK_NAME_UPPER "EASYMOCK"
+#define MOCK_OUT_PREFIX "out_"
 
 #define CARRIAGE_RETURN "\n"
 
@@ -27,6 +28,7 @@
 #define MOCKED_FILE_NAME_WITHOUT_EXT_UPPER "MOCKED_FILE_NAME_WITHOUT_EXT_UPPER"
 #define FUNCTION_SECTION "FUNCTION_SECTION"
 #define FUNCTION_PARAM_SECTION "FUNCTION_PARAM_SECTION"
+#define FUNCTION_PARAM_PTR_SECTION "FUNCTION_PARAM_PTR_SECTION"
 #define STRUCT_COMPARE_SECTION "STRUCT_COMPARE_SECTION"
 #define STRUCT_COMPARE_PRE_IF_SECTION "STRUCT_COMPARE_PRE_IF_SECTION"
 #define STRUCT_COMPARE_PRE_IF_SECTION_VAR_NAME "STRUCT_COMPARE_PRE_IF_SECTION_VAR_NAME"
@@ -39,6 +41,7 @@
 #define STRUCT_COMPARE_TYPE "STRUCT_COMPARE_TYPE"
 #define STRUCT_COMPARE_PRINTF_FORMAT "STRUCT_COMPARE_PRINTF_FORMAT"
 #define FUNCTION_PARAM_SECTION_SEPARATOR FUNCTION_PARAM_SECTION "_separator"
+#define FUNCTION_PARAM_PTR_SECTION_SEPARATOR FUNCTION_PARAM_PTR_SECTION "_separator"
 #define FUNCTION_PARAM_TYPE "TYPEDEF_PARAM_RETURN_VALUE"
 #define FUNCTION_PARAM_NAME "TYPEDEF_PARAM_NAME"
 #define FUNCTION_RETURN_VALUE_PARAM_SECTION "FUNCTION_RETURN_VALUE_PARAM_SECTION"
@@ -48,6 +51,7 @@
 #define FUNCTION_NAME_UPPER "FUNCTION_NAME_UPPER"
 #define FUNCTION_MATCHER_LIST_SECTION "FUNCTION_MATCHER_LIST_SECTION"
 #define FUNCTION_PARAM_LIST_SECTION "FUNCTION_PARAM_LIST_SECTION"
+#define FUNCTION_PARAM_PTR_LIST_SECTION "FUNCTION_PARAM_PTR_LIST_SECTION"
 
 #define VOID_FUNCTION_RETURN_VALUE "void"
 
@@ -56,28 +60,44 @@
   STR_TO_PRINT \
   TEMPLATE_END_SECTION(FUNCTION_RETURN_VALUE_PARAM_SECTION)
 
-#define IF_PARAM_LIST(STR_TO_PRINT) \
-  TEMPLATE_BEG_SECTION(FUNCTION_PARAM_LIST_SECTION) \
+#define IF_PARAM_LIST(SECTION, STR_TO_PRINT) \
+  TEMPLATE_BEG_SECTION(SECTION) \
   STR_TO_PRINT \
-  TEMPLATE_END_SECTION(FUNCTION_PARAM_LIST_SECTION)
+  TEMPLATE_END_SECTION(SECTION)
 
-#define PARAMETER_NAME TEMPLATE_VAR(FUNCTION_PARAM_NAME)
+#define PARAMETER_NAME(PREFIX) PREFIX TEMPLATE_VAR(FUNCTION_PARAM_NAME)
 #define PARAMETER_TYPE TEMPLATE_VAR(FUNCTION_PARAM_TYPE)
 #define FUNCTION_RETURN_VALUE_TYPE TEMPLATE_VAR(FUNCTION_RETURN_VALUE)
 
-#define DECLARE_PARAMETER \
-PARAMETER_TYPE " " PARAMETER_NAME
+#define DECLARE_PARAMETER(PREFIX) \
+PARAMETER_TYPE " " PARAMETER_NAME(PREFIX)
 
-#define FUNCTION_PARAM_LIST \
-  TEMPLATE_BEG_SECTION(FUNCTION_PARAM_SECTION) \
-    DECLARE_PARAMETER \
-    TEMPLATE_BEG_SECTION(FUNCTION_PARAM_SECTION_SEPARATOR) \
+#define FUNCTION_PARAM_LIST(SECTION, PREFIX) \
+  TEMPLATE_BEG_SECTION(SECTION) \
+    DECLARE_PARAMETER(PREFIX) \
+    TEMPLATE_BEG_SECTION(SECTION ## _SEPARATOR) \
       ", " \
-    TEMPLATE_END_SECTION(FUNCTION_PARAM_SECTION_SEPARATOR) \
-  TEMPLATE_END_SECTION(FUNCTION_PARAM_SECTION)
+    TEMPLATE_END_SECTION(SECTION ## _SEPARATOR) \
+  TEMPLATE_END_SECTION(SECTION)
+
+#define FUNCTION_PARAM_CALL(SECTION, PREFIX) \
+  TEMPLATE_BEG_SECTION(SECTION) \
+    PARAMETER_NAME(PREFIX) \
+    TEMPLATE_BEG_SECTION(SECTION ## _SEPARATOR) \
+      ", " \
+    TEMPLATE_END_SECTION(SECTION ## _SEPARATOR) \
+  TEMPLATE_END_SECTION(SECTION)
+
+#define FUNCTION_HARDCODED_PARAM_CALL(SECTION, VALUE)\
+  TEMPLATE_BEG_SECTION(SECTION) \
+    VALUE \
+    TEMPLATE_BEG_SECTION(SECTION ## _SEPARATOR) \
+      ", " \
+    TEMPLATE_END_SECTION(SECTION ## _SEPARATOR) \
+  TEMPLATE_END_SECTION(SECTION)
 
 #define FUNCTION_PARAM_MATCH_VAR \
-"easyMock_match_" PARAMETER_NAME
+"easyMock_match_" PARAMETER_NAME("")
 
 #define FUNCTION_MATCHER_LIST \
   TEMPLATE_BEG_SECTION(FUNCTION_PARAM_SECTION) \
@@ -87,8 +107,28 @@ PARAMETER_TYPE " " PARAMETER_NAME
     TEMPLATE_END_SECTION(FUNCTION_PARAM_SECTION_SEPARATOR) \
   TEMPLATE_END_SECTION(FUNCTION_PARAM_SECTION)
 
+#define FUNCTION_MATCHER_CALL \
+  TEMPLATE_BEG_SECTION(FUNCTION_PARAM_SECTION) \
+    FUNCTION_PARAM_MATCH_VAR \
+    TEMPLATE_BEG_SECTION(FUNCTION_PARAM_SECTION_SEPARATOR)\
+      ", " \
+    TEMPLATE_END_SECTION(FUNCTION_PARAM_SECTION_SEPARATOR) \
+  TEMPLATE_END_SECTION(FUNCTION_PARAM_SECTION)
+
+#define FUNCTION_EXPECT_AND_RETURN_NAME \
+TEMPLATE_VAR(FUNCTION_NAME) "_ExpectAndReturn("
+
+#define FUNCTION_EXPECT_RETURN_AND_OUTPUT_COMMON_PARAM \
+FUNCTION_PARAM_LIST(FUNCTION_PARAM_SECTION, "") IF_RETURN_VALUE(IF_PARAM_LIST(FUNCTION_PARAM_LIST_SECTION, ", ") FUNCTION_RETURN_VALUE_TYPE " to_return") IF_PARAM_LIST(FUNCTION_PARAM_LIST_SECTION, ", ") FUNCTION_MATCHER_LIST
+
 #define FUNCTION_EXPECT_AND_RETURN_SIGNATURE \
-"void " TEMPLATE_VAR(FUNCTION_NAME) "_ExpectAndReturn(" FUNCTION_PARAM_LIST IF_RETURN_VALUE(IF_PARAM_LIST(", ") FUNCTION_RETURN_VALUE_TYPE " to_return") IF_PARAM_LIST(", ") FUNCTION_MATCHER_LIST ")"
+"void " FUNCTION_EXPECT_AND_RETURN_NAME FUNCTION_EXPECT_RETURN_AND_OUTPUT_COMMON_PARAM ")"
+
+#define FUNCTION_EXPECT_RETURN_AND_OUTPUT_NAME \
+TEMPLATE_VAR(FUNCTION_NAME) "_ExpectReturnAndOutput"
+
+#define FUNCTION_EXPECT_RETURN_AND_OUTPUT_SIGNATURE \
+"void " FUNCTION_EXPECT_RETURN_AND_OUTPUT_NAME "(" FUNCTION_EXPECT_RETURN_AND_OUTPUT_COMMON_PARAM IF_PARAM_LIST(FUNCTION_PARAM_PTR_LIST_SECTION, ", ") FUNCTION_PARAM_LIST(FUNCTION_PARAM_PTR_SECTION, MOCK_OUT_PREFIX) ")"
 
 #define RESET_ALL_MOCK_FUNCTION_NAME \
 MOCK_FRAMEWORK_NAME "_resetAllMocksInThisHeader"
@@ -109,7 +149,7 @@ TEMPLATE_VAR(FUNCTION_NAME) "_data"
 TEMPLATE_VAR(FUNCTION_NAME) "_returnValue"
 
 #define FUNCTION_MOCK_DATA_CUR_MATCH_VAR \
-TEMPLATE_VAR(FUNCTION_NAME) "_match_" PARAMETER_NAME
+TEMPLATE_VAR(FUNCTION_NAME) "_match_" PARAMETER_NAME("")
 
 #define CURRENT_DATA_CALL "currentDataCall"
 #define CURRENT_DATA_CALL_MEMBER(member) CURRENT_DATA_CALL "." member
@@ -118,7 +158,7 @@ TEMPLATE_VAR(FUNCTION_NAME) "_match_" PARAMETER_NAME
 #define MOCKED_DATA "mockedData"
 #define MOCKED_DATA_MEMBER(member) MOCKED_DATA "." member
 
-#define TEMPLATE_FUNCTION_TO_BE_MOCKED FUNCTION_RETURN_VALUE_TYPE " " TEMPLATE_VAR(FUNCTION_NAME) "(" FUNCTION_PARAM_LIST ")"
+#define TEMPLATE_FUNCTION_TO_BE_MOCKED FUNCTION_RETURN_VALUE_TYPE " " TEMPLATE_VAR(FUNCTION_NAME) "(" FUNCTION_PARAM_LIST(FUNCTION_PARAM_SECTION, "") ")"
 #define MOCKED_FUN_CLASS(F_NAME) "mocked_" F_NAME
 #define TEMPLATE_MOCKED_FUN_CLASS MOCKED_FUN_CLASS(TEMPLATE_VAR(FUNCTION_NAME))
 
@@ -143,6 +183,7 @@ static const char templateText[] =
         "#include <easyMock_framework.h>" CARRIAGE_RETURN
         "#include <MockedFunction.h>" CARRIAGE_RETURN
         "#include <string>" CARRIAGE_RETURN
+        "#include <cstring>" CARRIAGE_RETURN
         CARRIAGE_RETURN
         FUNCTION_RESET_ALL_MOCK_SIGNATURE ";" CARRIAGE_RETURN
         FUNCTION_VERIFY_ALL_MOCK_SIGNATURE ";" CARRIAGE_RETURN
@@ -173,10 +214,13 @@ static const char templateText[] =
         GENERATE_COMMENT CARRIAGE_RETURN
         "typedef struct {" CARRIAGE_RETURN
         TEMPLATE_BEG_SECTION(FUNCTION_PARAM_SECTION)
-        "    " DECLARE_PARAMETER ";" CARRIAGE_RETURN
+        "    " DECLARE_PARAMETER("") ";" CARRIAGE_RETURN
         "    EasyMock_Matcher " FUNCTION_MOCK_DATA_CUR_MATCH_VAR ";" CARRIAGE_RETURN
         TEMPLATE_END_SECTION(FUNCTION_PARAM_SECTION)
         IF_RETURN_VALUE("    " FUNCTION_RETURN_VALUE_TYPE " " FUNCTION_MOCK_DATA_RETURN_VALUE_VARIABLE ";" CARRIAGE_RETURN)
+        TEMPLATE_BEG_SECTION(FUNCTION_PARAM_PTR_SECTION)
+        "    " DECLARE_PARAMETER(MOCK_OUT_PREFIX) ";" CARRIAGE_RETURN
+        TEMPLATE_END_SECTION(FUNCTION_PARAM_PTR_SECTION)
         "} " FUNCTION_MOCK_DATA_TYPE";" CARRIAGE_RETURN
         CARRIAGE_RETURN
         "static MockedFunction<" FUNCTION_MOCK_DATA_TYPE "> " TEMPLATE_MOCKED_FUN_CLASS "(\"" TEMPLATE_FUNCTION_TO_BE_MOCKED "\");" CARRIAGE_RETURN
@@ -187,7 +231,12 @@ static const char templateText[] =
         "    bool printCallStack = easyMock_printCallStack();" CARRIAGE_RETURN
         "    bool checkFifoCall = easyMock_checkFifoCall();" CARRIAGE_RETURN
         CARRIAGE_RETURN
-        IF_RETURN_VALUE("    " FUNCTION_RETURN_VALUE_TYPE " default_res = dummyRes;" CARRIAGE_RETURN CARRIAGE_RETURN)
+        IF_RETURN_VALUE
+        (
+            "    " FUNCTION_RETURN_VALUE_TYPE " default_res;" CARRIAGE_RETURN
+            "    std::memcpy(&default_res, &dummyRes, sizeof(default_res));" CARRIAGE_RETURN
+            CARRIAGE_RETURN
+        )
         "    if(!" TEMPLATE_MOCKED_FUN_CLASS ".addActualCall())" CARRIAGE_RETURN
         "    {" CARRIAGE_RETURN
         "        easyMock_addError(printCallStack, \"Error : unexpected call of '%s'." IF_RETURN_VALUE(" " TEMPLATE_VAR(FUNCTION_NAME) " is returning a random value.") "\", " TEMPLATE_MOCKED_FUN_CLASS ".getName().c_str());" CARRIAGE_RETURN
@@ -205,10 +254,10 @@ static const char templateText[] =
         "    if(" CURRENT_DATA_CALL_MEMBER(FUNCTION_MOCK_DATA_CUR_MATCH_VAR) " != NULL)" CARRIAGE_RETURN
         "    {" CARRIAGE_RETURN
         "        char errorMessage[EASYMOCK_MAX_CMP_ERR] = {0};" CARRIAGE_RETURN
-        "        void *curCallVal = (void *) &" PARAMETER_NAME ";" CARRIAGE_RETURN
-        "        void *expectedCallVal = (void *) &" CURRENT_DATA_CALL_MEMBER(PARAMETER_NAME) ";" CARRIAGE_RETURN
+        "        void *curCallVal = (void *) &" PARAMETER_NAME("") ";" CARRIAGE_RETURN
+        "        void *expectedCallVal = (void *) &" CURRENT_DATA_CALL_MEMBER(PARAMETER_NAME("")) ";" CARRIAGE_RETURN
         "        EasyMock_Matcher matcher = " CURRENT_DATA_CALL_MEMBER(FUNCTION_MOCK_DATA_CUR_MATCH_VAR) ";" CARRIAGE_RETURN
-        "        int error = matcher(curCallVal, expectedCallVal, \"" PARAMETER_NAME "\", errorMessage);" CARRIAGE_RETURN
+        "        int error = matcher(curCallVal, expectedCallVal, \"" PARAMETER_NAME("") "\", errorMessage);" CARRIAGE_RETURN
         "        if(error)" CARRIAGE_RETURN
         "        {" CARRIAGE_RETURN
         "            easyMock_addError(printCallStack, \"Error : at call %d of '%s': %s\", " TEMPLATE_MOCKED_FUN_CLASS ".getNbActualCall(), " TEMPLATE_MOCKED_FUN_CLASS ".getName().c_str(), errorMessage);" CARRIAGE_RETURN
@@ -228,18 +277,32 @@ static const char templateText[] =
         "            return" IF_RETURN_VALUE(" default_res") ";" CARRIAGE_RETURN
         "        }" CARRIAGE_RETURN
         "    }" CARRIAGE_RETURN
+        TEMPLATE_BEG_SECTION(FUNCTION_PARAM_PTR_SECTION)
+        "    if(" CURRENT_DATA_CALL_MEMBER(PARAMETER_NAME(MOCK_OUT_PREFIX)) ")" CARRIAGE_RETURN
+        "    {" CARRIAGE_RETURN
+        "        std::memcpy(" PARAMETER_NAME("") ", " CURRENT_DATA_CALL_MEMBER(PARAMETER_NAME(MOCK_OUT_PREFIX)) ", sizeof(*" PARAMETER_NAME("") "));" CARRIAGE_RETURN
+        "    }" CARRIAGE_RETURN
+        TEMPLATE_END_SECTION(FUNCTION_PARAM_PTR_SECTION)
         IF_RETURN_VALUE(CARRIAGE_RETURN "    return default_res;" CARRIAGE_RETURN)
         "}" CARRIAGE_RETURN
         CARRIAGE_RETURN
         "extern \"C\" " FUNCTION_EXPECT_AND_RETURN_SIGNATURE CARRIAGE_RETURN
         "{" CARRIAGE_RETURN
+        "    " FUNCTION_EXPECT_RETURN_AND_OUTPUT_NAME "(" FUNCTION_PARAM_CALL(FUNCTION_PARAM_SECTION, "") IF_RETURN_VALUE(IF_PARAM_LIST(FUNCTION_PARAM_LIST_SECTION, ", ") "to_return") IF_PARAM_LIST(FUNCTION_PARAM_LIST_SECTION, ", ") FUNCTION_MATCHER_CALL IF_PARAM_LIST(FUNCTION_PARAM_PTR_LIST_SECTION, ", ") FUNCTION_HARDCODED_PARAM_CALL(FUNCTION_PARAM_PTR_SECTION, "nullptr") ");" CARRIAGE_RETURN
+        "}" CARRIAGE_RETURN
+        CARRIAGE_RETURN
+        "extern \"C\" " FUNCTION_EXPECT_RETURN_AND_OUTPUT_SIGNATURE CARRIAGE_RETURN
+        "{" CARRIAGE_RETURN
         "    " FUNCTION_MOCK_DATA_TYPE " " MOCKED_DATA ";" CARRIAGE_RETURN
         CARRIAGE_RETURN
         TEMPLATE_BEG_SECTION(FUNCTION_PARAM_SECTION)
-        "    " MOCKED_DATA_MEMBER(PARAMETER_NAME) " = " PARAMETER_NAME ";" CARRIAGE_RETURN
+        "    " MOCKED_DATA_MEMBER(PARAMETER_NAME("")) " = " PARAMETER_NAME("") ";" CARRIAGE_RETURN
         "    " MOCKED_DATA_MEMBER(FUNCTION_MOCK_DATA_CUR_MATCH_VAR) " = " FUNCTION_PARAM_MATCH_VAR ";" CARRIAGE_RETURN
         CARRIAGE_RETURN
         TEMPLATE_END_SECTION(FUNCTION_PARAM_SECTION)
+        TEMPLATE_BEG_SECTION(FUNCTION_PARAM_PTR_SECTION)
+        "    " MOCKED_DATA_MEMBER(PARAMETER_NAME(MOCK_OUT_PREFIX)) " = " PARAMETER_NAME(MOCK_OUT_PREFIX) ";" CARRIAGE_RETURN
+        TEMPLATE_END_SECTION(FUNCTION_PARAM_PTR_SECTION)
         IF_RETURN_VALUE("    " MOCKED_DATA_MEMBER(FUNCTION_MOCK_DATA_RETURN_VALUE_VARIABLE) " = to_return;" CARRIAGE_RETURN CARRIAGE_RETURN)
         "    " TEMPLATE_MOCKED_FUN_CLASS ".addExpectedCall(mockedData);" CARRIAGE_RETURN
         "    easyMock_addCall(" TEMPLATE_MOCKED_FUN_CLASS ".getName());" CARRIAGE_RETURN
@@ -297,6 +360,7 @@ static const char headerFileTemplate[] =
         TEMPLATE_BEG_SECTION(FUNCTION_SECTION)
         "//------------------- GENERATING '" TEMPLATE_FUNCTION_TO_BE_MOCKED "' -------------------" CARRIAGE_RETURN
         FUNCTION_EXPECT_AND_RETURN_SIGNATURE ";" CARRIAGE_RETURN
+        FUNCTION_EXPECT_RETURN_AND_OUTPUT_SIGNATURE ";" CARRIAGE_RETURN
         "//----------------- END GENERATION '" TEMPLATE_FUNCTION_TO_BE_MOCKED "' -----------------" CARRIAGE_RETURN
         CARRIAGE_RETURN
         TEMPLATE_END_SECTION(FUNCTION_SECTION)
@@ -388,6 +452,7 @@ static void generateFunctionSection(ctemplate::TemplateDictionary *rootDictionna
 
 static void generateFunctionParamSection(ctemplate::TemplateDictionary *rootDictionnary, ctemplate::TemplateDictionary *functionSectionDict, const Parameter::Vector *functionParam)
 {
+  bool ptrSectionAdded = false;
   if (functionParam->size() > 0)
   {
     //This specific section to show the comma ',' conditionally for the expect and return function generation
@@ -406,6 +471,18 @@ static void generateFunctionParamSection(ctemplate::TemplateDictionary *rootDict
     argType.append(fParam->getType()->getName());
     newTypedefParamSection->SetValue(FUNCTION_PARAM_TYPE, argType);
     newTypedefParamSection->SetValue(FUNCTION_PARAM_NAME, fParam->getName());
+    //It doesn't make sense to generate an output parameter for void pointer. The mock doesn't know the size of the data to copy into the pointer
+    if(fParam->getType()->isPointer() && fParam->getType()->getCType() != CTYPE_VOID)
+    {
+      if(!ptrSectionAdded)
+      {
+        functionSectionDict->AddSectionDictionary(FUNCTION_PARAM_PTR_LIST_SECTION);
+        ptrSectionAdded = true;
+      }
+      ctemplate::TemplateDictionary* newPtrParamSection = functionSectionDict->AddSectionDictionary(FUNCTION_PARAM_PTR_SECTION);
+      newPtrParamSection->SetValue(FUNCTION_PARAM_TYPE, argType);
+      newPtrParamSection->SetValue(FUNCTION_PARAM_NAME, fParam->getName());
+    }
   }
 }
 
@@ -445,8 +522,13 @@ extern "C" int cmp_struct_{{STRUCT_NAME}} ( void *currentCall_ptr, void *expecte
 }
 {{END_STRUCT_COMPARE_SECTION}}
  */
-static void generateStructCompareSection(ctemplate::TemplateDictionary *rootDictionnary, const TypeItf *structType)
+static void generateStructCompareSection(ctemplate::TemplateDictionary *rootDictionnary, const TypeItf *p_structType)
 {
+  TypeItf* structType = p_structType->clone();
+  if(structType->isPointer()) //Remove the pointer attribute because otherwise the typename contains a *
+  {
+    structType->setPointer(false);
+  }
   ctemplate::TemplateDictionary *compareDict = rootDictionnary->AddSectionDictionary(STRUCT_COMPARE_SECTION);
   compareDict->SetValue(STRUCT_NAME, structType->getName());
   const StructField::Vector *vectField = structType->getContainedFields();
@@ -464,7 +546,7 @@ static void generateStructCompareSection(ctemplate::TemplateDictionary *rootDict
       ifPreSectionDict->SetValue(STRUCT_COMPARE_PRE_IF_SECTION_VAR_NAME, preFieldVarName.c_str());
       ifPreSectionDict->SetValue(STRUCT_COMPARE_PRE_IF_SECTION_FIELD_NAME, curField->getName());
       condition.append("cmp_struct_");
-      condition.append(curField->getType()->getName());
+      condition.append(curType->getName());
       condition.append("(&currentCall_val.");
       condition.append(curField->getName());
       condition.append(", ");
@@ -489,6 +571,7 @@ static void generateStructCompareSection(ctemplate::TemplateDictionary *rootDict
     }
     paramSectDict->SetValue(COMPARE_CONDITION, condition);
   }
+  delete structType;
 }
 
 static bool generateCodeToFile(const std::string &outDir, const std::string &filename, const std::string &extension, const std::string &generatedCode)

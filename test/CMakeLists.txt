@@ -67,6 +67,10 @@ set(TEST_COMMON_SRC_DIR
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/FloatFunFloatFactory.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/UnsShortFunUnsShortFactory.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/ShortFunShortFactory.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/VoidFunStructPtrFactory.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/EasyMockStructHelper.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/StructCommonHelper.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/IntFunStructPtrIntCharPtrFactory.cpp
 )
 
 set(TEST_LINK_LIB ${EASYMOCK_DEFAULT_FULL_LD_PARAM} gtest_main dl)

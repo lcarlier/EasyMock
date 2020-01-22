@@ -5,6 +5,7 @@
 #include "EasyMockGenerateTypes.h"
 #include <StructType.h>
 #include <StructField.h>
+#include <EasyMockStructHelper.h>
 
 static struct s2 toExpect[] =
 {
@@ -20,37 +21,18 @@ static struct s1 returnValues[] =
   {7, 4.5}
 };
 
-static StructType* newStructFunStructS1Type();
 static ReturnValue structFunStructReturnValue();
-static Parameter::Vector structFunStructParameters();
-
-static StructType* newStructFunStructS1Type()
-{
-  return new StructType("s1",{new StructField(CTYPE_INT, "a"), new StructField(CTYPE_FLOAT, "b")});
-}
 
 static ReturnValue structFunStructReturnValue()
 {
-  ReturnValue rv(newStructFunStructS1Type());
+  ReturnValue rv(newStructS1Type());
 
   return rv;
 }
 
-static Parameter::Vector structFunStructParameters()
-{
-  StructType* s1StructType = newStructFunStructS1Type();
-  StructField *s1 = new StructField(s1StructType, "s");
-  s1StructType = nullptr; //Invalidate
-  Parameter* p = StructParameter("s2", "a",{new StructField(CTYPE_INT, "c"), new StructField(CTYPE_FLOAT, "d"), s1});
-  s1 = nullptr; //Invalidate
-  Parameter::Vector funParameter = {p};
-
-  return funParameter;
-}
-
 Function StructFunStructFactory::functionFactory()
 {
-  Function f(functionGetFunctionName(), structFunStructReturnValue(), structFunStructParameters());
+  Function f(functionGetFunctionName(), structFunStructReturnValue(), structS2Parameter());
   return f;
 }
 
@@ -94,19 +76,4 @@ void StructFunStructFactory::setupTestCase(EasyMockTestCase::TestCase tc)
     case EasyMockTestCase::NotEnoughCall:
       break;
   }
-}
-
-bool operator==(const struct s1 &lhs, const struct s1 &rhs)
-{
-  return lhs.a == rhs.a && lhs.b == rhs.b;
-}
-
-std::ostream& operator<<(std::ostream& os, const struct s1& c)
-{
-  return os << "a: " << c.a << " b: " << c.b;
-}
-
-std::ostream& operator<<(std::ostream& os, const struct s2& c)
-{
-  return os << "c: " << c.c << " d: " << c.d << " s1.a: " << c.s.a << " s1.b: " << c.s.b;
 }

@@ -34,7 +34,7 @@ TEST_F(voidFunVoid_testCase, OneExpect)
   int check = easyMock_check();
   EXPECT_EQ(check, 1);
 
-  ASSERT_NO_ERROR;
+  EASYMOCK_ASSERT_NO_ERROR;
 
   ASSERT_TRUE(isFifoCallEmpty());
 }

@@ -61,6 +61,11 @@ Parameter* StructParameter(std::string p_type, std::string p_name, const StructF
   return p;
 }
 
+bool Parameter::setPointer(bool value)
+{
+  return type->setPointer(value);
+}
+
 const std::string& Parameter::getName() const
 {
   return name;

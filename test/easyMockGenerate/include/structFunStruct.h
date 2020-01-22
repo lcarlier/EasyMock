@@ -6,18 +6,7 @@ extern "C"
 {
 #endif
 
-  struct s1
-  {
-    int a;
-    float b;
-  };
-
-  struct s2
-  {
-    int c;
-    float d;
-    struct s1 s;
-  };
+#include "structCommonDeclaration.h"
 
   struct s1 structFunStruct(struct s2 s);
 

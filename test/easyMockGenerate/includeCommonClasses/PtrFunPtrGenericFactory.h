@@ -29,6 +29,13 @@ class PtrFunPtrGenericFactory : public FunctionFactory<PTR_TYPE *, std::tuple<PT
     return functionFactory().clone();
   }
 
+  std::string getPointerName()
+  {
+    CType t(C_TYPE);
+    t.setPointer(false);
+    return t.getName();
+  }
+
   std::string functionGetFunctionName() override
   {
     CType t(C_TYPE);
@@ -108,6 +115,7 @@ class PtrFunPtrGenericFactory : public FunctionFactory<PTR_TYPE *, std::tuple<PT
   }
 
 private:
+  std::deque<PTR_TYPE *> m_out_ptr;
   std::vector<std::string> split(const std::string& str, const std::string & delim)
   {
     std::vector<std::string> tokens;

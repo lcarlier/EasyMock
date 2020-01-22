@@ -19,6 +19,43 @@
 #include <UnsShortFunUnsShortFactory.h>
 #include <StructFunStructFactory.h>
 #include <PtrFunPtrGenericFactory.h>
+#include <VoidFunStructPtrFactory.h>
+#include <IntFunStructPtrIntCharPtrFactory.h>
+
+#define PTR_FUN_PTR_FACTORIES \
+        VoidPtrFunVoidPtrFactory, \
+        CharPtrFunCharPtrFactory, \
+        UnsCharPtrFunUnsCharPtrFactory, \
+        ShortPtrFunShortPtrFactory, \
+        UnsShortPtrFunUnsShortPtrFactory, \
+        IntPtrFunIntPtrFactory, \
+        UnsIntPtrFunUnsIntPtrFactory, \
+        LongPtrFunLongPtrFactory, \
+        UnsLongPtrFunUnsLongPtrFactory, \
+        LongLongPtrFunLongLongPtrFactory, \
+        UnsLongLongPtrFunUnsLongLongPtrFactory, \
+        FloatPtrFunFloatPtrFactory, \
+        DoublePtrFunDoublePtrFactory, \
+        LongDoublePtrFunLongDoublePtrFactory
+
+#define COMMON_TYPES_PARSER_GENERATE \
+        VoidFunVoidFactory, \
+        IntFunVoidFactory, \
+        UnsIntFunVoidFactory, \
+        IntFunIntIntFactory, \
+        CharFunCharFactory, \
+        UnsCharFunUnsCharFactory, \
+        UnsIntFunUnsIntIntFactory, \
+        ShortFunShortFactory, \
+        UnsShortFunUnsShortFactory, \
+        LongFunLongFactory, \
+        UnsLongFunUnsLongFactory, \
+        LongLongFunLongLongFactory, \
+        UnsLongLongFunUnsLongLongFactory, \
+        FloatFunFloatFactory, \
+        DoubleFunDoubleFactory, \
+        LongDoubleFunLongDoubleFactory, \
+        StructFunStructFactory
 
 typedef ::testing::Types
 <
@@ -39,21 +76,20 @@ typedef ::testing::Types
         DoubleFunDoubleFactory,
         LongDoubleFunLongDoubleFactory,
         StructFunStructFactory,
-        VoidPtrFunVoidPtrFactory,
-        CharPtrFunCharPtrFactory,
-        UnsCharPtrFunUnsCharPtrFactory,
-        ShortPtrFunShortPtrFactory,
-        UnsShortPtrFunUnsShortPtrFactory,
-        IntPtrFunIntPtrFactory,
-        UnsIntPtrFunUnsIntPtrFactory,
-        LongPtrFunLongPtrFactory,
-        UnsLongLongFunUnsLongLongFactory,
-        LongLongPtrFunLongLongPtrFactory,
-        UnsLongLongPtrFunUnsLongLongPtrFactory,
-        FloatPtrFunFloatPtrFactory,
-        DoublePtrFunDoublePtrFactory,
-        LongDoublePtrFunLongDoublePtrFactory
-> TestTypes;
+        PTR_FUN_PTR_FACTORIES
+> GenerateTestTypes;
+
+typedef ::testing::Types
+<
+        PTR_FUN_PTR_FACTORIES
+> PtrFunPtrTypes;
+
+typedef ::testing::Types
+<
+        COMMON_TYPES_PARSER_GENERATE,
+        VoidFunStructPtrFactory,
+        IntFunStructPtrIntCharPtrFactory
+> ParserTestTypes;
 
 #endif /* TESTTYPES_H */
 

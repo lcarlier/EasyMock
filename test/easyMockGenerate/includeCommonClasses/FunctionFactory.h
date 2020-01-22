@@ -78,7 +78,7 @@ public:
   virtual Function functionFactory() = 0;
   virtual Function* newFunctionFactory() = 0;
   virtual std::string functionGetFunctionName() = 0;
-  virtual void setupTestCase(EasyMockTestCase::TestCase tc) = 0;
+  virtual void setupTestCase(EasyMockTestCase::TestCase tc) {}; //Not virtual. Only the factories that support generic way of testing the mock generation should implement this
   virtual std::string getFilename() = 0;
   std::string functionGetMockDir()
   {

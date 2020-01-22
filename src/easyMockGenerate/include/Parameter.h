@@ -38,6 +38,8 @@ public:
   bool operator==(const Parameter &other) const;
   bool operator!=(const Parameter &other) const;
 
+  bool setPointer(bool value);
+
   const TypeItf* getType() const;
   const std::string &getName() const;
 

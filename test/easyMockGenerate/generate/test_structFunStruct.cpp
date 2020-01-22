@@ -20,7 +20,7 @@ public:
   {
     StructFunStructFactory factory;
     ElementToMock *f = factory.newFunctionFactory();
-    setParamToMatch("s2");
+    setStructTypeToMatch("s2");
     m_elem.push_back(f);
   }
 };
@@ -56,7 +56,7 @@ TEST_F(structFunStruct_testCase, OneExpect)
   int check = easyMock_check();
   EXPECT_EQ(check, 1);
 
-  ASSERT_NO_ERROR;
+  EASYMOCK_ASSERT_NO_ERROR;
 
   ASSERT_TRUE(isFifoCallEmpty());
 }
@@ -95,7 +95,7 @@ TEST_F(structFunStruct_testCase, OneExpectFirstElemtOfStructWrong)
   int check = easyMock_check();
   EXPECT_EQ(check, 0);
 
-  #define ERROR_EXPECT "Error : at call 1 of 'struct s1 structFunStruct(struct s2 a)': Parameter 'a' which is a struct of type 's2' has field 'c' with value '8', was expecting '9'\n\r\tat EasyMock::addError"
+  #define ERROR_EXPECT "Error : at call 1 of 'struct s1 structFunStruct(struct s2 s)': Parameter 's' which is a struct of type 's2' has field 'c' with value '8', was expecting '9'\n\r\tat EasyMock::addError"
   const char *error = easyMock_getErrorStr();
   ASSERT_NE(error, nullptr);
   ASSERT_TRUE(boost::algorithm::starts_with(error, ERROR_EXPECT)) << "error: " << error;
@@ -145,7 +145,7 @@ TEST_F(structFunStruct_testCase, OneExpectSecondElemtOfStructWrong)
   int check = easyMock_check();
   EXPECT_EQ(check, 0);
 
-  #define ERROR_EXPECT "Error : at call 1 of 'struct s1 structFunStruct(struct s2 a)': Parameter 'a' which is a struct of type 's2' has field 'd' with value '3.500000', was expecting '4.500000'\n\r\tat EasyMock::addError"
+  #define ERROR_EXPECT "Error : at call 1 of 'struct s1 structFunStruct(struct s2 s)': Parameter 's' which is a struct of type 's2' has field 'd' with value '3.500000', was expecting '4.500000'\n\r\tat EasyMock::addError"
   const char *error = easyMock_getErrorStr();
   ASSERT_NE(error, nullptr);
   ASSERT_TRUE(boost::algorithm::starts_with(error, ERROR_EXPECT)) << "error: " << error;
@@ -195,7 +195,7 @@ TEST_F(structFunStruct_testCase, OneExpectSubStructWrong)
   int check = easyMock_check();
   EXPECT_EQ(check, 0);
 
-  #define ERROR_EXPECT "Error : at call 1 of 'struct s1 structFunStruct(struct s2 a)': Parameter 'a.s' which is a struct of type 's1' has field 'b' with value '2.500000', was expecting '3.500000'\n\r\tat EasyMock::addError"
+  #define ERROR_EXPECT "Error : at call 1 of 'struct s1 structFunStruct(struct s2 s)': Parameter 's.s' which is a struct of type 's1' has field 'b' with value '2.500000', was expecting '3.500000'\n\r\tat EasyMock::addError"
   const char *error = easyMock_getErrorStr();
   ASSERT_NE(error, nullptr);
   ASSERT_TRUE(boost::algorithm::starts_with(error, ERROR_EXPECT)) << "error: " << error;
@@ -253,7 +253,7 @@ TEST_F(structFunStruct_testCase, TwoExpectSecondCallArgBad)
   int check = easyMock_check();
   EXPECT_EQ(check, 0);
 
-#define ERROR_EXPECT "Error : at call 2 of 'struct s1 structFunStruct(struct s2 a)': Parameter 'a' which is a struct of type 's2' has field 'c' with value '8', was expecting '10'\n\r\tat EasyMock::addError"
+#define ERROR_EXPECT "Error : at call 2 of 'struct s1 structFunStruct(struct s2 s)': Parameter 's' which is a struct of type 's2' has field 'c' with value '8', was expecting '10'\n\r\tat EasyMock::addError"
   const char *error = easyMock_getErrorStr();
   ASSERT_NE(error, nullptr);
   ASSERT_TRUE(boost::algorithm::starts_with(error, ERROR_EXPECT)) << error;
