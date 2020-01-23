@@ -21,14 +21,13 @@ static void readStdoutStderrUntilEnd(int fdStdOut, int fdStdErr, std::string *st
 static void appendReadIntoString(int fd, std::string *str, const char *strName, bool *noMoreToRead);
 static void loadSo(const char *pathToSo, const char *functionToLoad, const char *paramToMatch, void **funcPtr, void **functExpectPtr, void **functMatcherPtr, void **functOutputPtr, void **handle);
 static void executeCmd(const char * const aArguments[], std::string *stdOut, std::string *stdErr, int *status);
-static void prepareTest(const ElementToMock::Vector &elem, const std::string &functionToMock, std::string &paramToMatch, std::string &ptrOutputTypeToMatch, const std::string &fullPathToFileToMock, const std::string &mockDir, void **funcPtr, void **functExpectPtr, void **functMatcherPtr, void **functOutputPtr, void **handle);
+static void prepareTest(const ElementToMock::Vector &elem, const std::string &functionToMock, std::string &paramToMatch, const std::string &fullPathToFileToMock, const std::string &mockDir, void **funcPtr, void **functExpectPtr, void **functMatcherPtr, void **functOutputPtr, void **handle);
 static void cleanTest(void **handle, const std::string &mockDir, bool rmDirectory);
 
 easyMockGenerate_baseTestCase::easyMockGenerate_baseTestCase(const std::string functionToMock, const std::string pathToFileToMock, const std::string mockDir, bool rmDir) :
 ::testing::Test(),
 m_functionToMock(functionToMock),
 m_strucTypeToMatch(""),
-m_ptrOutputTypeToMatch(""),
 m_pathToFileToMock(pathToFileToMock),
 m_mockDir(mockDir),
 m_rmDir(rmDir),
@@ -43,11 +42,6 @@ m_fptr_output_ptr(NULL)
 void easyMockGenerate_baseTestCase::setStructTypeToMatch(const std::string structTypeToMatch)
 {
   m_strucTypeToMatch = structTypeToMatch;
-}
-
-void easyMockGenerate_baseTestCase::setPtrOutputTypeToMatch(const std::string ptrOutputTypeToMatch)
-{
-  m_ptrOutputTypeToMatch = ptrOutputTypeToMatch;
 }
 
 std::stringstream &operator<<(std::stringstream &out, const EasyMock_ErrorArrayPrinter &obj)
@@ -78,7 +72,7 @@ int fifoCallSize()
 
 void easyMockGenerate_baseTestCase::SetUp()
 {
-  prepareTest(m_elem, m_functionToMock, m_strucTypeToMatch, m_ptrOutputTypeToMatch, m_pathToFileToMock, m_mockDir, (void **) &m_fptr, (void **) &m_fptr_expect, (void **) &m_fptr_matcher, (void **)&m_fptr_output_ptr, &handle);
+  prepareTest(m_elem, m_functionToMock, m_strucTypeToMatch, m_pathToFileToMock, m_mockDir, (void **) &m_fptr, (void **) &m_fptr_expect, (void **) &m_fptr_matcher, (void **)&m_fptr_output_ptr, &handle);
 
   easyMock_init();
 
@@ -135,7 +129,7 @@ void rmDir(const std::string &dir)
   ASSERT_EQ(errCode.value(), 0) << "Error removing directory " << dir << " errCode: " << errCode.message();
 }
 
-static void prepareTest(const ElementToMock::Vector &elem, const std::string &functionToMock, std::string &structTypeToMatch, std::string &ptrOutputTypeToMatch, const std::string &fullPathToFileToMock, const std::string &mockDir, void **fptr, void **fptr_expect, void **fptr_matcher, void **fptr_output_ptr, void **handle)
+static void prepareTest(const ElementToMock::Vector &elem, const std::string &functionToMock, std::string &structTypeToMatch, const std::string &fullPathToFileToMock, const std::string &mockDir, void **fptr, void **fptr_expect, void **fptr_matcher, void **fptr_output_ptr, void **handle)
 {
   char cwd[PATH_MAX];
   ASSERT_NE(getcwd(cwd, PATH_MAX), nullptr) << std::endl << "getcwd error. errno: " << errno << "(" << strerror(errno) << ")" << std::endl;

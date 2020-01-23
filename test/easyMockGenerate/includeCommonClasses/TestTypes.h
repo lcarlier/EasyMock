@@ -38,7 +38,7 @@
         DoublePtrFunDoublePtrFactory, \
         LongDoublePtrFunLongDoublePtrFactory
 
-#define COMMON_TYPES_PARSER_GENERATE \
+#define NON_PTR_FUN_FACTORIES \
         VoidFunVoidFactory, \
         IntFunVoidFactory, \
         UnsIntFunVoidFactory, \
@@ -59,25 +59,14 @@
 
 typedef ::testing::Types
 <
-        VoidFunVoidFactory,
-        IntFunVoidFactory,
-        UnsIntFunVoidFactory,
-        IntFunIntIntFactory,
-        CharFunCharFactory,
-        UnsCharFunUnsCharFactory,
-        UnsIntFunUnsIntIntFactory,
-        ShortFunShortFactory,
-        UnsShortFunUnsShortFactory,
-        LongFunLongFactory,
-        UnsLongFunUnsLongFactory,
-        LongLongFunLongLongFactory,
-        UnsLongLongFunUnsLongLongFactory,
-        FloatFunFloatFactory,
-        DoubleFunDoubleFactory,
-        LongDoubleFunLongDoubleFactory,
-        StructFunStructFactory,
+        NON_PTR_FUN_FACTORIES,
         PTR_FUN_PTR_FACTORIES
 > GenerateTestTypes;
+
+typedef ::testing::Types
+<
+        NON_PTR_FUN_FACTORIES
+> NonPtrFunTypes;
 
 typedef ::testing::Types
 <
@@ -86,7 +75,7 @@ typedef ::testing::Types
 
 typedef ::testing::Types
 <
-        COMMON_TYPES_PARSER_GENERATE,
+        NON_PTR_FUN_FACTORIES,
         VoidFunStructPtrFactory,
         IntFunStructPtrIntCharPtrFactory
 > ParserTestTypes;

@@ -76,7 +76,7 @@ class FunctionFactory<RV, std::tuple<Params ...>, std::tuple<Compare ...>>
 {
 public:
   virtual Function functionFactory() = 0;
-  virtual Function* newFunctionFactory() = 0;
+  virtual Function* newFunctionFactory() { return functionFactory().clone(); };
   virtual std::string functionGetFunctionName() = 0;
   virtual void setupTestCase(EasyMockTestCase::TestCase tc) {}; //Not virtual. Only the factories that support generic way of testing the mock generation should implement this
   virtual std::string getFilename() = 0;

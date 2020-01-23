@@ -32,7 +32,9 @@ public:
   const_iterator end() const { return m_vect.end(); }
   void push_back(T* elem) { m_vect.push_back(elem); }
   typename std::vector<T*>::size_type size() const { return m_vect.size(); }
-  T& operator[](int i) { return *m_vect[i]; }
+  T& operator[](int i) const { return *m_vect[i]; }
+  T& front() const { return *m_vect.front(); }
+  T& back() const { return *m_vect.back(); }
 
   AutoCleanVectorPtr(const AutoCleanVectorPtr &other)
   {
