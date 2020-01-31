@@ -19,3 +19,8 @@ std::ostream& operator<<(std::ostream& os, const struct s2& c)
 {
   return os << "c: " << c.c << " d: " << c.d << " s1.a: " << c.s.a << " s1.b: " << c.s.b;
 }
+
+std::ostream& operator<<(std::ostream& os, const struct recurs& c)
+{
+  return os << "c.val: " << c.val;
+}

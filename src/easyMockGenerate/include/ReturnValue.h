@@ -16,15 +16,17 @@
 
 #include <string>
 #include <EasyMockGenerateTypes.h>
+#include "Declarator.h"
 
 //Forward declare to avoid cycle dependencies
 class TypeItf;
 class StructType;
 
-class ReturnValue
+class ReturnValue : public Declarator
 {
   ReturnValue();
-  ReturnValue(TypeItf *type);
+  explicit ReturnValue(TypeItf *type);
+  ReturnValue(TypeItf *type, bool isPointer);
 
   ReturnValue(const ReturnValue &other);
   ReturnValue& operator=(ReturnValue other);
@@ -32,23 +34,17 @@ class ReturnValue
   ReturnValue(ReturnValue &&other);
   //With elision pattern no need for move assignment
 
-  const TypeItf* getType() const;
-  void setType(TypeItf* type);
-  const std::string& getTypeName() const;
-
   bool operator==(const ReturnValue &other) const;
   bool operator!=(const ReturnValue &other) const;
 
   virtual ~ReturnValue();
 private:
-  TypeItf *m_type;
-
   friend void swap(ReturnValue &first, ReturnValue &second);
 };
 
 ReturnValue VoidReturnValue(bool p_isPointer = false);
-ReturnValue TypedReturnValue(easyMock_cTypes_t p_type);
-ReturnValue StructReturnValue(StructType* type);
+ReturnValue TypedReturnValue(easyMock_cTypes_t p_type, bool p_isPointer = false);
+ReturnValue StructReturnValue(StructType* type, bool p_isPointer = false);
 
 #endif /* RETURNVALUE_H */
 

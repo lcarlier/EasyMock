@@ -60,6 +60,7 @@ set(TEST_FACTORIES_SRC_DIR
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/EasyMockStructHelper.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/StructCommonHelper.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/IntFunStructPtrIntCharPtrFactory.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/StructRecursiveMemberPtrTypeFactory.cpp
 )
 
 set(TEST_COMMON_SRC_DIR
@@ -72,6 +73,7 @@ set(TEST_COMMON_SRC_DIR
     ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/TypeItf.cpp
     ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/CType.cpp
     ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/StructType.cpp
+    ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/Declarator.cpp
     ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/EasyMockGenerateTypes.cpp
     ${EasyMock_SOURCE_DIR}/src/easyMockFramework/src/easyMock_matcher.cpp
 )

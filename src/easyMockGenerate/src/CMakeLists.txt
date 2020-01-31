@@ -17,6 +17,7 @@ set(EASYMOCK_GEN_SOURCE_FILE
   ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/ElementToMock.cpp
   ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/EasyMockGenerateTypes.cpp
   ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/Parameter.cpp
+  ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/Declarator.cpp
 )
 
 add_subdirectory(CTemplateGenerator)

@@ -15,7 +15,7 @@ extern "C"
   struct s2
   {
     int c;
-    float d;
+    float* d;
     struct s1 s;
   };
 

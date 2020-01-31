@@ -20,7 +20,7 @@ class PtrFunPtrGenericFactory : public FunctionFactory<PTR_TYPE *, std::tuple<PT
   Function functionFactory() override
   {
     bool isPointer = true;
-    Function f(functionGetFunctionName(), ReturnValue(new CType(C_TYPE, isPointer)),{NamedParameter(C_TYPE, "ptr", isPointer)});
+    Function f(functionGetFunctionName(), ReturnValue(new CType(C_TYPE), isPointer),{NamedParameter(C_TYPE, "ptr", isPointer)});
     return f;
   }
 
@@ -32,7 +32,6 @@ class PtrFunPtrGenericFactory : public FunctionFactory<PTR_TYPE *, std::tuple<PT
   std::string getPointerName()
   {
     CType t(C_TYPE);
-    t.setPointer(false);
     return t.getName();
   }
 

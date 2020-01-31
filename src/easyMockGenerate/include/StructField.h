@@ -18,14 +18,21 @@
 #include "AutoCleanVectorPtr.h"
 #include "EasyMockGenerateTypes.h"
 
+#include "Declarator.h"
+
 //Forward declare TypeItf to avoid circular include dependencies
 class TypeItf;
+class StructType;
 
-class StructField
+class StructField : public Declarator
 {
 public:
   StructField(const easyMock_cTypes_t p_ctype, std::string p_name);
   StructField(TypeItf *p_type, std::string p_name);
+  StructField(TypeItf *p_type, std::string p_name, bool p_recursiveTypeField);
+
+  void updateRecursiveTypePtr(StructType *ptr);
+  bool isRecursiveTypeField() const;
 
   typedef AutoCleanVectorPtr<StructField> Vector;
 
@@ -38,8 +45,9 @@ public:
   bool operator==(const StructField &other) const;
   bool operator!=(const StructField &other) const;
 
-  const TypeItf* getType() const;
+  const TypeItf* getType() const override;
   const std::string& getName() const;
+  void setType(TypeItf* type) override;
 
   virtual StructField* clone() const;
 
@@ -47,8 +55,8 @@ public:
 
 private:
   /* Do not make this constant otherwise the object is not copyable anymore */
-  TypeItf *type;
-  std::string name;
+  std::string m_name;
+  TypeItf* m_recursiveType;
 
   friend void swap(StructField &first, StructField &second);
 };

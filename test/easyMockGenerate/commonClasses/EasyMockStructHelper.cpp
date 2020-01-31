@@ -12,7 +12,10 @@ Parameter::Vector structS2Parameter()
   StructType* s1StructType = newStructS1Type();
   StructField *s1 = new StructField(s1StructType, "s"); //Transfering the ownership of the StructType pointer to StructField object
   s1StructType = nullptr; //Invalidate because not usable anymore.
-  Parameter* p = StructParameter("s2", "s",{new StructField(CTYPE_INT, "c"), new StructField(CTYPE_FLOAT, "d"), s1}); //Transfering the ownership of the s1 pointer to the StructParameter class
+  StructField* floatStructField = new StructField(CTYPE_FLOAT, "d");
+  floatStructField->setPointer(true);
+  Parameter* p = StructParameter("s2", "s",{new StructField(CTYPE_INT, "c"), floatStructField, s1}); //Transfering the ownership of the s1 pointer to the StructParameter class
+  floatStructField = nullptr; //Invalidate because not usable anymore.
   s1 = nullptr; //Invalidate because not usable anymore.
   Parameter::Vector funParameter = {p};
 

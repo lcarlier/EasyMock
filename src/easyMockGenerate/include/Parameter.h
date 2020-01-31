@@ -18,14 +18,13 @@
 
 #include "EasyMockGenerateTypes.h"
 #include "StructField.h"
+#include "Declarator.h"
 
-//Forward declare TypeItf to avoid circular import dependency
-class TypeItf;
-
-class Parameter
+class Parameter : public Declarator
 {
 public:
   Parameter(TypeItf *p_type, std::string p_name);
+  Parameter(TypeItf *p_type, std::string p_name, bool isPointer);
 
   typedef AutoCleanVectorPtr<Parameter> Vector;
 
@@ -38,9 +37,6 @@ public:
   bool operator==(const Parameter &other) const;
   bool operator!=(const Parameter &other) const;
 
-  bool setPointer(bool value);
-
-  const TypeItf* getType() const;
   const std::string &getName() const;
 
   virtual ~Parameter();
@@ -49,8 +45,7 @@ public:
 
 private:
   /* Do not make the member const otherwise they are not copyable anymore */
-  TypeItf *type;
-  std::string name;
+  std::string m_name;
 
   friend void swap(Parameter &first, Parameter &second);
 };

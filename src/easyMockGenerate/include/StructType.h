@@ -7,15 +7,19 @@ class StructType : public TypeItf
 {
 public:
   explicit StructType(const std::string p_name);
-  StructType(const std::string p_name, const StructField::Vector p_elem, bool p_isPointer = false);
+  StructType(const std::string p_name, const StructField::Vector p_elem);
   bool isStruct() const;
   const StructField::Vector *getContainedFields() const;
   void addStructField(StructField *newField);
 
-  StructType(const StructType& other) = default;
-  StructType& operator=(const StructType& other) = default;
-  StructType(StructType &&other) = default;
-  StructType& operator=(StructType &&other) = default;
+  /*
+   * There is no pointer to move so I decided not to use the
+   * elision pattern
+   */
+  StructType(const StructType& other);
+  StructType& operator=(const StructType& other);
+  StructType(StructType &&other);
+  //No move operator otherwise the object is not movable anymore (UT fails)
 
   bool operator==(const StructType &other) const;
   bool operator!=(const StructType &other) const;
@@ -23,9 +27,15 @@ public:
   StructType* clone() const;
 
   virtual ~StructType();
+protected:
+  bool isEqual(const TypeItf& other) const override;
+
 private:
   /* Don't make it constant otherwise the object is not copyable anymore */
-  StructField::Vector elem;
+  StructField::Vector m_elem;
+
+  void correctRecursiveType(StructType *type);
+  friend void StructField::updateRecursiveTypePtr(StructType* ptr);
 };
 
 #endif /* STRUCTTYPE_H */

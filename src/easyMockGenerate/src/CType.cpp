@@ -3,8 +3,8 @@
 CType::CType() : CType(CTYPE_INVALID)
 {}
 
-CType::CType(const easyMock_cTypes_t p_cType, bool p_isPointer) :
-TypeItf(easyMock_arrayCTypeStr[p_cType], p_isPointer), m_cType(p_cType)
+CType::CType(const easyMock_cTypes_t p_cType) :
+TypeItf(easyMock_arrayCTypeStr[p_cType]), m_cType(p_cType)
 {}
 
 bool CType::isCType() const

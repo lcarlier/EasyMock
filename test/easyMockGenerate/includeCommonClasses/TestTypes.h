@@ -21,6 +21,7 @@
 #include <PtrFunPtrGenericFactory.h>
 #include <VoidFunStructPtrFactory.h>
 #include <IntFunStructPtrIntCharPtrFactory.h>
+#include <StructRecursiveMemberPtrTypeFactory.h>
 
 #define PTR_FUN_PTR_FACTORIES \
         VoidPtrFunVoidPtrFactory, \
@@ -55,7 +56,8 @@
         FloatFunFloatFactory, \
         DoubleFunDoubleFactory, \
         LongDoubleFunLongDoubleFactory, \
-        StructFunStructFactory
+        StructFunStructFactory, \
+        StructRecursiveMemberPtrTypeFactory
 
 typedef ::testing::Types
 <
@@ -75,6 +77,7 @@ typedef ::testing::Types
 
 typedef ::testing::Types
 <
+        PTR_FUN_PTR_FACTORIES,
         NON_PTR_FUN_FACTORIES,
         VoidFunStructPtrFactory,
         IntFunStructPtrIntCharPtrFactory

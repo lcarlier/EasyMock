@@ -32,8 +32,9 @@ TEST_F(voidFunStructPtr_testCase, OnePtrOut)
 
   struct s2 sOut;
   struct s2 s2ExpectOut;
+  float fToExpect = 2;
   s2ExpectOut.c = 1;
-  s2ExpectOut.d = 2;
+  s2ExpectOut.d = &fToExpect;
   s2ExpectOut.s.a = 3;
   s2ExpectOut.s.b = 4;
 
@@ -62,12 +63,13 @@ TEST_F(voidFunStructPtr_testCase, TwoPtrOut)
 
   struct s2 sOut;
   struct s2 s2ExpectOut[2];
+  float fToExpect[2] = {2, 6};
   s2ExpectOut[0].c = 1;
-  s2ExpectOut[0].d = 2;
+  s2ExpectOut[0].d = &fToExpect[0];
   s2ExpectOut[0].s.a = 3;
   s2ExpectOut[0].s.b = 4;
   s2ExpectOut[1].c = 5;
-  s2ExpectOut[1].d = 6;
+  s2ExpectOut[1].d = &fToExpect[1];
   s2ExpectOut[1].s.a = 7;
   s2ExpectOut[1].s.b = 8;
 
@@ -100,12 +102,13 @@ TEST_F(voidFunStructPtr_testCase, TwoPtrOutInterleavedWithNotOut)
 
   struct s2 sOut;
   struct s2 s2ExpectOut[2];
+  float fToExpect[2] = {2, 6};
   s2ExpectOut[0].c = 1;
-  s2ExpectOut[0].d = 2;
+  s2ExpectOut[0].d = &fToExpect[0];
   s2ExpectOut[0].s.a = 3;
   s2ExpectOut[0].s.b = 4;
   s2ExpectOut[1].c = 5;
-  s2ExpectOut[1].d = 6;
+  s2ExpectOut[1].d = &fToExpect[1];
   s2ExpectOut[1].s.a = 7;
   s2ExpectOut[1].s.b = 8;
 

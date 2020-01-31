@@ -11,7 +11,6 @@ public:
   CodeParser_errCode getElementToStub(ElementToMock::Vector& elem) const;
   virtual ~LLVMParser();
 private:
-
 };
 
 #endif /* LLVMPARSER_H */

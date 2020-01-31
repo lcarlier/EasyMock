@@ -29,9 +29,10 @@ TYPED_TEST(genGenerateOutputPtr_testCase, TestOutputPtrGenerated)
 
   Function f = this->m_factory.functionFactory();
   const Parameter::Vector &parameters = *f.getFunctionsParameters();
-  const TypeItf &firstParam = *parameters[0].getType();
+  const Parameter &firstParam = parameters[0];
+  const TypeItf &firstParamType = *firstParam.getType();
   //Parameter of type void * doesn't have an output function because the mock doesn't know the size of the contained void pointer
-  if(firstParam.isCType() && firstParam.isPointer() && firstParam.getCType() == CTYPE_VOID)
+  if(firstParamType.isCType() && firstParam.isPointer() && firstParamType.getCType() == CTYPE_VOID)
   {
     ASSERT_EQ(fptr_output_ptr, nullptr);
   }

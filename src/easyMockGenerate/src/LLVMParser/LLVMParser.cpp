@@ -13,12 +13,17 @@
 #include <string>
 #include <vector>
 #include <boost/filesystem/path.hpp>
+#include <unordered_map>
+#include <string>
+
 #include <Function.h>
 #include <TypeItf.h>
 #include <CType.h>
 
 class FunctionDeclASTVisitor : public clang::RecursiveASTVisitor<FunctionDeclASTVisitor>
 {
+private:
+  typedef std::unordered_map<std::string, StructType *> structKnownTypeMap;
 public:
 
   explicit FunctionDeclASTVisitor(clang::SourceManager& sm, ElementToMock::Vector& elem)
@@ -44,7 +49,9 @@ private:
   {
     ReturnValue rv;
     const clang::Type* clangType = func->getReturnType().getTypePtr();
-    TypeItf *type = getEasyMocktype(*clangType);
+    structKnownTypeMap structKnownType;
+    TypeItf *type = getEasyMocktype(*clangType, structKnownType);
+    rv.setPointer(clangType->isPointerType());
     rv.setType(type);
     type = nullptr; //We lost ownership
     return rv;
@@ -59,11 +66,31 @@ private:
     {
       const clang::ParmVarDecl *param = func->getParamDecl(paramIdx);
       const clang::Type* paramType = param->getType().getTypePtr();
-      TypeItf *type = getEasyMocktype(*paramType);
-      vectParam.push_back(new Parameter(type, param->getNameAsString()));
+      structKnownTypeMap structKnownType;
+      TypeItf *type = getEasyMocktype(*paramType, structKnownType);
+      vectParam.push_back(new Parameter(type, param->getNameAsString(), paramType->isPointerType()));
     }
 
     return vectParam;
+  }
+
+  TypeItf* getEasyMocktype(const clang::Type &clangType, structKnownTypeMap &structKnownType)
+  {
+    TypeItf *type = nullptr;
+    if(clangType.isBuiltinType())
+    {
+      type = getFromBuiltinType(clangType);
+    }
+    else if(clangType.isStructureType())
+    {
+      type = getFromStructType(clangType, structKnownType);
+    }
+    else if(clangType.isPointerType())
+    {
+      type = getFromPointerType(clangType, structKnownType);
+    }
+
+    return type;
   }
 
   CType* getFromBuiltinType(const clang::Type &type)
@@ -116,46 +143,35 @@ private:
     return returnedType;
   }
 
-  TypeItf* getFromStructType(const clang::Type &type)
+  TypeItf* getFromStructType(const clang::Type &type, structKnownTypeMap structKnownType)
   {
     const clang::RecordType *RT = type.getAsStructureType();
-    StructType *sType = new StructType(RT->getDecl()->getNameAsString());
+    std::string typeName = RT->getDecl()->getNameAsString();
+    if(structKnownType.find(typeName) != structKnownType.end())
+    {
+      return structKnownType[typeName];
+    }
+    StructType *sType = new StructType(typeName);
+    structKnownType[typeName] = sType;
     for (clang::FieldDecl *FD :
           type.getAsStructureType()->getDecl()->fields()) {
       const clang::Type *typePtr = FD->getType().getTypePtr();
-      TypeItf *type = getEasyMocktype(*typePtr);
-      StructField *sf = new StructField(type, FD->getNameAsString());
+      TypeItf *type = getEasyMocktype(*typePtr, structKnownType);
+      bool isRecursiveType = structKnownType.find(type->getName()) != structKnownType.end();
+      StructField *sf = new StructField(type, FD->getNameAsString(), isRecursiveType);
+      sf->setPointer(typePtr->isPointerType());
       sType->addStructField(sf);
     }
+    structKnownType.erase(typeName);
     return sType;
   }
 
-  TypeItf* getFromPointerType(const clang::Type &type)
+  TypeItf* getFromPointerType(const clang::Type &type, structKnownTypeMap &structKnownType)
   {
     const clang::Type &pointeeType = *type.getPointeeType().getTypePtr();
-    TypeItf *rv = getEasyMocktype(pointeeType);
-    rv->setPointer(true);
+    TypeItf *rv = getEasyMocktype(pointeeType, structKnownType);
 
     return rv;
-  }
-
-  TypeItf* getEasyMocktype(const clang::Type &clangType)
-  {
-    TypeItf *type = nullptr;
-    if(clangType.isBuiltinType())
-    {
-      type = getFromBuiltinType(clangType);
-    }
-    else if(clangType.isStructureType())
-    {
-      type = getFromStructType(clangType);
-    }
-    else if(clangType.isPointerType())
-    {
-      type = getFromPointerType(clangType);
-    }
-
-    return type;
   }
 
   bool isShortType(const clang::Type &type)
@@ -277,9 +293,11 @@ LLVMParser::LLVMParser(std::string& filename, std::string& flags)  : CodeParserI
 
 CodeParser_errCode LLVMParser::getElementToStub(ElementToMock::Vector& elem) const
 {
-  std::string dir = boost::filesystem::path(m_filename).parent_path().string();
+  //std::string dir = boost::filesystem::path(m_filename).parent_path().string();
+  std::string dir = ".";
   llvm::Twine twineDir(dir);
-  clang::tooling::FixedCompilationDatabase db(twineDir, m_flags);
+  //clang::tooling::FixedCompilationDatabase db(twineDir, {"-I/usr//lib/llvm-7/lib/clang/7.0.0/include/"});
+  clang::tooling::FixedCompilationDatabase db(twineDir, {"-I/usr//lib/gcc/x86_64-linux-gnu/7/include/"});
   std::vector<std::string> arRef({m_filename});
   clang::tooling::ClangTool tool(db, arRef);
   tool.run(newFunctionDeclFrontendAction(elem).get());

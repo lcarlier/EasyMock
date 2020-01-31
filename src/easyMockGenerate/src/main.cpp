@@ -2,26 +2,16 @@
 #include "CodeParserCLang.h"
 #include "MainCodeGenerator.h"
 #include "Function.h"
-
-class OneFun : public CodeParserItf
-{
-public:
-  OneFun():CodeParserItf(){}
-  CodeParser_errCode getElementToStub(ElementToMock::Vector& elem) const
-  {
-    ElementToMock *f  = new Function("function", VoidReturnValue(), {});
-    elem.push_back(f);
-
-    return cp_OK;
-  }
-};
+#include <LLVMParser.h>
+#include <stdio.h>
 
 int main(int argc, char *argv[])
 {
-  OneFun of;
+  LLVMParser of;
+  of.setFlags("-I/usr/include/ -I/usr/include/linux");
   CodeGeneratorCTemplate cg;
-  MainCodeGenerator cp("myHeader.h", of, cg);
-  cp.generateCode("out");
+  MainCodeGenerator cp("/usr/include/stdio.h", of, cg);
+  cp.generateCode("/tmp");
 
   return 0;
 }

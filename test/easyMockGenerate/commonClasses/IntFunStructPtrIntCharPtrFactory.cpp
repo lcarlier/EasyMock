@@ -10,7 +10,7 @@ Function IntFunStructPtrIntCharPtrFactory::functionFactory()
   p[0].setPointer(true);
   p.push_back(new Parameter(new CType(CTYPE_INT), "a"));
   bool isPointer = true;
-  p.push_back(new Parameter(new CType(CTYPE_CHAR, isPointer), "c"));
+  p.push_back(new Parameter(new CType(CTYPE_CHAR), "c", isPointer));
   Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_INT), p);
   return f;
 }

@@ -37,9 +37,13 @@ const std::string Function::getFunctionPrototype() const
     rv_funcProto.append("struct ");
   }
   rv_funcProto.append(m_returnType.getTypeName());
-  rv_funcProto.append(" ");
+  if(m_returnType.isPointer())
+  {
+    rv_funcProto.push_back('*');
+  }
+  rv_funcProto.push_back(' ');
   rv_funcProto.append(m_name);
-  rv_funcProto.append("(");
+  rv_funcProto.push_back('(');
   for (Parameter::Vector::const_iterator it = m_parameters.begin(); it != m_parameters.end(); ++it)
   {
     if(it != m_parameters.begin())
@@ -52,10 +56,14 @@ const std::string Function::getFunctionPrototype() const
       rv_funcProto.append("struct ");
     }
     rv_funcProto.append(fParam->getType()->getName());
-    rv_funcProto.append(" ");
+    if(fParam->isPointer())
+    {
+      rv_funcProto.push_back('*');
+    }
+    rv_funcProto.push_back(' ');
     rv_funcProto.append(fParam->getName());
   }
-  rv_funcProto.append(")");
+  rv_funcProto.push_back(')');
 
   return rv_funcProto;
 }

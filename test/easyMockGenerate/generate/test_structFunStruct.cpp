@@ -39,10 +39,11 @@ TEST_F(structFunStruct_testCase, OneExpect)
   ASSERT_NE(fptr_matcher, nullptr);
 
   struct s2 aToExpect;
+  float fToExpect = 4.5;
   aToExpect.s.a = 6;
   aToExpect.s.b = 3.5;
   aToExpect.c = 9;
-  aToExpect.d = 4.5;
+  aToExpect.d = &fToExpect;
 
   struct s1 returnValue;
   returnValue.a = 5;
@@ -72,10 +73,11 @@ TEST_F(structFunStruct_testCase, OneExpectFirstElemtOfStructWrong)
   ASSERT_NE(fptr_matcher, nullptr);
 
   struct s2 aToExpect;
+  float fToExpect = 4.5;
   aToExpect.s.a = 6;
   aToExpect.s.b = 3.5;
   aToExpect.c = 9;
-  aToExpect.d = 4.5;
+  aToExpect.d = &fToExpect;
 
   struct s2 aWrongParam;
   aWrongParam.s.a = aToExpect.s.a;
@@ -122,16 +124,18 @@ TEST_F(structFunStruct_testCase, OneExpectSecondElemtOfStructWrong)
   ASSERT_NE(fptr_matcher, nullptr);
 
   struct s2 aToExpect;
+  float fToExpect = 4.5;
   aToExpect.s.a = 6;
   aToExpect.s.b = 3.5;
   aToExpect.c = 9;
-  aToExpect.d = 4.5;
+  aToExpect.d = &fToExpect;
 
   struct s2 aWrongParam;
+  float fToExpectWrongParam = 3.5;
   aWrongParam.s.a = aToExpect.s.a;
   aWrongParam.s.b = aToExpect.s.b;
   aWrongParam.c = aToExpect.c;
-  aWrongParam.d = 3.5;
+  aWrongParam.d = &fToExpectWrongParam;
 
   struct s1 returnValue;
   returnValue.a = 5;
@@ -145,16 +149,25 @@ TEST_F(structFunStruct_testCase, OneExpectSecondElemtOfStructWrong)
   int check = easyMock_check();
   EXPECT_EQ(check, 0);
 
-  #define ERROR_EXPECT "Error : at call 1 of 'struct s1 structFunStruct(struct s2 s)': Parameter 's' which is a struct of type 's2' has field 'd' with value '3.500000', was expecting '4.500000'\n\r\tat EasyMock::addError"
+  //#define ERROR_EXPECT "Error : at call 1 of 'struct s1 structFunStruct(struct s2 s)': Parameter 's' which is a struct of type 's2' has field 'd' with value '3.500000', was expecting '4.500000'\n\r\tat EasyMock::addError"
+  std::stringstream ssToExpect;
+  ssToExpect << static_cast<void *>(&fToExpect);
+  std::stringstream ssToExpectWrongParam;
+  ssToExpectWrongParam << static_cast<void *>(&fToExpectWrongParam);
+  std::string errorToExpect("Error : at call 1 of 'struct s1 structFunStruct(struct s2 s)': Parameter 's' which is a struct of type 's2' has field 'd' with value '");
+  errorToExpect.append(ssToExpectWrongParam.str());
+  errorToExpect.append("', was expecting '");
+  errorToExpect.append(ssToExpect.str());
+  errorToExpect.append("'\n\r\tat EasyMock::addError");
   const char *error = easyMock_getErrorStr();
   ASSERT_NE(error, nullptr);
-  ASSERT_TRUE(boost::algorithm::starts_with(error, ERROR_EXPECT)) << "error: " << error;
+  ASSERT_TRUE(boost::algorithm::starts_with(error, errorToExpect.c_str())) << "error: " << error << std::endl << "errorToExpect: " << errorToExpect;
 
   unsigned int size;
   const char **errorArr = easyMock_getErrorArr(&size);
   ASSERT_NE(errorArr, nullptr);
   ASSERT_EQ(size, 1) << EasyMock_ErrorArrayPrinter(errorArr);
-  ASSERT_TRUE(boost::algorithm::starts_with(errorArr[0], ERROR_EXPECT)) << "errorArr[0]: " << errorArr[0];
+  ASSERT_TRUE(boost::algorithm::starts_with(errorArr[0], errorToExpect.c_str())) << "errorArr[0]: " << errorArr[0] << std::endl << "errorToExpect: " << errorToExpect;
   ASSERT_EQ(errorArr[1], nullptr) << "errorArr[1]: " << errorArr[1];
   #undef ERROR_EXPECT
 
@@ -172,10 +185,11 @@ TEST_F(structFunStruct_testCase, OneExpectSubStructWrong)
   ASSERT_NE(fptr_matcher, nullptr);
 
   struct s2 aToExpect;
+  float fToExpect = 4.5;
   aToExpect.s.a = 6;
   aToExpect.s.b = 3.5;
   aToExpect.c = 9;
-  aToExpect.d = 4.5;
+  aToExpect.d = &fToExpect;
 
   struct s2 aWrongParam;
   aWrongParam.s.a = aToExpect.s.a;
@@ -222,20 +236,23 @@ TEST_F(structFunStruct_testCase, TwoExpectSecondCallArgBad)
   ASSERT_NE(fptr_matcher, nullptr);
 
   struct s2 aOneToExpect;
+  float fOneToExpect = 4.5;
   aOneToExpect.s.a = 6;
   aOneToExpect.s.b = 3.5;
   aOneToExpect.c = 9;
-  aOneToExpect.d = 4.5;
+  aOneToExpect.d = &fOneToExpect;
   struct s2 aTwoToExpect;
+  float fTwoToExpect = 5.5;
   aTwoToExpect.s.a = 6;
   aTwoToExpect.s.b = 3.5;
   aTwoToExpect.c = 10;
-  aTwoToExpect.d = 5.5;
+  aTwoToExpect.d = &fTwoToExpect;
   struct s2 aTwoBadCall;
+  float fTwoBadCall = 5.5;
   aTwoBadCall.s.a = aTwoToExpect.s.a;
   aTwoBadCall.s.b = aTwoToExpect.s.b;
   aTwoBadCall.c = 8;
-  aTwoBadCall.d = 5.5;
+  aTwoBadCall.d = &fTwoBadCall;
   struct s1 rvToExpect;
   rvToExpect.a = 42;
   rvToExpect.b = 6.5;

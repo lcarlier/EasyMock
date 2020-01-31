@@ -23,23 +23,6 @@ TEST_P(ctype_unsigned_testcase, ctypeConstructor)
   ASSERT_EQ(unsignedT.getName(), easyMock_arrayCTypeStr[params.unsignedType]);
 }
 
-TEST_P(ctype_unsigned_testcase, ctypeConstructorPointer)
-{
-  const ParamType &params = GetParam();
-
-  std::string signedPointerName(easyMock_arrayCTypeStr[params.signedType]);
-  signedPointerName.push_back('*');
-  CType signedPtrT = CType(params.signedType, true);
-  ASSERT_TRUE(signedPtrT.isPointer());
-  ASSERT_EQ(signedPtrT.getName(), signedPointerName.c_str());
-
-  std::string unsignedPointerName(easyMock_arrayCTypeStr[params.unsignedType]);
-  unsignedPointerName.push_back('*');
-  CType unsignedPtrT = CType(params.unsignedType, true);
-  ASSERT_TRUE(unsignedPtrT.isPointer());
-  ASSERT_EQ(unsignedPtrT.getName(), unsignedPointerName.c_str());
-}
-
 TEST_P(ctype_unsigned_testcase, ctypeSetUnsigned)
 {
   const ParamType &params = GetParam();

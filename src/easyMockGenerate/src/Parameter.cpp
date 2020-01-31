@@ -4,15 +4,21 @@
 #include "StructType.h"
 
 Parameter::Parameter(TypeItf* p_type, std::string p_name) :
-type(p_type),
-name(p_name) { }
+Parameter(p_type, p_name, false)
+{
+}
+
+Parameter::Parameter(TypeItf* p_type, std::string p_name, bool isPointer) :
+Declarator(p_type, isPointer), m_name(p_name)
+{
+}
 
 Parameter::Parameter(const Parameter& other) :
-type(other.type->clone()),
-name(other.name) { }
+Parameter(other.m_type->clone(), other.m_name, other.m_isPointer)
+{
+}
 
-Parameter::Parameter(Parameter&& other) :
-type(nullptr)
+Parameter::Parameter(Parameter&& other)
 {
   swap(*this, other);
 }
@@ -26,8 +32,8 @@ Parameter& Parameter::operator=(Parameter other)
 
 void swap(Parameter& first, Parameter& second)
 {
-  std::swap(first.name, second.name);
-  std::swap(first.type, second.type);
+  swap(static_cast<Declarator &>(first), static_cast<Declarator &>(second));
+  std::swap(first.m_name, second.m_name);
 }
 
 Parameter* Parameter::clone() const
@@ -37,7 +43,6 @@ Parameter* Parameter::clone() const
 
 Parameter::~Parameter()
 {
-  delete type;
 }
 
 Parameter* VoidParameter(std::string p_name)
@@ -49,7 +54,7 @@ Parameter* VoidParameter(std::string p_name)
 
 Parameter* NamedParameter(easyMock_cTypes_t p_type, std::string p_name, bool p_isPointer)
 {
-  Parameter *p = new Parameter(new CType(p_type, p_isPointer), p_name);
+  Parameter *p = new Parameter(new CType(p_type), p_name, p_isPointer);
 
   return p;
 }
@@ -61,25 +66,21 @@ Parameter* StructParameter(std::string p_type, std::string p_name, const StructF
   return p;
 }
 
-bool Parameter::setPointer(bool value)
-{
-  return type->setPointer(value);
-}
-
 const std::string& Parameter::getName() const
 {
-  return name;
+  return m_name;
 }
-
-const TypeItf* Parameter::getType() const
-{
-  return type;
-}
-
 
 bool Parameter::operator==(const Parameter& other) const
 {
-  return *this->type == *other.type; //Parameters are equals only if type matches, name is not important
+  if(Declarator::operator==(other))
+  {
+    return true; //Parameters are equals only if type matches, name is not important
+  }
+  else
+  {
+    return false;
+  }
 }
 
 bool Parameter::operator!=(const Parameter& other) const

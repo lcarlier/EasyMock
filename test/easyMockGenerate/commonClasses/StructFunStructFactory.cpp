@@ -7,11 +7,13 @@
 #include <StructField.h>
 #include <EasyMockStructHelper.h>
 
+float fToExpect[] = {4.5, 5.5, 6.5};
+
 static struct s2 toExpect[] =
 {
-  { 9, 4.5, {6, 3.5}},
-  {10, 5.5, {7, 4.5}},
-  {11, 6.5, {8, 5.5}}
+  { 9, &fToExpect[0], {6, 3.5}},
+  {10, &fToExpect[1], {7, 4.5}},
+  {11, &fToExpect[2], {8, 5.5}}
 };
 
 static struct s1 returnValues[] =

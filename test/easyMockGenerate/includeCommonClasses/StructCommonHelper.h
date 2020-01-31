@@ -3,11 +3,13 @@
 
 #include <ostream>
 #include <structCommonDeclaration.h>
+#include <structRecursivePtrType.h>
 
 bool operator==(const struct s1 &lhs, const struct s1 &rhs);
 bool operator==(const struct s2 &lhs, const struct s2 &rhs);
 std::ostream& operator<<(std::ostream& os, const struct s1& c);
 std::ostream& operator<<(std::ostream& os, const struct s2& c);
+std::ostream& operator<<(std::ostream& os, const struct recurs& c);
 
 #endif /* STRUCTCOMMONHELPER_H */
 

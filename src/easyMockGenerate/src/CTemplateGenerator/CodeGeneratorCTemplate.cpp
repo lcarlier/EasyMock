@@ -203,8 +203,8 @@ static const char templateText[] =
         TEMPLATE_BEG_SECTION(STRUCT_COMPARE_SECTION)
         "extern \"C\" " STRUCT_COMPARE_FUNCTION_SIGNATURE CARRIAGE_RETURN
         "{" CARRIAGE_RETURN
-        "    struct " STRUCT_COMPARE_SECTION_STRUCT_NAME_VAR " currentCall_val = *(( struct " STRUCT_COMPARE_SECTION_STRUCT_NAME_VAR " *)currentCall_ptr);" CARRIAGE_RETURN
-        "    struct " STRUCT_COMPARE_SECTION_STRUCT_NAME_VAR " expectedCall_val = *(( struct " STRUCT_COMPARE_SECTION_STRUCT_NAME_VAR " *)expectedCall_ptr);" CARRIAGE_RETURN
+        "    struct " STRUCT_COMPARE_SECTION_STRUCT_NAME_VAR " *currentCall_val = static_cast<struct " STRUCT_COMPARE_SECTION_STRUCT_NAME_VAR " *>(currentCall_ptr);" CARRIAGE_RETURN
+        "    struct " STRUCT_COMPARE_SECTION_STRUCT_NAME_VAR " *expectedCall_val = static_cast<struct " STRUCT_COMPARE_SECTION_STRUCT_NAME_VAR " *>(expectedCall_ptr);" CARRIAGE_RETURN
         TEMPLATE_BEG_SECTION(STRUCT_COMPARE_PARAM_SECTION)
         TEMPLATE_BEG_SECTION(STRUCT_COMPARE_PRE_IF_SECTION)
         "    std::string " TEMPLATE_VAR(STRUCT_COMPARE_PRE_IF_SECTION_VAR_NAME) "(paramName);" CARRIAGE_RETURN
@@ -213,7 +213,7 @@ static const char templateText[] =
         "    if(" STRUCT_COMPARE_PARAM_SECTION_COMPARE_CONDITION_VAR ")" CARRIAGE_RETURN
         "    {" CARRIAGE_RETURN
         TEMPLATE_BEG_SECTION(STRUCT_COMPARE_ERROR)
-        "        snprintf(errorMessage, 256 , \"Parameter '%s' which is a struct of type '" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_STRUCT_TYPE_VAR "' has field '" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_FIELD_VAR "' with value '%" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_PRINTF_FORMAT_VAR "', was expecting '%" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_PRINTF_FORMAT_VAR "'\", paramName, currentCall_val." STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_FIELD_VAR ", expectedCall_val." STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_FIELD_VAR ");" CARRIAGE_RETURN
+        "        snprintf(errorMessage, 256 , \"Parameter '%s' which is a struct of type '" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_STRUCT_TYPE_VAR "' has field '" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_FIELD_VAR "' with value '%" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_PRINTF_FORMAT_VAR "', was expecting '%" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_PRINTF_FORMAT_VAR "'\", paramName, currentCall_val->" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_FIELD_VAR ", expectedCall_val->" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_FIELD_VAR ");" CARRIAGE_RETURN
         TEMPLATE_END_SECTION(STRUCT_COMPARE_ERROR)
         "        return -1;" CARRIAGE_RETURN
         "    }" CARRIAGE_RETURN
@@ -393,6 +393,7 @@ static void generateFunctionSection(ctemplate::TemplateDictionary *rootDictionna
 static void generateFunctionParamSection(ctemplate::TemplateDictionary *rootDictionnary, ctemplate::TemplateDictionary *dict, const Parameter::Vector *functionParam);
 static void generateStructCompareSection(ctemplate::TemplateDictionary *rootDictionnary, const TypeItf *structType);
 static bool generateCodeToFile(const std::string &outDir, const std::string &filename, const std::string &extension, const std::string &generatedCode);
+static std::string getDeclaratorString(const Declarator* decl);
 
 bool CodeGeneratorCTemplate::generateCode(const std::string& outDir, const std::string &fullPathToHeaderToMock, const ElementToMock::Vector& elem) const
 {
@@ -453,14 +454,10 @@ static void generateFunctionSection(ctemplate::TemplateDictionary *rootDictionna
 
   const ReturnValue *returnValue = f->getReturnType();
   const TypeItf* rvType = returnValue->getType();
-  std::string returnTypeStr;
-  bool isRvVoid = rvType->isCType() && rvType->getCType() == CTYPE_VOID && !rvType->isPointer();
-  if (rvType->isStruct())
-  {
-    returnTypeStr.append("struct ");
-  }
-  returnTypeStr.append(rvType->getName());
+  std::string returnTypeStr = getDeclaratorString(returnValue);
   functionSectionDict->SetValue(FUNCTION_RETURN_VALUE, returnTypeStr);
+
+  bool isRvVoid = rvType->isCType() && rvType->getCType() == CTYPE_VOID && !returnValue->isPointer();
   if (!isRvVoid)
   {
     ctemplate::TemplateDictionary *returnValParamDict = functionSectionDict->AddSectionDictionary(FUNCTION_RETURN_VALUE_PARAM_SECTION);
@@ -481,17 +478,15 @@ static void generateFunctionParamSection(ctemplate::TemplateDictionary *rootDict
   {
     ctemplate::TemplateDictionary* newTypedefParamSection = functionSectionDict->AddSectionDictionary(FUNCTION_PARAM_SECTION);
     const Parameter *fParam = *it;
-    std::string argType;
+    std::string argType = getDeclaratorString(fParam);
     if(fParam->getType()->isStruct())
     {
-      argType.append("struct ");
       generateStructCompareSection(rootDictionnary, fParam->getType());
     }
-    argType.append(fParam->getType()->getName());
     newTypedefParamSection->SetValue(FUNCTION_PARAM_TYPE, argType);
     newTypedefParamSection->SetValue(FUNCTION_PARAM_NAME, fParam->getName());
     //It doesn't make sense to generate an output parameter for void pointer. The mock doesn't know the size of the data to copy into the pointer
-    if(fParam->getType()->isPointer() && fParam->getType()->getCType() != CTYPE_VOID)
+    if(fParam->isPointer() && fParam->getType()->getCType() != CTYPE_VOID)
     {
       if(!ptrSectionAdded)
       {
@@ -543,54 +538,62 @@ extern "C" int cmp_struct_{{STRUCT_NAME}} ( void *currentCall_ptr, void *expecte
  */
 static void generateStructCompareSection(ctemplate::TemplateDictionary *rootDictionnary, const TypeItf *p_structType)
 {
-  TypeItf* structType = p_structType->clone();
-  if(structType->isPointer()) //Remove the pointer attribute because otherwise the typename contains a *
-  {
-    structType->setPointer(false);
-  }
   ctemplate::TemplateDictionary *compareDict = rootDictionnary->AddSectionDictionary(STRUCT_COMPARE_SECTION);
-  compareDict->SetValue(STRUCT_NAME, structType->getName());
-  const StructField::Vector *vectField = structType->getContainedFields();
+  compareDict->SetValue(STRUCT_NAME, p_structType->getName());
+  const StructField::Vector *vectField = p_structType->getContainedFields();
   for (StructField::Vector::const_iterator it = vectField->begin(); it != vectField->end(); ++it)
   {
     std::string condition;
-    ctemplate::TemplateDictionary *paramSectDict = compareDict->AddSectionDictionary(STRUCT_COMPARE_PARAM_SECTION);
     const StructField *curField = *it;
+    ctemplate::TemplateDictionary *paramSectDict = compareDict->AddSectionDictionary(STRUCT_COMPARE_PARAM_SECTION);
     const TypeItf *curType = curField->getType();
     if(curType->isStruct())
     {
-      ctemplate::TemplateDictionary *ifPreSectionDict = paramSectDict->AddSectionDictionary(STRUCT_COMPARE_PRE_IF_SECTION);
-      std::string preFieldVarName(curField->getName());
-      preFieldVarName.append("_parameter");
-      ifPreSectionDict->SetValue(STRUCT_COMPARE_PRE_IF_SECTION_VAR_NAME, preFieldVarName.c_str());
-      ifPreSectionDict->SetValue(STRUCT_COMPARE_PRE_IF_SECTION_FIELD_NAME, curField->getName());
-      condition.append("cmp_struct_");
-      condition.append(curType->getName());
-      condition.append("(&currentCall_val.");
-      condition.append(curField->getName());
-      condition.append(", ");
-      condition.append("&expectedCall_val.");
-      condition.append(curField->getName());
-      condition.append(", ");
-      condition.append(preFieldVarName.c_str());
-      condition.append(".c_str(), errorMessage)");
-      generateStructCompareSection(rootDictionnary, curType);
+      if(!curField->isRecursiveTypeField())
+      {
+        ctemplate::TemplateDictionary *ifPreSectionDict = paramSectDict->AddSectionDictionary(STRUCT_COMPARE_PRE_IF_SECTION);
+        std::string preFieldVarName(curField->getName());
+        preFieldVarName.append("_parameter");
+        ifPreSectionDict->SetValue(STRUCT_COMPARE_PRE_IF_SECTION_VAR_NAME, preFieldVarName.c_str());
+        ifPreSectionDict->SetValue(STRUCT_COMPARE_PRE_IF_SECTION_FIELD_NAME, curField->getName());
+        condition.append("cmp_struct_");
+        condition.append(curType->getName());
+        condition.append("(&currentCall_val->");
+        condition.append(curField->getName());
+        condition.append(", ");
+        condition.append("&expectedCall_val->");
+        condition.append(curField->getName());
+        condition.append(", ");
+        condition.append(preFieldVarName.c_str());
+        condition.append(".c_str(), errorMessage)");
+        generateStructCompareSection(rootDictionnary, curType);
+      }
+      else
+      {
+        condition.append("currentCall_val !=  expectedCall_val");
+      }
     } else if (curType->isCType()) {
-      condition.append("currentCall_val.");
+      condition.append("currentCall_val->");
       condition.append(curField->getName());
-      condition.append(" != expectedCall_val.");
+      condition.append(" != expectedCall_val->");
       condition.append(curField->getName());
       ctemplate::TemplateDictionary *errorDict = paramSectDict->AddSectionDictionary(STRUCT_COMPARE_ERROR);
       errorDict->SetValue(STRUCT_COMPARE_FIELD, curField->getName());
-      errorDict->SetValue(STRUCT_COMPARE_TYPE, structType->getName());
-      errorDict->SetValue(STRUCT_COMPARE_PRINTF_FORMAT, easyMock_printfFormat[curType->getCType()]);
+      errorDict->SetValue(STRUCT_COMPARE_TYPE, p_structType->getName());
+      if(!curField->isPointer())
+      {
+        errorDict->SetValue(STRUCT_COMPARE_PRINTF_FORMAT, easyMock_printfFormat[curType->getCType()]);
+      }
+      else
+      {
+        errorDict->SetValue(STRUCT_COMPARE_PRINTF_FORMAT, "p");
+      }
     } else {
       std::fprintf(stderr, "Type %s unexpected here. Contact owner for bug fixing\n\r", curType->getName().c_str());
       assert(false);
     }
     paramSectDict->SetValue(COMPARE_CONDITION, condition);
   }
-  delete structType;
 }
 
 static bool generateCodeToFile(const std::string &outDir, const std::string &filename, const std::string &extension, const std::string &generatedCode)
@@ -624,4 +627,20 @@ closeFile:
   }
 
   return rv;
+}
+
+static std::string getDeclaratorString(const Declarator* decl)
+{
+  const TypeItf* rvType = decl->getType();
+  std::string returnTypeStr;
+  if (rvType->isStruct())
+  {
+    returnTypeStr.append("struct ");
+  }
+  returnTypeStr.append(rvType->getName());
+  if(decl->isPointer())
+  {
+    returnTypeStr.push_back('*');
+  }
+  return returnTypeStr;
 }

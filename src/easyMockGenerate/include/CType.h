@@ -21,7 +21,7 @@ class CType : public TypeItf
 {
 public:
   CType();
-  CType(const easyMock_cTypes_t p_cType, bool p_isPointer = false);
+  CType(const easyMock_cTypes_t p_cType);
   bool isCType() const;
   const easyMock_cTypes_t getCType() const;
   bool setUnsigned(bool val);
@@ -35,6 +35,11 @@ public:
   bool operator!=(const CType &other) const;
 
   CType *clone() const;
+  /*
+   * bool isEqual(const TypeItf &other);
+   * Doesn't need to be overridden because the name is updated whenever the CType object changes.
+   * Therefore relying on the operator== of TypeItf is good enough because the name is reliable
+   */
 private:
   easyMock_cTypes_t m_cType;
 };
