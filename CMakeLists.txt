@@ -28,7 +28,6 @@ set(LINK_LIB
   ${LIBDW_LIBRARIES}
   ${Boost_FILESYSTEM_LIBRARY}
   ${Boost_SYSTEM_LIBRARY}
-  pthread
   clangTooling
   clangFrontend
   clangSerialization
@@ -47,6 +46,7 @@ set(LINK_LIB
   LLVMBinaryFormat
   clangEdit
   LLVMSupport
+  pthread
   clangLex
   z
   curses
@@ -74,6 +74,10 @@ set(EASYMOCK_DEFAULT_FULL_CC_PARAM ${EASYMOCK_DEFAULT_CFLAGS} ${LLVM_CXXFLAGS})
 
 message("-- EASYMOCK_DEFAULT_FULL_CC_PARAM: ${EASYMOCK_DEFAULT_FULL_CC_PARAM}")
 message("-- EASYMOCK_DEFAULT_FULL_LD_PARAM: ${EASYMOCK_DEFAULT_FULL_LD_PARAM}")
+
+set(LLVM_PARSER_OBJ llvmParser)
+set(CTEMPLATE_GENERATE_OBJ ctemplateGenerate)
+set(EASYMOCK_COMMON_OBJ easyMockCommonObj)
 
 add_subdirectory(src)
 

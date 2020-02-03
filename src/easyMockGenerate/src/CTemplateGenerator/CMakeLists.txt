@@ -1,6 +1,6 @@
-#Do not use list append because it does not supports parent scope
-set(EASYMOCK_GEN_SOURCE_FILE
-  ${EASYMOCK_GEN_SOURCE_FILE}
+add_library(${CTEMPLATE_GENERATE_OBJ}
   ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/CTemplateGenerator/CodeGeneratorCTemplate.cpp
-  PARENT_SCOPE
 )
+
+target_compile_options(${CTEMPLATE_GENERATE_OBJ} PRIVATE ${EASYMOCK_DEFAULT_FULL_CC_PARAM})
+target_include_directories(${CTEMPLATE_GENERATE_OBJ} PRIVATE ${EASYMOCK_GEN_INCLUDE_DIR})

@@ -38,7 +38,13 @@ set(TEST_INCLUDE_DIR ${EasyMock_SOURCE_DIR}/src/common/include
                      ${CMAKE_CURRENT_BINARY_DIR}
                      ${CMAKE_CURRENT_BINARY_DIR}/test)
 
-set(TEST_FACTORIES_SRC_DIR
+set(TEST_LINK_LIB ${EASYMOCK_DEFAULT_FULL_LD_PARAM} gtest_main dl)
+
+set(TEST_COMPILE_FLAGS ${EASYMOCK_DEFAULT_FULL_CC_PARAM} -DPROJECT_ROOT_DIR="${PROJECT_SOURCE_DIR}")
+
+set(TEST_FACTORIES_COMMON_OBJ testFactoriesCommonObj)
+
+add_library(${TEST_FACTORIES_COMMON_OBJ}
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/VoidFunVoidFactory.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/CharFunCharFactory.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/IntFunVoidFactory.cpp
@@ -63,24 +69,16 @@ set(TEST_FACTORIES_SRC_DIR
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/StructRecursiveMemberPtrTypeFactory.cpp
 )
 
-set(TEST_COMMON_SRC_DIR
-    ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/CodeParserItf.cpp
-    ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/StructField.cpp
-    ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/Parameter.cpp
-    ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/ReturnValue.cpp
-    ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/Function.cpp
-    ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/ElementToMock.cpp
-    ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/TypeItf.cpp
-    ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/CType.cpp
-    ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/StructType.cpp
-    ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/Declarator.cpp
-    ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/EasyMockGenerateTypes.cpp
+set(EASYMOCK_TEST_LIBRARY easyMockTestLibrary)
+add_library(easyMockTestLibrary
     ${EasyMock_SOURCE_DIR}/src/easyMockFramework/src/easyMock_matcher.cpp
 )
 
-set(TEST_LINK_LIB ${EASYMOCK_DEFAULT_FULL_LD_PARAM} gtest_main dl)
+target_compile_options(${EASYMOCK_TEST_LIBRARY} PRIVATE ${TEST_COMPILE_FLAGS})
+target_include_directories(${EASYMOCK_TEST_LIBRARY} PRIVATE ${TEST_INCLUDE_DIR})
 
-set(TEST_COMPILE_FLAGS ${EASYMOCK_DEFAULT_FULL_CC_PARAM} -DPROJECT_ROOT_DIR="${PROJECT_SOURCE_DIR}")
+target_compile_options(${TEST_FACTORIES_COMMON_OBJ} PRIVATE ${TEST_COMPILE_FLAGS})
+target_include_directories(${TEST_FACTORIES_COMMON_OBJ} PRIVATE ${TEST_INCLUDE_DIR} ${gtest_SOURCE_DIR}/include)
 
 add_subdirectory(easyMockGenerate)
 add_subdirectory(CType)

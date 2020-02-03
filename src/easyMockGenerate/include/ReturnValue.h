@@ -24,6 +24,7 @@ class StructType;
 
 class ReturnValue : public Declarator
 {
+public:
   ReturnValue();
   explicit ReturnValue(TypeItf *type);
   ReturnValue(TypeItf *type, bool isPointer);
