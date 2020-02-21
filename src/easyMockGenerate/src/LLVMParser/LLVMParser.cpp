@@ -27,7 +27,7 @@ private:
 public:
 
   explicit FunctionDeclASTVisitor(clang::SourceManager& sm, ElementToMock::Vector& elem)
-  : m_sourceManager(sm), m_elem(elem) { }
+  : m_sourceManager(sm), m_elem(elem), m_context(nullptr) { }
 
   virtual bool VisitFunctionDecl(clang::FunctionDecl* func)
   {
@@ -41,9 +41,15 @@ public:
     }
     return true;
   }
+
+  void setAstContext(const clang::ASTContext &ctx)
+  {
+    m_context = &ctx;
+  }
 private:
   clang::SourceManager& m_sourceManager;
   ElementToMock::Vector& m_elem;
+  const clang::ASTContext *m_context;
 
   ReturnValue getFunctionReturnValue(clang::FunctionDecl* func)
   {
@@ -88,6 +94,16 @@ private:
     else if(clangType.isPointerType())
     {
       type = getFromPointerType(clangType, structKnownType);
+    }
+    else if (clangType.isArrayType())
+    {
+      type = getFromArrayType(clangType, structKnownType);
+    }
+    else
+    {
+      std::fprintf(stderr, "Clantype unexpected here. Contact owner for bug fixing\n\r");
+      clangType.dump();
+      assert(false);
     }
 
     return type;
@@ -143,7 +159,7 @@ private:
     return returnedType;
   }
 
-  TypeItf* getFromStructType(const clang::Type &type, structKnownTypeMap structKnownType)
+  TypeItf* getFromStructType(const clang::Type &type, structKnownTypeMap &structKnownType)
   {
     const clang::RecordType *RT = type.getAsStructureType();
     std::string typeName = RT->getDecl()->getNameAsString();
@@ -158,8 +174,15 @@ private:
       const clang::Type *typePtr = FD->getType().getTypePtr();
       TypeItf *type = getEasyMocktype(*typePtr, structKnownType);
       bool isRecursiveType = structKnownType.find(type->getName()) != structKnownType.end();
-      StructField *sf = new StructField(type, FD->getNameAsString(), isRecursiveType);
-      sf->setPointer(typePtr->isPointerType());
+      uint64_t arraySize = getArraySize(*typePtr);
+      StructField::attributes attrib =
+        {.isPointer            = typePtr->isPointerType(),
+         .isArray              = typePtr->isArrayType(),
+         .arraySize            = arraySize,
+         .isRecursiveTypeField = isRecursiveType
+        };
+      std::string fName = FD->getNameAsString();
+      StructField *sf = new StructField(type, fName, attrib);
       sType->addStructField(sf);
     }
     structKnownType.erase(typeName);
@@ -170,6 +193,16 @@ private:
   {
     const clang::Type &pointeeType = *type.getPointeeType().getTypePtr();
     TypeItf *rv = getEasyMocktype(pointeeType, structKnownType);
+
+    return rv;
+  }
+
+  TypeItf* getFromArrayType(const clang::Type &type, structKnownTypeMap &structKnownType)
+  {
+    const clang::ArrayType &arrayType = *type.getAsArrayTypeUnsafe();
+    const clang::Type &arrayElem = *arrayType.getElementType().getTypePtr();
+
+    TypeItf *rv = getEasyMocktype(arrayElem, structKnownType);
 
     return rv;
   }
@@ -233,6 +266,18 @@ private:
     clang::BuiltinType::Kind kind = bt->getKind();
     return kind == clang::BuiltinType::LongDouble;
   }
+
+  uint64_t getArraySize(const clang::Type &type)
+  {
+    const clang::ConstantArrayType *constArrType = m_context->getAsConstantArrayType(type.getCanonicalTypeInternal());
+    int64_t size = 0;
+    if(constArrType)
+    {
+      llvm::APInt sizeMod = constArrType->getSize();
+      size = sizeMod.getSExtValue();
+    }
+    return size;
+  }
 };
 
 class FunctionDeclASTConsumer : public clang::ASTConsumer
@@ -245,6 +290,7 @@ public:
 
   virtual void HandleTranslationUnit(clang::ASTContext& astContext)
   {
+    m_visitor.setAstContext(astContext);
     m_visitor.TraverseDecl(astContext.getTranslationUnitDecl());
   }
 private:

@@ -128,9 +128,8 @@ TEST(moveCopy, ReturnValuePointer)
   ASSERT_EQ(rv6, rv1);
 }
 
-TEST(moveCopy, StructField)
+static void testMoveStructField(StructField &f1)
 {
-  StructField f1(CTYPE_INT, "a");
   StructField f2(f1);
   ASSERT_EQ(f1, f2);
 
@@ -146,32 +145,39 @@ TEST(moveCopy, StructField)
   ASSERT_NE(f6, f2);
   f6 = std::move(f2);
   ASSERT_EQ(f6, f1);
+}
+
+TEST(moveCopy, StructField)
+{
+  StructField f1(CTYPE_INT, "a");
+
+  testMoveStructField(f1);
 }
 
 TEST(moveCopy, StructFieldPtr)
 {
   StructField f1(CTYPE_INT, "a");
   f1.setPointer(true);
-  StructField f2(f1);
-  ASSERT_EQ(f1, f2);
 
-  StructField f3(new StructType("s", {new StructField(CTYPE_INT, "c"), new StructField(CTYPE_INT, "d")}), "e");
-  ASSERT_NE(f3,f1);
-  f3 = f1;
-  ASSERT_EQ(f3,f1);
-
-  StructField f4 = std::move(f3);
-  ASSERT_EQ(f4, f1);
-
-  StructField f6(new StructType("s", {new StructField(CTYPE_INT, "c"), new StructField(CTYPE_INT, "d")}), "e");
-  ASSERT_NE(f6, f2);
-  f6 = std::move(f2);
-  ASSERT_EQ(f6, f1);
+  testMoveStructField(f1);
 }
 
-TEST(moveCopy, StructType)
+TEST(moveCopy, StructFieldBoundedArray)
 {
-  StructType st1("s", {new StructField(CTYPE_CHAR, "f")});
+  StructField f1(new CType(CTYPE_INT), "boundedArray", {.isPointer = false, .isArray = true, .arraySize = 10, .isRecursiveTypeField = false});
+
+  testMoveStructField(f1);
+}
+
+TEST(moveCopy, StructFieldUnBoundedArray)
+{
+  StructField f1(new CType(CTYPE_INT), "unBoundedArray", {.isPointer = false, .isArray = true, .arraySize = 0, .isRecursiveTypeField = false});
+
+  testMoveStructField(f1);
+}
+
+static void testStructType(StructType &st1)
+{
   StructType st2(st1);
   ASSERT_EQ(st1, st2);
 
@@ -189,11 +195,19 @@ TEST(moveCopy, StructType)
   ASSERT_EQ(st6, st1);
 }
 
+TEST(moveCopy, StructType)
+{
+  StructType st1("s", {new StructField(CTYPE_CHAR, "f")});
+
+  testStructType(st1);
+}
+
 TEST(moveCopy, StructTypeRecursive)
 {
   bool isRecursiveType = true;
   StructType st1("recurs1");
-  st1.addStructField(new StructField(&st1, "rfield", isRecursiveType));
+  StructField::attributes attrib = {.isPointer = false, .isArray = false, .arraySize = 0, .isRecursiveTypeField = isRecursiveType};
+  st1.addStructField(new StructField(&st1, "rfield", attrib));
   StructType st2(st1);
   ASSERT_EQ(st1, st2);
   const StructField::Vector& st2ContaineField = *st2.getContainedFields();
@@ -219,13 +233,12 @@ TEST(moveCopy, StructTypeRecursive)
   ASSERT_EQ(&st6, st6ContaineField[0].getType());
 }
 
-#if 0
 TEST(moveCopy, StructTypeSubFieldRecursive)
 {
   bool isRecursiveType = true;
   StructType st1("recurs1");
   StructType* subSt = new StructType("subSt");
-  subSt->addStructField(new StructField(&st1, "rfield", isRecursiveType));
+  subSt->addStructField(new StructField(&st1, "rfield", {.isPointer = false, .isArray = false, .arraySize = 0, .isRecursiveTypeField = isRecursiveType}));
   st1.addStructField(new StructField(subSt, "subField"));
   subSt = nullptr; //Dereference, pointer is not usable here anymore
   StructType st2(st1);
@@ -256,7 +269,6 @@ TEST(moveCopy, StructTypeSubFieldRecursive)
   const StructField::Vector& st6SubStContainerField = *st6ContaineField[0].getType()->getContainedFields();
   ASSERT_EQ(&st6, st6SubStContainerField[0].getType());
 }
-#endif
 
 TEST(moveCopy, AutoCleanVectorPtr)
 {

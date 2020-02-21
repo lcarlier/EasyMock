@@ -172,6 +172,16 @@ TEST(equality, StructFieldPointerSame)
   ASSERT_NE(f3, f4);
   (*f4.getType()->getContainedFields())[1].setPointer(true);
   ASSERT_EQ(f3, f4);
+
+  (*f3.getType()->getContainedFields())[1].setArray(true);
+  ASSERT_NE(f3, f4);
+  (*f4.getType()->getContainedFields())[1].setArray(true);
+  ASSERT_EQ(f3, f4);
+
+  (*f3.getType()->getContainedFields())[1].setArraySize(10);
+  ASSERT_NE(f3, f4);
+  (*f4.getType()->getContainedFields())[1].setArraySize(10);
+  ASSERT_EQ(f3, f4);
 }
 
 TEST(equality, StructFieldDifferent)
@@ -193,11 +203,19 @@ TEST(equality, StructTypeSame)
   StructType s2("s", {});
 
   ASSERT_EQ(s1, s2);
+  //Test from base class to make sure that the comparison overload is working
+  TypeItf &sTitfS1 = s1;
+  TypeItf &sTitfS2 = s2;
+  ASSERT_EQ(sTitfS1, sTitfS2);
 
   StructType s3("s", {new StructField(CTYPE_CHAR, "f")});
   StructType s4("s", {new StructField(CTYPE_CHAR, "f")});
 
   ASSERT_EQ(s3, s4);
+  //Test from base class to make sure that the comparison overload is working
+  TypeItf &sTitfS3 = s3;
+  TypeItf &sTitfS4 = s4;
+  ASSERT_EQ(sTitfS3, sTitfS4);
 }
 
 TEST(equality, StructTypeDifferent)
@@ -206,6 +224,10 @@ TEST(equality, StructTypeDifferent)
   StructType s2("s", {new StructField(CTYPE_CHAR, "f")});
 
   ASSERT_NE(s1,s2);
+  //Test from base class to make sure that the comparison overload is working
+  TypeItf &sTitfS1 = s1;
+  TypeItf &sTitfS2 = s2;
+  ASSERT_NE(sTitfS1, sTitfS2);
 }
 
 TEST(equality, AutoCleanVectorSame)

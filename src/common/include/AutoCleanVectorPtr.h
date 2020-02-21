@@ -58,7 +58,9 @@ public:
             std::equal(m_vect.begin()      ,       m_vect.end(),
                        other.m_vect.begin(), other.m_vect.end(),
                 [](const T* lhs, const T* rhs)
-                { return *lhs == * rhs; });
+                {
+                  return *lhs == *rhs;
+                });
   }
   bool operator!=(const AutoCleanVectorPtr &other) const
   {

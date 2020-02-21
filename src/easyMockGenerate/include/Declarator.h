@@ -9,7 +9,7 @@ class Declarator
 {
 public:
   Declarator();
-  explicit Declarator(TypeItf* typeItf, bool value);
+  Declarator(TypeItf* typeItf, bool isPointer);
   virtual ~Declarator();
 
   Declarator(const Declarator& other);

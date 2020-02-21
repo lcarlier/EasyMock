@@ -6,7 +6,8 @@ Function StructRecursiveMemberPtrTypeFactory::functionFactory()
 {
   bool isRecursiveType = true;
   StructType *recurStruct = new StructType("recurs");
-  StructField *valField = new StructField(recurStruct, "val", isRecursiveType);
+  StructField::attributes attrib = {.isPointer = false, .isArray = false, .arraySize = 0, .isRecursiveTypeField = isRecursiveType};
+  StructField *valField = new StructField(recurStruct, "val", attrib);
   valField->setPointer(true);
   recurStruct->addStructField(valField);
   bool isPointer = false;

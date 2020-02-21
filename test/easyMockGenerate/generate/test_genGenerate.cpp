@@ -13,6 +13,8 @@
 #include <TestTypes.h>
 #include <StructCommonHelper.h>
 
+#include "genGenerate_testCase.h"
+
 static std::string getElementOfTupleInsideQueue(const unsigned int idx, const auto &theQueue);
 static void printElIntoStream(std::ostringstream &s1, auto* elem);
 static void printElIntoStream(std::ostringstream &s1, auto elem);
@@ -24,31 +26,6 @@ static auto getFirstTupleElem(std::tuple<Args...>& t);
 template <typename... Args,
 typename std::enable_if<(sizeof...(Args) == 0), int>::type = 0>
 static auto getFirstTupleElem(std::tuple<Args...>& t);
-
-template<class T>
-class genGenerate_testCase : public easyMockGenerate_baseTestCase
-{
-public:
-  genGenerate_testCase() : easyMockGenerate_baseTestCase(m_factory.functionGetFunctionName(), m_factory.functionGetIncludeDir(), m_factory.functionGetMockDir())
-  {
-    ElementToMock *f = m_factory.newFunctionFactory();
-    m_elem.push_back(f);
-  }
-
-  void ExtraTearDown() override
-  {
-    ASSERT_TRUE(m_factory.is_rv_queue_empty());
-    ASSERT_TRUE(m_factory.is_expect_rv_cur_call_queue_empty());
-    ASSERT_TRUE(m_factory.is_params_queue_empty());
-    ASSERT_TRUE(m_factory.is_expects_queue_empty());
-    ASSERT_TRUE(m_factory.is_compare_queue_empty());
-  }
-
-  static T m_factory;
-};
-
-template<class T>
-T genGenerate_testCase<T>::m_factory;
 
 TYPED_TEST_CASE(genGenerate_testCase, GenerateTestTypes);
 
@@ -87,7 +64,7 @@ TYPED_TEST(genGenerate_testCase, NoExpect)
   ASSERT_NE(errorArr, nullptr);
   ASSERT_EQ(size, 2) << EasyMock_ErrorArrayPrinter(errorArr);
 
-  //E.g: "Error : unexpected call of 'void voidFunVoid()'.\n\r\tat EasyMock::addError"
+  //E.g: "Error : unexpected call of 'void voidFunVoid()'.\n\r\tat "
   std::string errorMessage1("Error : unexpected call of '");
   errorMessage1.append(f.getFunctionPrototype());
   errorMessage1.append("'");
@@ -98,7 +75,7 @@ TYPED_TEST(genGenerate_testCase, NoExpect)
     errorMessage1.append(*f.getName());
     errorMessage1.append(" is returning a random value");
   }
-  errorMessage1.append(".\n\r\tat EasyMock::addError");
+  errorMessage1.append(".\n\r\tat ");
   ASSERT_TRUE(boost::algorithm::starts_with(errorArr[0], errorMessage1)) << "errorArr[0]: " << errorArr[0] << std::endl << "errorMessage1: " << errorMessage1;
 
   //E.g: "Error: For function 'void voidFunVoid()' bad number of call. Expected 0, got 1"
@@ -218,7 +195,7 @@ TYPED_TEST(genGenerate_testCase, OneExpectArgIsBad)
   int check = easyMock_check();
   EXPECT_EQ(check, 0);
 
-  //E.g: Error : at call 1 of 'int intFunIntInt(int a, int b)': Parameter 'a' has value '255', was expecting '5'\n\r\tat EasyMock::addError
+  //E.g: Error : at call 1 of 'int intFunIntInt(int a, int b)': Parameter 'a' has value '255', was expecting '5'\n\r\tat 
   std::string errorMessageToExpect("Error : at call 1 of '");
   errorMessageToExpect.append(f.getFunctionPrototype());
   errorMessageToExpect.append("': Parameter '");
@@ -227,7 +204,7 @@ TYPED_TEST(genGenerate_testCase, OneExpectArgIsBad)
   errorMessageToExpect.append(givenParemeter);
   errorMessageToExpect.append("', was expecting '");
   errorMessageToExpect.append(expectedParemeter);
-  errorMessageToExpect.append("'\n\r\tat EasyMock::addError");
+  errorMessageToExpect.append("'\n\r\tat ");
 
   const char *error = easyMock_getErrorStr();
   ASSERT_NE(error, nullptr);
@@ -288,7 +265,7 @@ TYPED_TEST(genGenerate_testCase, SecondExpectArgIsBad)
   int check = easyMock_check();
   EXPECT_EQ(check, 0);
 
-  //E.g: Error : at call 1 of 'int intFunIntInt(int a, int b)': Parameter 'a' has value '255', was expecting '5'\n\r\tat EasyMock::addError
+  //E.g: Error : at call 1 of 'int intFunIntInt(int a, int b)': Parameter 'a' has value '255', was expecting '5'\n\r\tat 
   std::string errorMessageToExpect("Error : at call 2 of '");
   errorMessageToExpect.append(f.getFunctionPrototype());
   errorMessageToExpect.append("': Parameter '");
@@ -297,7 +274,7 @@ TYPED_TEST(genGenerate_testCase, SecondExpectArgIsBad)
   errorMessageToExpect.append(givenParemeter);
   errorMessageToExpect.append("', was expecting '");
   errorMessageToExpect.append(expectedParemeter);
-  errorMessageToExpect.append("'\n\r\tat EasyMock::addError");
+  errorMessageToExpect.append("'\n\r\tat ");
 
   const char *error = easyMock_getErrorStr();
   ASSERT_NE(error, nullptr);

@@ -27,9 +27,16 @@ class StructType;
 class StructField : public Declarator
 {
 public:
+  typedef struct
+  {
+    bool isPointer;
+    bool isArray;
+    uint64_t arraySize; //Only valid if isArray is true
+    bool isRecursiveTypeField;
+  } attributes;
   StructField(const easyMock_cTypes_t p_ctype, std::string p_name);
   StructField(TypeItf *p_type, std::string p_name);
-  StructField(TypeItf *p_type, std::string p_name, bool p_recursiveTypeField);
+  StructField(TypeItf *p_type, std::string p_name, attributes p_attrib);
 
   void updateRecursiveTypePtr(StructType *ptr);
   bool isRecursiveTypeField() const;
@@ -48,6 +55,12 @@ public:
   const TypeItf* getType() const override;
   const std::string& getName() const;
   void setType(TypeItf* type) override;
+  bool isArray() const;
+  bool isBoundSpecifiedArray() const;
+  bool isUnboundSpecifiedArray() const;
+  bool setArray(bool value);
+  bool setArraySize(uint64_t size);
+  uint64_t getArraySize() const;
 
   virtual StructField* clone() const;
 
@@ -56,7 +69,10 @@ public:
 private:
   /* Do not make this constant otherwise the object is not copyable anymore */
   std::string m_name;
-  TypeItf* m_recursiveType;
+  //Shadow copy of recursive that which cannot be modified
+  const TypeItf* m_recursiveType;
+  bool m_isArray;
+  uint64_t m_arraySize; //Only valid if m_isArray is true
 
   friend void swap(StructField &first, StructField &second);
 };

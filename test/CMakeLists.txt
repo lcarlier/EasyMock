@@ -67,6 +67,7 @@ add_library(${TEST_FACTORIES_COMMON_OBJ}
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/StructCommonHelper.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/IntFunStructPtrIntCharPtrFactory.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/StructRecursiveMemberPtrTypeFactory.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/VoidFunStructWithArrayFactory.cpp
 )
 
 set(EASYMOCK_TEST_LIBRARY easyMockTestLibrary)

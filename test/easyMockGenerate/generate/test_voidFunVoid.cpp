@@ -52,7 +52,7 @@ TEST_F(voidFunVoid_testCase, NoExpect)
   const char **errorArr = easyMock_getErrorArr(&size);
   ASSERT_NE(errorArr, nullptr);
   ASSERT_EQ(size, 2) << EasyMock_ErrorArrayPrinter(errorArr);
-  ASSERT_TRUE(boost::algorithm::starts_with(errorArr[0], "Error : unexpected call of 'void voidFunVoid()'.\n\r\tat EasyMock::addError")) << "errorArr[0]: " << errorArr[0];
+  ASSERT_TRUE(boost::algorithm::starts_with(errorArr[0], "Error : unexpected call of 'void voidFunVoid()'.\n\r\tat ")) << "errorArr[0]: " << errorArr[0];
   ASSERT_STREQ(errorArr[1], "Error: For function 'void voidFunVoid()' bad number of call. Expected 0, got 1") << "errorArr[1]: " << errorArr[1];
   ASSERT_EQ(errorArr[2], nullptr);
 

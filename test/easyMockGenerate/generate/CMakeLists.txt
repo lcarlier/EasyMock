@@ -8,6 +8,7 @@ add_executable(test_easyMockGenerate_generate
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/generate/test_genGenerateOutputPtr.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/generate/test_voidFunStructPtr.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/generate/test_intFunStructPtrIntCharPtr.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/generate/test_generateVoidFunStructWithArray.cpp
 )
 
 target_compile_options(test_easyMockGenerate_generate PRIVATE ${TEST_COMPILE_FLAGS})

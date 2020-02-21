@@ -41,7 +41,7 @@ TEST_F(intFunIntInt_testCase, OneExpectSecondArgBad)
   int check = easyMock_check();
   EXPECT_EQ(check, 0);
 
-#define ERROR_EXPECT "Error : at call 1 of 'int intFunIntInt(int a, int b)': Parameter 'b' has value '255', was expecting '6'\n\r\tat EasyMock::addError"
+#define ERROR_EXPECT "Error : at call 1 of 'int intFunIntInt(int a, int b)': Parameter 'b' has value '255', was expecting '6'\n\r\tat "
   const char *error = easyMock_getErrorStr();
   ASSERT_NE(error, nullptr);
   ASSERT_TRUE(boost::algorithm::starts_with(error, ERROR_EXPECT)) << error;
@@ -79,7 +79,7 @@ TEST_F(intFunIntInt_testCase, TwoExpectSecondCallArgBad)
   int check = easyMock_check();
   EXPECT_EQ(check, 0);
 
-#define ERROR_EXPECT "Error : at call 2 of 'int intFunIntInt(int a, int b)': Parameter 'b' has value '255', was expecting '6'\n\r\tat EasyMock::addError"
+#define ERROR_EXPECT "Error : at call 2 of 'int intFunIntInt(int a, int b)': Parameter 'b' has value '255', was expecting '6'\n\r\tat "
   const char *error = easyMock_getErrorStr();
   ASSERT_NE(error, nullptr);
   ASSERT_TRUE(boost::algorithm::starts_with(error, ERROR_EXPECT)) << error;

@@ -4,21 +4,24 @@
 #include "CType.h"
 
 StructField::StructField(const easyMock_cTypes_t p_ctype, std::string p_name) :
-StructField(new CType(p_ctype), p_name, false)
+StructField(new CType(p_ctype), p_name, {.isPointer = false, .isArray = false, .arraySize = 0, .isRecursiveTypeField = false})
 {
 }
 
 StructField::StructField(TypeItf* p_type, std::string p_name) :
-StructField(p_type, p_name, false)
+StructField(p_type, p_name, {.isPointer = false, .isArray = false, .arraySize = 0, .isRecursiveTypeField = false})
 { }
 
-StructField::StructField(TypeItf* p_type, std::string p_name, bool p_recursiveTypeField) :
-Declarator(nullptr, false),
+StructField::StructField(TypeItf* p_type, std::string p_name, StructField::attributes p_attrib) :
+Declarator(nullptr, p_attrib.isPointer),
 m_name(p_name),
-m_recursiveType(nullptr)
+m_recursiveType(nullptr),
+m_isArray(p_attrib.isArray),
+m_arraySize(p_attrib.arraySize)
 {
-  if(p_recursiveTypeField)
+  if(p_attrib.isRecursiveTypeField)
   {
+    //If type is recursive make a shadow copy that will not be deleted
     m_recursiveType = p_type;
   }
   else
@@ -32,6 +35,8 @@ Declarator(other)
 {
   m_name = other.m_name;
   m_recursiveType = other.m_recursiveType;
+  m_isArray = other.m_isArray;
+  m_arraySize = other.m_arraySize;
 }
 
 void StructField::updateRecursiveTypePtr(StructType* ptr)
@@ -70,6 +75,8 @@ void swap(StructField &first, StructField &second)
   swap(static_cast<Declarator&>(first), static_cast<Declarator&>(second));
   std::swap(first.m_name, second.m_name);
   std::swap(first.m_recursiveType, second.m_recursiveType);
+  std::swap(first.m_isArray, second.m_isArray);
+  std::swap(first.m_arraySize, second.m_arraySize);
 }
 
 /*
@@ -79,7 +86,10 @@ void swap(StructField &first, StructField &second)
  */
 bool StructField::operator==(const StructField& other) const
 {
-  bool commonVal = Declarator::operator ==(other) && this->m_name == other.m_name;
+  bool commonVal = Declarator::operator ==(other) &&
+                   this->m_name == other.m_name &&
+                   this->m_isArray == other.m_isArray &&
+                   this->m_arraySize == other.m_arraySize;
   if(m_recursiveType)
   {
     return commonVal && other.m_recursiveType && m_recursiveType->getName() == other.m_recursiveType->getName();
@@ -123,6 +133,49 @@ void StructField::setType(TypeItf* type)
   {
     Declarator::setType(type);
   }
+}
+
+bool StructField::isArray() const
+{
+  return m_isArray;
+}
+
+bool StructField::isBoundSpecifiedArray() const
+{
+  return m_isArray && m_arraySize > 0;
+}
+
+bool StructField::isUnboundSpecifiedArray() const
+{
+  return m_isArray && m_arraySize == 0;
+}
+
+bool StructField::setArray(bool value)
+{
+  m_isArray = value;
+  m_arraySize = 0;
+
+  return true;
+}
+
+bool StructField::setArraySize(uint64_t size)
+{
+  if(!m_isArray)
+  {
+    return false;
+  }
+  m_arraySize = size;
+
+  return true;
+}
+
+uint64_t StructField::getArraySize() const
+{
+  if(!m_isArray)
+  {
+    return 0;
+  }
+  return m_arraySize;
 }
 
 StructField* StructField::clone() const
