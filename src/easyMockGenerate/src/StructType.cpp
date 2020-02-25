@@ -13,14 +13,14 @@ TypeItf(p_name), m_elem(p_elem)
 StructType::StructType(const StructType& other) :
 StructType(other.m_name, other.m_elem)
 {
-  correctRecursiveType(this);
+  correctRecursiveType(this, &other);
 }
 
 StructType & StructType::operator=(const StructType& other)
 {
   TypeItf::operator=(other);
   m_elem = other.m_elem;
-  correctRecursiveType(this);
+  correctRecursiveType(this, &other);
 
   return *this;
 }
@@ -29,7 +29,7 @@ StructType::StructType(StructType&& other) :
 TypeItf(static_cast<TypeItf&&>(other))
 {
   m_elem = std::move(other.m_elem);
-  correctRecursiveType(this);
+  correctRecursiveType(this, &other);
 }
 
 bool StructType::operator==(const StructType& other) const
@@ -81,12 +81,12 @@ bool StructType::isStruct() const
   return true;
 }
 
-void StructType::correctRecursiveType(StructType *type)
+void StructType::correctRecursiveType(const StructType *newPtr, const StructType* toReplace)
 {
   for (StructField::Vector::iterator it = m_elem.begin(); it != m_elem.end(); ++it)
   {
     StructField *curField = *it;
-    curField->updateRecursiveTypePtr(type);
+    curField->updateRecursiveTypePtr(newPtr, toReplace);
   }
 }
 

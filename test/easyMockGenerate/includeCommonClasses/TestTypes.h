@@ -24,6 +24,7 @@
 #include <StructRecursiveMemberPtrTypeFactory.h>
 #include <VoidFunStructWithArrayFactory.h>
 #include <VoidFunIntArrayFactory.h>
+#include <StructSubStructRecursiveTypeFactory.h>
 
 #define PTR_FUN_PTR_FACTORIES \
         VoidPtrFunVoidPtrFactory, \
@@ -84,7 +85,8 @@ typedef ::testing::Types
         VoidFunStructPtrFactory,
         IntFunStructPtrIntCharPtrFactory,
         VoidFunStructWithArrayFactory,
-        VoidFunIntArrayFactory
+        VoidFunIntArrayFactory,
+        StructSubStructRecursiveTypeFactory
 > ParserTestTypes;
 
 #endif /* TESTTYPES_H */

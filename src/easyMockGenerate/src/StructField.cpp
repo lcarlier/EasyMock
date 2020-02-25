@@ -21,8 +21,8 @@ m_arraySize(p_attrib.arraySize)
 {
   if(p_attrib.isRecursiveTypeField)
   {
-    //If type is recursive make a shadow copy that will not be deleted
-    m_recursiveType = p_type;
+    //If type is recursive, make a shadow copy that will not be deleted
+    m_recursiveType = static_cast<const StructType*>(p_type);
   }
   else
   {
@@ -39,16 +39,16 @@ Declarator(other)
   m_arraySize = other.m_arraySize;
 }
 
-void StructField::updateRecursiveTypePtr(StructType* ptr)
+void StructField::updateRecursiveTypePtr(const StructType* newPtr, const StructType* toReplace)
 {
-  if(m_recursiveType)
+  if(m_recursiveType == toReplace)
   {
-    m_recursiveType = ptr;
+    m_recursiveType = newPtr;
   }
   else if(m_type && m_type->isStruct())
   {
     //I'm a friend of StructType :)
-    static_cast<StructType*>(m_type)->correctRecursiveType(ptr);
+    static_cast<StructType*>(m_type)->correctRecursiveType(newPtr, toReplace);
   }
 }
 
@@ -127,7 +127,7 @@ void StructField::setType(TypeItf* type)
 {
   if(m_recursiveType)
   {
-    m_recursiveType = type;
+    m_recursiveType = static_cast<const StructType*>(type);
   }
   else
   {

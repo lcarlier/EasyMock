@@ -34,8 +34,8 @@ private:
   /* Don't make it constant otherwise the object is not copyable anymore */
   StructField::Vector m_elem;
 
-  void correctRecursiveType(StructType *type);
-  friend void StructField::updateRecursiveTypePtr(StructType* ptr);
+  void correctRecursiveType(const StructType *newPtr, const StructType* oldPtrToReplace);
+  friend void StructField::updateRecursiveTypePtr(const StructType* newPtr, const StructType* oldPtrToReplace);
 };
 
 #endif /* STRUCTTYPE_H */

@@ -38,7 +38,7 @@ public:
   StructField(TypeItf *p_type, std::string p_name);
   StructField(TypeItf *p_type, std::string p_name, attributes p_attrib);
 
-  void updateRecursiveTypePtr(StructType *ptr);
+  void updateRecursiveTypePtr(const StructType *ptr, const StructType* toReplace);
   bool isRecursiveTypeField() const;
 
   typedef AutoCleanVectorPtr<StructField> Vector;
@@ -70,7 +70,7 @@ private:
   /* Do not make this constant otherwise the object is not copyable anymore */
   std::string m_name;
   //Shadow copy of recursive that which cannot be modified
-  const TypeItf* m_recursiveType;
+  const StructType* m_recursiveType;
   bool m_isArray;
   uint64_t m_arraySize; //Only valid if m_isArray is true
 
