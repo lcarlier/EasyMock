@@ -418,6 +418,7 @@ static void generateFunctionParamSection(ctemplate::TemplateDictionary *rootDict
 static void generateStructCompareSection(ctemplate::TemplateDictionary *rootDictionnary, const TypeItf *structType);
 static bool generateCodeToFile(const std::string &outDir, const std::string &filename, const std::string &extension, const std::string &generatedCode);
 static std::string getDeclaratorString(const Declarator* decl);
+static void generateBasicTypeField(const StructField *curField, ctemplate::TemplateDictionary *paramSectDict, const TypeItf *p_structType);
 
 bool CodeGeneratorCTemplate::generateCode(const std::string& outDir, const std::string &fullPathToHeaderToMock, const ElementToMock::Vector& elem) const
 {
@@ -563,12 +564,17 @@ extern "C" int cmp_struct_{{STRUCT_NAME}} ( void *currentCall_ptr, void *expecte
 
 static void generateBodyStructCompare(ctemplate::TemplateDictionary *rootDictionnary, ctemplate::TemplateDictionary *paramSectDict, const TypeItf *p_structType, const StructField *curField)
 {
-  std::string condition;
   const TypeItf *curType = curField->getType();
   if(curType->isStruct())
   {
-    if(!curField->isRecursiveTypeField())
+    if(curField->isRecursiveTypeField())
     {
+      //Recursive types are pointers, so simple field generation will do
+      generateBasicTypeField(curField, paramSectDict, p_structType);
+    }
+    else
+    {
+      std::string condition;
       ctemplate::TemplateDictionary *ifPreSectionDict = paramSectDict->AddSectionDictionary(STRUCT_COMPARE_PRE_IF_SECTION);
       std::string preFieldVarName(curField->getName());
       preFieldVarName.append("_parameter");
@@ -593,45 +599,48 @@ static void generateBodyStructCompare(ctemplate::TemplateDictionary *rootDiction
       condition.append(preFieldVarName.c_str());
       condition.append(".c_str(), errorMessage)");
       generateStructCompareSection(rootDictionnary, curType);
-    }
-    else
-    {
-      //Recursive types are pointers, so simple comparison will do
-      condition.append("currentCall_val !=  expectedCall_val");
+      paramSectDict->SetValue(COMPARE_CONDITION, condition);
     }
   } else if (curType->isCType()) {
-    condition.append("currentCall_val->");
-    condition.append(curField->getName());
-    if(curField->isBoundSpecifiedArray())
-    {
-      condition.append("[idx]");
-    }
-    condition.append(" != expectedCall_val->");
-    condition.append(curField->getName());
-    if(curField->isBoundSpecifiedArray())
-    {
-      condition.append("[idx]");
-    }
-    ctemplate::TemplateDictionary *errorDict = paramSectDict->AddSectionDictionary(STRUCT_COMPARE_ERROR);
-    std::string compareField = curField->getName();
-    if(curField->isBoundSpecifiedArray())
-    {
-      errorDict->AddSectionDictionary(STRUCT_PRINT_IDX_SECTION); //This section needs to be added only once
-      compareField.append("[idx]");
-    }
-    errorDict->SetValue(STRUCT_COMPARE_FIELD, compareField);
-    errorDict->SetValue(STRUCT_COMPARE_TYPE, p_structType->getName());
-    if(curField->isPointer())
-    {
-      errorDict->SetValue(STRUCT_COMPARE_PRINTF_FORMAT, "p");
-    }
-    else
-    {
-      errorDict->SetValue(STRUCT_COMPARE_PRINTF_FORMAT, easyMock_printfFormat[curType->getCType()]);
-    }
+    generateBasicTypeField(curField, paramSectDict, p_structType);
   } else {
     std::fprintf(stderr, "Type %s unexpected here. Contact owner for bug fixing\n\r", curType->getName().c_str());
     assert(false);
+  }
+}
+
+static void generateBasicTypeField(const StructField *curField, ctemplate::TemplateDictionary *paramSectDict, const TypeItf *p_structType)
+{
+  std::string condition;
+  condition.append("currentCall_val->");
+  condition.append(curField->getName());
+  if(curField->isBoundSpecifiedArray())
+  {
+    condition.append("[idx]");
+  }
+  condition.append(" != expectedCall_val->");
+  condition.append(curField->getName());
+  if(curField->isBoundSpecifiedArray())
+  {
+    condition.append("[idx]");
+  }
+  ctemplate::TemplateDictionary *errorDict = paramSectDict->AddSectionDictionary(STRUCT_COMPARE_ERROR);
+  std::string compareField = curField->getName();
+  if(curField->isBoundSpecifiedArray())
+  {
+    errorDict->AddSectionDictionary(STRUCT_PRINT_IDX_SECTION); //This section needs to be added only once
+    compareField.append("[idx]");
+  }
+  errorDict->SetValue(STRUCT_COMPARE_FIELD, compareField);
+  errorDict->SetValue(STRUCT_COMPARE_TYPE, p_structType->getName());
+  if(curField->isPointer())
+  {
+    errorDict->SetValue(STRUCT_COMPARE_PRINTF_FORMAT, "p");
+  }
+  else
+  {
+    const TypeItf *curType = curField->getType();
+    errorDict->SetValue(STRUCT_COMPARE_PRINTF_FORMAT, easyMock_printfFormat[curType->getCType()]);
   }
   paramSectDict->SetValue(COMPARE_CONDITION, condition);
 }
