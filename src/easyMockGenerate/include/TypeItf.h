@@ -22,7 +22,8 @@
 class TypeItf
 {
 public:
-  TypeItf(const std::string p_name);
+  explicit TypeItf(const std::string p_name);
+  TypeItf(const std::string p_name, const std::string p_typed_def_name);
 
   typedef AutoCleanVectorPtr<TypeItf> Vector;
 
@@ -32,6 +33,7 @@ public:
   TypeItf& operator=(TypeItf &&other) = default;
 
   const std::string &getName() const;
+  const std::string &getTypedDefName() const;
   virtual bool isStruct() const;
   virtual const StructField::Vector *getContainedFields() const;
   virtual bool isCType() const;
@@ -45,7 +47,9 @@ public:
 protected:
   virtual bool isEqual(const TypeItf &other) const;
   void setName(std::string p_name);
+  void setTypedDefName(std::string p_typed_def_name);
   std::string m_name;
+  std::string m_typed_def_name;
 };
 
 #endif /* TYPEITF_H */

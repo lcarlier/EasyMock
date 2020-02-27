@@ -24,5 +24,5 @@ TYPED_TEST(GenericParser_testCase, parser)
   ASSERT_EQ(elem.size(), 1);
   Function& fp = Function::toFunction(elem[0]);
   Function f = funFactory.functionFactory();
-  ASSERT_EQ(f, fp);
+  ASSERT_EQ(f, fp) << "f: " << f.getFunctionPrototype() << std::endl << "fp: " << fp.getFunctionPrototype();
 }

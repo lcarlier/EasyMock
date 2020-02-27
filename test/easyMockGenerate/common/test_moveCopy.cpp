@@ -139,7 +139,7 @@ static void testMoveStructField(StructField &f1)
   StructField f2(f1);
   ASSERT_EQ(f1, f2);
 
-  StructField f3(new StructType("s", {new StructField(CTYPE_INT, "c"), new StructField(CTYPE_INT, "d")}), "e");
+  StructField f3(new StructType("s", StructField::Vector({new StructField(CTYPE_INT, "c"), new StructField(CTYPE_INT, "d")})), "e");
   ASSERT_NE(f3,f1);
   f3 = f1;
   ASSERT_EQ(f3,f1);
@@ -147,7 +147,7 @@ static void testMoveStructField(StructField &f1)
   StructField f4 = std::move(f3);
   ASSERT_EQ(f4, f1);
 
-  StructField f6(new StructType("s", {new StructField(CTYPE_INT, "c"), new StructField(CTYPE_INT, "d")}), "e");
+  StructField f6(new StructType("s", StructField::Vector({new StructField(CTYPE_INT, "c"), new StructField(CTYPE_INT, "d")})), "e");
   ASSERT_NE(f6, f2);
   f6 = std::move(f2);
   ASSERT_EQ(f6, f1);
@@ -302,6 +302,20 @@ TEST(moveCopy, StructTypeTwoRecursiveTypes)
   s2.addStructField(new StructField(s1, "s2SubS1"));
 
   testStructType(s2);
+}
+
+TEST(moveCopy, StructTypedAnonymousTypedDef)
+{
+  StructType s1("", "Anonymous");
+
+  testStructType(s1);
+}
+
+TEST(moveCopy, StructTypedTypedDef)
+{
+  StructType s1("foo", "NotAnonymous");
+
+  testStructType(s1);
 }
 
 TEST(moveCopy, AutoCleanVectorPtr)

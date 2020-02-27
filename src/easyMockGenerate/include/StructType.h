@@ -7,7 +7,9 @@ class StructType : public TypeItf
 {
 public:
   explicit StructType(const std::string p_name);
+  StructType(const std::string p_name, const std::string p_type_def_name);
   StructType(const std::string p_name, const StructField::Vector p_elem);
+  StructType(const std::string p_name, const std::string p_type_def_name, const StructField::Vector p_elem);
   bool isStruct() const;
   const StructField::Vector *getContainedFields() const;
   void addStructField(StructField *newField);

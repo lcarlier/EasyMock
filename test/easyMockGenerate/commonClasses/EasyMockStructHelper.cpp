@@ -4,7 +4,7 @@
 
 StructType* newStructS1Type()
 {
-  return new StructType("s1",{new StructField(CTYPE_INT, "a"), new StructField(CTYPE_FLOAT, "b")});
+  return new StructType("s1",StructField::Vector({new StructField(CTYPE_INT, "a"), new StructField(CTYPE_FLOAT, "b")}));
 }
 
 Parameter::Vector structS2Parameter()

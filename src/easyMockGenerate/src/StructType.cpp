@@ -1,17 +1,27 @@
 #include "StructType.h"
 
 StructType::StructType(const std::string p_name) :
-StructType(p_name, {})
+StructType(p_name, StructField::Vector({}))
+{
+}
+
+StructType::StructType(const std::string p_name, const std::string p_type_def_name) :
+StructType(p_name, p_type_def_name, {})
 {
 }
 
 StructType::StructType(const std::string p_name, const StructField::Vector p_elem) :
-TypeItf(p_name), m_elem(p_elem)
+StructType(p_name, "", p_elem)
+{
+}
+
+StructType::StructType(const std::string p_name, const std::string p_type_def_name, const StructField::Vector p_elem) :
+TypeItf(p_name, p_type_def_name), m_elem(p_elem)
 {
 }
 
 StructType::StructType(const StructType& other) :
-StructType(other.m_name, other.m_elem)
+StructType(other.m_name, other.m_typed_def_name, other.m_elem)
 {
   correctRecursiveType(this, &other);
 }

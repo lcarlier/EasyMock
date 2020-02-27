@@ -51,11 +51,21 @@ const std::string Function::getFunctionPrototype() const
       rv_funcProto.append(", ");
     }
     const Parameter *fParam = *it;
-    if(fParam->getType()->isStruct())
+    const TypeItf *type = fParam->getType();
+    if(type->isStruct())
     {
       rv_funcProto.append("struct ");
     }
-    rv_funcProto.append(fParam->getType()->getName());
+    const std::string &name = type->getName();
+    const std::string &typedDefName = type->getTypedDefName();
+    if(typedDefName.compare("") != 0)
+    {
+      rv_funcProto.append(typedDefName);
+    }
+    else
+    {
+      rv_funcProto.append(name);
+    }
     if(fParam->isPointer())
     {
       rv_funcProto.push_back('*');

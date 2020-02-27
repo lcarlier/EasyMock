@@ -162,13 +162,30 @@ private:
   TypeItf* getFromStructType(const clang::Type &type, structKnownTypeMap &structKnownType)
   {
     const clang::RecordType *RT = type.getAsStructureType();
+    const clang::TypedefType* typeDefType = type.getAs<clang::TypedefType>();
     std::string typeName = RT->getDecl()->getNameAsString();
+    std::string typedDefName("");
+    if(typeDefType != nullptr)
+    {
+      typedDefName = typeDefType->getDecl()->getNameAsString();
+    }
+    if(structKnownType.find(typedDefName) != structKnownType.end())
+    {
+      return structKnownType[typedDefName];
+    }
     if(structKnownType.find(typeName) != structKnownType.end())
     {
       return structKnownType[typeName];
     }
-    StructType *sType = new StructType(typeName);
-    structKnownType[typeName] = sType;
+    StructType *sType = new StructType(typeName, typedDefName);
+    if(typedDefName.compare("") != 0)
+    {
+      structKnownType[typedDefName] = sType;
+    }
+    else
+    {
+      structKnownType[typeName] = sType;
+    }
     for (clang::FieldDecl *FD :
           type.getAsStructureType()->getDecl()->fields()) {
       const clang::Type *typePtr = FD->getType().getTypePtr();
