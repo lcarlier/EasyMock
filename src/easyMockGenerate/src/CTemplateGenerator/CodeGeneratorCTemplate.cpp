@@ -1,7 +1,5 @@
 #include <cstdio>
 #include <cstdlib>
-#include <ctemplate/template.h>
-#include <string>
 #include <vector>
 #include <cassert>
 #include <algorithm>
@@ -412,15 +410,13 @@ static const char headerFileTemplate[] =
         "#endif" CARRIAGE_RETURN
         "#endif" CARRIAGE_RETURN;
 
-static void fillInTemplateVariables(ctemplate::TemplateDictionary *dict, const std::string &mockedHeader, const ElementToMock::Vector &fList);
-static void generateFunctionSection(ctemplate::TemplateDictionary *rootDictionnary, const ElementToMock *f);
-static void generateFunctionParamSection(ctemplate::TemplateDictionary *rootDictionnary, ctemplate::TemplateDictionary *dict, const Parameter::Vector *functionParam);
-static void generateStructCompareSection(ctemplate::TemplateDictionary *rootDictionnary, const TypeItf *structType);
-static bool generateCodeToFile(const std::string &outDir, const std::string &filename, const std::string &extension, const std::string &generatedCode);
-static std::string getDeclaratorString(const Declarator* decl);
-static void generateBasicTypeField(const StructField *curField, ctemplate::TemplateDictionary *paramSectDict, const TypeItf *p_structType);
+CodeGeneratorCTemplate::CodeGeneratorCTemplate()
+{
+  m_generatedStructs.clear();
+}
 
-bool CodeGeneratorCTemplate::generateCode(const std::string& outDir, const std::string &fullPathToHeaderToMock, const ElementToMock::Vector& elem) const
+
+bool CodeGeneratorCTemplate::generateCode(const std::string& outDir, const std::string &fullPathToHeaderToMock, const ElementToMock::Vector& elem)
 {
   ctemplate::TemplateDictionary dict("generateCode");
 
@@ -447,7 +443,7 @@ bool CodeGeneratorCTemplate::generateCode(const std::string& outDir, const std::
   return true;
 }
 
-static void fillInTemplateVariables(ctemplate::TemplateDictionary *rootDictionnary, const std::string &mockedHeader, const ElementToMock::Vector &fList)
+void CodeGeneratorCTemplate::fillInTemplateVariables(ctemplate::TemplateDictionary *rootDictionnary, const std::string &mockedHeader, const ElementToMock::Vector &fList)
 {
   rootDictionnary->SetValue(MOCKED_HEADER_FILENAME, mockedHeader);
   std::string fileNameWithoutExtUpper = mockedHeader.substr(0, mockedHeader.find_last_of("."));
@@ -469,7 +465,7 @@ static void fillInTemplateVariables(ctemplate::TemplateDictionary *rootDictionna
   }
 }
 
-static void generateFunctionSection(ctemplate::TemplateDictionary *rootDictionnary, const ElementToMock *f)
+void CodeGeneratorCTemplate::generateFunctionSection(ctemplate::TemplateDictionary *rootDictionnary, const ElementToMock *f)
 {
   ctemplate::TemplateDictionary *functionSectionDict = rootDictionnary->AddSectionDictionary(FUNCTION_SECTION);
   functionSectionDict->SetValue(FUNCTION_NAME, *f->getName());
@@ -491,7 +487,7 @@ static void generateFunctionSection(ctemplate::TemplateDictionary *rootDictionna
   generateFunctionParamSection(rootDictionnary, functionSectionDict, f->getFunctionsParameters());
 }
 
-static void generateFunctionParamSection(ctemplate::TemplateDictionary *rootDictionnary, ctemplate::TemplateDictionary *functionSectionDict, const Parameter::Vector *functionParam)
+void CodeGeneratorCTemplate::generateFunctionParamSection(ctemplate::TemplateDictionary *rootDictionnary, ctemplate::TemplateDictionary *functionSectionDict, const Parameter::Vector *functionParam)
 {
   bool ptrSectionAdded = false;
   if (functionParam->size() > 0)
@@ -506,7 +502,13 @@ static void generateFunctionParamSection(ctemplate::TemplateDictionary *rootDict
     std::string argType = getDeclaratorString(fParam);
     if(fParam->getType()->isStruct())
     {
-      generateStructCompareSection(rootDictionnary, fParam->getType());
+      const std::string &structTypeName = fParam->getTypeName();
+      //Generate each structs only once
+      if(m_generatedStructs.find(structTypeName) == m_generatedStructs.end())
+      {
+        generateStructCompareSection(rootDictionnary, fParam->getType());
+        m_generatedStructs.insert(structTypeName);
+      }
     }
     newTypedefParamSection->SetValue(FUNCTION_PARAM_TYPE, argType);
     newTypedefParamSection->SetValue(FUNCTION_PARAM_NAME, fParam->getName());
@@ -562,7 +564,7 @@ extern "C" int cmp_struct_{{STRUCT_NAME}} ( void *currentCall_ptr, void *expecte
 {{END_STRUCT_COMPARE_SECTION}}
  */
 
-static void generateBodyStructCompare(ctemplate::TemplateDictionary *rootDictionnary, ctemplate::TemplateDictionary *paramSectDict, const TypeItf *p_structType, const StructField *curField)
+void CodeGeneratorCTemplate::generateBodyStructCompare(ctemplate::TemplateDictionary *rootDictionnary, ctemplate::TemplateDictionary *paramSectDict, const TypeItf *p_structType, const StructField *curField)
 {
   const TypeItf *curType = curField->getType();
   if(curType->isStruct())
@@ -609,7 +611,7 @@ static void generateBodyStructCompare(ctemplate::TemplateDictionary *rootDiction
   }
 }
 
-static void generateBasicTypeField(const StructField *curField, ctemplate::TemplateDictionary *paramSectDict, const TypeItf *p_structType)
+void CodeGeneratorCTemplate::generateBasicTypeField(const StructField *curField, ctemplate::TemplateDictionary *paramSectDict, const TypeItf *p_structType)
 {
   std::string condition;
   condition.append("currentCall_val->");
@@ -645,7 +647,7 @@ static void generateBasicTypeField(const StructField *curField, ctemplate::Templ
   paramSectDict->SetValue(COMPARE_CONDITION, condition);
 }
 
-static void generateStructCompareSection(ctemplate::TemplateDictionary *rootDictionnary, const TypeItf *p_structType)
+void CodeGeneratorCTemplate::generateStructCompareSection(ctemplate::TemplateDictionary *rootDictionnary, const TypeItf *p_structType)
 {
   ctemplate::TemplateDictionary *compareDict = rootDictionnary->AddSectionDictionary(STRUCT_COMPARE_SECTION);
   compareDict->SetValue(STRUCT_NAME, p_structType->getName());
@@ -670,7 +672,7 @@ static void generateStructCompareSection(ctemplate::TemplateDictionary *rootDict
   }
 }
 
-static bool generateCodeToFile(const std::string &outDir, const std::string &filename, const std::string &extension, const std::string &generatedCode)
+bool CodeGeneratorCTemplate::generateCodeToFile(const std::string &outDir, const std::string &filename, const std::string &extension, const std::string &generatedCode)
 {
   bool rv = true;
   FILE *f = NULL;
@@ -703,7 +705,7 @@ closeFile:
   return rv;
 }
 
-static std::string getDeclaratorString(const Declarator* decl)
+std::string CodeGeneratorCTemplate::getDeclaratorString(const Declarator* decl)
 {
   const TypeItf* rvType = decl->getType();
   std::string returnTypeStr;

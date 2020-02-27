@@ -10,12 +10,12 @@
 class MainCodeGenerator
 {
 public:
-  MainCodeGenerator(const std::string filename, CodeParserItf &codeParser, const CodeGeneratorItf &codeGenerator);
+  MainCodeGenerator(const std::string filename, CodeParserItf &codeParser, CodeGeneratorItf &codeGenerator);
   bool generateCode(const std::string &outDir);
 private:
   std::string m_filename;
   CodeParserItf &m_codeParserItf;
-  const CodeGeneratorItf &m_codeGeneratorItf;
+  CodeGeneratorItf &m_codeGeneratorItf;
 };
 
 #endif /* CODEPARSER_H */

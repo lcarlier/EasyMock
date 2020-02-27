@@ -1,6 +1,6 @@
 #include "MainCodeGenerator.h"
 
-MainCodeGenerator::MainCodeGenerator(const std::string filename, CodeParserItf &codeParser, const CodeGeneratorItf &codeGenerator)
+MainCodeGenerator::MainCodeGenerator(const std::string filename, CodeParserItf &codeParser, CodeGeneratorItf &codeGenerator)
 : m_filename(filename), m_codeParserItf(codeParser), m_codeGeneratorItf(codeGenerator)
 {
 }
