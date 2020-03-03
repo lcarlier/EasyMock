@@ -34,10 +34,12 @@ public:
 
   const std::string &getName() const;
   const std::string &getTypedDefName() const;
+  virtual const easyMock_cTypes_t getCType() const;
+
   virtual bool isStruct() const;
   virtual const StructField::Vector *getContainedFields() const;
   virtual bool isCType() const;
-  virtual const easyMock_cTypes_t getCType() const;
+  bool isTypedDef() const;
 
   bool operator==(const TypeItf &other) const;
   bool operator!=(const TypeItf &other) const;

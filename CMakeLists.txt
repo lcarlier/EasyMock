@@ -63,6 +63,8 @@ set(LLVM_CXXFLAGS -I${LLVM_INCLUDEDIR})
 execute_process(COMMAND ${LLVM} --ldflags COMMAND tr -d "\n" OUTPUT_VARIABLE LLVM_LDFLAGS)
 execute_process(COMMAND ${LLVM} --ldflags COMMAND cut -d "L" -f 2 COMMAND tr -d "\n" COMMAND tr -d " " OUTPUT_VARIABLE LLVM_LIBRARY_PATH)
 
+message("-- LLVM: ${LLVM}")
+message("-- LLVM_VERSION: ${LLVM_VERSION}")
 message("-- LLVM_CXXFLAGS: ${LLVM_CXXFLAGS}")
 message("-- LLVM_LDFLAGS: ${LLVM_LDFLAGS}")
 message("-- LLVM_LIBRARY_PATH: ${LLVM_LIBRARY_PATH}")

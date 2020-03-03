@@ -32,11 +32,19 @@ bool Function::operator!=(const Function& other) const
 const std::string Function::getFunctionPrototype() const
 {
   std::string rv_funcProto;
-  if(m_returnType.getType()->isStruct())
+  const TypeItf* retTypeItf = m_returnType.getType();
+  if(retTypeItf->isStruct() && !retTypeItf->isTypedDef())
   {
     rv_funcProto.append("struct ");
   }
-  rv_funcProto.append(m_returnType.getTypeName());
+  if(retTypeItf->isTypedDef())
+  {
+    rv_funcProto.append(retTypeItf->getTypedDefName());
+  }
+  else
+  {
+    rv_funcProto.append(retTypeItf->getName());
+  }
   if(m_returnType.isPointer())
   {
     rv_funcProto.push_back('*');
@@ -52,13 +60,13 @@ const std::string Function::getFunctionPrototype() const
     }
     const Parameter *fParam = *it;
     const TypeItf *type = fParam->getType();
-    if(type->isStruct())
+    if(type->isStruct() && !type->isTypedDef())
     {
       rv_funcProto.append("struct ");
     }
     const std::string &name = type->getName();
     const std::string &typedDefName = type->getTypedDefName();
-    if(typedDefName.compare("") != 0)
+    if(type->isTypedDef())
     {
       rv_funcProto.append(typedDefName);
     }

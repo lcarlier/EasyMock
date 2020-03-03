@@ -7,7 +7,7 @@ template<class T>
 class genGenerate_testCase : public easyMockGenerate_baseTestCase
 {
 public:
-  genGenerate_testCase() : easyMockGenerate_baseTestCase(m_factory.functionGetFunctionName(), m_factory.functionGetIncludeDir(), m_factory.functionGetMockDir(), false)
+  genGenerate_testCase() : easyMockGenerate_baseTestCase(m_factory.functionGetFunctionName(), m_factory.functionGetIncludeDir(), m_factory.functionGetMockDir())
   {
     ElementToMock *f = m_factory.newFunctionFactory();
     m_elem.push_back(f);

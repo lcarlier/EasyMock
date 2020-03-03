@@ -52,6 +52,7 @@
 #define FUNCTION_MATCHER_LIST_SECTION "FUNCTION_MATCHER_LIST_SECTION"
 #define FUNCTION_PARAM_LIST_SECTION "FUNCTION_PARAM_LIST_SECTION"
 #define FUNCTION_PARAM_PTR_LIST_SECTION "FUNCTION_PARAM_PTR_LIST_SECTION"
+#define NON_ANONYMOUS_STRUCT_TYPED_DEF_SECTION "NON_ANONYMOUS_STRUCT_TYPED_DEF_SECTION"
 
 #define VOID_FUNCTION_RETURN_VALUE "void"
 
@@ -209,8 +210,8 @@ static const char templateText[] =
         TEMPLATE_BEG_SECTION(STRUCT_COMPARE_SECTION)
         "extern \"C\" " STRUCT_COMPARE_FUNCTION_SIGNATURE CARRIAGE_RETURN
         "{" CARRIAGE_RETURN
-        "    struct " STRUCT_COMPARE_SECTION_STRUCT_NAME_VAR " *currentCall_val = static_cast<struct " STRUCT_COMPARE_SECTION_STRUCT_NAME_VAR " *>(currentCall_ptr);" CARRIAGE_RETURN
-        "    struct " STRUCT_COMPARE_SECTION_STRUCT_NAME_VAR " *expectedCall_val = static_cast<struct " STRUCT_COMPARE_SECTION_STRUCT_NAME_VAR " *>(expectedCall_ptr);" CARRIAGE_RETURN
+        "    " IF_PARAM_LIST(NON_ANONYMOUS_STRUCT_TYPED_DEF_SECTION,"struct ") STRUCT_COMPARE_SECTION_STRUCT_NAME_VAR " *currentCall_val = static_cast<" IF_PARAM_LIST(NON_ANONYMOUS_STRUCT_TYPED_DEF_SECTION,"struct ") STRUCT_COMPARE_SECTION_STRUCT_NAME_VAR " *>(currentCall_ptr);" CARRIAGE_RETURN
+        "    " IF_PARAM_LIST(NON_ANONYMOUS_STRUCT_TYPED_DEF_SECTION,"struct ")STRUCT_COMPARE_SECTION_STRUCT_NAME_VAR " *expectedCall_val = static_cast<" IF_PARAM_LIST(NON_ANONYMOUS_STRUCT_TYPED_DEF_SECTION,"struct ") STRUCT_COMPARE_SECTION_STRUCT_NAME_VAR " *>(expectedCall_ptr);" CARRIAGE_RETURN
         TEMPLATE_BEG_SECTION(STRUCT_COMPARE_PARAM_SECTION)
         TEMPLATE_BEG_SECTION(STRUCT_COMPARE_PRE_IF_SECTION)
         "    std::string " TEMPLATE_VAR(STRUCT_COMPARE_PRE_IF_SECTION_VAR_NAME) "(paramName);" CARRIAGE_RETURN
@@ -650,7 +651,15 @@ void CodeGeneratorCTemplate::generateBasicTypeField(const StructField *curField,
 void CodeGeneratorCTemplate::generateStructCompareSection(ctemplate::TemplateDictionary *rootDictionnary, const TypeItf *p_structType)
 {
   ctemplate::TemplateDictionary *compareDict = rootDictionnary->AddSectionDictionary(STRUCT_COMPARE_SECTION);
-  compareDict->SetValue(STRUCT_NAME, p_structType->getName());
+  if(p_structType->isTypedDef())
+  {
+    compareDict->SetValue(STRUCT_NAME, p_structType->getTypedDefName());
+  }
+  else
+  {
+    compareDict->AddSectionDictionary(NON_ANONYMOUS_STRUCT_TYPED_DEF_SECTION);
+    compareDict->SetValue(STRUCT_NAME, p_structType->getName());
+  }
   const StructField::Vector *vectField = p_structType->getContainedFields();
   for (StructField::Vector::const_iterator it = vectField->begin(); it != vectField->end(); ++it)
   {
@@ -709,11 +718,18 @@ std::string CodeGeneratorCTemplate::getDeclaratorString(const Declarator* decl)
 {
   const TypeItf* rvType = decl->getType();
   std::string returnTypeStr;
-  if (rvType->isStruct())
+  if (rvType->isStruct() && !rvType->isTypedDef())
   {
     returnTypeStr.append("struct ");
   }
-  returnTypeStr.append(rvType->getName());
+  if(rvType->isTypedDef())
+  {
+    returnTypeStr.append(rvType->getTypedDefName());
+  }
+  else
+  {
+    returnTypeStr.append(rvType->getName());
+  }
   if(decl->isPointer())
   {
     returnTypeStr.push_back('*');

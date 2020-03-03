@@ -45,6 +45,11 @@ bool TypeItf::isCType() const
   return false;
 }
 
+bool TypeItf::isTypedDef() const
+{
+  return m_typed_def_name.size() != 0;
+}
+
 const easyMock_cTypes_t TypeItf::getCType() const
 {
   return CTYPE_INVALID;

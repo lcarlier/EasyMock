@@ -315,7 +315,7 @@ static auto getFirstTupleElem(std::tuple<Args...>& t)
 
 /*
  * When auto is char* or unsigned char*, the ostringstream class
- * is (too) smart and try to derefence the pointer. In the UT in general
+ * is (too) smart and try to dereference the pointer. In the UT in general
  * I provide dummy pointers with dummy addresses.
  * Since I'm only interested in the value of the pointer (not to what it
  * points), I have a redefinition of printElIntoStream which cast the pointer

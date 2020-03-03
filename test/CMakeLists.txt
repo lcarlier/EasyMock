@@ -70,7 +70,8 @@ add_library(${TEST_FACTORIES_COMMON_OBJ}
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/VoidFunStructWithArrayFactory.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/VoidFunIntArrayFactory.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/StructSubStructRecursiveTypeFactory.cpp
-    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/VoidStructTypedDefFactory.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/StructTypedDefFunStructTypedDefFactory.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/StructAnonymousTypedDefFunStructAnonymousTypedDefFactory.cpp
 )
 
 set(EASYMOCK_TEST_LIBRARY easyMockTestLibrary)
