@@ -12,6 +12,7 @@
 
 #include <TestTypes.h>
 #include <StructCommonHelper.h>
+#include <UnionCommonHelper.h>
 
 #include "genGenerate_testCase.h"
 

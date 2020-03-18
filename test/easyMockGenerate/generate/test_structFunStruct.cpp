@@ -10,7 +10,7 @@
 #include "structFunStruct.h"
 #include "CType.h"
 #include "Function.h"
-#include "StructType.h"
+#include "ComposableType.h"
 #include <StructFunStructFactory.h>
 
 class structFunStruct_testCase : public easyMockGenerate_baseTestCase

@@ -1,15 +1,13 @@
 #include "CType.h"
 
 CType::CType() : CType(CTYPE_INVALID)
-{}
+{
+}
 
 CType::CType(const easyMock_cTypes_t p_cType) :
 TypeItf(easyMock_arrayCTypeStr[p_cType]), m_cType(p_cType)
-{}
-
-bool CType::isCType() const
 {
-  return true;
+  m_isCType = true;
 }
 
 const easyMock_cTypes_t CType::getCType() const

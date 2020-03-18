@@ -14,5 +14,5 @@ add_executable(test_easyMockGenerate_generate
 
 target_compile_options(test_easyMockGenerate_generate PRIVATE ${TEST_COMPILE_FLAGS})
 target_include_directories(test_easyMockGenerate_generate PRIVATE ${TEST_INCLUDE_DIR})
-target_link_libraries(test_easyMockGenerate_generate ${EASYMOCK_COMMON_OBJ} ${CTEMPLATE_GENERATE_OBJ} ${TEST_LINK_LIB} ${EASYMOCK_TEST_LIBRARY} ${TEST_FACTORIES_COMMON_OBJ})
+target_link_libraries(test_easyMockGenerate_generate ${CTEMPLATE_GENERATE_OBJ} ${TEST_LINK_LIB} ${EASYMOCK_TEST_LIBRARY} ${TEST_FACTORIES_COMMON_OBJ} ${EASYMOCK_COMMON_OBJ})
 add_test(NAME test_easyMockGenerate_generate COMMAND test_easyMockGenerate_generate)

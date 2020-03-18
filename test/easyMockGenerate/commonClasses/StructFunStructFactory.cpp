@@ -4,7 +4,6 @@
 
 #include "EasyMockGenerateTypes.h"
 #include <StructType.h>
-#include <StructField.h>
 #include <EasyMockStructHelper.h>
 
 float fToExpect[] = {4.5, 5.5, 6.5};

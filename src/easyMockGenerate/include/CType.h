@@ -22,8 +22,7 @@ class CType : public TypeItf
 public:
   CType();
   CType(const easyMock_cTypes_t p_cType);
-  bool isCType() const;
-  const easyMock_cTypes_t getCType() const;
+  const easyMock_cTypes_t getCType() const override;
   bool setUnsigned(bool val);
   void setCType(easyMock_cTypes_t p_cType);
 
@@ -34,7 +33,7 @@ public:
   bool operator==(const CType &other) const;
   bool operator!=(const CType &other) const;
 
-  CType *clone() const;
+  CType *clone() const override;
   /*
    * bool isEqual(const TypeItf &other);
    * Doesn't need to be overridden because the name is updated whenever the CType object changes.

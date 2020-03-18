@@ -33,18 +33,7 @@ const std::string Function::getFunctionPrototype() const
 {
   std::string rv_funcProto;
   const TypeItf* retTypeItf = m_returnType.getType();
-  if(retTypeItf->isStruct() && !retTypeItf->isTypedDef())
-  {
-    rv_funcProto.append("struct ");
-  }
-  if(retTypeItf->isTypedDef())
-  {
-    rv_funcProto.append(retTypeItf->getTypedDefName());
-  }
-  else
-  {
-    rv_funcProto.append(retTypeItf->getName());
-  }
+  rv_funcProto.append(retTypeItf->getFullDeclarationName());
   if(m_returnType.isPointer())
   {
     rv_funcProto.push_back('*');
@@ -60,20 +49,7 @@ const std::string Function::getFunctionPrototype() const
     }
     const Parameter *fParam = *it;
     const TypeItf *type = fParam->getType();
-    if(type->isStruct() && !type->isTypedDef())
-    {
-      rv_funcProto.append("struct ");
-    }
-    const std::string &name = type->getName();
-    const std::string &typedDefName = type->getTypedDefName();
-    if(type->isTypedDef())
-    {
-      rv_funcProto.append(typedDefName);
-    }
-    else
-    {
-      rv_funcProto.append(name);
-    }
+    rv_funcProto.append(type->getFullDeclarationName());
     if(fParam->isPointer())
     {
       rv_funcProto.push_back('*');

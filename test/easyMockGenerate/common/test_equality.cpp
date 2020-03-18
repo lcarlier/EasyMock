@@ -4,6 +4,8 @@
 #include <Parameter.h>
 #include <ReturnValue.h>
 #include <StructType.h>
+#include <UnionType.h>
+#include <ComposableField.h>
 #include <AutoCleanVectorPtr.h>
 
 TEST(equality, CType)
@@ -143,29 +145,29 @@ TEST(equality, ReturnValuePointerDifferent)
 
 TEST(equality, StructFieldSame)
 {
-  StructField f1(CTYPE_INT, "a");
-  StructField f2(CTYPE_INT, "a");
+  ComposableField f1(CTYPE_INT, "a");
+  ComposableField f2(CTYPE_INT, "a");
 
   ASSERT_EQ(f1, f2);
 
-  StructField f3(new StructType("s", StructField::Vector({new StructField(CTYPE_INT, "c"), new StructField(CTYPE_INT, "d")})), "e");
-  StructField f4(new StructType("s", StructField::Vector({new StructField(CTYPE_INT, "c"), new StructField(CTYPE_INT, "d")})), "e");
+  ComposableField f3(new StructType("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "c"), new ComposableField(CTYPE_INT, "d")})), "e");
+  ComposableField f4(new StructType("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "c"), new ComposableField(CTYPE_INT, "d")})), "e");
 
   ASSERT_EQ(f3, f4);
 }
 
 TEST(equality, StructFieldPointerSame)
 {
-  StructField f1(CTYPE_INT, "a");
-  StructField f2(CTYPE_INT, "a");
+  ComposableField f1(CTYPE_INT, "a");
+  ComposableField f2(CTYPE_INT, "a");
 
   f1.setPointer(true);
   ASSERT_NE(f1, f2);
   f2.setPointer(true);
   ASSERT_EQ(f1, f2);
 
-  StructField f3(new StructType("s", StructField::Vector({new StructField(CTYPE_INT, "c"), new StructField(CTYPE_INT, "d")})), "e");
-  StructField f4(new StructType("s", StructField::Vector({new StructField(CTYPE_INT, "c"), new StructField(CTYPE_INT, "d")})), "e");
+  ComposableField f3(new StructType("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "c"), new ComposableField(CTYPE_INT, "d")})), "e");
+  ComposableField f4(new StructType("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "c"), new ComposableField(CTYPE_INT, "d")})), "e");
 
   ASSERT_EQ(f3, f4);
   (*f3.getType()->getContainedFields())[1].setPointer(true);
@@ -186,30 +188,28 @@ TEST(equality, StructFieldPointerSame)
 
 TEST(equality, StructFieldDifferent)
 {
-  StructField f1(CTYPE_INT, "a");
-  StructField f2(CTYPE_DOUBLE, "a");
+  ComposableField f1(CTYPE_INT, "a");
+  ComposableField f2(CTYPE_DOUBLE, "a");
 
   ASSERT_NE(f1, f2);
 
-  StructField f3(new StructType("s", StructField::Vector({new StructField(CTYPE_INT, "c"), new StructField(CTYPE_INT, "d")})), "e");
-  StructField f4(new StructType("s", StructField::Vector({new StructField(CTYPE_INT, "c"), new StructField(CTYPE_DOUBLE, "d")})), "e");
+  ComposableField f3(new StructType("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "c"), new ComposableField(CTYPE_INT, "d")})), "e");
+  ComposableField f4(new StructType("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "c"), new ComposableField(CTYPE_DOUBLE, "d")})), "e");
 
   ASSERT_NE(f3, f4);
 }
 
-TEST(equality, StructTypeSame)
+template <class T>
+static void runComposableTypeSame(T &s1, T &s2)
 {
-  StructType s1("s", StructField::Vector({}));
-  StructType s2("s", StructField::Vector({}));
-
   ASSERT_EQ(s1, s2);
   //Test from base class to make sure that the comparison overload is working
   TypeItf &sTitfS1 = s1;
   TypeItf &sTitfS2 = s2;
   ASSERT_EQ(sTitfS1, sTitfS2);
 
-  StructType s3("s", StructField::Vector({new StructField(CTYPE_CHAR, "f")}));
-  StructType s4("s", StructField::Vector({new StructField(CTYPE_CHAR, "f")}));
+  T s3("s", ComposableField::Vector({new ComposableField(CTYPE_CHAR, "f")}));
+  T s4("s", ComposableField::Vector({new ComposableField(CTYPE_CHAR, "f")}));
 
   ASSERT_EQ(s3, s4);
   //Test from base class to make sure that the comparison overload is working
@@ -218,16 +218,46 @@ TEST(equality, StructTypeSame)
   ASSERT_EQ(sTitfS3, sTitfS4);
 }
 
-TEST(equality, StructTypeDifferent)
+TEST(equality, StructTypeSame)
 {
-  StructType s1("s", StructField::Vector({}));
-  StructType s2("s", StructField::Vector({new StructField(CTYPE_CHAR, "f")}));
+  StructType s1("s", ComposableField::Vector({}));
+  StructType s2("s", ComposableField::Vector({}));
 
+  runComposableTypeSame(s1, s2);
+}
+
+TEST(equality, UnionTypeSame)
+{
+  UnionType u1("s", ComposableField::Vector({}));
+  UnionType u2("s", ComposableField::Vector({}));
+
+  runComposableTypeSame(u1, u2);
+}
+
+template <class T>
+static void runComposableTypeDifferent(T &s1, T &s2)
+{
   ASSERT_NE(s1,s2);
   //Test from base class to make sure that the comparison overload is working
   TypeItf &sTitfS1 = s1;
   TypeItf &sTitfS2 = s2;
   ASSERT_NE(sTitfS1, sTitfS2);
+}
+
+TEST(equality, StructTypeDifferent)
+{
+  StructType s1("s", ComposableField::Vector({}));
+  StructType s2("s", ComposableField::Vector({new ComposableField(CTYPE_CHAR, "f")}));
+
+  runComposableTypeDifferent(s1, s2);
+}
+
+TEST(equality, UnionTypeDifferent)
+{
+  UnionType u1("s", ComposableField::Vector({}));
+  UnionType u2("s", ComposableField::Vector({new ComposableField(CTYPE_CHAR, "f")}));
+
+  runComposableTypeDifferent(u1, u2);
 }
 
 TEST(equality, StructTypedDefEqual)
@@ -235,11 +265,15 @@ TEST(equality, StructTypedDefEqual)
   StructType s1("s1", "typeS1");
   StructType s2("s1", "typeS1");
 
-  ASSERT_EQ(s1,s2);
-  //Test from base class to make sure that the comparison overload is working
-  TypeItf &sTitfS1 = s1;
-  TypeItf &sTitfS2 = s2;
-  ASSERT_EQ(sTitfS1, sTitfS2);
+  runComposableTypeSame(s1, s2);
+}
+
+TEST(equality, UnionTypedDefEqual)
+{
+  UnionType u1("s1", "typeS1");
+  UnionType u2("s1", "typeS1");
+
+  runComposableTypeSame(u1, u2);
 }
 
 TEST(equality, StructTypedDefDifferent)
@@ -247,12 +281,36 @@ TEST(equality, StructTypedDefDifferent)
   StructType s1("s1", "");
   StructType s2("", "s1");
 
-  ASSERT_NE(s1,s2);
-  //Test from base class to make sure that the comparison overload is working
-  TypeItf &sTitfS1 = s1;
-  TypeItf &sTitfS2 = s2;
-  ASSERT_NE(sTitfS1, sTitfS2);
+  runComposableTypeDifferent(s1, s2);
 }
+
+TEST(equality, UnionTypedDefDifferent)
+{
+  UnionType u1("s1", "");
+  UnionType u2("", "s1");
+
+  runComposableTypeDifferent(u1, u2);
+}
+
+/*
+ * Even though struct and union cannot have the same name (or tag).
+ * We want to make sure that if the parser would return the wrong
+ * object type but with the correct name that would trigger issue in other UTs.
+ */
+TEST(equality, StructVSUnion)
+{
+  //Struct and union cannot have the same name (tag) but do it anyway.
+  StructType s1("sameName");
+  UnionType u1("sameName");
+
+  ASSERT_NE(s1, u1);
+
+  TypeItf &tS1 = s1;
+  TypeItf &tU1 = u1;
+
+  ASSERT_NE(tS1, tU1);
+}
+
 TEST(equality, AutoCleanVectorSame)
 {
   AutoCleanVectorPtr<int> v1({new int(1), new int(2)});

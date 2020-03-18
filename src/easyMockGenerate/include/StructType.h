@@ -1,43 +1,22 @@
 #ifndef STRUCTTYPE_H
 #define STRUCTTYPE_H
 
-#include "TypeItf.h"
+#include "ComposableType.h"
 
-class StructType : public TypeItf
+class StructType : public ComposableType
 {
 public:
   explicit StructType(const std::string p_name);
   StructType(const std::string p_name, const std::string p_type_def_name);
-  StructType(const std::string p_name, const StructField::Vector p_elem);
-  StructType(const std::string p_name, const std::string p_type_def_name, const StructField::Vector p_elem);
-  bool isStruct() const;
-  const StructField::Vector *getContainedFields() const;
-  void addStructField(StructField *newField);
-
-  /*
-   * There is no pointer to move so I decided not to use the
-   * elision pattern
-   */
-  StructType(const StructType& other);
-  StructType& operator=(const StructType& other);
-  StructType(StructType &&other);
-  //No move operator otherwise the object is not movable anymore (UT fails)
-
-  bool operator==(const StructType &other) const;
-  bool operator!=(const StructType &other) const;
-
-  StructType* clone() const;
-
+  StructType(const std::string p_name, const ComposableField::Vector p_elem);
+  StructType(const std::string p_name, const std::string p_type_def_name, const ComposableField::Vector p_elem);
   virtual ~StructType();
-protected:
-  bool isEqual(const TypeItf& other) const override;
 
-private:
-  /* Don't make it constant otherwise the object is not copyable anymore */
-  StructField::Vector m_elem;
+  StructType* clone() const override;
 
-  void correctRecursiveType(const StructType *newPtr, const StructType* oldPtrToReplace);
-  friend void StructField::updateRecursiveTypePtr(const StructType* newPtr, const StructType* oldPtrToReplace);
+  StructType(const StructType& other) = default;
+  StructType& operator=(const StructType& other) = default;
+  StructType(StructType &&other) = default;
 };
 
 #endif /* STRUCTTYPE_H */

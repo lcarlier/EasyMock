@@ -17,7 +17,7 @@
 #include <string>
 #include "CodeParserItf.h"
 #include "AutoCleanVectorPtr.h"
-#include "StructField.h"
+#include "ComposableField.h"
 
 class TypeItf
 {
@@ -32,13 +32,15 @@ public:
   TypeItf(TypeItf &&other) = default;
   TypeItf& operator=(TypeItf &&other) = default;
 
-  const std::string &getName() const;
+  const std::string &getName() const; //return the basic C type (e.g. int, char) or the tag of a struct of an union
+  const std::string getFullDeclarationName() const; //return string that should be used to declare a variable of the type
   const std::string &getTypedDefName() const;
   virtual const easyMock_cTypes_t getCType() const;
+  virtual const ComposableField::Vector *getContainedFields() const;
 
-  virtual bool isStruct() const;
-  virtual const StructField::Vector *getContainedFields() const;
-  virtual bool isCType() const;
+  bool isStruct() const;
+  bool isUnion() const;
+  bool isCType() const;
   bool isTypedDef() const;
 
   bool operator==(const TypeItf &other) const;
@@ -47,11 +49,25 @@ public:
   virtual TypeItf* clone() const = 0;
   virtual ~TypeItf();
 protected:
+
+#define CLASS_MEMBERS(prefix) \
+  std::string prefix ## name; \
+  std::string prefix ## typed_def_name; \
+  bool prefix ## isCType; \
+  bool prefix ## isStruct; \
+  bool prefix ## isUnion;
+
+  typedef struct
+  {
+    CLASS_MEMBERS()
+  } attributes;
+  TypeItf(attributes attrib);
   virtual bool isEqual(const TypeItf &other) const;
   void setName(std::string p_name);
   void setTypedDefName(std::string p_typed_def_name);
-  std::string m_name;
-  std::string m_typed_def_name;
+
+  CLASS_MEMBERS(m_)
+#undef CLASS_MEMBERS
 };
 
 #endif /* TYPEITF_H */

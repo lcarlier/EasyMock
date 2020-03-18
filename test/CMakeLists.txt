@@ -72,6 +72,10 @@ add_library(${TEST_FACTORIES_COMMON_OBJ}
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/StructSubStructRecursiveTypeFactory.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/StructTypedDefFunStructTypedDefFactory.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/StructAnonymousTypedDefFunStructAnonymousTypedDefFactory.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/UnionFunUnionFactory.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/UnionTypedDefFunUnionTypedDefFactory.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/UnionAnonymousTypedDefFunUnionAnonymousTypedDefFactory.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/UnionCommonHelper.cpp
 )
 
 set(EASYMOCK_TEST_LIBRARY easyMockTestLibrary)

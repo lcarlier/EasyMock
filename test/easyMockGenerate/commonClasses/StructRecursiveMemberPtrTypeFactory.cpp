@@ -1,13 +1,14 @@
 #include <StructRecursiveMemberPtrTypeFactory.h>
 
 #include "StructType.h"
+#include "ComposableField.h"
 
 Function StructRecursiveMemberPtrTypeFactory::functionFactory()
 {
   bool isRecursiveType = true;
   StructType *recurStruct = new StructType("recurs");
-  StructField::attributes attrib = {.isPointer = false, .isArray = false, .arraySize = 0, .isRecursiveTypeField = isRecursiveType};
-  StructField *valField = new StructField(recurStruct, "val", attrib);
+  ComposableField::attributes attrib = {.isPointer = false, .isArray = false, .arraySize = 0, .isRecursiveTypeField = isRecursiveType};
+  ComposableField *valField = new ComposableField(recurStruct, "val", attrib);
   valField->setPointer(true);
   recurStruct->addStructField(valField);
   bool isPointer = false;

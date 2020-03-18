@@ -1,31 +1,33 @@
-#include "StructAnonymousTypedDefFunStructAnonymousTypedDefFactory.hpp"
+#include <UnionAnonymousTypedDefFunUnionAnonymousTypedDefFactory.h>
 
-#include <StructType.h>
+#include <UnionType.h>
 
-Function StructAnonymousTypedDefFunStructAnonymousTypedDefFactory::functionFactory()
+Function UnionAnonymousTypedDefFunUnionAnonymousTypedDefFactory::functionFactory()
 {
-  StructType *st1 = new StructType("", "TypedDefAnonymousStruct");
+  UnionType *st1 = new UnionType("", "TypedDefAnonymousUnion");
   st1->addStructField(new ComposableField(CTYPE_INT, "a"));
-  StructType *rv = st1->clone();
+  st1->addStructField(new ComposableField(CTYPE_INT, "b"));
+  UnionType *rv = st1->clone();
 
-  Function f(functionGetFunctionName(), ReturnValue(rv), {new Parameter(st1, "s1")});
+  Function f(functionGetFunctionName(), ReturnValue(rv), {new Parameter(st1, "u")});
   return f;
 }
 
-std::string StructAnonymousTypedDefFunStructAnonymousTypedDefFactory::functionGetFunctionName()
+std::string UnionAnonymousTypedDefFunUnionAnonymousTypedDefFactory::functionGetFunctionName()
 {
-  return "structAnonymousTypedDefFunStructAnonymousTypedDef";
+  return "unionAnonymousTypedDefFunUnionAnonymousTypedDef";
 }
 
-std::string StructAnonymousTypedDefFunStructAnonymousTypedDefFactory::getFilename()
+std::string UnionAnonymousTypedDefFunUnionAnonymousTypedDefFactory::getFilename()
 {
-  return "structAnonymousTypedDefFunStructAnonymousTypedDef.h";
+  return "unionAnonymousTypedDefFunUnionAnonymousTypedDef.h";
 }
 
-void StructAnonymousTypedDefFunStructAnonymousTypedDefFactory::setupTestCase(EasyMockTestCase::TestCase tc)
+void UnionAnonymousTypedDefFunUnionAnonymousTypedDefFactory::setupTestCase(EasyMockTestCase::TestCase tc)
 {
-  TypedDefAnonymousStruct t;
+  TypedDefAnonymousUnion t;
   t.a = 42;
+  t.b = 84;
   switch(tc)
   {
     case EasyMockTestCase::OneExpect:

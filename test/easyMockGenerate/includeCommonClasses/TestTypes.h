@@ -27,6 +27,9 @@
 #include <StructSubStructRecursiveTypeFactory.h>
 #include <StructTypedDefFunStructTypedDefFactory.h>
 #include <StructAnonymousTypedDefFunStructAnonymousTypedDefFactory.hpp>
+#include <UnionFunUnionFactory.h>
+#include <UnionTypedDefFunUnionTypedDefFactory.hpp>
+#include <UnionAnonymousTypedDefFunUnionAnonymousTypedDefFactory.h>
 
 #define PTR_FUN_PTR_FACTORIES \
         VoidPtrFunVoidPtrFactory, \
@@ -64,7 +67,10 @@
         StructFunStructFactory, \
         StructRecursiveMemberPtrTypeFactory, \
         StructTypedDefFunStructTypedDefFactory, \
-        StructAnonymousTypedDefFunStructAnonymousTypedDefFactory
+        StructAnonymousTypedDefFunStructAnonymousTypedDefFactory, \
+        UnionFunUnionFactory, \
+        UnionTypedDefFunUnionTypedDefFactory, \
+        UnionAnonymousTypedDefFunUnionAnonymousTypedDefFactory
 
 typedef ::testing::Types
 <

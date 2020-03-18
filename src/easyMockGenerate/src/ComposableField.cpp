@@ -1,18 +1,18 @@
-#include "StructField.h"
-#include "StructType.h"
+#include "ComposableField.h"
+#include "ComposableType.h"
 #include "TypeItf.h"
 #include "CType.h"
 
-StructField::StructField(const easyMock_cTypes_t p_ctype, std::string p_name) :
-StructField(new CType(p_ctype), p_name, {.isPointer = false, .isArray = false, .arraySize = 0, .isRecursiveTypeField = false})
+ComposableField::ComposableField(const easyMock_cTypes_t p_ctype, std::string p_name) :
+ComposableField(new CType(p_ctype), p_name, {.isPointer = false, .isArray = false, .arraySize = 0, .isRecursiveTypeField = false})
 {
 }
 
-StructField::StructField(TypeItf* p_type, std::string p_name) :
-StructField(p_type, p_name, {.isPointer = false, .isArray = false, .arraySize = 0, .isRecursiveTypeField = false})
+ComposableField::ComposableField(TypeItf* p_type, std::string p_name) :
+ComposableField(p_type, p_name, {.isPointer = false, .isArray = false, .arraySize = 0, .isRecursiveTypeField = false})
 { }
 
-StructField::StructField(TypeItf* p_type, std::string p_name, StructField::attributes p_attrib) :
+ComposableField::ComposableField(TypeItf* p_type, std::string p_name, ComposableField::attributes p_attrib) :
 Declarator(nullptr, p_attrib.isPointer),
 m_name(p_name),
 m_recursiveType(nullptr),
@@ -21,8 +21,8 @@ m_arraySize(p_attrib.arraySize)
 {
   if(p_attrib.isRecursiveTypeField)
   {
-    //If type is recursive, make a shadow copy that will not be deleted
-    m_recursiveType = static_cast<const StructType*>(p_type);
+    //If type is recursive, keep it's pointer only. It doesn't need to be deleted
+    m_recursiveType = static_cast<const ComposableType*>(p_type);
   }
   else
   {
@@ -30,7 +30,7 @@ m_arraySize(p_attrib.arraySize)
   }
 }
 
-StructField::StructField(const StructField& other) :
+ComposableField::ComposableField(const ComposableField& other) :
 Declarator(other)
 {
   m_name = other.m_name;
@@ -39,7 +39,7 @@ Declarator(other)
   m_arraySize = other.m_arraySize;
 }
 
-void StructField::updateRecursiveTypePtr(const StructType* newPtr, const StructType* toReplace)
+void ComposableField::updateRecursiveTypePtr(const ComposableType* newPtr, const ComposableType* toReplace)
 {
   if(m_recursiveType == toReplace)
   {
@@ -47,30 +47,30 @@ void StructField::updateRecursiveTypePtr(const StructType* newPtr, const StructT
   }
   else if(m_type && m_type->isStruct())
   {
-    //I'm a friend of StructType :)
-    static_cast<StructType*>(m_type)->correctRecursiveType(newPtr, toReplace);
+    //I'm a friend of ComposableType :)
+    static_cast<ComposableType*>(m_type)->correctRecursiveType(newPtr, toReplace);
   }
 }
 
-bool StructField::isRecursiveTypeField() const
+bool ComposableField::isRecursiveTypeField() const
 {
   return m_recursiveType != nullptr;
 }
 
 
-StructField& StructField::operator=(StructField other)
+ComposableField& ComposableField::operator=(ComposableField other)
 {
   swap(*this, other);
 
   return *this;
 }
 
-StructField::StructField(StructField&& other)
+ComposableField::ComposableField(ComposableField&& other)
 {
   swap(*this, other);
 }
 
-void swap(StructField &first, StructField &second)
+void swap(ComposableField &first, ComposableField &second)
 {
   swap(static_cast<Declarator&>(first), static_cast<Declarator&>(second));
   std::swap(first.m_name, second.m_name);
@@ -84,7 +84,7 @@ void swap(StructField &first, StructField &second)
  * m_recursiveType attribute set. If we don't do that we get an
  * infinite loop when comparing the structure
  */
-bool StructField::operator==(const StructField& other) const
+bool ComposableField::operator==(const ComposableField& other) const
 {
   bool commonVal = Declarator::operator ==(other) &&
                    this->m_name == other.m_name &&
@@ -101,17 +101,17 @@ bool StructField::operator==(const StructField& other) const
   }
 }
 
-bool StructField::operator!=(const StructField& other) const
+bool ComposableField::operator!=(const ComposableField& other) const
 {
   return (*this == other) == false;
 }
 
-const std::string& StructField::getName() const
+const std::string& ComposableField::getName() const
 {
   return m_name;
 }
 
-const TypeItf* StructField::getType() const
+const TypeItf* ComposableField::getType() const
 {
   if(m_recursiveType)
   {
@@ -123,11 +123,11 @@ const TypeItf* StructField::getType() const
   }
 }
 
-void StructField::setType(TypeItf* type)
+void ComposableField::setType(TypeItf* type)
 {
   if(m_recursiveType)
   {
-    m_recursiveType = static_cast<const StructType*>(type);
+    m_recursiveType = static_cast<const ComposableType*>(type);
   }
   else
   {
@@ -135,22 +135,22 @@ void StructField::setType(TypeItf* type)
   }
 }
 
-bool StructField::isArray() const
+bool ComposableField::isArray() const
 {
   return m_isArray;
 }
 
-bool StructField::isBoundSpecifiedArray() const
+bool ComposableField::isBoundSpecifiedArray() const
 {
   return m_isArray && m_arraySize > 0;
 }
 
-bool StructField::isUnboundSpecifiedArray() const
+bool ComposableField::isUnboundSpecifiedArray() const
 {
   return m_isArray && m_arraySize == 0;
 }
 
-bool StructField::setArray(bool value)
+bool ComposableField::setArray(bool value)
 {
   m_isArray = value;
   m_arraySize = 0;
@@ -158,7 +158,7 @@ bool StructField::setArray(bool value)
   return true;
 }
 
-bool StructField::setArraySize(uint64_t size)
+bool ComposableField::setArraySize(uint64_t size)
 {
   if(!m_isArray)
   {
@@ -169,7 +169,7 @@ bool StructField::setArraySize(uint64_t size)
   return true;
 }
 
-uint64_t StructField::getArraySize() const
+uint64_t ComposableField::getArraySize() const
 {
   if(!m_isArray)
   {
@@ -178,11 +178,11 @@ uint64_t StructField::getArraySize() const
   return m_arraySize;
 }
 
-StructField* StructField::clone() const
+ComposableField* ComposableField::clone() const
 {
-  return new StructField(*this);
+  return new ComposableField(*this);
 }
 
-StructField::~StructField()
+ComposableField::~ComposableField()
 {
 }

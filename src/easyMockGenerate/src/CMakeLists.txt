@@ -9,13 +9,15 @@ add_library(${EASYMOCK_COMMON_OBJ}
   ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/TypeItf.cpp
   ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/CType.cpp
   ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/StructType.cpp
-  ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/StructField.cpp
+  ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/ComposableField.cpp
   ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/ReturnValue.cpp
   ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/Function.cpp
   ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/ElementToMock.cpp
   ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/EasyMockGenerateTypes.cpp
   ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/Parameter.cpp
   ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/Declarator.cpp
+  ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/UnionType.cpp
+  ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/ComposableType.cpp
 )
 
 set(EASYMOCK_GEN_SOURCE_FILE

@@ -17,7 +17,7 @@
 #include <string>
 
 #include "EasyMockGenerateTypes.h"
-#include "StructField.h"
+#include "ComposableField.h"
 #include "Declarator.h"
 
 class Parameter : public Declarator
@@ -52,7 +52,7 @@ private:
 
 Parameter *VoidParameter(std::string p_name);
 Parameter *NamedParameter(easyMock_cTypes_t p_type, std::string p_name, bool p_isPointer = false);
-Parameter *StructParameter(std::string type, std::string name, const StructField::Vector elem);
+Parameter *StructParameter(std::string type, std::string name, const ComposableField::Vector elem);
 
 
 #endif /* PARAMETER_H */

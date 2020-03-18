@@ -1,5 +1,6 @@
 #include "LLVMParser.h"
 #include "StructType.h"
+#include "UnionType.h"
 
 #include <clang/AST/RecursiveASTVisitor.h>
 #include <clang/Frontend/CompilerInstance.h>
@@ -23,7 +24,7 @@
 class FunctionDeclASTVisitor : public clang::RecursiveASTVisitor<FunctionDeclASTVisitor>
 {
 private:
-  typedef std::unordered_map<std::string, StructType *> structKnownTypeMap;
+  typedef std::unordered_map<std::string, ComposableType *> structKnownTypeMap;
 public:
 
   explicit FunctionDeclASTVisitor(clang::SourceManager& sm, ElementToMock::Vector& elem)
@@ -50,6 +51,11 @@ private:
   clang::SourceManager& m_sourceManager;
   ElementToMock::Vector& m_elem;
   const clang::ASTContext *m_context;
+
+  enum ContainerType {
+    STRUCT,
+    UNION
+  };
 
   ReturnValue getFunctionReturnValue(clang::FunctionDecl* func)
   {
@@ -99,9 +105,13 @@ private:
     {
       type = getFromArrayType(clangType, structKnownType);
     }
+    else if (clangType.isUnionType())
+    {
+      type = getFromUnionType(clangType, structKnownType);
+    }
     else
     {
-      std::fprintf(stderr, "Clantype unexpected here. Contact owner for bug fixing\n\r");
+      std::fprintf(stderr, "Clang type unexpected here. Contact the owner for bug fixing\n\r");
       clangType.dump();
       assert(false);
     }
@@ -161,7 +171,26 @@ private:
 
   TypeItf* getFromStructType(const clang::Type &type, structKnownTypeMap &structKnownType)
   {
-    const clang::RecordType *RT = type.getAsStructureType();
+    return getFromContainerType(type, STRUCT, structKnownType);
+  }
+
+  TypeItf* getFromUnionType(const clang::Type &type, structKnownTypeMap &structKnownType)
+  {
+    return getFromContainerType(type, UNION, structKnownType);
+  }
+
+  TypeItf* getFromContainerType(const clang::Type &type, ContainerType contType, structKnownTypeMap &structKnownType)
+  {
+    const clang::RecordType *RT = nullptr;
+    switch(contType)
+    {
+      case STRUCT:
+        RT = type.getAsStructureType();
+        break;
+      case UNION:
+        RT = type.getAsUnionType();
+        break;
+    }
     const clang::TypedefType* typeDefType = type.getAs<clang::TypedefType>();
     std::string typeName = RT->getDecl()->getNameAsString();
     std::string typedDefName("");
@@ -177,7 +206,15 @@ private:
     {
       return structKnownType[typeName];
     }
-    StructType *sType = new StructType(typeName, typedDefName);
+    ComposableType *sType = nullptr;
+    switch(contType)
+    {
+      case STRUCT:
+        sType = new StructType(typeName, typedDefName);
+        break;
+      case UNION:
+        sType = new UnionType(typeName, typedDefName);
+    }
     if(typedDefName.compare("") != 0)
     {
       structKnownType[typedDefName] = sType;
@@ -187,19 +224,19 @@ private:
       structKnownType[typeName] = sType;
     }
     for (clang::FieldDecl *FD :
-          type.getAsStructureType()->getDecl()->fields()) {
+          RT->getDecl()->fields()) {
       const clang::Type *typePtr = FD->getType().getTypePtr();
       TypeItf *type = getEasyMocktype(*typePtr, structKnownType);
       bool isRecursiveType = structKnownType.find(type->getName()) != structKnownType.end();
       uint64_t arraySize = getArraySize(*typePtr);
-      StructField::attributes attrib =
+      ComposableField::attributes attrib =
         {.isPointer            = typePtr->isPointerType(),
          .isArray              = typePtr->isArrayType(),
          .arraySize            = arraySize,
          .isRecursiveTypeField = isRecursiveType
         };
       std::string fName = FD->getNameAsString();
-      StructField *sf = new StructField(type, fName, attrib);
+      ComposableField *sf = new ComposableField(type, fName, attrib);
       sType->addStructField(sf);
     }
     structKnownType.erase(typeName);
