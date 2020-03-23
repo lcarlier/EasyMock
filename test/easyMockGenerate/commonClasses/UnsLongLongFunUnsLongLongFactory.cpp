@@ -2,7 +2,7 @@
 
 Function UnsLongLongFunUnsLongLongFactory::functionFactory()
 {
-  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_ULONG_LONG),{NamedParameter(CTYPE_ULONG_LONG, "ull")});
+  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_ULONG_LONG), Parameter::Vector({NamedParameter(CTYPE_ULONG_LONG, "ull")}));
   return f;
 }
 

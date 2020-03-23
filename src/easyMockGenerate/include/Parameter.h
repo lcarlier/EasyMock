@@ -52,7 +52,7 @@ private:
 
 Parameter *VoidParameter(std::string p_name);
 Parameter *NamedParameter(easyMock_cTypes_t p_type, std::string p_name, bool p_isPointer = false);
-Parameter *StructParameter(std::string type, std::string name, const ComposableField::Vector elem);
+Parameter *StructParameter(std::string type, std::string name, const ComposableField::Vector elem, bool p_is_embedded_in_other_type);
 
 
 #endif /* PARAMETER_H */

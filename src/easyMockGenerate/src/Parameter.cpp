@@ -59,9 +59,9 @@ Parameter* NamedParameter(easyMock_cTypes_t p_type, std::string p_name, bool p_i
   return p;
 }
 
-Parameter* StructParameter(std::string p_type, std::string p_name, const ComposableField::Vector elem)
+Parameter* StructParameter(std::string p_type, std::string p_name, const ComposableField::Vector elem, bool p_is_embedded_in_other_type)
 {
-  Parameter *p = new Parameter(new StructType(p_type, elem), p_name);
+  Parameter *p = new Parameter(new StructType(p_type, elem, p_is_embedded_in_other_type), p_name);
 
   return p;
 }

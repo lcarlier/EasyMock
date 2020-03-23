@@ -2,7 +2,7 @@
 
 Function CharFunCharFactory::functionFactory()
 {
-  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_CHAR),{NamedParameter(CTYPE_CHAR, "c")});
+  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_CHAR), Parameter::Vector({NamedParameter(CTYPE_CHAR, "c")}));
   return f;
 }
 

@@ -2,7 +2,7 @@
 
 Function LongLongFunLongLongFactory::functionFactory()
 {
-  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_LONG_LONG),{NamedParameter(CTYPE_LONG_LONG, "ll")});
+  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_LONG_LONG), Parameter::Vector({NamedParameter(CTYPE_LONG_LONG, "ll")}));
   return f;
 }
 

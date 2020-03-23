@@ -2,10 +2,10 @@
 
 Function IntFunIntIntFactory::functionFactory()
 {
-  Parameter::Vector funParam = {
+  Parameter::Vector funParam({
       NamedParameter(CTYPE_INT, "a"),
       NamedParameter(CTYPE_INT, "b")
-  };
+  });
   Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_INT),funParam);
   return f;
 }

@@ -28,32 +28,32 @@ TEST(equality, CType)
 
 TEST(equality, FunctionWithDifferentParams)
 {
-  Function f1("foo", VoidReturnValue(), {NamedParameter(CTYPE_INT, "foo")});
-  Function f2("foo", VoidReturnValue(), {NamedParameter(CTYPE_DOUBLE, "foo")});
+  Function f1("foo", VoidReturnValue(), Parameter::Vector({NamedParameter(CTYPE_INT, "foo")}));
+  Function f2("foo", VoidReturnValue(), Parameter::Vector({NamedParameter(CTYPE_DOUBLE, "foo")}));
 
   ASSERT_NE(f1, f2);
 }
 
 TEST(equality, FunctionWithSameParamsButWithDifferentName)
 {
-  Function f1("foo", VoidReturnValue(), {NamedParameter(CTYPE_INT, "foo")});
-  Function f2("foo", VoidReturnValue(), {NamedParameter(CTYPE_INT, "bar")});
+  Function f1("foo", VoidReturnValue(), Parameter::Vector({NamedParameter(CTYPE_INT, "foo")}));
+  Function f2("foo", VoidReturnValue(), Parameter::Vector({NamedParameter(CTYPE_INT, "bar")}));
 
   ASSERT_EQ(f1, f2);
 }
 
 TEST(equality, FunctionWithSameParamsButReturnValueIsDifferent)
 {
-  Function f1("foo", TypedReturnValue(CTYPE_INT), {NamedParameter(CTYPE_INT, "foo")});
-  Function f2("foo", TypedReturnValue(CTYPE_DOUBLE), {NamedParameter(CTYPE_INT, "bar")});
+  Function f1("foo", TypedReturnValue(CTYPE_INT), Parameter::Vector({NamedParameter(CTYPE_INT, "foo")}));
+  Function f2("foo", TypedReturnValue(CTYPE_DOUBLE), Parameter::Vector({NamedParameter(CTYPE_INT, "bar")}));
 
   ASSERT_NE(f1, f2);
 }
 
 TEST(equality, FunctionSameParamsSwaped)
 {
-  Function f1("foo", VoidReturnValue(), {NamedParameter(CTYPE_INT, "aInt"), NamedParameter(CTYPE_DOUBLE, "aDouble")});
-  Function f2("foo", VoidReturnValue(), {NamedParameter(CTYPE_DOUBLE, "aDouble"), NamedParameter(CTYPE_INT, "aInt")});
+  Function f1("foo", VoidReturnValue(), Parameter::Vector({NamedParameter(CTYPE_INT, "aInt"), NamedParameter(CTYPE_DOUBLE, "aDouble")}));
+  Function f2("foo", VoidReturnValue(), Parameter::Vector({NamedParameter(CTYPE_DOUBLE, "aDouble"), NamedParameter(CTYPE_INT, "aInt")}));
 
   ASSERT_NE(f1, f2);
 }
@@ -150,8 +150,9 @@ TEST(equality, StructFieldSame)
 
   ASSERT_EQ(f1, f2);
 
-  ComposableField f3(new StructType("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "c"), new ComposableField(CTYPE_INT, "d")})), "e");
-  ComposableField f4(new StructType("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "c"), new ComposableField(CTYPE_INT, "d")})), "e");
+  bool isEmbeddedInOtherType = false;
+  ComposableField f3(new StructType("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "c"), new ComposableField(CTYPE_INT, "d")}), isEmbeddedInOtherType), "e");
+  ComposableField f4(new StructType("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "c"), new ComposableField(CTYPE_INT, "d")}), isEmbeddedInOtherType), "e");
 
   ASSERT_EQ(f3, f4);
 }
@@ -166,8 +167,9 @@ TEST(equality, StructFieldPointerSame)
   f2.setPointer(true);
   ASSERT_EQ(f1, f2);
 
-  ComposableField f3(new StructType("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "c"), new ComposableField(CTYPE_INT, "d")})), "e");
-  ComposableField f4(new StructType("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "c"), new ComposableField(CTYPE_INT, "d")})), "e");
+  bool isEmbeddedInOtherType = false;
+  ComposableField f3(new StructType("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "c"), new ComposableField(CTYPE_INT, "d")}), isEmbeddedInOtherType), "e");
+  ComposableField f4(new StructType("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "c"), new ComposableField(CTYPE_INT, "d")}), isEmbeddedInOtherType), "e");
 
   ASSERT_EQ(f3, f4);
   (*f3.getType()->getContainedFields())[1].setPointer(true);
@@ -193,8 +195,9 @@ TEST(equality, StructFieldDifferent)
 
   ASSERT_NE(f1, f2);
 
-  ComposableField f3(new StructType("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "c"), new ComposableField(CTYPE_INT, "d")})), "e");
-  ComposableField f4(new StructType("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "c"), new ComposableField(CTYPE_DOUBLE, "d")})), "e");
+  bool isEmbeddedInOtherType = false;
+  ComposableField f3(new StructType("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "c"), new ComposableField(CTYPE_INT, "d")}), isEmbeddedInOtherType), "e");
+  ComposableField f4(new StructType("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "c"), new ComposableField(CTYPE_DOUBLE, "d")}), isEmbeddedInOtherType), "e");
 
   ASSERT_NE(f3, f4);
 }
@@ -208,8 +211,9 @@ static void runComposableTypeSame(T &s1, T &s2)
   TypeItf &sTitfS2 = s2;
   ASSERT_EQ(sTitfS1, sTitfS2);
 
-  T s3("s", ComposableField::Vector({new ComposableField(CTYPE_CHAR, "f")}));
-  T s4("s", ComposableField::Vector({new ComposableField(CTYPE_CHAR, "f")}));
+  bool isEmbeddedInOtherType = false;
+  T s3("s", ComposableField::Vector({new ComposableField(CTYPE_CHAR, "f")}), isEmbeddedInOtherType);
+  T s4("s", ComposableField::Vector({new ComposableField(CTYPE_CHAR, "f")}), isEmbeddedInOtherType);
 
   ASSERT_EQ(s3, s4);
   //Test from base class to make sure that the comparison overload is working
@@ -220,16 +224,18 @@ static void runComposableTypeSame(T &s1, T &s2)
 
 TEST(equality, StructTypeSame)
 {
-  StructType s1("s", ComposableField::Vector({}));
-  StructType s2("s", ComposableField::Vector({}));
+  bool isEmbeddedInOtherType = false;
+  StructType s1("s", ComposableField::Vector({}), isEmbeddedInOtherType);
+  StructType s2("s", ComposableField::Vector({}), isEmbeddedInOtherType);
 
   runComposableTypeSame(s1, s2);
 }
 
 TEST(equality, UnionTypeSame)
 {
-  UnionType u1("s", ComposableField::Vector({}));
-  UnionType u2("s", ComposableField::Vector({}));
+  bool isEmbeddedInOtherType = true;
+  UnionType u1("s", ComposableField::Vector({}), isEmbeddedInOtherType);
+  UnionType u2("s", ComposableField::Vector({}), isEmbeddedInOtherType);
 
   runComposableTypeSame(u1, u2);
 }
@@ -246,48 +252,78 @@ static void runComposableTypeDifferent(T &s1, T &s2)
 
 TEST(equality, StructTypeDifferent)
 {
-  StructType s1("s", ComposableField::Vector({}));
-  StructType s2("s", ComposableField::Vector({new ComposableField(CTYPE_CHAR, "f")}));
+  bool isEmbeddedInOtherType = false;
+  StructType s1("s", ComposableField::Vector({}), isEmbeddedInOtherType);
+  StructType s2("s", ComposableField::Vector({new ComposableField(CTYPE_CHAR, "f")}), isEmbeddedInOtherType);
 
   runComposableTypeDifferent(s1, s2);
 }
 
 TEST(equality, UnionTypeDifferent)
 {
-  UnionType u1("s", ComposableField::Vector({}));
-  UnionType u2("s", ComposableField::Vector({new ComposableField(CTYPE_CHAR, "f")}));
+  bool isEmbeddedInOtherType = false;
+  UnionType u1("s", ComposableField::Vector({}), isEmbeddedInOtherType);
+  UnionType u2("s", ComposableField::Vector({new ComposableField(CTYPE_CHAR, "f")}), isEmbeddedInOtherType);
 
   runComposableTypeDifferent(u1, u2);
 }
 
 TEST(equality, StructTypedDefEqual)
 {
-  StructType s1("s1", "typeS1");
-  StructType s2("s1", "typeS1");
+  bool isEmbeddedInOtherType = false;
+
+  StructType s1("s1", "typeS1", isEmbeddedInOtherType);
+  StructType s2("s1", "typeS1", isEmbeddedInOtherType);
 
   runComposableTypeSame(s1, s2);
 }
 
 TEST(equality, UnionTypedDefEqual)
 {
-  UnionType u1("s1", "typeS1");
-  UnionType u2("s1", "typeS1");
+  bool isEmbeddedInOtherType = false;
+
+  UnionType u1("s1", "typeS1", isEmbeddedInOtherType);
+  UnionType u2("s1", "typeS1", isEmbeddedInOtherType);
 
   runComposableTypeSame(u1, u2);
 }
 
 TEST(equality, StructTypedDefDifferent)
 {
-  StructType s1("s1", "");
-  StructType s2("", "s1");
+  bool isEmbeddedInOtherType = false;
+
+  StructType s1("s1", "", isEmbeddedInOtherType);
+  StructType s2("", "s1", isEmbeddedInOtherType);
 
   runComposableTypeDifferent(s1, s2);
 }
 
 TEST(equality, UnionTypedDefDifferent)
 {
-  UnionType u1("s1", "");
-  UnionType u2("", "s1");
+  bool isEmbeddedInOtherType = false;
+
+  UnionType u1("s1", "", isEmbeddedInOtherType);
+  UnionType u2("", "s1", isEmbeddedInOtherType);
+
+  runComposableTypeDifferent(u1, u2);
+}
+
+TEST(equality, StructEmbeddedInOtherTypeDifferent)
+{
+  bool isEmbeddedInOtherType = false;
+
+  StructType s1("s1", "typeS1", isEmbeddedInOtherType);
+  StructType s2("s1", "typeS1", !isEmbeddedInOtherType);
+
+  runComposableTypeDifferent(s1, s2);
+}
+
+TEST(equality, UnionEmbeddedInOtherTypeDifferent)
+{
+  bool isEmbeddedInOtherType = false;
+
+  UnionType u1("s1", "typeS1", isEmbeddedInOtherType);
+  UnionType u2("s1", "typeS1", !isEmbeddedInOtherType);
 
   runComposableTypeDifferent(u1, u2);
 }
@@ -299,9 +335,10 @@ TEST(equality, UnionTypedDefDifferent)
  */
 TEST(equality, StructVSUnion)
 {
+  bool isEmbeddedInOtherType = false;
   //Struct and union cannot have the same name (tag) but do it anyway.
-  StructType s1("sameName");
-  UnionType u1("sameName");
+  StructType s1("sameName", isEmbeddedInOtherType);
+  UnionType u1("sameName", isEmbeddedInOtherType);
 
   ASSERT_NE(s1, u1);
 

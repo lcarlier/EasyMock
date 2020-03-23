@@ -2,7 +2,7 @@
 
 Function UnsCharFunUnsCharFactory::functionFactory()
 {
-  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_UCHAR),{NamedParameter(CTYPE_UCHAR, "uc")});
+  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_UCHAR), Parameter::Vector({NamedParameter(CTYPE_UCHAR, "uc")}));
   return f;
 }
 

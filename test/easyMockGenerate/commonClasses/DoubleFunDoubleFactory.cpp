@@ -2,7 +2,7 @@
 
 Function DoubleFunDoubleFactory::functionFactory()
 {
-  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_DOUBLE),{NamedParameter(CTYPE_DOUBLE, "d")});
+  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_DOUBLE), Parameter::Vector({NamedParameter(CTYPE_DOUBLE, "d")}));
   return f;
 }
 

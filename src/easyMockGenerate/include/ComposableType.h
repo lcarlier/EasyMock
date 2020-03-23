@@ -6,10 +6,10 @@
 class ComposableType : public TypeItf
 {
 public:
-  explicit ComposableType(const std::string p_name);
-  ComposableType(const std::string p_name, const std::string p_type_def_name);
-  ComposableType(const std::string p_name, const ComposableField::Vector p_elem);
-  ComposableType(const std::string p_name, const std::string p_type_def_name, const ComposableField::Vector p_elem);
+  ComposableType(const std::string p_name, bool p_is_embedded_in_other_type);
+  ComposableType(const std::string p_name, const std::string p_type_def_name, bool p_is_embedded_in_other_type);
+  ComposableType(const std::string p_name, const ComposableField::Vector p_elem, bool p_is_embedded_in_other_type);
+  ComposableType(const std::string p_name, const std::string p_type_def_name, const ComposableField::Vector p_elem, bool p_is_embedded_in_other_type);
   const ComposableField::Vector *getContainedFields() const;
   void addStructField(ComposableField *newField);
 
@@ -22,6 +22,10 @@ public:
   ComposableType(ComposableType &&other);
   //No move operator otherwise the object is not movable anymore (UT fails)
 
+  const std::string getUniqueName() const;
+  bool isAnonymous() const;
+  bool isEmbeddedInOtherType() const;
+
   bool operator==(const ComposableType &other) const;
   bool operator!=(const ComposableType &other) const;
 
@@ -32,9 +36,14 @@ protected:
 private:
   /* Don't make it constant otherwise the object is not copyable anymore */
   ComposableField::Vector m_elem;
+  bool m_is_embedded_in_other_type;
+  int m_anonymous_number;
 
   void correctRecursiveType(const ComposableType *newPtr, const ComposableType* oldPtrToReplace);
   friend void ComposableField::updateRecursiveTypePtr(const ComposableType* newPtr, const ComposableType* oldPtrToReplace);
+
+  static size_t m_unique_hash;
+  static unsigned int m_number_of_anonymous_composable_type;
 };
 
 #endif /* COMPOSABLETYPE_H */

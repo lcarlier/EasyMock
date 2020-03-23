@@ -2,7 +2,7 @@
 
 Function FloatFunFloatFactory::functionFactory()
 {
-  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_FLOAT),{NamedParameter(CTYPE_FLOAT, "f")});
+  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_FLOAT), Parameter::Vector({NamedParameter(CTYPE_FLOAT, "f")}));
   return f;
 }
 

@@ -4,11 +4,12 @@
 
 Function StructAnonymousTypedDefFunStructAnonymousTypedDefFactory::functionFactory()
 {
-  StructType *st1 = new StructType("", "TypedDefAnonymousStruct");
+  bool isEmbeddedInOtherType = false;
+  StructType *st1 = new StructType("", "TypedDefAnonymousStruct", isEmbeddedInOtherType);
   st1->addStructField(new ComposableField(CTYPE_INT, "a"));
   StructType *rv = st1->clone();
 
-  Function f(functionGetFunctionName(), ReturnValue(rv), {new Parameter(st1, "s1")});
+  Function f(functionGetFunctionName(), ReturnValue(rv), Parameter::Vector({new Parameter(st1, "s1")}));
   return f;
 }
 

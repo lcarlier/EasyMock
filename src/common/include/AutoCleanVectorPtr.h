@@ -1,16 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/* 
- * File:   AutoCleanVectorPtr.h
- * Author: lcarlier
- *
- * Created on July 24, 2019, 11:35 PM
- */
-
 #ifndef AUTOCLEANVECTORPTR_H
 #define AUTOCLEANVECTORPTR_H
 
@@ -67,7 +54,41 @@ public:
     return (*this == other) == false;
   }
   AutoCleanVectorPtr() {}
-  AutoCleanVectorPtr(std::initializer_list<T*> l) :
+
+  /*
+   * When using this class, users have to use an explicit
+   * constructor and not the brace-init-list alone. This is an attempt to prevent
+   * wrong function calls when a function has an overload with a primitive type
+   * at the same place as the AutoCleanVectorPtr class.
+   * Thanks to that, people reading this code will (hopefully) take the "good practice"
+   * of using the explicit constructor because they will see it everywhere
+   * in this code base
+   *
+   * e.g.
+   * Considering the following functions
+   * (1) void fun(std::string bar, bool aBool);
+   * (2) void fun(std::string bar, AutoCleanVectorPtr<int*> list);
+   *
+   * When calling
+   * fun("bar", {new int(1)});
+   * the compiler selects (1) iso (2)
+   *
+   * WARNING!!!!!!
+   * fun("bar", {new int(1), new int(2)});
+   * selects (2)!!!!!!!!!!!!!!!!!!!!!
+   *
+   * The "wrong" function is picked by the compiler
+   * when the list initialiser contains only 1 element
+   *
+   * Because of the keyword explicity, the following is not valid anymore
+   * AutoCleanVectorPtr<int*> t = {new int(5)};
+   * but I don't think it is a problem since the following works
+   * AutoCleanVectorPtr<int*> t({new int(5)});
+   *
+   * See the following links for more info:
+   * https://stackoverflow.com/questions/31896298/why-does-c-allow-stdinitializer-list-to-be-coerced-to-primitive-types-and-b
+   */
+  explicit AutoCleanVectorPtr(std::initializer_list<T*> l) :
   m_vect(l) {}
   ~AutoCleanVectorPtr()
   {

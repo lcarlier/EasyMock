@@ -4,7 +4,7 @@
 
 Function ShortFunShortFactory::functionFactory()
 {
-  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_SHORT),{NamedParameter(CTYPE_SHORT, "s")});
+  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_SHORT), Parameter::Vector({NamedParameter(CTYPE_SHORT, "s")}));
   return f;
 }
 

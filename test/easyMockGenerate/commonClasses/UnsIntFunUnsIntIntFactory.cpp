@@ -4,10 +4,11 @@ static Parameter::Vector getIntFunIntIntPamrameters();
 
 static Parameter::Vector getIntFunIntIntPamrameters()
 {
-  Parameter::Vector funParam = {
+  Parameter::Vector funParam(
+  {
       NamedParameter(CTYPE_UINT, "a"),
       NamedParameter(CTYPE_INT, "b")
-  };
+  });
 
   return funParam;
 }

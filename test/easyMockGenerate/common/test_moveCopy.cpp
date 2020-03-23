@@ -83,8 +83,9 @@ TEST(moveCopy, ParameterPointer)
 
 TEST(moveCopy, ParameterWithStructSubRecursive)
 {
-  StructType *st1 = new StructType("st1");
-  StructType *st2 = new StructType("st2");
+  bool isEmbeddedInOtherType = false;
+  StructType *st1 = new StructType("st1", isEmbeddedInOtherType);
+  StructType *st2 = new StructType("st2", isEmbeddedInOtherType);
   st1->addStructField(new ComposableField(st2, "st1SubSt2"));
   //st1 is recursive in st2 because it is access via the parameter "st1Val" which is type st2 and has a st1 as field member
   st2->addStructField(new ComposableField(st1, "st2SubSt1", {.isPointer = true, .isArray = false, .arraySize = 0, .isRecursiveTypeField = true}));
@@ -96,11 +97,12 @@ TEST(moveCopy, ParameterWithStructSubRecursive)
 
 TEST(moveCopy, ReturnValue)
 {
+  bool isEmbeddedInOtherType = false;
   ReturnValue rv1 = VoidReturnValue();
   ReturnValue rv2(rv1);
   ASSERT_EQ(rv1, rv2);
 
-  ReturnValue rv3 = StructReturnValue(new StructType("s1", {new ComposableField(CTYPE_INT, "a")}));
+  ReturnValue rv3 = StructReturnValue(new StructType("s1", ComposableField::Vector({new ComposableField(CTYPE_INT, "a")}), isEmbeddedInOtherType));
   ASSERT_NE(rv3,rv1);
   rv3 = rv1;
   ASSERT_EQ(rv3,rv1);
@@ -108,7 +110,7 @@ TEST(moveCopy, ReturnValue)
   ReturnValue rv4 = std::move(rv3);
   ASSERT_EQ(rv4, rv1);
 
-  ReturnValue rv6 = StructReturnValue(new StructType("s1", {new ComposableField(CTYPE_INT, "a")}));
+  ReturnValue rv6 = StructReturnValue(new StructType("s1", ComposableField::Vector({new ComposableField(CTYPE_INT, "a")}), isEmbeddedInOtherType));
   ASSERT_NE(rv6, rv2);
   rv6 = std::move(rv2);
   ASSERT_EQ(rv6, rv1);
@@ -117,11 +119,12 @@ TEST(moveCopy, ReturnValue)
 TEST(moveCopy, ReturnValuePointer)
 {
   bool isPointer = true;
+  bool isEmbeddedInOtherType = false;
   ReturnValue rv1 = VoidReturnValue(isPointer);
   ReturnValue rv2(rv1);
   ASSERT_EQ(rv1, rv2);
 
-  ReturnValue rv3 = StructReturnValue(new StructType("s1", {new ComposableField(CTYPE_INT, "a")}), isPointer);
+  ReturnValue rv3 = StructReturnValue(new StructType("s1", ComposableField::Vector({new ComposableField(CTYPE_INT, "a")}), isEmbeddedInOtherType), isPointer);
   ASSERT_NE(rv3,rv1);
   rv3 = rv1;
   ASSERT_EQ(rv3,rv1);
@@ -129,7 +132,7 @@ TEST(moveCopy, ReturnValuePointer)
   ReturnValue rv4 = std::move(rv3);
   ASSERT_EQ(rv4, rv1);
 
-  ReturnValue rv6 = StructReturnValue(new StructType("s1", {new ComposableField(CTYPE_INT, "a")}), isPointer);
+  ReturnValue rv6 = StructReturnValue(new StructType("s1", ComposableField::Vector({new ComposableField(CTYPE_INT, "a")}), isEmbeddedInOtherType), isPointer);
   ASSERT_NE(rv6, rv2);
   rv6 = std::move(rv2);
   ASSERT_EQ(rv6, rv1);
@@ -137,10 +140,11 @@ TEST(moveCopy, ReturnValuePointer)
 
 static void testMoveStructField(ComposableField &f1)
 {
+  bool isEmbeddedInOtherType = false;
   ComposableField f2(f1);
   ASSERT_EQ(f1, f2);
 
-  ComposableField f3(new StructType("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "c"), new ComposableField(CTYPE_INT, "d")})), "e");
+  ComposableField f3(new StructType("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "c"), new ComposableField(CTYPE_INT, "d")}), isEmbeddedInOtherType), "e");
   ASSERT_NE(f3,f1);
   f3 = f1;
   ASSERT_EQ(f3,f1);
@@ -148,7 +152,7 @@ static void testMoveStructField(ComposableField &f1)
   ComposableField f4 = std::move(f3);
   ASSERT_EQ(f4, f1);
 
-  ComposableField f6(new StructType("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "c"), new ComposableField(CTYPE_INT, "d")})), "e");
+  ComposableField f6(new StructType("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "c"), new ComposableField(CTYPE_INT, "d")}), isEmbeddedInOtherType), "e");
   ASSERT_NE(f6, f2);
   f6 = std::move(f2);
   ASSERT_EQ(f6, f1);
@@ -186,10 +190,11 @@ TEST(moveCopy, StructFieldUnBoundedArray)
 template <class T>
 static void testComposableType(T &st1)
 {
+  bool isEmbeddedInOtherType = false;
   T st2(st1);
   ASSERT_EQ(st1, st2);
 
-  T st3("s", {new ComposableField(CTYPE_INT, "i")});
+  T st3("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "i")}), isEmbeddedInOtherType);
   ASSERT_NE(st3,st1);
   st3 = st1;
   ASSERT_EQ(st3,st1);
@@ -197,7 +202,7 @@ static void testComposableType(T &st1)
   T st4 = std::move(st3);
   ASSERT_EQ(st4, st1);
 
-  T st6("s", {new ComposableField(CTYPE_INT, "i")});
+  T st6("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "i")}), isEmbeddedInOtherType);
   ASSERT_NE(st6, st2);
   st6 = std::move(st2);
   ASSERT_EQ(st6, st1);
@@ -205,14 +210,16 @@ static void testComposableType(T &st1)
 
 TEST(moveCopy, StructType)
 {
-  StructType st1("s", {new ComposableField(CTYPE_CHAR, "f")});
+  bool isEmbeddedInOtherType = false;
+  StructType st1("s", ComposableField::Vector({new ComposableField(CTYPE_CHAR, "f")}), isEmbeddedInOtherType);
 
   testComposableType(st1);
 }
 
 TEST(moveCopy, UnionType)
 {
-  UnionType st1("s", {new ComposableField(CTYPE_CHAR, "f")});
+  bool isEmbeddedInOtherType = false;
+  UnionType st1("s", ComposableField::Vector({new ComposableField(CTYPE_CHAR, "f")}), isEmbeddedInOtherType);
 
   testComposableType(st1);
 }
@@ -220,7 +227,8 @@ TEST(moveCopy, UnionType)
 TEST(moveCopy, StructTypeRecursive)
 {
   bool isRecursiveType = true;
-  StructType st1("recurs1");
+  bool isEmbeddedInOtherType = false;
+  StructType st1("recurs1", isEmbeddedInOtherType);
   ComposableField::attributes attrib = {.isPointer = true, .isArray = false, .arraySize = 0, .isRecursiveTypeField = isRecursiveType};
   st1.addStructField(new ComposableField(&st1, "rfield", attrib));
   st1.addStructField(new ComposableField(new CType(CTYPE_INT), "intField"));
@@ -229,7 +237,7 @@ TEST(moveCopy, StructTypeRecursive)
   const ComposableField::Vector& st2ContaineField = *st2.getContainedFields();
   ASSERT_EQ(&st2, st2ContaineField[0].getType());
 
-  StructType st3("s", {new ComposableField(CTYPE_INT, "i")});
+  StructType st3("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "i")}), isEmbeddedInOtherType);
   ASSERT_NE(st3,st1);
   st3 = st1;
   ASSERT_EQ(st3,st1);
@@ -241,7 +249,7 @@ TEST(moveCopy, StructTypeRecursive)
   const ComposableField::Vector& st4ContaineField = *st4.getContainedFields();
   ASSERT_EQ(&st4, st4ContaineField[0].getType());
 
-  StructType st6("s", {new ComposableField(CTYPE_INT, "i")});
+  StructType st6("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "i")}), isEmbeddedInOtherType);
   ASSERT_NE(st6, st2);
   st6 = std::move(st2);
   ASSERT_EQ(st6, st1);
@@ -252,8 +260,9 @@ TEST(moveCopy, StructTypeRecursive)
 TEST(moveCopy, StructTypeSubFieldRecursive)
 {
   bool isRecursiveType = true;
-  StructType st1("recurs1");
-  StructType* subSt = new StructType("subSt");
+  bool isEmbeddedInOtherType = true;
+  StructType st1("recurs1", isEmbeddedInOtherType);
+  StructType* subSt = new StructType("subSt", isEmbeddedInOtherType);
   subSt->addStructField(new ComposableField(&st1, "rfield", {.isPointer = true, .isArray = false, .arraySize = 0, .isRecursiveTypeField = isRecursiveType}));
   st1.addStructField(new ComposableField(subSt, "subField"));
   subSt = nullptr; //Dereference, pointer is not usable here anymore
@@ -263,7 +272,7 @@ TEST(moveCopy, StructTypeSubFieldRecursive)
   const ComposableField::Vector& st2SubStContainerField = *st2ContaineField[0].getType()->getContainedFields();
   ASSERT_EQ(&st2, st2SubStContainerField[0].getType());
 
-  StructType st3("s", {new ComposableField(CTYPE_INT, "i")});
+  StructType st3("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "i")}), isEmbeddedInOtherType);
   ASSERT_NE(st3,st1);
   st3 = st1;
   ASSERT_EQ(st3,st1);
@@ -277,7 +286,7 @@ TEST(moveCopy, StructTypeSubFieldRecursive)
   const ComposableField::Vector& st4SubStContainerField = *st4ContaineField[0].getType()->getContainedFields();
   ASSERT_EQ(&st4, st4SubStContainerField[0].getType());
 
-  StructType st6("s", {new ComposableField(CTYPE_INT, "i")});
+  StructType st6("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "i")}), isEmbeddedInOtherType);
   ASSERT_NE(st6, st2);
   st6 = std::move(st2);
   ASSERT_EQ(st6, st1);
@@ -304,7 +313,8 @@ TEST(moveCopy, StructTypeSubFieldRecursive)
 template <class T>
 static void runTypeTwoRecursiveTypes(T &s2)
 {
-  T *s1 = new T("s1");
+  bool isEmbeddedInOtherType = false;
+  T *s1 = new T("s1", isEmbeddedInOtherType);
   s1->addStructField(new ComposableField(s1, "s1SubS1", {.isPointer = true, .isArray = false, .arraySize = 0, .isRecursiveTypeField = true}));
   s1->addStructField(new ComposableField(&s2, "s1SubS2", {.isPointer = true, .isArray = false, .arraySize = 0, .isRecursiveTypeField = true}));
 
@@ -315,40 +325,68 @@ static void runTypeTwoRecursiveTypes(T &s2)
 
 TEST(moveCopy, StructTypeTwoRecursiveTypes)
 {
-  StructType s2("s2");
+  bool isEmbeddedInOtherType = false;
+  StructType s2("s2", isEmbeddedInOtherType);
   runTypeTwoRecursiveTypes(s2);
 }
 
 TEST(moveCopy, UnionTypeTwoRecursiveTypes)
 {
-  UnionType u2("u2");
+  bool isEmbeddedInOtherType = false;
+  UnionType u2("u2", isEmbeddedInOtherType);
   runTypeTwoRecursiveTypes(u2);
 }
 
 TEST(moveCopy, StructTypedAnonymousTypedDef)
 {
-  StructType s1("", "Anonymous");
+  bool isEmbeddedInOtherType = false;
+
+  StructType s1("", "Anonymous", isEmbeddedInOtherType);
 
   testComposableType(s1);
 }
 
 TEST(moveCopy, UnionTypedAnonymousTypedDef)
 {
-  UnionType u1("", "Anonymous");
+  bool isEmbeddedInOtherType = false;
+
+  UnionType u1("", "Anonymous", isEmbeddedInOtherType);
 
   testComposableType(u1);
 }
 
 TEST(moveCopy, StructTypedTypedDef)
 {
-  StructType s1("foo", "NotAnonymous");
+  bool isEmbeddedInOtherType = false;
+
+  StructType s1("foo", "NotAnonymous", isEmbeddedInOtherType);
 
   testComposableType(s1);
 }
 
 TEST(moveCopy, UnionTypedTypedDef)
 {
-  UnionType u1("foo", "NotAnonymous");
+  bool isEmbeddedInOtherType = false;
+
+  UnionType u1("foo", "NotAnonymous", isEmbeddedInOtherType);
+
+  testComposableType(u1);
+}
+
+TEST(moveCopy, StructEmbeddedInOtherType)
+{
+  bool isEmbeddedInOtherType = true;
+
+  StructType s1("foo", "NotAnonymous", isEmbeddedInOtherType);
+
+  testComposableType(s1);
+}
+
+TEST(moveCopy, UnionEmbeddedInOtherType)
+{
+  bool isEmbeddedInOtherType = true;
+
+  UnionType u1("foo", "NotAnonymous", isEmbeddedInOtherType);
 
   testComposableType(u1);
 }

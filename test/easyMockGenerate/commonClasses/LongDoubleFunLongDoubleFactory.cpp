@@ -2,7 +2,7 @@
 
 Function LongDoubleFunLongDoubleFactory::functionFactory()
 {
-  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_LONG_DOUBLE),{NamedParameter(CTYPE_LONG_DOUBLE, "ld")});
+  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_LONG_DOUBLE),Parameter::Vector({NamedParameter(CTYPE_LONG_DOUBLE, "ld")}));
   return f;
 }
 

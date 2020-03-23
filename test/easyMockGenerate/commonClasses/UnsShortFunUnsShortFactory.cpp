@@ -2,7 +2,7 @@
 
 Function UnsShortFunUnsShortFactory::functionFactory()
 {
-  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_USHORT),{NamedParameter(CTYPE_USHORT, "s")});
+  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_USHORT), Parameter::Vector({NamedParameter(CTYPE_USHORT, "s")}));
   return f;
 }
 

@@ -4,12 +4,13 @@
 
 Function UnionAnonymousTypedDefFunUnionAnonymousTypedDefFactory::functionFactory()
 {
-  UnionType *st1 = new UnionType("", "TypedDefAnonymousUnion");
+  bool isEmbeddedInOtherType = false;
+  UnionType *st1 = new UnionType("", "TypedDefAnonymousUnion", isEmbeddedInOtherType);
   st1->addStructField(new ComposableField(CTYPE_INT, "a"));
   st1->addStructField(new ComposableField(CTYPE_INT, "b"));
   UnionType *rv = st1->clone();
 
-  Function f(functionGetFunctionName(), ReturnValue(rv), {new Parameter(st1, "u")});
+  Function f(functionGetFunctionName(), ReturnValue(rv), Parameter::Vector({new Parameter(st1, "u")}));
   return f;
 }
 

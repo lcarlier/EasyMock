@@ -191,13 +191,19 @@ private:
         RT = type.getAsUnionType();
         break;
     }
-    const clang::TypedefType* typeDefType = type.getAs<clang::TypedefType>();
-    std::string typeName = RT->getDecl()->getNameAsString();
+
+    clang::RecordDecl* RD = RT->getDecl();
+    std::string typeName = RD->getNameAsString();
+
+    const clang::TypedefType* TDT = type.getAs<clang::TypedefType>();
+    clang::TypedefNameDecl* TD_RD = nullptr;
     std::string typedDefName("");
-    if(typeDefType != nullptr)
+    if(TDT != nullptr)
     {
-      typedDefName = typeDefType->getDecl()->getNameAsString();
+      TD_RD = TDT->getDecl();
+      typedDefName = TD_RD->getNameAsString();
     }
+
     if(structKnownType.find(typedDefName) != structKnownType.end())
     {
       return structKnownType[typedDefName];
@@ -206,14 +212,26 @@ private:
     {
       return structKnownType[typeName];
     }
+
+    bool isEmbeddedInOtherType = false;
+    if(TD_RD != nullptr)
+    {
+      //isTopLevelDeclInObjCContainer seems to be equivalent to isEmbeddedInDeclarator for typedef
+      isEmbeddedInOtherType = TD_RD->isTopLevelDeclInObjCContainer();
+    }
+    else
+    {
+      isEmbeddedInOtherType = RD->isEmbeddedInDeclarator();
+    }
+
     ComposableType *sType = nullptr;
     switch(contType)
     {
       case STRUCT:
-        sType = new StructType(typeName, typedDefName);
+        sType = new StructType(typeName, typedDefName, isEmbeddedInOtherType);
         break;
       case UNION:
-        sType = new UnionType(typeName, typedDefName);
+        sType = new UnionType(typeName, typedDefName, isEmbeddedInOtherType);
     }
     if(typedDefName.compare("") != 0)
     {
@@ -224,7 +242,7 @@ private:
       structKnownType[typeName] = sType;
     }
     for (clang::FieldDecl *FD :
-          RT->getDecl()->fields()) {
+          RD->fields()) {
       const clang::Type *typePtr = FD->getType().getTypePtr();
       TypeItf *type = getEasyMocktype(*typePtr, structKnownType);
       bool isRecursiveType = structKnownType.find(type->getName()) != structKnownType.end();

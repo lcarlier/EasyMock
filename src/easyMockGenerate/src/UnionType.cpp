@@ -1,22 +1,22 @@
 #include <UnionType.h>
 
-UnionType::UnionType(const std::string p_name) :
-UnionType(p_name, ComposableField::Vector({}))
+UnionType::UnionType(const std::string p_name, bool p_is_embedded_in_other_type) :
+UnionType(p_name, ComposableField::Vector({}), p_is_embedded_in_other_type)
 {
 }
 
-UnionType::UnionType(const std::string p_name, const std::string p_type_def_name) :
-UnionType(p_name, p_type_def_name, {})
+UnionType::UnionType(const std::string p_name, const std::string p_type_def_name, bool p_is_embedded_in_other_type) :
+UnionType(p_name, p_type_def_name, ComposableField::Vector({}), p_is_embedded_in_other_type)
 {
 }
 
-UnionType::UnionType(const std::string p_name, const ComposableField::Vector p_elem) :
-UnionType(p_name, "", p_elem)
+UnionType::UnionType(const std::string p_name, const ComposableField::Vector p_elem, bool p_is_embedded_in_other_type) :
+UnionType(p_name, "", p_elem, p_is_embedded_in_other_type)
 {
 }
 
-UnionType::UnionType(const std::string p_name, const std::string p_type_def_name, const ComposableField::Vector p_elem) :
-ComposableType(p_name, p_type_def_name, p_elem)
+UnionType::UnionType(const std::string p_name, const std::string p_type_def_name, const ComposableField::Vector p_elem, bool p_is_embedded_in_other_type) :
+ComposableType(p_name, p_type_def_name, p_elem, p_is_embedded_in_other_type)
 {
   m_isUnion = true;
 }
