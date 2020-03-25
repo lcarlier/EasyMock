@@ -6,8 +6,10 @@
 #include <CType.h>
 #include <ComposableField.h>
 #include <StructType.h>
+#include <UnionType.h>
 
-//static forwardTypeItf(std::)
+template<class T>
+static void printComposableTypeToOstream(std::ostream& os, const T& composableType, std::string classname);
 
 std::ostream& operator<<(std::ostream& os, const Function& fun) {
   os << std::endl << "funPrototype: " << fun.getFunctionPrototype() << std::endl;
@@ -41,6 +43,10 @@ std::ostream& operator<<(std::ostream& os, const TypeItf& typeItf)
   {
     os << dynamic_cast<const StructType &>(typeItf);
   }
+  else if(typeItf.isUnion())
+  {
+    os << dynamic_cast<const UnionType &>(typeItf);
+  }
   return os;
 }
 
@@ -51,22 +57,7 @@ std::ostream& operator<<(std::ostream& os, const CType& ctype)
 
 std::ostream& operator<<(std::ostream& os, const StructType& structType)
 {
-  os << "StructType(";
-  os << "name: '" << structType.getName() << "'" << ", ";
-  os << "typeDefName: '" << structType.getTypedDefName() << "'" << ", ";
-  os << "anonymous: " << (structType.isAnonymous() ? "yes" : " no") << ", ";
-  os << "m_anonymous_number: " << structType.m_anonymous_number << ", ";
-  os << "embedded: " << (structType.isEmbeddedInOtherType() ? "yes" : " no");
-  os << ")" << std::endl;
-
-  const ComposableField::Vector& structFields = structType.getContainedFields();
-  const ComposableField::Vector::size_type nbFields = structFields.size();
-  ComposableField::Vector::size_type fieldIdx;
-  for(fieldIdx = 0; fieldIdx < nbFields; fieldIdx++)
-  {
-    const ComposableField& curField = structFields[fieldIdx];
-    os << "\t\tField: " << fieldIdx << ": " << curField << std::endl;
-  }
+  printComposableTypeToOstream(os, structType, "StructType");
   return os;
 }
 
@@ -87,4 +78,31 @@ std::ostream& operator<<(std::ostream& os, const ComposableField& composableFiel
   os << "type: " << std::endl;
   os << "\t\t\t" << *composableField.getType() << ")END ComposableField " << composableField.getName();
   return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const UnionType& unionType)
+{
+  printComposableTypeToOstream(os, unionType, "UnionType");
+  return os;
+}
+
+template<class T>
+static void printComposableTypeToOstream(std::ostream& os, const T& composableType, std::string classname)
+{
+  os << classname << "(";
+  os << "name: '" << composableType.getName() << "'" << ", ";
+  os << "typeDefName: '" << composableType.getTypedDefName() << "'" << ", ";
+  os << "anonymous: " << (composableType.isAnonymous() ? "yes" : " no") << ", ";
+  os << "m_anonymous_number: " << composableType.m_anonymous_number << ", ";
+  os << "embedded: " << (composableType.isEmbeddedInOtherType() ? "yes" : " no");
+  os << ")" << std::endl;
+
+  const ComposableField::Vector& structFields = composableType.getContainedFields();
+  const ComposableField::Vector::size_type nbFields = structFields.size();
+  ComposableField::Vector::size_type fieldIdx;
+  for(fieldIdx = 0; fieldIdx < nbFields; fieldIdx++)
+  {
+    const ComposableField& curField = structFields[fieldIdx];
+    os << "\t\tField: " << fieldIdx << ": " << curField << std::endl;
+  }
 }
