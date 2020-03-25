@@ -10,7 +10,8 @@ public:
   ComposableType(const std::string p_name, const std::string p_type_def_name, bool p_is_embedded_in_other_type);
   ComposableType(const std::string p_name, const ComposableField::Vector p_elem, bool p_is_embedded_in_other_type);
   ComposableType(const std::string p_name, const std::string p_type_def_name, const ComposableField::Vector p_elem, bool p_is_embedded_in_other_type);
-  const ComposableField::Vector *getContainedFields() const;
+  ComposableField::Vector& getContainedFields() override;
+  const ComposableField::Vector& getContainedFields() const override;
   void addStructField(ComposableField *newField);
 
   /*

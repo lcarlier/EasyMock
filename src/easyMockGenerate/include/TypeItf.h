@@ -35,8 +35,9 @@ public:
   const std::string &getName() const; //return the basic C type (e.g. int, char) or the tag of a struct of an union
   const std::string getFullDeclarationName() const; //return string that should be used to declare a variable of the type
   const std::string &getTypedDefName() const;
-  virtual const easyMock_cTypes_t getCType() const;
-  virtual const ComposableField::Vector *getContainedFields() const;
+  virtual easyMock_cTypes_t getCType() const;
+  virtual ComposableField::Vector& getContainedFields();
+  virtual const ComposableField::Vector& getContainedFields() const;
 
   bool isStruct() const;
   bool isUnion() const;

@@ -172,19 +172,19 @@ TEST(equality, StructFieldPointerSame)
   ComposableField f4(new StructType("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "c"), new ComposableField(CTYPE_INT, "d")}), isEmbeddedInOtherType), "e");
 
   ASSERT_EQ(f3, f4);
-  (*f3.getType()->getContainedFields())[1].setPointer(true);
+  f3.getType()->getContainedFields()[1].setPointer(true);
   ASSERT_NE(f3, f4);
-  (*f4.getType()->getContainedFields())[1].setPointer(true);
+  f4.getType()->getContainedFields()[1].setPointer(true);
   ASSERT_EQ(f3, f4);
 
-  (*f3.getType()->getContainedFields())[1].setArray(true);
+  f3.getType()->getContainedFields()[1].setArray(true);
   ASSERT_NE(f3, f4);
-  (*f4.getType()->getContainedFields())[1].setArray(true);
+  f4.getType()->getContainedFields()[1].setArray(true);
   ASSERT_EQ(f3, f4);
 
-  (*f3.getType()->getContainedFields())[1].setArraySize(10);
+  f3.getType()->getContainedFields()[1].setArraySize(10);
   ASSERT_NE(f3, f4);
-  (*f4.getType()->getContainedFields())[1].setArraySize(10);
+  f4.getType()->getContainedFields()[1].setArraySize(10);
   ASSERT_EQ(f3, f4);
 }
 

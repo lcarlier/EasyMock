@@ -12,6 +12,7 @@ class AutoCleanVectorPtr
 public:
   typedef typename std::vector<T*>::iterator iterator;
   typedef typename std::vector<T*>::const_iterator const_iterator;
+  typedef typename std::vector<T*>::size_type size_type;
 
   iterator begin() { return m_vect.begin(); }
   const_iterator begin() const { return m_vect.begin(); }
@@ -19,7 +20,8 @@ public:
   const_iterator end() const { return m_vect.end(); }
   void push_back(T* elem) { m_vect.push_back(elem); }
   typename std::vector<T*>::size_type size() const { return m_vect.size(); }
-  T& operator[](int i) const { return *m_vect[i]; }
+  T& operator[](int i) { return *m_vect[i]; }
+  const T& operator[](int i) const { return *m_vect[i]; }
   T& front() const { return *m_vect.front(); }
   T& back() const { return *m_vect.back(); }
 

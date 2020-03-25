@@ -22,7 +22,7 @@ class CType : public TypeItf
 public:
   CType();
   CType(const easyMock_cTypes_t p_cType);
-  const easyMock_cTypes_t getCType() const override;
+  easyMock_cTypes_t getCType() const override;
   bool setUnsigned(bool val);
   void setCType(easyMock_cTypes_t p_cType);
 

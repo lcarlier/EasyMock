@@ -48,6 +48,11 @@ bool Declarator::setPointer(bool value)
   return true;
 }
 
+TypeItf* Declarator::getType()
+{
+  return const_cast<TypeItf*>(static_cast<const Declarator &>(*this).getType());
+}
+
 const TypeItf* Declarator::getType() const
 {
   return m_type;

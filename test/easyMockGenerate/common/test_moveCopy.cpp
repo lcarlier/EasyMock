@@ -234,26 +234,26 @@ TEST(moveCopy, StructTypeRecursive)
   st1.addStructField(new ComposableField(new CType(CTYPE_INT), "intField"));
   StructType st2(st1);
   ASSERT_EQ(st1, st2);
-  const ComposableField::Vector& st2ContaineField = *st2.getContainedFields();
+  const ComposableField::Vector& st2ContaineField = st2.getContainedFields();
   ASSERT_EQ(&st2, st2ContaineField[0].getType());
 
   StructType st3("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "i")}), isEmbeddedInOtherType);
   ASSERT_NE(st3,st1);
   st3 = st1;
   ASSERT_EQ(st3,st1);
-  const ComposableField::Vector& st3ContaineField = *st3.getContainedFields();
+  const ComposableField::Vector& st3ContaineField = st3.getContainedFields();
   ASSERT_EQ(&st3, st3ContaineField[0].getType());
 
   StructType st4 = std::move(st3);
   ASSERT_EQ(st4, st1);
-  const ComposableField::Vector& st4ContaineField = *st4.getContainedFields();
+  const ComposableField::Vector& st4ContaineField = st4.getContainedFields();
   ASSERT_EQ(&st4, st4ContaineField[0].getType());
 
   StructType st6("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "i")}), isEmbeddedInOtherType);
   ASSERT_NE(st6, st2);
   st6 = std::move(st2);
   ASSERT_EQ(st6, st1);
-  const ComposableField::Vector& st6ContaineField = *st6.getContainedFields();
+  const ComposableField::Vector& st6ContaineField = st6.getContainedFields();
   ASSERT_EQ(&st6, st6ContaineField[0].getType());
 }
 
@@ -268,30 +268,30 @@ TEST(moveCopy, StructTypeSubFieldRecursive)
   subSt = nullptr; //Dereference, pointer is not usable here anymore
   StructType st2(st1);
   ASSERT_EQ(st1, st2);
-  const ComposableField::Vector& st2ContaineField = *st2.getContainedFields();
-  const ComposableField::Vector& st2SubStContainerField = *st2ContaineField[0].getType()->getContainedFields();
+  const ComposableField::Vector& st2ContaineField = st2.getContainedFields();
+  const ComposableField::Vector& st2SubStContainerField = st2ContaineField[0].getType()->getContainedFields();
   ASSERT_EQ(&st2, st2SubStContainerField[0].getType());
 
   StructType st3("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "i")}), isEmbeddedInOtherType);
   ASSERT_NE(st3,st1);
   st3 = st1;
   ASSERT_EQ(st3,st1);
-  const ComposableField::Vector& st3ContaineField = *st3.getContainedFields();
-  const ComposableField::Vector& st3SubStContainerField = *st3ContaineField[0].getType()->getContainedFields();
+  const ComposableField::Vector& st3ContaineField = st3.getContainedFields();
+  const ComposableField::Vector& st3SubStContainerField = st3ContaineField[0].getType()->getContainedFields();
   ASSERT_EQ(&st3, st3SubStContainerField[0].getType());
 
   StructType st4 = std::move(st3);
   ASSERT_EQ(st4, st1);
-  const ComposableField::Vector& st4ContaineField = *st4.getContainedFields();
-  const ComposableField::Vector& st4SubStContainerField = *st4ContaineField[0].getType()->getContainedFields();
+  const ComposableField::Vector& st4ContaineField = st4.getContainedFields();
+  const ComposableField::Vector& st4SubStContainerField = st4ContaineField[0].getType()->getContainedFields();
   ASSERT_EQ(&st4, st4SubStContainerField[0].getType());
 
   StructType st6("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "i")}), isEmbeddedInOtherType);
   ASSERT_NE(st6, st2);
   st6 = std::move(st2);
   ASSERT_EQ(st6, st1);
-  const ComposableField::Vector& st6ContaineField = *st6.getContainedFields();
-  const ComposableField::Vector& st6SubStContainerField = *st6ContaineField[0].getType()->getContainedFields();
+  const ComposableField::Vector& st6ContaineField = st6.getContainedFields();
+  const ComposableField::Vector& st6SubStContainerField = st6ContaineField[0].getType()->getContainedFields();
   ASSERT_EQ(&st6, st6SubStContainerField[0].getType());
 }
 

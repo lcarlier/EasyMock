@@ -1,4 +1,5 @@
 #include "TypeItf.h"
+#include <cassert>
 
 TypeItf::TypeItf(const std::string p_name) :
 TypeItf(p_name, "")
@@ -70,9 +71,16 @@ bool TypeItf::isUnion() const
   return m_isUnion;
 }
 
-const ComposableField::Vector* TypeItf::getContainedFields() const
+ComposableField::Vector& TypeItf::getContainedFields()
 {
-  return NULL;
+  return const_cast<ComposableField::Vector &>(static_cast<const TypeItf &>(*this).getContainedFields());
+}
+
+const ComposableField::Vector& TypeItf::getContainedFields() const
+{
+  fprintf(stderr, "THIS FUNCTION SHOULDN'T BE CALLED");
+  assert(false);
+  //NO return is OK
 }
 
 bool TypeItf::isCType() const
@@ -85,7 +93,7 @@ bool TypeItf::isTypedDef() const
   return m_typed_def_name.size() != 0;
 }
 
-const easyMock_cTypes_t TypeItf::getCType() const
+easyMock_cTypes_t TypeItf::getCType() const
 {
   return CTYPE_INVALID;
 }

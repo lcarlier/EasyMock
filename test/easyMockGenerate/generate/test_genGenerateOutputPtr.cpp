@@ -28,7 +28,7 @@ TYPED_TEST(genGenerateOutputPtr_testCase, TestOutputPtrGenerated)
   easyMockGenerate_baseTestCase::getFunPtr(&fptr, &fptr_expect, &fptr_matcher, &fptr_output_ptr);
 
   Function f = this->m_factory.functionFactory();
-  const Parameter::Vector &parameters = *f.getFunctionsParameters();
+  const Parameter::Vector &parameters = f.getFunctionsParameters();
   const Parameter &firstParam = parameters[0];
   const TypeItf &firstParamType = *firstParam.getType();
   //Parameter of type void * doesn't have an output function because the mock doesn't know the size of the contained void pointer

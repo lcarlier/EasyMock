@@ -18,7 +18,7 @@ if (NOT LLVM)
     message (FATAL_ERROR "llvm-config-${LLVM_VERSION} command not found")
 endif()
 
-set(EASYMOCK_DEFAULT_CFLAGS -fsanitize=address -fno-omit-frame-pointer -g -O1 -Werror -Wall -fno-access-control -Wno-comment)
+set(EASYMOCK_DEFAULT_CFLAGS -fsanitize=address -fno-omit-frame-pointer -g -O0 -Werror -Wall -fno-access-control)
 set(EASYMOCK_DEFAULT_LDFLAGS -fsanitize=address)
 
 set(LLVM_PATH llvm-${LLVM_VERSION}/lib) #relative to /usr/lib

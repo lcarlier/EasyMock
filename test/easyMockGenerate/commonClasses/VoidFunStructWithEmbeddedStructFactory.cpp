@@ -5,7 +5,7 @@
 Function VoidFunStructWithEmbeddedStructFactory::functionFactory()
 {
   bool isEmbeddedStruct = true;
-  StructType* top = new StructType("top", !isEmbeddedStruct); //NOT EMBEDDED
+  StructType* top = new StructType("topEmbedded", !isEmbeddedStruct); //NOT EMBEDDED
   StructType* beingDefined = new StructType("embeddedStruct", isEmbeddedStruct);
   beingDefined->addStructField(new ComposableField(CTYPE_INT, "a"));
   top->addStructField(new ComposableField(beingDefined, "b"));

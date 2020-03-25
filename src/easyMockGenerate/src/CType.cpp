@@ -10,7 +10,7 @@ TypeItf(easyMock_arrayCTypeStr[p_cType]), m_cType(p_cType)
   m_isCType = true;
 }
 
-const easyMock_cTypes_t CType::getCType() const
+easyMock_cTypes_t CType::getCType() const
 {
   return m_cType;
 }

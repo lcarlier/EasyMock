@@ -5,6 +5,8 @@
 
 #include <TestTypes.h>
 
+#include <gtestPrintClasses.h>
+
 template <typename T>
 class GenericParser_testCase : public ::testing::Test
 {
@@ -22,7 +24,7 @@ TYPED_TEST(GenericParser_testCase, parser)
   parser.setFilename(fileName);
   parser.getElementToStub(elem);
   ASSERT_EQ(elem.size(), 1);
-  Function& fp = Function::toFunction(elem[0]);
-  Function f = funFactory.functionFactory();
-  ASSERT_EQ(f, fp) << "f: " << f.getFunctionPrototype() << std::endl << "fp: " << fp.getFunctionPrototype();
+  Function funFromFactory = funFactory.functionFactory();
+  Function& funFromParser = Function::toFunction(elem[0]);
+  ASSERT_EQ(funFromFactory, funFromParser);
 }

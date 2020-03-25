@@ -20,7 +20,9 @@ public:
   bool isPointer() const;
   bool setPointer(bool value);
 
+  virtual TypeItf* getType();
   virtual const TypeItf* getType() const;
+
   virtual void setType(TypeItf* type);
   const std::string& getTypeName() const;
 

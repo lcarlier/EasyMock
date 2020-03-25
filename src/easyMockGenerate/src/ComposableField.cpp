@@ -111,6 +111,11 @@ const std::string& ComposableField::getName() const
   return m_name;
 }
 
+TypeItf* ComposableField::getType()
+{
+  return const_cast<TypeItf*>(static_cast<const ComposableField &>(*this).getType());
+}
+
 const TypeItf* ComposableField::getType() const
 {
   if(m_recursiveType)

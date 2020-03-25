@@ -40,6 +40,7 @@ public:
   bool operator==(const ComposableField &other) const;
   bool operator!=(const ComposableField &other) const;
 
+  TypeItf* getType() override;
   const TypeItf* getType() const override;
   const std::string& getName() const;
   void setType(TypeItf* type) override;

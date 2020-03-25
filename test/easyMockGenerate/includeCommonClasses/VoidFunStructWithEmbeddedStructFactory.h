@@ -4,7 +4,7 @@
 #include <FunctionFactory.h>
 #include <voidFunStructWithEmbeddedStruct.h>
 
-class VoidFunStructWithEmbeddedStructFactory : public FunctionFactory<int, std::tuple<struct top>, std::tuple<EasyMock_Matcher>>
+class VoidFunStructWithEmbeddedStructFactory : public FunctionFactory<int, std::tuple<struct topEmbedded>, std::tuple<EasyMock_Matcher>>
 {
 public:
   Function functionFactory() override;

@@ -1,5 +1,7 @@
 #include "ComposableType.h"
 
+#include <boost/algorithm/string/replace.hpp>
+
 size_t ComposableType::m_unique_hash = 0;
 unsigned int ComposableType::m_number_of_anonymous_composable_type = 0;
 
@@ -60,7 +62,7 @@ TypeItf(static_cast<TypeItf&&>(other))
 const std::string ComposableType::getUniqueName() const
 {
   std::string uniqueName = this->getFullDeclarationName();
-  uniqueName.pop_back(); //Remove the ' ' character
+  boost::replace_all(uniqueName, " ", ""); //Remove the ' ' character if any
 
   if(this->isAnonymous())
   {
@@ -102,11 +104,10 @@ bool ComposableType::isEqual(const TypeItf& p_other) const
      */
     return false;
   }
-  bool elemEq =
-  this->m_elem == other.m_elem &&
-  this->m_is_embedded_in_other_type == other.m_is_embedded_in_other_type &&
-  this->m_anonymous_number == other.m_anonymous_number;
-  return parentEq && elemEq;
+  bool elemEq = this->m_elem == other.m_elem;
+  bool embedEq = this->m_is_embedded_in_other_type == other.m_is_embedded_in_other_type;
+  bool anonEq = this->m_anonymous_number == other.m_anonymous_number;
+  return parentEq && elemEq && embedEq && anonEq;
 }
 
 bool ComposableType::operator!=(const ComposableType& other) const
@@ -114,9 +115,14 @@ bool ComposableType::operator!=(const ComposableType& other) const
   return (*this == other) == false;
 }
 
-const ComposableField::Vector* ComposableType::getContainedFields() const
+ComposableField::Vector& ComposableType::getContainedFields()
 {
-  return &m_elem;
+  return const_cast<ComposableField::Vector &>(static_cast<const ComposableType &>(*this).getContainedFields());
+}
+
+const ComposableField::Vector& ComposableType::getContainedFields() const
+{
+  return m_elem;
 }
 
 void ComposableType::addStructField(ComposableField* newField)

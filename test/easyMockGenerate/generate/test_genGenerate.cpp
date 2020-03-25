@@ -162,12 +162,12 @@ TYPED_TEST(genGenerate_testCase, OneExpectArgIsBad)
   void *fptr;
   void *fptr_expect;
   Function f = genGenerate_testCase<TypeParam>::m_factory.functionFactory();
-  if(f.getFunctionsParameters()->size() == 0)
+  if(f.getFunctionsParameters().size() == 0)
   {
     return; //In case the function that is tested doesn't have any parameters
   }
 
-  Parameter::Vector::const_iterator it = f.getFunctionsParameters()->begin();
+  Parameter::Vector::const_iterator it = f.getFunctionsParameters().begin();
   const Parameter *firstParameter = *it;
   if(!firstParameter->getType()->isCType())
   {
@@ -226,12 +226,12 @@ TYPED_TEST(genGenerate_testCase, SecondExpectArgIsBad)
   void *fptr;
   void *fptr_expect;
   Function f = genGenerate_testCase<TypeParam>::m_factory.functionFactory();
-  if(f.getFunctionsParameters()->size() == 0)
+  if(f.getFunctionsParameters().size() == 0)
   {
     return; //In case the function that is tested doesn't have any parameters
   }
 
-  Parameter::Vector::const_iterator it = f.getFunctionsParameters()->begin();
+  Parameter::Vector::const_iterator it = f.getFunctionsParameters().begin();
   const Parameter *firstParameter = *it;
   if(!firstParameter->getType()->isCType())
   {

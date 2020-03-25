@@ -6,7 +6,7 @@ extern "C"
 {
 #endif
 
-  struct top
+  struct topEmbedded
   {
     struct embeddedStruct
     {
@@ -14,7 +14,7 @@ extern "C"
     } b;
   };
 
-  void voidFunStructWithEmbeddedStruct(struct top t);
+  void voidFunStructWithEmbeddedStruct(struct topEmbedded t);
 
 #ifdef __cplusplus
 }

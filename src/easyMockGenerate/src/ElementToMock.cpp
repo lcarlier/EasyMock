@@ -3,9 +3,9 @@
 ElementToMock::ElementToMock(std::string name, const Parameter::Vector functionParameters)
 : m_name(name), m_parameters(functionParameters) { }
 
-const Parameter::Vector* ElementToMock::getFunctionsParameters() const
+const Parameter::Vector& ElementToMock::getFunctionsParameters() const
 {
-  return &m_parameters;
+  return m_parameters;
 }
 
 const std::string* ElementToMock::getName() const

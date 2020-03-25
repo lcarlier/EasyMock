@@ -14,7 +14,7 @@ public:
 private:
   void fillInTemplateVariables(ctemplate::TemplateDictionary *dict, const std::string &mockedHeader, const ElementToMock::Vector &fList);
   void generateFunctionSection(ctemplate::TemplateDictionary *rootDictionnary, const ElementToMock *f);
-  void generateFunctionParamSection(ctemplate::TemplateDictionary *rootDictionnary, ctemplate::TemplateDictionary *dict, const Parameter::Vector *functionParam);
+  void generateFunctionParamSection(ctemplate::TemplateDictionary *rootDictionnary, ctemplate::TemplateDictionary *dict, const Parameter::Vector& functionParam);
   void generateBodyStructCompare(ctemplate::TemplateDictionary *rootDictionnary, ctemplate::TemplateDictionary *paramSectDict, const StructType *p_structType, const ComposableField *curField);
   void generateStructCompareSection(ctemplate::TemplateDictionary *rootDictionnary, const StructType *structType);
   bool generateCodeToFile(const std::string &outDir, const std::string &filename, const std::string &extension, const std::string &generatedCode);

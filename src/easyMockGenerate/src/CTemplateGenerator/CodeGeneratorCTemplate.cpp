@@ -420,26 +420,26 @@ CodeGeneratorCTemplate::CodeGeneratorCTemplate()
 }
 
 
-bool CodeGeneratorCTemplate::generateCode(const std::string& outDir, const std::string &fullPathToHeaderToMock, const ElementToMock::Vector& elem)
+bool CodeGeneratorCTemplate::generateCode(const std::string& p_outDir, const std::string &p_fullPathToHeaderToMock, const ElementToMock::Vector& p_elem)
 {
   ctemplate::TemplateDictionary dict("generateCode");
 
-  std::string filenameToMock = boost::filesystem::path(fullPathToHeaderToMock).filename().string();
-  fillInTemplateVariables(&dict, filenameToMock, elem);
+  std::string filenameToMock = boost::filesystem::path(p_fullPathToHeaderToMock).filename().string();
+  fillInTemplateVariables(&dict, filenameToMock, p_elem);
 
   ctemplate::StringToTemplateCache("programTemplate", templateText, ctemplate::DO_NOT_STRIP);
   ctemplate::StringToTemplateCache("headerTemplate", headerFileTemplate, ctemplate::DO_NOT_STRIP);
 
   std::string generatedCode;
   ctemplate::ExpandTemplate("programTemplate", ctemplate::DO_NOT_STRIP, &dict, &generatedCode);
-  if (!generateCodeToFile(outDir, filenameToMock, "cpp", generatedCode))
+  if (!generateCodeToFile(p_outDir, filenameToMock, "cpp", generatedCode))
   {
     return false;
   }
 
   generatedCode.clear();
   ctemplate::ExpandTemplate("headerTemplate", ctemplate::DO_NOT_STRIP, &dict, &generatedCode);
-  if (!generateCodeToFile(outDir, filenameToMock, "h", generatedCode))
+  if (!generateCodeToFile(p_outDir, filenameToMock, "h", generatedCode))
   {
     return false;
   }
@@ -447,20 +447,20 @@ bool CodeGeneratorCTemplate::generateCode(const std::string& outDir, const std::
   return true;
 }
 
-void CodeGeneratorCTemplate::fillInTemplateVariables(ctemplate::TemplateDictionary *rootDictionnary, const std::string &mockedHeader, const ElementToMock::Vector &fList)
+void CodeGeneratorCTemplate::fillInTemplateVariables(ctemplate::TemplateDictionary *p_rootDictionnary, const std::string &p_mockedHeader, const ElementToMock::Vector &p_fList)
 {
-  rootDictionnary->SetValue(MOCKED_HEADER_FILENAME, mockedHeader);
-  std::string fileNameWithoutExtUpper = mockedHeader.substr(0, mockedHeader.find_last_of("."));
+  p_rootDictionnary->SetValue(MOCKED_HEADER_FILENAME, p_mockedHeader);
+  std::string fileNameWithoutExtUpper = p_mockedHeader.substr(0, p_mockedHeader.find_last_of("."));
   std::transform(fileNameWithoutExtUpper.begin(), fileNameWithoutExtUpper.end(), fileNameWithoutExtUpper.begin(), ::toupper);
-  rootDictionnary->SetValue(MOCKED_FILE_NAME_WITHOUT_EXT_UPPER, fileNameWithoutExtUpper);
-  for (ElementToMock::Vector::const_iterator it = fList.begin(); it != fList.end(); ++it)
+  p_rootDictionnary->SetValue(MOCKED_FILE_NAME_WITHOUT_EXT_UPPER, fileNameWithoutExtUpper);
+  for (ElementToMock::Vector::const_iterator it = p_fList.begin(); it != p_fList.end(); ++it)
   {
     const ElementToMock *f = *it;
     switch (f->getMockType())
     {
       case ETS_function:
       {
-        generateFunctionSection(rootDictionnary, f);
+        generateFunctionSection(p_rootDictionnary, f);
         break;
       }
       default:
@@ -469,15 +469,15 @@ void CodeGeneratorCTemplate::fillInTemplateVariables(ctemplate::TemplateDictiona
   }
 }
 
-void CodeGeneratorCTemplate::generateFunctionSection(ctemplate::TemplateDictionary *rootDictionnary, const ElementToMock *f)
+void CodeGeneratorCTemplate::generateFunctionSection(ctemplate::TemplateDictionary *p_rootDictionnary, const ElementToMock *p_elemToMock)
 {
-  ctemplate::TemplateDictionary *functionSectionDict = rootDictionnary->AddSectionDictionary(FUNCTION_SECTION);
-  functionSectionDict->SetValue(FUNCTION_NAME, *f->getName());
-  std::string upperString(*f->getName());
+  ctemplate::TemplateDictionary *functionSectionDict = p_rootDictionnary->AddSectionDictionary(FUNCTION_SECTION);
+  functionSectionDict->SetValue(FUNCTION_NAME, *p_elemToMock->getName());
+  std::string upperString(*p_elemToMock->getName());
   std::transform(upperString.begin(), upperString.end(), upperString.begin(), ::toupper);
   functionSectionDict->SetValue(FUNCTION_NAME_UPPER, upperString);
 
-  const ReturnValue *returnValue = f->getReturnType();
+  const ReturnValue *returnValue = p_elemToMock->getReturnType();
   const TypeItf* rvType = returnValue->getType();
   std::string returnTypeStr = getDeclaratorString(returnValue);
   functionSectionDict->SetValue(FUNCTION_RETURN_VALUE, returnTypeStr);
@@ -488,20 +488,20 @@ void CodeGeneratorCTemplate::generateFunctionSection(ctemplate::TemplateDictiona
     ctemplate::TemplateDictionary *returnValParamDict = functionSectionDict->AddSectionDictionary(FUNCTION_RETURN_VALUE_PARAM_SECTION);
     returnValParamDict->SetValue(FUNCTION_RETURN_VALUE, returnTypeStr);
   }
-  generateFunctionParamSection(rootDictionnary, functionSectionDict, f->getFunctionsParameters());
+  generateFunctionParamSection(p_rootDictionnary, functionSectionDict, p_elemToMock->getFunctionsParameters());
 }
 
-void CodeGeneratorCTemplate::generateFunctionParamSection(ctemplate::TemplateDictionary *rootDictionnary, ctemplate::TemplateDictionary *functionSectionDict, const Parameter::Vector *functionParam)
+void CodeGeneratorCTemplate::generateFunctionParamSection(ctemplate::TemplateDictionary *p_rootDictionnary, ctemplate::TemplateDictionary *p_functionSectionDict, const Parameter::Vector& p_functionParam)
 {
   bool ptrSectionAdded = false;
-  if (functionParam->size() > 0)
+  if (p_functionParam.size() > 0)
   {
     //This specific section to show the comma ',' conditionally for the expect and return function generation
-    functionSectionDict->AddSectionDictionary(FUNCTION_PARAM_LIST_SECTION);
+    p_functionSectionDict->AddSectionDictionary(FUNCTION_PARAM_LIST_SECTION);
   }
-  for (Parameter::Vector::const_iterator it = functionParam->begin(); it != functionParam->end(); ++it)
+  for (Parameter::Vector::const_iterator it = p_functionParam.begin(); it != p_functionParam.end(); ++it)
   {
-    ctemplate::TemplateDictionary* newTypedefParamSection = functionSectionDict->AddSectionDictionary(FUNCTION_PARAM_SECTION);
+    ctemplate::TemplateDictionary* newTypedefParamSection = p_functionSectionDict->AddSectionDictionary(FUNCTION_PARAM_SECTION);
     const Parameter *fParam = *it;
     std::string argType = getDeclaratorString(fParam);
     if(fParam->getType()->isStruct())
@@ -510,7 +510,7 @@ void CodeGeneratorCTemplate::generateFunctionParamSection(ctemplate::TemplateDic
       //Generate each structs only once
       if(m_generatedStructs.find(structTypeName) == m_generatedStructs.end())
       {
-        generateStructCompareSection(rootDictionnary, dynamic_cast<const StructType*>(fParam->getType()));
+        generateStructCompareSection(p_rootDictionnary, dynamic_cast<const StructType*>(fParam->getType()));
         m_generatedStructs.insert(structTypeName);
       }
     }
@@ -521,10 +521,10 @@ void CodeGeneratorCTemplate::generateFunctionParamSection(ctemplate::TemplateDic
     {
       if(!ptrSectionAdded)
       {
-        functionSectionDict->AddSectionDictionary(FUNCTION_PARAM_PTR_LIST_SECTION);
+        p_functionSectionDict->AddSectionDictionary(FUNCTION_PARAM_PTR_LIST_SECTION);
         ptrSectionAdded = true;
       }
-      ctemplate::TemplateDictionary* newPtrParamSection = functionSectionDict->AddSectionDictionary(FUNCTION_PARAM_PTR_SECTION);
+      ctemplate::TemplateDictionary* newPtrParamSection = p_functionSectionDict->AddSectionDictionary(FUNCTION_PARAM_PTR_SECTION);
       newPtrParamSection->SetValue(FUNCTION_PARAM_TYPE, argType);
       newPtrParamSection->SetValue(FUNCTION_PARAM_NAME, fParam->getName());
     }
@@ -568,7 +568,7 @@ extern "C" int cmp_struct_{{STRUCT_NAME}} ( void *currentCall_ptr, void *expecte
 {{END_STRUCT_COMPARE_SECTION}}
  */
 
-void CodeGeneratorCTemplate::generateBodyStructCompare(ctemplate::TemplateDictionary *rootDictionnary, ctemplate::TemplateDictionary *p_paramSectDict, const StructType *p_structType, const ComposableField *p_curField)
+void CodeGeneratorCTemplate::generateBodyStructCompare(ctemplate::TemplateDictionary *p_rootDictionnary, ctemplate::TemplateDictionary *p_paramSectDict, const StructType *p_structType, const ComposableField *p_curField)
 {
   const TypeItf *curType = p_curField->getType();
   if(curType->isStruct())
@@ -604,7 +604,7 @@ void CodeGeneratorCTemplate::generateBodyStructCompare(ctemplate::TemplateDictio
       condition.append(", ");
       condition.append(preFieldVarName.c_str());
       condition.append(".c_str(), errorMessage)");
-      generateStructCompareSection(rootDictionnary, dynamic_cast<const StructType*>(curType));
+      generateStructCompareSection(p_rootDictionnary, dynamic_cast<const StructType*>(curType));
       p_paramSectDict->SetValue(COMPARE_CONDITION, condition);
     }
   } else if (curType->isCType()) {
@@ -615,45 +615,45 @@ void CodeGeneratorCTemplate::generateBodyStructCompare(ctemplate::TemplateDictio
   }
 }
 
-void CodeGeneratorCTemplate::generateBasicTypeField(const ComposableField *curField, ctemplate::TemplateDictionary *paramSectDict, const StructType *p_structType)
+void CodeGeneratorCTemplate::generateBasicTypeField(const ComposableField *p_curField, ctemplate::TemplateDictionary *p_paramSectDict, const StructType *p_structType)
 {
   std::string condition;
   condition.append("currentCall_val->");
-  condition.append(curField->getName());
-  if(curField->isBoundSpecifiedArray())
+  condition.append(p_curField->getName());
+  if(p_curField->isBoundSpecifiedArray())
   {
     condition.append("[idx]");
   }
   condition.append(" != expectedCall_val->");
-  condition.append(curField->getName());
-  if(curField->isBoundSpecifiedArray())
+  condition.append(p_curField->getName());
+  if(p_curField->isBoundSpecifiedArray())
   {
     condition.append("[idx]");
   }
-  ctemplate::TemplateDictionary *errorDict = paramSectDict->AddSectionDictionary(STRUCT_COMPARE_ERROR);
-  std::string compareField = curField->getName();
-  if(curField->isBoundSpecifiedArray())
+  ctemplate::TemplateDictionary *errorDict = p_paramSectDict->AddSectionDictionary(STRUCT_COMPARE_ERROR);
+  std::string compareField = p_curField->getName();
+  if(p_curField->isBoundSpecifiedArray())
   {
     errorDict->AddSectionDictionary(STRUCT_PRINT_IDX_SECTION); //This section needs to be added only once
     compareField.append("[idx]");
   }
   errorDict->SetValue(STRUCT_COMPARE_FIELD, compareField);
   errorDict->SetValue(STRUCT_COMPARE_TYPE, p_structType->getName());
-  if(curField->isPointer())
+  if(p_curField->isPointer())
   {
     errorDict->SetValue(STRUCT_COMPARE_PRINTF_FORMAT, "p");
   }
   else
   {
-    const TypeItf *curType = curField->getType();
+    const TypeItf *curType = p_curField->getType();
     errorDict->SetValue(STRUCT_COMPARE_PRINTF_FORMAT, easyMock_printfFormat[curType->getCType()]);
   }
-  paramSectDict->SetValue(COMPARE_CONDITION, condition);
+  p_paramSectDict->SetValue(COMPARE_CONDITION, condition);
 }
 
-void CodeGeneratorCTemplate::generateStructCompareSection(ctemplate::TemplateDictionary *rootDictionnary, const StructType *p_structType)
+void CodeGeneratorCTemplate::generateStructCompareSection(ctemplate::TemplateDictionary *p_rootDictionnary, const StructType *p_structType)
 {
-  ctemplate::TemplateDictionary *compareDict = rootDictionnary->AddSectionDictionary(STRUCT_COMPARE_SECTION);
+  ctemplate::TemplateDictionary *compareDict = p_rootDictionnary->AddSectionDictionary(STRUCT_COMPARE_SECTION);
   if(p_structType->isTypedDef())
   {
     compareDict->SetValue(STRUCT_NAME, p_structType->getTypedDefName());
@@ -664,36 +664,36 @@ void CodeGeneratorCTemplate::generateStructCompareSection(ctemplate::TemplateDic
     nonTypedDefCompTypeSec->SetValue(NON_TYPED_DEF_COMPOSED_TYPE_VAR,"struct");
     compareDict->SetValue(STRUCT_NAME, p_structType->getName());
   }
-  const ComposableField::Vector *vectField = p_structType->getContainedFields();
-  for (ComposableField::Vector::const_iterator it = vectField->begin(); it != vectField->end(); ++it)
+  const ComposableField::Vector& vectField = p_structType->getContainedFields();
+  for (ComposableField::Vector::const_iterator it = vectField.begin(); it != vectField.end(); ++it)
   {
     const ComposableField *curField = *it;
     if(curField->isBoundSpecifiedArray())
     {
       ctemplate::TemplateDictionary *arrayParamSect = compareDict->AddSectionDictionary(STRUCT_COMPARE_ARRAY_SECTION);
       arrayParamSect->SetValue(STRUCT_COMPARE_FIELD, curField->getName());
-      generateBodyStructCompare(rootDictionnary, arrayParamSect, p_structType, curField);
+      generateBodyStructCompare(p_rootDictionnary, arrayParamSect, p_structType, curField);
     }
     else
     {
       if(!curField->isUnboundSpecifiedArray())
       {
         ctemplate::TemplateDictionary *paramSectDict = compareDict->AddSectionDictionary(STRUCT_COMPARE_PARAM_SECTION);
-        generateBodyStructCompare(rootDictionnary, paramSectDict, p_structType, curField);
+        generateBodyStructCompare(p_rootDictionnary, paramSectDict, p_structType, curField);
       }
     }
   }
 }
 
-bool CodeGeneratorCTemplate::generateCodeToFile(const std::string &outDir, const std::string &filename, const std::string &extension, const std::string &generatedCode)
+bool CodeGeneratorCTemplate::generateCodeToFile(const std::string &p_outDir, const std::string &p_filename, const std::string &p_extension, const std::string &p_generatedCode)
 {
   bool rv = true;
   FILE *f = NULL;
-  std::string outFilename(outDir);
+  std::string outFilename(p_outDir);
   outFilename.append("/" MOCK_FRAMEWORK_NAME "_");
-  outFilename.append(filename.substr(0, filename.find_last_of(".")));
+  outFilename.append(p_filename.substr(0, p_filename.find_last_of(".")));
   outFilename.append(".");
-  outFilename.append(extension);
+  outFilename.append(p_extension);
 
   std::fprintf(stdout, "Generating %s\n\r", outFilename.c_str());
   f = std::fopen(outFilename.c_str(), "w+");
@@ -703,7 +703,7 @@ bool CodeGeneratorCTemplate::generateCodeToFile(const std::string &outDir, const
     rv = false;
     goto closeFile;
   }
-  if (std::fprintf(f, "%s", generatedCode.c_str()) < 0)
+  if (std::fprintf(f, "%s", p_generatedCode.c_str()) < 0)
   {
     std::fprintf(stderr, "Error writing into %s: %s", outFilename.c_str(), strerror(errno));
     rv = false;
@@ -718,12 +718,12 @@ closeFile:
   return rv;
 }
 
-std::string CodeGeneratorCTemplate::getDeclaratorString(const Declarator* decl)
+std::string CodeGeneratorCTemplate::getDeclaratorString(const Declarator* p_decl)
 {
-  const TypeItf* rvType = decl->getType();
+  const TypeItf* rvType = p_decl->getType();
   std::string returnTypeStr;
   returnTypeStr.append(rvType->getFullDeclarationName());
-  if(decl->isPointer())
+  if(p_decl->isPointer())
   {
     returnTypeStr.push_back('*');
   }

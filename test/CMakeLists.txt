@@ -77,6 +77,8 @@ add_library(${TEST_FACTORIES_COMMON_OBJ}
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/UnionAnonymousTypedDefFunUnionAnonymousTypedDefFactory.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/UnionCommonHelper.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/VoidFunStructWithEmbeddedStructFactory.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/VoidFunStructWithEmbeddedAnonymousStructFactory.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/gTestPrintClasses.cpp
 )
 
 set(EASYMOCK_TEST_LIBRARY easyMockTestLibrary)
