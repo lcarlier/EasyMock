@@ -33,6 +33,7 @@
 #include <VoidFunStructWithEmbeddedStructFactory.h>
 #include <VoidFunStructWithEmbeddedAnonymousStructFactory.h>
 #include <VoidFunUnionWithEmbeddedUnionFactory.h>
+#include <VoidFunUnionWithEmbeddedAnonymousUnionFactory.h>
 
 #define PTR_FUN_PTR_FACTORIES \
         VoidPtrFunVoidPtrFactory, \
@@ -102,7 +103,8 @@ typedef ::testing::Types
         StructSubStructRecursiveTypeFactory,
         VoidFunStructWithEmbeddedStructFactory,
         VoidFunStructWithEmbeddedAnonymousStructFactory,
-        VoidFunUnionWithEmbeddedUnionFactory
+        VoidFunUnionWithEmbeddedUnionFactory,
+        VoidFunUnionWithEmbeddedAnonymousUnionFactory
 > ParserTestTypes;
 
 #endif /* TESTTYPES_H */
