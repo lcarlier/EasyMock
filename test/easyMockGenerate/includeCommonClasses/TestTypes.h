@@ -34,6 +34,7 @@
 #include <VoidFunStructWithEmbeddedAnonymousStructFactory.h>
 #include <VoidFunUnionWithEmbeddedUnionFactory.h>
 #include <VoidFunUnionWithEmbeddedAnonymousUnionFactory.h>
+#include <VoidFunStructWithAnonymousStructFieldFactory.h>
 
 #define PTR_FUN_PTR_FACTORIES \
         VoidPtrFunVoidPtrFactory, \
@@ -104,7 +105,8 @@ typedef ::testing::Types
         VoidFunStructWithEmbeddedStructFactory,
         VoidFunStructWithEmbeddedAnonymousStructFactory,
         VoidFunUnionWithEmbeddedUnionFactory,
-        VoidFunUnionWithEmbeddedAnonymousUnionFactory
+        VoidFunUnionWithEmbeddedAnonymousUnionFactory,
+        VoidFunStructWithAnonymousStructFieldFactory
 > ParserTestTypes;
 
 #endif /* TESTTYPES_H */
