@@ -13,14 +13,18 @@
 #include "ComposableType.h"
 #include <StructFunStructFactory.h>
 
+typedef struct s1 (*structFunStruct_funPtr)(struct s2);
+typedef void (*structFunStruct_funExpectPtr)(struct s2 a, struct s1 rv, EasyMock_Matcher match_a);
+typedef int (*structFunStruct_funMatcherPtr)(EASYMOCK_MATCHER_PARAM);
+
 class structFunStruct_testCase : public easyMockGenerate_baseTestCase
 {
 public:
-  structFunStruct_testCase() : easyMockGenerate_baseTestCase("structFunStruct", "include/structFunStruct.h", "mockStructFunStruct")
+  structFunStruct_testCase() : easyMockGenerate_baseTestCase("structFunStruct", "include/structFunStruct.h", "mockStructFunStruct", false)
   {
     StructFunStructFactory factory;
     ElementToMock *f = factory.newFunctionFactory();
-    setStructTypeToMatch("s2");
+    setComparatorToMatch("cmp_struct_s2");
     m_elem.push_back(f);
   }
 };

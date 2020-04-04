@@ -17,7 +17,7 @@ class intFunStructPtrIntCharPtr_testCase : public genGenerate_testCase<IntFunStr
 public:
   intFunStructPtrIntCharPtr_testCase() : genGenerate_testCase<IntFunStructPtrIntCharPtrFactory>()
   {
-    setStructTypeToMatch("s2");
+    setComparatorToMatch("cmp_struct_s2");
   }
 };
 

@@ -46,10 +46,18 @@ void UnionTypedDefFunUnionTypedDefFactory::setupTestCase(EasyMockTestCase::TestC
         m_compare.push_back(std::make_tuple(nullptr)); //Seperate dedicated UT are writen to test the generation and function of the comparators for structs
       }
       break;
+    case EasyMockTestCase::NotEnoughCall:
+      for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::NotEnoughCall_NbExpects; expectIdx++)
+      {
+        m_rv.push_back(t);
+        m_expects.push_back(std::make_tuple(t));
+        m_params.push_back(std::make_tuple(t));
+        m_compare.push_back(std::make_tuple(nullptr)); //Seperate dedicated UT are writen to test the generation and function of the comparators for structs
+      }
+      break;
     case EasyMockTestCase::OneExpectArgIsBad: //Not tested in a generic way
     case EasyMockTestCase::SecondExpectArgIsBad: //Not tested in a generic way
     case EasyMockTestCase::NoExpect:
-    case EasyMockTestCase::NotEnoughCall:
       break;
   }
 }

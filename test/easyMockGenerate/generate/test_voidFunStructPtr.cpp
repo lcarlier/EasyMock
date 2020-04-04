@@ -15,7 +15,7 @@ class voidFunStructPtr_testCase : public genGenerate_testCase<VoidFunStructPtrFa
 public:
   voidFunStructPtr_testCase() : genGenerate_testCase<VoidFunStructPtrFactory>()
   {
-    setStructTypeToMatch("s2");
+    setComparatorToMatch("cmp_struct_s2");
   }
 };
 

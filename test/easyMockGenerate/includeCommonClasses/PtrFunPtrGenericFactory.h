@@ -107,8 +107,16 @@ class PtrFunPtrGenericFactory : public FunctionFactory<PTR_TYPE *, std::tuple<PT
         this->m_compare.push_back(std::make_tuple(&cmp_pointer));
       }
         break;
-      case EasyMockTestCase::NoExpect:
       case EasyMockTestCase::NotEnoughCall:
+        for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::NotEnoughCall_NbExpects; expectIdx++)
+        {
+          unsigned char* ptrToExpect = aToExpect + expectIdx;
+          this->m_rv.push_back((PTR_TYPE *) ptrToExpect);
+          this->m_expects.push_back(std::make_tuple((PTR_TYPE *) ptrToExpect));
+          this->m_params.push_back(std::make_tuple((PTR_TYPE *) ptrToExpect));
+          this->m_compare.push_back(std::make_tuple(&cmp_pointer));  
+        }
+      case EasyMockTestCase::NoExpect:
         break;
     }
   }

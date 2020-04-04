@@ -18,7 +18,7 @@ UnionType(p_name, "", p_elem, p_is_embedded_in_other_type)
 UnionType::UnionType(const std::string p_name, const std::string p_type_def_name, const ComposableField::Vector p_elem, bool p_is_embedded_in_other_type) :
 ComposableType(p_name, p_type_def_name, p_elem, p_is_embedded_in_other_type)
 {
-  m_isUnion = true;
+  setUnion(true);
 }
 
 UnionType* UnionType::clone() const

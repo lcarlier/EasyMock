@@ -30,6 +30,7 @@
 #include <UnionFunUnionFactory.h>
 #include <UnionTypedDefFunUnionTypedDefFactory.hpp>
 #include <UnionAnonymousTypedDefFunUnionAnonymousTypedDefFactory.h>
+#include <StructWithUnionFunStructWithUnionFactory.h>
 #include <VoidFunStructWithEmbeddedStructFactory.h>
 #include <VoidFunStructWithEmbeddedAnonymousStructFactory.h>
 #include <VoidFunUnionWithEmbeddedUnionFactory.h>
@@ -71,12 +72,18 @@
         DoubleFunDoubleFactory, \
         LongDoubleFunLongDoubleFactory, \
         StructFunStructFactory, \
-        StructRecursiveMemberPtrTypeFactory, \
         StructTypedDefFunStructTypedDefFactory, \
         StructAnonymousTypedDefFunStructAnonymousTypedDefFactory, \
         UnionFunUnionFactory, \
         UnionTypedDefFunUnionTypedDefFactory, \
-        UnionAnonymousTypedDefFunUnionAnonymousTypedDefFactory
+        UnionAnonymousTypedDefFunUnionAnonymousTypedDefFactory, \
+        StructWithUnionFunStructWithUnionFactory
+
+#define VOID_FUN_COMPOSABLE_TYPE_WITH_COMPOSABLE_TYPE_TYPES \
+        VoidFunStructWithEmbeddedStructFactory, \
+        VoidFunStructWithEmbeddedAnonymousStructFactory, \
+        VoidFunUnionWithEmbeddedUnionFactory, \
+        VoidFunUnionWithEmbeddedAnonymousUnionFactory
 
 typedef ::testing::Types
 <
@@ -96,17 +103,20 @@ typedef ::testing::Types
 
 typedef ::testing::Types
 <
+        VOID_FUN_COMPOSABLE_TYPE_WITH_COMPOSABLE_TYPE_TYPES
+> VoidFunComposableTypeWithComposableTypeTypes;
+
+typedef ::testing::Types
+<
         PTR_FUN_PTR_FACTORIES,
         NON_PTR_FUN_FACTORIES,
+        VOID_FUN_COMPOSABLE_TYPE_WITH_COMPOSABLE_TYPE_TYPES,
+        StructRecursiveMemberPtrTypeFactory,
         VoidFunStructPtrFactory,
         IntFunStructPtrIntCharPtrFactory,
         VoidFunStructWithArrayFactory,
         VoidFunIntArrayFactory,
         StructSubStructRecursiveTypeFactory,
-        VoidFunStructWithEmbeddedStructFactory,
-        VoidFunStructWithEmbeddedAnonymousStructFactory,
-        VoidFunUnionWithEmbeddedUnionFactory,
-        VoidFunUnionWithEmbeddedAnonymousUnionFactory,
         VoidFunStructWithAnonymousStructFieldFactory,
         VoidFunUnionWithAnonymousUnionFieldFactory
 > ParserTestTypes;

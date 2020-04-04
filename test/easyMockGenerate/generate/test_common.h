@@ -38,11 +38,12 @@ class easyMockGenerate_baseTestCase : public ::testing::Test
 {
 public:
   easyMockGenerate_baseTestCase(const std::string functionToMock, const std::string pathToFileToMock, const std::string mockDir, bool rmDir = true);
-  void setStructTypeToMatch(const std::string structTypeToMatch);
-  void setPtrOutputTypeToMatch(const std::string ptrOutputTypeToMatch);
+  //Only 1 matcher can be supported at a time!! this means that we cannot test union matcher and struct matcher in the same UT
+  //No problem since 1 UT only tests 1 functionality
+  void setComparatorToMatch(const std::string structTypeToMatch);
 protected:
   const std::string m_functionToMock;
-  std::string m_strucTypeToMatch;
+  std::string m_comparatorToMatch;
   std::string m_ptrOutputTypeToMatch;
   const std::string m_pathToFileToMock;
   const std::string m_mockDir;

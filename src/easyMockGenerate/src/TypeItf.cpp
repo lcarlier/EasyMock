@@ -1,13 +1,17 @@
 #include "TypeItf.h"
 #include <cassert>
 
+#include <cassert>
+#include <boost/algorithm/string/replace.hpp>
+
 TypeItf::TypeItf(const std::string p_name) :
 TypeItf(p_name, "")
-{ }
+{
+}
 
 TypeItf::TypeItf(const std::string p_name, const std::string p_typed_def_name) :
-m_name(p_name), m_typed_def_name(p_typed_def_name),
-m_isCType(false), m_isStruct(false), m_isUnion(false)
+TypeItf({.name = p_name, .typed_def_name = p_typed_def_name,
+        .isCType = false, .isStruct = false, .isUnion = false})
 {
 }
 
@@ -45,19 +49,36 @@ const std::string TypeItf::getFullDeclarationName() const
   return fullDeclarationName;
 }
 
-
 const std::string& TypeItf::getTypedDefName() const
 {
   return m_typed_def_name;
 }
 
+const std::string& TypeItf::getMostDefinedName() const
+{
+  if(!m_typed_def_name.empty())
+  {
+    return m_typed_def_name;
+  }
+  else
+  {
+    return m_name;
+  }
+}
+
+//Protected
 void TypeItf::setName(std::string p_name)
 {
+  //It doesn't make sense that subclasses wants to clear the name.
+  assert(!p_name.empty());
   m_name = p_name;
 }
 
+//Protected
 void TypeItf::setTypedDefName(std::string p_typed_def_name)
 {
+  //It doesn't make sense that subclasses wants to clear the typedef name.
+  assert(!p_typed_def_name.empty());
   m_typed_def_name = p_typed_def_name;
 }
 
@@ -66,9 +87,21 @@ bool TypeItf::isStruct() const
   return m_isStruct;
 }
 
+//Protected
+void TypeItf::setStruct(bool value)
+{
+  m_isStruct = value;
+}
+
 bool TypeItf::isUnion() const
 {
   return m_isUnion;
+}
+
+//Protected
+void TypeItf::setUnion(bool value)
+{
+  m_isUnion = value;
 }
 
 ComposableField::Vector& TypeItf::getContainedFields()
@@ -88,9 +121,25 @@ bool TypeItf::isCType() const
   return m_isCType;
 }
 
+//Protected
+void TypeItf::setCType(bool value)
+{
+  m_isCType = value;
+}
+
 bool TypeItf::isTypedDef() const
 {
   return m_typed_def_name.size() != 0;
+}
+
+bool TypeItf::isAnonymous() const
+{
+  return m_name.empty() && m_typed_def_name.empty();
+}
+
+bool TypeItf::isComposableType() const
+{
+  return m_isStruct || m_isUnion;
 }
 
 easyMock_cTypes_t TypeItf::getCType() const

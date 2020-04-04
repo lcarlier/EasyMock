@@ -6,16 +6,19 @@
 #include <structRecursivePtrType.h>
 #include <structAnonymousTypedDefFunStructAnonymousTypedDef.h>
 #include <structTypedDefFunStructTypedDef.h>
+#include <structWithUnionFunStructWithUnion.h>
 
 bool operator==(const struct s1 &lhs, const struct s1 &rhs);
 bool operator==(const struct s2 &lhs, const struct s2 &rhs);
 bool operator==(const TypedDefStruct &lhs, const TypedDefStruct &rhs);
 bool operator==(const TypedDefAnonymousStruct &lhs, const TypedDefAnonymousStruct &rhs);
+bool operator==(const sWithUnion &lhs, const sWithUnion &rhs);
 std::ostream& operator<<(std::ostream& os, const struct s1& c);
 std::ostream& operator<<(std::ostream& os, const struct s2& c);
 std::ostream& operator<<(std::ostream& os, const struct recurs& c);
 std::ostream& operator<<(std::ostream& os, const TypedDefStruct& c);
 std::ostream& operator<<(std::ostream& os, const TypedDefAnonymousStruct& c);
+std::ostream& operator<<(std::ostream& os, const sWithUnion& st);
 
 #endif /* STRUCTCOMMONHELPER_H */
 

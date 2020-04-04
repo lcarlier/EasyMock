@@ -31,10 +31,7 @@ TypeItf(p_name, p_typed_def_name), m_elem(p_elem), m_is_embedded_in_other_type(p
 }
 
 ComposableType::ComposableType(const ComposableType& other) :
-TypeItf({.name = other.m_name, .typed_def_name = other.m_typed_def_name,
-        .isCType = other.m_isCType, .isStruct = other.m_isStruct, .isUnion = other.m_isUnion
-        }),
-        m_elem(other.m_elem), m_is_embedded_in_other_type(other.m_is_embedded_in_other_type), m_anonymous_number(other.m_anonymous_number)
+TypeItf(other), m_elem(other.m_elem), m_is_embedded_in_other_type(other.m_is_embedded_in_other_type), m_anonymous_number(other.m_anonymous_number)
 {
   correctRecursiveType(this, &other);
 }
@@ -59,14 +56,23 @@ TypeItf(static_cast<TypeItf&&>(other))
   correctRecursiveType(this, &other);
 }
 
+void ComposableType::setFileHash(std::size_t hash)
+{
+  m_unique_hash = hash;
+}
+
 const std::string ComposableType::getUniqueName() const
 {
   std::string uniqueName = this->getFullDeclarationName();
-  boost::replace_all(uniqueName, " ", ""); //Remove the ' ' character if any
+  /*
+   * getFullDeclarationName is going to return 'struct ' or 'union ' if
+   * the type is anonymous. So we replace the space with an underscore
+   */
+  boost::replace_all(uniqueName, " ", "_");
 
   if(this->isAnonymous())
   {
-    uniqueName.append("_anonymous_type_in_file_");
+    uniqueName.append("anonymous_type_in_file_");
     uniqueName.append(std::to_string(m_unique_hash));
     uniqueName.append("_number_");
     uniqueName.append(std::to_string(m_number_of_anonymous_composable_type));
@@ -97,10 +103,10 @@ bool ComposableType::isEqual(const TypeItf& p_other) const
   if(!parentEq)
   {
     /*
-     * If parent is not equal returns false directly
-     * It prevent also issue that if the other struct doesn't have elements,
+     * If TypeItf is not equal returns false directly
+     * It prevent the issue that if the other type is not a struct, i.e doesn't have elements,
      * we do not try to go out of bounds of the object memory to check the size
-     * of the Autoclean vector
+     * of the Autoclean vector which is not existing
      */
     return false;
   }

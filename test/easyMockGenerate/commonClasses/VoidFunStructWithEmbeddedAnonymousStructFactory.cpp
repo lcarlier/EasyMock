@@ -37,3 +37,68 @@ std::string VoidFunStructWithEmbeddedAnonymousStructFactory::getFilename()
 {
    return "voidFunStructWithEmbeddedAnonymousStruct.h";
 }
+
+std::string VoidFunStructWithEmbeddedAnonymousStructFactory::getMatcherFunctionName()
+{
+  return "cmp_struct_topEmbeddedAnonymous";
+}
+
+std::string VoidFunStructWithEmbeddedAnonymousStructFactory::getFieldWrongName()
+{
+  return "s.af";
+}
+
+std::string VoidFunStructWithEmbeddedAnonymousStructFactory::getSubFieldWrongName()
+{
+  return "a";
+}
+
+std::string VoidFunStructWithEmbeddedAnonymousStructFactory::getSubFieldWrongTypeName()
+{
+  return "topEmbeddedAnonymous::<anonymous>";
+}
+
+std::string VoidFunStructWithEmbeddedAnonymousStructFactory::getSubComposableTypeType()
+{
+  return " struct";
+}
+
+void VoidFunStructWithEmbeddedAnonymousStructFactory::setupTestCase(EasyMockTestCase::TestCase tc)
+{
+  struct topEmbeddedAnonymous aToExpect;
+
+  aToExpect.af.a = 42;
+  switch(tc)
+  {
+    case EasyMockTestCase::OneExpect:
+      m_expects.push_back(std::make_tuple(aToExpect));
+      m_params.push_back(std::make_tuple(aToExpect));
+      m_compare.push_back(std::make_tuple(m_user_matcher));
+      break;
+    case EasyMockTestCase::OneExpectArgIsBad:
+      m_expects.push_back(std::make_tuple(aToExpect));
+      aToExpect.af.a++;
+      m_params.push_back(std::make_tuple(aToExpect));
+      m_compare.push_back(std::make_tuple(m_user_matcher));
+      break;
+    case EasyMockTestCase::ThreeExpects:
+      for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::ThreeExpects_NbExpects; expectIdx++)
+      {
+        m_expects.push_back(std::make_tuple(aToExpect));
+        m_params.push_back(std::make_tuple(aToExpect));
+        m_compare.push_back(std::make_tuple(m_user_matcher));
+      }
+      break;
+    case EasyMockTestCase::NotEnoughCall:
+      for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::NotEnoughCall_NbExpects; expectIdx++)
+      {
+        m_expects.push_back(std::make_tuple(aToExpect));
+        m_params.push_back(std::make_tuple(aToExpect));
+        m_compare.push_back(std::make_tuple(m_user_matcher));
+      }
+      break;
+    case EasyMockTestCase::SecondExpectArgIsBad:
+    case EasyMockTestCase::NoExpect:
+      break;
+  }
+}

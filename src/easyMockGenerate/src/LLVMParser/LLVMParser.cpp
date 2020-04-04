@@ -121,43 +121,49 @@ private:
 
   CType* getFromBuiltinType(const clang::Type &type)
   {
-    CType *returnedType = new CType();
+    CType *returnedType = nullptr;
 
     if(type.isVoidType())
     {
-      returnedType->setCType(CTYPE_VOID);
+      returnedType = new CType(CTYPE_VOID);
     }
     else if(type.isCharType())
     {
-      returnedType->setCType(CTYPE_CHAR);
+      returnedType = new CType(CTYPE_CHAR);
     }
     else if(isShortType(type))
     {
-      returnedType->setCType(CTYPE_SHORT);
+      returnedType = new CType(CTYPE_SHORT);
     }
     else if(isLongType(type))
     {
-      returnedType->setCType(CTYPE_LONG);
+      returnedType = new CType(CTYPE_LONG);
     }
     else if(isIntType(type))
     {
-      returnedType->setCType(CTYPE_INT);
+      returnedType = new CType(CTYPE_INT);
     }
     else if(isLongLongType(type))
     {
-      returnedType->setCType(CTYPE_LONG_LONG);
+      returnedType = new CType(CTYPE_LONG_LONG);
     }
     else if(isDoubleType(type))
     {
-      returnedType->setCType(CTYPE_DOUBLE);
+      returnedType = new CType(CTYPE_DOUBLE);
     }
     else if(isLongDoubleType(type))
     {
-      returnedType->setCType(CTYPE_LONG_DOUBLE);
+      returnedType = new CType(CTYPE_LONG_DOUBLE);
     }
     else if(isFloatType(type))
     {
-      returnedType->setCType(CTYPE_FLOAT);
+      returnedType = new CType(CTYPE_FLOAT);
+    }
+    else
+    {
+      std::fprintf(stderr, "Clang type unexpected here for CTYPE. Contact the owner for bug fixing\n\r");
+      type.dump();
+      assert(false);
     }
 
     //Unsigned

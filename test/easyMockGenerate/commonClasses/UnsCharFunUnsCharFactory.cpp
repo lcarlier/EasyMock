@@ -62,8 +62,16 @@ void UnsCharFunUnsCharFactory::setupTestCase(EasyMockTestCase::TestCase tc)
       m_params.push_back(std::make_tuple(aToExpect + 1)); //second call fails
       m_compare.push_back(std::make_tuple(&cmp_u_char));
       break;
-    case EasyMockTestCase::NoExpect:
     case EasyMockTestCase::NotEnoughCall:
+      for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::NotEnoughCall_NbExpects; expectIdx++)
+      {
+        m_rv.push_back(rvToExpect + expectIdx);
+        m_expects.push_back(std::make_tuple(aToExpect + expectIdx));
+        m_params.push_back(std::make_tuple(aToExpect + expectIdx));
+        m_compare.push_back(std::make_tuple(&cmp_u_char));
+      }
+      break;
+    case EasyMockTestCase::NoExpect:
       break;
   }
 }

@@ -18,7 +18,7 @@ StructType(p_name, "", p_elem, p_is_embedded_in_other_type)
 StructType::StructType(const std::string p_name, const std::string p_type_def_name, const ComposableField::Vector p_elem, bool p_is_embedded_in_other_type) :
 ComposableType(p_name, p_type_def_name, p_elem, p_is_embedded_in_other_type)
 {
-  m_isStruct = true;
+  setStruct(true);
 }
 
 StructType* StructType::clone() const

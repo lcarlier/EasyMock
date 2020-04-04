@@ -7,7 +7,7 @@ CType::CType() : CType(CTYPE_INVALID)
 CType::CType(const easyMock_cTypes_t p_cType) :
 TypeItf(easyMock_arrayCTypeStr[p_cType]), m_cType(p_cType)
 {
-  m_isCType = true;
+  this->setCType(true);
 }
 
 easyMock_cTypes_t CType::getCType() const
@@ -69,11 +69,12 @@ bool CType::setUnsigned(bool val)
   {
     return false;
   }
-  setCType(newCtype);
+  updateCType(newCtype);
   return true;
 }
 
-void CType::setCType(easyMock_cTypes_t p_cType)
+//Private
+void CType::updateCType(easyMock_cTypes_t p_cType)
 {
   m_cType = p_cType;
   this->setName(easyMock_arrayCTypeStr[m_cType]);

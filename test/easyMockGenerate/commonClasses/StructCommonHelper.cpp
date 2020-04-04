@@ -19,6 +19,10 @@ bool operator==(const TypedDefAnonymousStruct &lhs, const TypedDefAnonymousStruc
 {
   return lhs.a == rhs.a;
 }
+bool operator==(const sWithUnion &lhs, const sWithUnion &rhs)
+{
+  return lhs.u.a == rhs.u.a || lhs.u.b == rhs.u.b;
+}
 
 std::ostream& operator<<(std::ostream& os, const struct s1& c)
 {
@@ -43,4 +47,8 @@ std::ostream& operator<<(std::ostream& os, const TypedDefStruct& c)
 std::ostream& operator<<(std::ostream& os, const TypedDefAnonymousStruct& c)
 {
   return os << "c.a: " << c.a;
+}
+std::ostream& operator<<(std::ostream& os, const sWithUnion& st)
+{
+  return os << "st.u.a: " << st.u.a << " st.u.b: " << st.u.b;
 }

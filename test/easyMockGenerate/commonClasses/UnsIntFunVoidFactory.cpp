@@ -38,10 +38,15 @@ void UnsIntFunVoidFactory::setupTestCase(EasyMockTestCase::TestCase tc)
       }
       break;
     }
+    case EasyMockTestCase::NotEnoughCall:
+      for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::NotEnoughCall_NbExpects; expectIdx++)
+      {
+        m_rv.push_back(5);
+      }
+      break;
     case EasyMockTestCase::OneExpectArgIsBad: //Not tested
     case EasyMockTestCase::SecondExpectArgIsBad: //Not tested
     case EasyMockTestCase::NoExpect:
-    case EasyMockTestCase::NotEnoughCall:
       break;
   }
 }

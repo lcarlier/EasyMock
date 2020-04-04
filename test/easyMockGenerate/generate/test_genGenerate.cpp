@@ -6,7 +6,6 @@
 #include <boost/algorithm/string.hpp>
 
 #include "test_common.h"
-#include "TypeItf.h"
 
 #include <sstream>
 
@@ -95,6 +94,8 @@ TYPED_TEST(genGenerate_testCase, NotEnoughCall)
   void *fptr_expect;
   Function f = genGenerate_testCase<TypeParam>::m_factory.functionFactory();
   easyMockGenerate_baseTestCase::getFunPtr(&fptr, &fptr_expect);
+  ASSERT_NE(fptr, nullptr);
+  ASSERT_NE(fptr_expect, nullptr);
   genGenerate_testCase<TypeParam>::m_factory.setupTestCase(EasyMockTestCase::NotEnoughCall);
   genGenerate_testCase<TypeParam>::m_factory.call_fptr_expect(fptr_expect);
   genGenerate_testCase<TypeParam>::m_factory.call_fptr_expect(fptr_expect);
@@ -125,6 +126,7 @@ TYPED_TEST(genGenerate_testCase, NotEnoughCall)
   ASSERT_EQ(fifoCallSize(), 1);
   std::string curCall = getCurrentFifoCall();
   ASSERT_STREQ(curCall.c_str(), f.getFunctionPrototype().c_str());
+  genGenerate_testCase<TypeParam>::m_factory.clear_all_queues();
 }
 
 TYPED_TEST(genGenerate_testCase, ThreeExpects)
@@ -243,7 +245,7 @@ TYPED_TEST(genGenerate_testCase, SecondExpectArgIsBad)
   /*
    * A lot of assumption here to be met partially by the setupTestCase function.
    * 1. The queue returns are types std::queue<std::tuple<Params...>>
-   * 2. There is at least 2 element in the queue. The rest is ignored
+   * 2. There qre at least 2 element in the queue. The rest is ignored
    * 3. The first element of the tuple contains the parameter to be expected and actually given to the mock
    *    Those values differs because this test tests explicitly the error case
    *
@@ -266,7 +268,7 @@ TYPED_TEST(genGenerate_testCase, SecondExpectArgIsBad)
   int check = easyMock_check();
   EXPECT_EQ(check, 0);
 
-  //E.g: Error : at call 1 of 'int intFunIntInt(int a, int b)': Parameter 'a' has value '255', was expecting '5'\n\r\tat 
+  //E.g: Error : at call 1 of 'int intFunIntInt(int a, int b)': Parameter 'a' has value '255', was expecting '5'\n\r\tat
   std::string errorMessageToExpect("Error : at call 2 of '");
   errorMessageToExpect.append(f.getFunctionPrototype());
   errorMessageToExpect.append("': Parameter '");

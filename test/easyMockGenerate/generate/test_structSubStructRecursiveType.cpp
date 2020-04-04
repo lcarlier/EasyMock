@@ -15,7 +15,7 @@ class StructSubStructRecursiveType_testCase : public genGenerate_testCase<Struct
 public:
   StructSubStructRecursiveType_testCase() : genGenerate_testCase<StructSubStructRecursiveTypeFactory>()
   {
-    setStructTypeToMatch("st1");
+    setComparatorToMatch("cmp_struct_st1");
   }
 };
 

@@ -40,7 +40,8 @@ set(TEST_INCLUDE_DIR ${EasyMock_SOURCE_DIR}/src/common/include
 
 set(TEST_LINK_LIB ${EASYMOCK_DEFAULT_FULL_LD_PARAM} gtest_main dl)
 
-set(TEST_COMPILE_FLAGS ${EASYMOCK_DEFAULT_FULL_CC_PARAM} -DPROJECT_ROOT_DIR="${PROJECT_SOURCE_DIR}")
+#We use the -fno-access-control ONLY to compile UT because sometime we want to check internal states of objects
+set(TEST_COMPILE_FLAGS ${EASYMOCK_DEFAULT_FULL_CC_PARAM} -DPROJECT_ROOT_DIR="${PROJECT_SOURCE_DIR}" -fno-access-control)
 
 set(TEST_FACTORIES_COMMON_OBJ testFactoriesCommonObj)
 
@@ -76,6 +77,7 @@ add_library(${TEST_FACTORIES_COMMON_OBJ}
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/UnionTypedDefFunUnionTypedDefFactory.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/UnionAnonymousTypedDefFunUnionAnonymousTypedDefFactory.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/UnionCommonHelper.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/StructWithUnionFunStructWithUnionFactory.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/VoidFunStructWithEmbeddedStructFactory.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/VoidFunStructWithEmbeddedAnonymousStructFactory.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/gTestPrintClasses.cpp

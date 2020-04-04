@@ -10,6 +10,7 @@
 #include <tuple>
 #include <cstring>
 #include <iostream>
+#include <cassert>
 #include <easyMock.h>
 
 namespace EasyMockTestCase {
@@ -24,6 +25,7 @@ namespace EasyMockTestCase {
   } TestCase;
 
   const unsigned int ThreeExpects_NbExpects = 3;
+  const unsigned int NotEnoughCall_NbExpects = 3;
 }
 
 /*
@@ -78,8 +80,19 @@ public:
   virtual Function functionFactory() = 0;
   virtual Function* newFunctionFactory() { return functionFactory().clone(); };
   virtual std::string functionGetFunctionName() = 0;
-  virtual void setupTestCase(EasyMockTestCase::TestCase tc) {}; //Not virtual. Only the factories that support generic way of testing the mock generation should implement this
+  virtual void setupTestCase(EasyMockTestCase::TestCase tc) {fprintf(stderr, "Function %s must be overriden\n\r", __FUNCTION__); assert(false);}; //Not virtual. Only the factories that support generic way of testing the mock generation should implement this
+  virtual std::string getMatcherFunctionName() {fprintf(stderr, "Function %s must be overriden\n\r", __FUNCTION__); assert(false);};
+  virtual std::string getFieldWrongName() {fprintf(stderr, "Function %s must be overriden\n\r", __FUNCTION__); assert(false);};
+  virtual std::string getSubFieldWrongName() {fprintf(stderr, "Function %s must be overriden\n\r", __FUNCTION__); assert(false);};
+  virtual std::string getSubFieldWrongTypeName() {fprintf(stderr, "Function %s must be overriden\n\r", __FUNCTION__); assert(false);};
+  virtual std::string getSubComposableTypeType() {fprintf(stderr, "Function %s must be overriden\n\r", __FUNCTION__); assert(false);};
   virtual std::string getFilename() = 0;
+
+  void setupTestCaseAndMatcher(EasyMockTestCase::TestCase tc, EasyMock_Matcher matcher){
+    m_user_matcher = matcher;
+    this->setupTestCase(tc);
+  }
+
   std::string functionGetMockDir()
   {
     std::string mockDir("mock");
@@ -143,6 +156,15 @@ public:
     return expected_rv;
   }
 
+  void clear_all_queues()
+  {
+    m_rv.clear();
+    m_expect_rv_cur_call.clear();
+    m_params.clear();
+    m_expects.clear();
+    m_compare.clear();
+  }
+
   bool is_rv_queue_empty()
   {
     return m_rv.empty();
@@ -181,6 +203,7 @@ public:
   virtual ~FunctionFactory() {}
 
 protected:
+  EasyMock_Matcher m_user_matcher;
   std::deque<RV> m_rv;
   std::deque<RV> m_expect_rv_cur_call;
   std::deque<std::tuple<Params...>> m_params;
@@ -190,7 +213,8 @@ protected:
 private:
   void p_call_fptr_expect(void* fptr_expect, std::tuple<Compare ...> &comparator_fptr_tuple)
   {
-    std::function<RV(Params..., RV, Compare ...)> f = cast<RV(Params..., RV, Compare ...)>(fptr_expect);
+    std::function<RV(Params..., RV, Compare ...)> fWithReturn = cast<RV(Params..., RV, Compare ...)>(fptr_expect);
+    std::function<RV(Params..., Compare ...)> fWithoutReturn = cast<RV(Params..., Compare ...)>(fptr_expect);
     std::tuple<Params...> p;
     if(!m_expects.empty())
     {
@@ -205,8 +229,14 @@ private:
     if(!m_rv.empty())
     {
       rv = m_rv.front();
+      auto allParam = std::tuple_cat(p, std::make_tuple(rv), comparator_fptr_tuple);
+      std::apply(fWithReturn, allParam);
     }
-    auto allParam = std::tuple_cat(p, std::make_tuple(rv), comparator_fptr_tuple);
+    else
+    {
+      auto allParam = std::tuple_cat(p, comparator_fptr_tuple);
+      std::apply(fWithoutReturn, allParam);
+    }
     if(!m_rv.empty())
     {
       m_rv.pop_front();
@@ -215,7 +245,6 @@ private:
     {
       m_expects.pop_front();
     }
-    std::apply(f, allParam);
   }
 };
 

@@ -6,16 +6,18 @@
 #include <cstring>
 #include "CodeGeneratorCTemplate.h"
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/string/replace.hpp>
 
 #include <sys/stat.h>
 #include <fcntl.h>
 
 #include "TypeItf.h"
-#include "StructType.h"
+#include "ComposableType.h"
 
 #define TEMPLATE_VAR(VAR_NAME) "{{" VAR_NAME "}}"
 #define TEMPLATE_BEG_SECTION(SECTION_NAME) "{{#" SECTION_NAME "}}"
 #define TEMPLATE_END_SECTION(SECTION_NAME) "{{/" SECTION_NAME "}}"
+#define TEMPLATE_INCL_SECTION(SECTION_NAME) "{{>" SECTION_NAME "}}"
 
 #define MOCK_FRAMEWORK_NAME "easyMock"
 #define MOCK_FRAMEWORK_NAME_UPPER "EASYMOCK"
@@ -28,11 +30,12 @@
 #define FUNCTION_SECTION "FUNCTION_SECTION"
 #define FUNCTION_PARAM_SECTION "FUNCTION_PARAM_SECTION"
 #define FUNCTION_PARAM_PTR_SECTION "FUNCTION_PARAM_PTR_SECTION"
-#define STRUCT_COMPARE_SECTION "STRUCT_COMPARE_SECTION"
+#define COMPOSED_TYPE_COMPARE_SECTION "STRUCT_COMPARE_SECTION"
 #define STRUCT_COMPARE_PRE_IF_SECTION "STRUCT_COMPARE_PRE_IF_SECTION"
 #define STRUCT_COMPARE_PRE_IF_SECTION_VAR_NAME "STRUCT_COMPARE_PRE_IF_SECTION_VAR_NAME"
 #define STRUCT_COMPARE_PRE_IF_SECTION_FIELD_NAME "STRUCT_COMPARE_PRE_IF_SECTION_FIELD_NAME"
-#define STRUCT_NAME "STRUCT_NAME"
+#define COMPOSED_TYPED_DECL_STRING "COMPOSED_TYPED_DECL_STRING"
+#define COMPOSED_TYPED_UNIQUE_NAME "COMPOSED_TYPED_UNIQUE_NAME"
 #define STRUCT_COMPARE_PARAM_SECTION "STRUCT_COMPARE_PARAM_SECTION"
 #define STRUCT_COMPARE_ARRAY_SECTION "STRUCT_COMPARE_ARRAY_SECTION"
 #define STRUCT_PRINT_IDX_SECTION "STRUCT_PRINT_IDX_SECTION"
@@ -54,8 +57,27 @@
 #define FUNCTION_PARAM_LIST_SECTION "FUNCTION_PARAM_LIST_SECTION"
 #define FUNCTION_PARAM_PTR_LIST_SECTION "FUNCTION_PARAM_PTR_LIST_SECTION"
 #define NON_TYPED_DEF_COMPOSED_TYPE_SECTION "NON_TYPED_DEF_COMPOSED_TYPE_SECTION"
-#define NON_TYPED_DEF_COMPOSED_TYPE_VAR "NON_TYPED_DEF_COMPOSED_TYPE_VAR" //struct or union
-#define NON_TYPED_DEF_COMPOSED_TYPE_VALUE TEMPLATE_VAR(NON_TYPED_DEF_COMPOSED_TYPE_VAR)
+
+#define COMPOSED_TYPE_TEMPLATE_VAR "NON_TYPED_DEF_COMPOSED_TYPE_VAR" //struct or union
+#define COMPOSED_TYPE_VAR TEMPLATE_VAR(COMPOSED_TYPE_TEMPLATE_VAR)
+
+#define RECURSIVE_ANONYMOUS_TYPE_DECLARATION_SECTION "RECURSIVE_ANONYMOUS_TYPE_DECLARATION_SECTION"
+#define RECURSIVE_ANONYMOUS_TYPE_DECLARATION_FIELD_SECTION "RECURSIVE_ANONYMOUS_TYPE_DECLARATION_FIELD_SECTION"
+#define RECURSIVE_ANONYMOUS_TYPE_DECLARATION_TYPE_TEMPLATE_VAR "RECURSIVE_ANONYMOUS_TYPE_DECLARATION_TYPE_TEMPLATE_VAR"
+#define RECURSIVE_ANONYMOUS_TYPE_DECLARATION_TYPE_VAR TEMPLATE_VAR(RECURSIVE_ANONYMOUS_TYPE_DECLARATION_TYPE_TEMPLATE_VAR)
+#define RECURSIVE_ANONYMOUS_TYPE_DECLARATION_NAME_TEMPLATE_VAR "RECURSIVE_ANONYMOUS_TYPE_DECLARATION_NAME_TEMPLATE_VAR"
+#define RECURSIVE_ANONYMOUS_TYPE_DECLARATION_NAME_VAR TEMPLATE_VAR(RECURSIVE_ANONYMOUS_TYPE_DECLARATION_NAME_TEMPLATE_VAR)
+
+#define ANONYMOUS_TYPE_DECLARATION_FIELD_SECTION "ANONYMOUS_TYPE_DECLARATION_FIELD_SECTION"
+#define ANONYMOUS_TYPE_DECLARATION_FIELD_TYPE_TEMPLATE_VAR "ANONYMOUS_TYPE_DECLARATION_FIELD_TYPE_TEMPLATE_VAR"
+#define ANONYMOUS_TYPE_DECLARATION_FIELD_TYPE_VAR TEMPLATE_VAR(ANONYMOUS_TYPE_DECLARATION_FIELD_TYPE_TEMPLATE_VAR)
+#define ANONYMOUS_TYPE_DECLARATION_FIELD_NAME_TEMPLATE_VAR "ANONYMOUS_TYPE_DECLARATION_FIELD_NAME_TEMPLATE_VAR"
+#define ANONYMOUS_TYPE_DECLARATION_FIELD_NAME_VAR TEMPLATE_VAR(ANONYMOUS_TYPE_DECLARATION_FIELD_NAME_TEMPLATE_VAR)
+
+#define CFILE_TEMPLATE "cfile_template"
+#define HFILE_TEMPLATE "hfile_template"
+#define RECURSIVE_ANONYMOUS_TYPE_DECLARATION_TEMPLATE_NAME "include_anonymous_decl_template"
+#define RECURSIVE_ANONYMOUS_TYPE_DECLARATION_TEMPLATE_FIELD_NAME "include_anonymous_decl_template_field"
 
 #define VOID_FUNCTION_RETURN_VALUE "void"
 
@@ -184,14 +206,15 @@ TEMPLATE_VAR(FUNCTION_NAME) "_match_" PARAMETER_NAME("")
 #define MOCKED_FUN_CLASS(F_NAME) "mocked_" F_NAME
 #define TEMPLATE_MOCKED_FUN_CLASS MOCKED_FUN_CLASS(TEMPLATE_VAR(FUNCTION_NAME))
 
-#define STRUCT_COMPARE_SECTION_STRUCT_NAME_VAR TEMPLATE_VAR(STRUCT_NAME)
+#define COMPOSED_TYPED_COMPARE_SECTION_DECL_NAME_VAR TEMPLATE_VAR(COMPOSED_TYPED_DECL_STRING)
+#define COMPOSED_TYPED_COMPARE_SECTION_UNIQUE_NAME_VAR TEMPLATE_VAR(COMPOSED_TYPED_UNIQUE_NAME)
 #define STRUCT_COMPARE_PARAM_SECTION_COMPARE_CONDITION_VAR TEMPLATE_VAR(COMPARE_CONDITION)
 #define STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_FIELD_VAR TEMPLATE_VAR(STRUCT_COMPARE_FIELD)
 #define STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_PRINTF_FORMAT_VAR TEMPLATE_VAR(STRUCT_COMPARE_PRINTF_FORMAT)
 #define STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_STRUCT_TYPE_VAR TEMPLATE_VAR(STRUCT_COMPARE_TYPE)
 
-#define STRUCT_COMPARE_FUNCTION_SIGNATURE \
-"int cmp_struct_" STRUCT_COMPARE_SECTION_STRUCT_NAME_VAR "( void *currentCall_ptr, void *expectedCall_ptr, const char *paramName, char *errorMessage )"
+#define COMPOSED_TYPED_COMPARE_FUNCTION_SIGNATURE \
+"int cmp_" COMPOSED_TYPED_COMPARE_SECTION_UNIQUE_NAME_VAR "( void *currentCall_ptr, void *expectedCall_ptr, const char *paramName, char *errorMessage )"
 
 #define GENERATE_COMMENT \
 "//------------------- GENERATING '" TEMPLATE_FUNCTION_TO_BE_MOCKED "' -------------------"
@@ -207,14 +230,20 @@ static const char templateText[] =
         "#include <string>" CARRIAGE_RETURN
         "#include <cstring>" CARRIAGE_RETURN
         CARRIAGE_RETURN
+
         FUNCTION_RESET_ALL_MOCK_SIGNATURE ";" CARRIAGE_RETURN
         FUNCTION_VERIFY_ALL_MOCK_SIGNATURE ";" CARRIAGE_RETURN
         CARRIAGE_RETURN
-        TEMPLATE_BEG_SECTION(STRUCT_COMPARE_SECTION)
-        "extern \"C\" " STRUCT_COMPARE_FUNCTION_SIGNATURE CARRIAGE_RETURN
+
+        TEMPLATE_BEG_SECTION(COMPOSED_TYPE_COMPARE_SECTION)
+        "extern \"C\" " COMPOSED_TYPED_COMPARE_FUNCTION_SIGNATURE CARRIAGE_RETURN
         "{" CARRIAGE_RETURN
-        "    " IF_PARAM_LIST(NON_TYPED_DEF_COMPOSED_TYPE_SECTION, NON_TYPED_DEF_COMPOSED_TYPE_VALUE " ") STRUCT_COMPARE_SECTION_STRUCT_NAME_VAR " *currentCall_val = static_cast<" IF_PARAM_LIST(NON_TYPED_DEF_COMPOSED_TYPE_SECTION, NON_TYPED_DEF_COMPOSED_TYPE_VALUE " ") STRUCT_COMPARE_SECTION_STRUCT_NAME_VAR " *>(currentCall_ptr);" CARRIAGE_RETURN
-        "    " IF_PARAM_LIST(NON_TYPED_DEF_COMPOSED_TYPE_SECTION, NON_TYPED_DEF_COMPOSED_TYPE_VALUE " ")STRUCT_COMPARE_SECTION_STRUCT_NAME_VAR " *expectedCall_val = static_cast<" IF_PARAM_LIST(NON_TYPED_DEF_COMPOSED_TYPE_SECTION, NON_TYPED_DEF_COMPOSED_TYPE_VALUE " ") STRUCT_COMPARE_SECTION_STRUCT_NAME_VAR " *>(expectedCall_ptr);" CARRIAGE_RETURN
+
+        "    " TEMPLATE_INCL_SECTION(RECURSIVE_ANONYMOUS_TYPE_DECLARATION_SECTION) CARRIAGE_RETURN
+
+        "    " IF_PARAM_LIST(NON_TYPED_DEF_COMPOSED_TYPE_SECTION, COMPOSED_TYPE_VAR " ") COMPOSED_TYPED_COMPARE_SECTION_DECL_NAME_VAR " *currentCall_val = static_cast<" IF_PARAM_LIST(NON_TYPED_DEF_COMPOSED_TYPE_SECTION, COMPOSED_TYPE_VAR " ") COMPOSED_TYPED_COMPARE_SECTION_DECL_NAME_VAR " *>(currentCall_ptr);" CARRIAGE_RETURN
+        "    " IF_PARAM_LIST(NON_TYPED_DEF_COMPOSED_TYPE_SECTION, COMPOSED_TYPE_VAR " ") COMPOSED_TYPED_COMPARE_SECTION_DECL_NAME_VAR " *expectedCall_val = static_cast<" IF_PARAM_LIST(NON_TYPED_DEF_COMPOSED_TYPE_SECTION, COMPOSED_TYPE_VAR " ") COMPOSED_TYPED_COMPARE_SECTION_DECL_NAME_VAR " *>(expectedCall_ptr);" CARRIAGE_RETURN
+
         TEMPLATE_BEG_SECTION(STRUCT_COMPARE_PARAM_SECTION)
         TEMPLATE_BEG_SECTION(STRUCT_COMPARE_PRE_IF_SECTION)
         "    std::string " TEMPLATE_VAR(STRUCT_COMPARE_PRE_IF_SECTION_VAR_NAME) "(paramName);" CARRIAGE_RETURN
@@ -223,11 +252,12 @@ static const char templateText[] =
         "    if(" STRUCT_COMPARE_PARAM_SECTION_COMPARE_CONDITION_VAR ")" CARRIAGE_RETURN
         "    {" CARRIAGE_RETURN
         TEMPLATE_BEG_SECTION(STRUCT_COMPARE_ERROR)
-        "        snprintf(errorMessage, 256 , \"Parameter '%s' which is a struct of type '" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_STRUCT_TYPE_VAR "' has field '" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_FIELD_VAR "' with value '%" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_PRINTF_FORMAT_VAR "', was expecting '%" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_PRINTF_FORMAT_VAR "'\", paramName, currentCall_val->" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_FIELD_VAR ", expectedCall_val->" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_FIELD_VAR ");" CARRIAGE_RETURN
+        "        snprintf(errorMessage, 256 , \"Parameter '%s' which is a" COMPOSED_TYPE_VAR " of type '" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_STRUCT_TYPE_VAR "' has field '" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_FIELD_VAR "' with value '%" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_PRINTF_FORMAT_VAR "', was expecting '%" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_PRINTF_FORMAT_VAR "'\", paramName, currentCall_val->" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_FIELD_VAR ", expectedCall_val->" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_FIELD_VAR ");" CARRIAGE_RETURN
         TEMPLATE_END_SECTION(STRUCT_COMPARE_ERROR)
         "        return -1;" CARRIAGE_RETURN
         "    }" CARRIAGE_RETURN
         TEMPLATE_END_SECTION(STRUCT_COMPARE_PARAM_SECTION)
+
         TEMPLATE_BEG_SECTION(STRUCT_COMPARE_ARRAY_SECTION)
         "    for(unsigned int idx = 0; idx < (sizeof(currentCall_val->" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_FIELD_VAR ")/sizeof(currentCall_val->" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_FIELD_VAR "[0])); idx++)" CARRIAGE_RETURN
         "    {" CARRIAGE_RETURN
@@ -238,16 +268,18 @@ static const char templateText[] =
         "        if(" STRUCT_COMPARE_PARAM_SECTION_COMPARE_CONDITION_VAR ")" CARRIAGE_RETURN
         "        {" CARRIAGE_RETURN
         TEMPLATE_BEG_SECTION(STRUCT_COMPARE_ERROR)
-        "            snprintf(errorMessage, 256 , \"Parameter '%s' which is a struct of type '" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_STRUCT_TYPE_VAR "' has field array '" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_FIELD_VAR "' " PRINT_CMP_ARRAY_IDX " with value '%" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_PRINTF_FORMAT_VAR "', was expecting '%" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_PRINTF_FORMAT_VAR "'\", paramName" PRINT_CMP_ARRAY_IDX_value ",  currentCall_val->" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_FIELD_VAR ", expectedCall_val->" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_FIELD_VAR ");" CARRIAGE_RETURN
+        "            snprintf(errorMessage, 256 , \"Parameter '%s' which is a" COMPOSED_TYPE_VAR " of type '" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_STRUCT_TYPE_VAR "' has field array '" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_FIELD_VAR "' " PRINT_CMP_ARRAY_IDX " with value '%" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_PRINTF_FORMAT_VAR "', was expecting '%" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_PRINTF_FORMAT_VAR "'\", paramName" PRINT_CMP_ARRAY_IDX_value ",  currentCall_val->" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_FIELD_VAR ", expectedCall_val->" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_FIELD_VAR ");" CARRIAGE_RETURN
         TEMPLATE_END_SECTION(STRUCT_COMPARE_ERROR)
         "            return -1;" CARRIAGE_RETURN
         "        }" CARRIAGE_RETURN
-        "    }"
+        "    }" CARRIAGE_RETURN
         TEMPLATE_END_SECTION(STRUCT_COMPARE_ARRAY_SECTION)
+
         "    return 0;" CARRIAGE_RETURN
         "}" CARRIAGE_RETURN
         CARRIAGE_RETURN
-        TEMPLATE_END_SECTION(STRUCT_COMPARE_SECTION)
+        TEMPLATE_END_SECTION(COMPOSED_TYPE_COMPARE_SECTION)
+
         TEMPLATE_BEG_SECTION(FUNCTION_SECTION)
         GENERATE_COMMENT CARRIAGE_RETURN
         "typedef struct {" CARRIAGE_RETURN
@@ -399,9 +431,9 @@ static const char headerFileTemplate[] =
         "extern \"C\" {" CARRIAGE_RETURN
         "#endif" CARRIAGE_RETURN
         CARRIAGE_RETURN
-        TEMPLATE_BEG_SECTION(STRUCT_COMPARE_SECTION)
-        STRUCT_COMPARE_FUNCTION_SIGNATURE ";" CARRIAGE_RETURN
-        TEMPLATE_END_SECTION(STRUCT_COMPARE_SECTION)
+        TEMPLATE_BEG_SECTION(COMPOSED_TYPE_COMPARE_SECTION)
+        COMPOSED_TYPED_COMPARE_FUNCTION_SIGNATURE ";" CARRIAGE_RETURN
+        TEMPLATE_END_SECTION(COMPOSED_TYPE_COMPARE_SECTION)
         TEMPLATE_BEG_SECTION(FUNCTION_SECTION)
         "//------------------- GENERATING '" TEMPLATE_FUNCTION_TO_BE_MOCKED "' -------------------" CARRIAGE_RETURN
         FUNCTION_EXPECT_AND_RETURN_SIGNATURE ";" CARRIAGE_RETURN
@@ -413,6 +445,18 @@ static const char headerFileTemplate[] =
         "}" CARRIAGE_RETURN
         "#endif" CARRIAGE_RETURN
         "#endif" CARRIAGE_RETURN;
+
+static const char declareAnonymousComposableTypeTemplate[] =
+        "typedef " RECURSIVE_ANONYMOUS_TYPE_DECLARATION_TYPE_VAR CARRIAGE_RETURN
+        "{" CARRIAGE_RETURN
+        "    " TEMPLATE_INCL_SECTION(RECURSIVE_ANONYMOUS_TYPE_DECLARATION_FIELD_SECTION) CARRIAGE_RETURN
+        "} " RECURSIVE_ANONYMOUS_TYPE_DECLARATION_NAME_VAR ";" CARRIAGE_RETURN;
+
+static const char declareAnonymousComposableTypeFieldTemplate[] =
+        TEMPLATE_BEG_SECTION(ANONYMOUS_TYPE_DECLARATION_FIELD_SECTION)
+        ANONYMOUS_TYPE_DECLARATION_FIELD_TYPE_VAR " " ANONYMOUS_TYPE_DECLARATION_FIELD_NAME_VAR ";" CARRIAGE_RETURN
+        TEMPLATE_END_SECTION(ANONYMOUS_TYPE_DECLARATION_FIELD_SECTION)
+        TEMPLATE_INCL_SECTION(RECURSIVE_ANONYMOUS_TYPE_DECLARATION_SECTION) CARRIAGE_RETURN;
 
 CodeGeneratorCTemplate::CodeGeneratorCTemplate()
 {
@@ -427,18 +471,20 @@ bool CodeGeneratorCTemplate::generateCode(const std::string& p_outDir, const std
   std::string filenameToMock = boost::filesystem::path(p_fullPathToHeaderToMock).filename().string();
   fillInTemplateVariables(&dict, filenameToMock, p_elem);
 
-  ctemplate::StringToTemplateCache("programTemplate", templateText, ctemplate::DO_NOT_STRIP);
-  ctemplate::StringToTemplateCache("headerTemplate", headerFileTemplate, ctemplate::DO_NOT_STRIP);
+  ctemplate::StringToTemplateCache(CFILE_TEMPLATE, templateText, ctemplate::DO_NOT_STRIP);
+  ctemplate::StringToTemplateCache(HFILE_TEMPLATE, headerFileTemplate, ctemplate::DO_NOT_STRIP);
+  ctemplate::StringToTemplateCache(RECURSIVE_ANONYMOUS_TYPE_DECLARATION_TEMPLATE_NAME, declareAnonymousComposableTypeTemplate, ctemplate::DO_NOT_STRIP);
+  ctemplate::StringToTemplateCache(RECURSIVE_ANONYMOUS_TYPE_DECLARATION_TEMPLATE_FIELD_NAME, declareAnonymousComposableTypeFieldTemplate, ctemplate::DO_NOT_STRIP);
 
   std::string generatedCode;
-  ctemplate::ExpandTemplate("programTemplate", ctemplate::DO_NOT_STRIP, &dict, &generatedCode);
+  ctemplate::ExpandTemplate(CFILE_TEMPLATE, ctemplate::DO_NOT_STRIP, &dict, &generatedCode);
   if (!generateCodeToFile(p_outDir, filenameToMock, "cpp", generatedCode))
   {
     return false;
   }
 
   generatedCode.clear();
-  ctemplate::ExpandTemplate("headerTemplate", ctemplate::DO_NOT_STRIP, &dict, &generatedCode);
+  ctemplate::ExpandTemplate(HFILE_TEMPLATE, ctemplate::DO_NOT_STRIP, &dict, &generatedCode);
   if (!generateCodeToFile(p_outDir, filenameToMock, "h", generatedCode))
   {
     return false;
@@ -504,15 +550,11 @@ void CodeGeneratorCTemplate::generateFunctionParamSection(ctemplate::TemplateDic
     ctemplate::TemplateDictionary* newTypedefParamSection = p_functionSectionDict->AddSectionDictionary(FUNCTION_PARAM_SECTION);
     const Parameter *fParam = *it;
     std::string argType = getDeclaratorString(fParam);
-    if(fParam->getType()->isStruct())
+    if(fParam->getType()->isStruct() || fParam->getType()->isUnion())
     {
-      const std::string &structTypeName = fParam->getTypeName();
-      //Generate each structs only once
-      if(m_generatedStructs.find(structTypeName) == m_generatedStructs.end())
-      {
-        generateStructCompareSection(p_rootDictionnary, dynamic_cast<const StructType*>(fParam->getType()));
-        m_generatedStructs.insert(structTypeName);
-      }
+      std::string prepend("");
+      std::string declare("");
+      generateComposedTypedCompareSection(p_rootDictionnary, dynamic_cast<const ComposableType*>(fParam->getType()), prepend, declare);
     }
     newTypedefParamSection->SetValue(FUNCTION_PARAM_TYPE, argType);
     newTypedefParamSection->SetValue(FUNCTION_PARAM_NAME, fParam->getName());
@@ -568,26 +610,31 @@ extern "C" int cmp_struct_{{STRUCT_NAME}} ( void *currentCall_ptr, void *expecte
 {{END_STRUCT_COMPARE_SECTION}}
  */
 
-void CodeGeneratorCTemplate::generateBodyStructCompare(ctemplate::TemplateDictionary *p_rootDictionnary, ctemplate::TemplateDictionary *p_paramSectDict, const StructType *p_structType, const ComposableField *p_curField)
+void CodeGeneratorCTemplate::generateBodyStructCompare(ctemplate::TemplateDictionary *rootDictionnary, ctemplate::TemplateDictionary *p_paramSectDict, const ComposableType *p_composedType, const ComposableField *p_curField, std::string p_uniquePrepend, std::string p_declPrepend)
 {
   const TypeItf *curType = p_curField->getType();
-  if(curType->isStruct())
+  if(curType->isComposableType())
   {
+    const ComposableType* curComposableType = dynamic_cast<const ComposableType*>(curType);
     if(p_curField->isRecursiveTypeField())
     {
       //Recursive types are pointers, so simple field generation will do
-      generateBasicTypeField(p_curField, p_paramSectDict, p_structType);
+      generateBasicTypeField(p_curField, p_paramSectDict, p_composedType, p_declPrepend);
     }
     else
     {
       std::string condition;
       ctemplate::TemplateDictionary *ifPreSectionDict = p_paramSectDict->AddSectionDictionary(STRUCT_COMPARE_PRE_IF_SECTION);
+      std::string uniqueName = curComposableType->getUniqueName();
+
       std::string preFieldVarName(p_curField->getName());
       preFieldVarName.append("_parameter");
       ifPreSectionDict->SetValue(STRUCT_COMPARE_PRE_IF_SECTION_VAR_NAME, preFieldVarName.c_str());
       ifPreSectionDict->SetValue(STRUCT_COMPARE_PRE_IF_SECTION_FIELD_NAME, p_curField->getName());
-      condition.append("cmp_struct_");
-      condition.append(curType->getName());
+      condition.append("cmp_");
+      condition.append(p_uniquePrepend);
+      condition.push_back('_');
+      condition.append(uniqueName);
       condition.append("(&currentCall_val->");
       condition.append(p_curField->getName());
       if(p_curField->isBoundSpecifiedArray())
@@ -604,18 +651,22 @@ void CodeGeneratorCTemplate::generateBodyStructCompare(ctemplate::TemplateDictio
       condition.append(", ");
       condition.append(preFieldVarName.c_str());
       condition.append(".c_str(), errorMessage)");
-      generateStructCompareSection(p_rootDictionnary, dynamic_cast<const StructType*>(curType));
+
+      p_uniquePrepend.append("_");
+      p_declPrepend.append("::");
+      generateComposedTypedCompareSection(rootDictionnary, curComposableType, p_uniquePrepend, p_declPrepend);
+
       p_paramSectDict->SetValue(COMPARE_CONDITION, condition);
     }
   } else if (curType->isCType()) {
-    generateBasicTypeField(p_curField, p_paramSectDict, p_structType);
+    generateBasicTypeField(p_curField, p_paramSectDict, p_composedType, p_declPrepend);
   } else {
     std::fprintf(stderr, "Type '%s' unexpected here. Contact owner for bug fixing\n\r", curType->getFullDeclarationName().c_str());
     assert(false);
   }
 }
 
-void CodeGeneratorCTemplate::generateBasicTypeField(const ComposableField *p_curField, ctemplate::TemplateDictionary *p_paramSectDict, const StructType *p_structType)
+void CodeGeneratorCTemplate::generateBasicTypeField(const ComposableField *p_curField, ctemplate::TemplateDictionary *p_paramSectDict, const ComposableType *p_composedType, std::string p_declPrepend)
 {
   std::string condition;
   condition.append("currentCall_val->");
@@ -638,7 +689,20 @@ void CodeGeneratorCTemplate::generateBasicTypeField(const ComposableField *p_cur
     compareField.append("[idx]");
   }
   errorDict->SetValue(STRUCT_COMPARE_FIELD, compareField);
-  errorDict->SetValue(STRUCT_COMPARE_TYPE, p_structType->getName());
+  std::string compareType;
+  if(!p_composedType->isEmbeddedInOtherType())
+  {
+    compareType.append(p_composedType->getMostDefinedName());
+  }
+  else
+  {
+    compareType.append(p_declPrepend);
+    if(p_composedType->isAnonymous())
+    {
+      compareType.append("<anonymous>");
+    }
+  }
+  errorDict->SetValue(STRUCT_COMPARE_TYPE, compareType);
   if(p_curField->isPointer())
   {
     errorDict->SetValue(STRUCT_COMPARE_PRINTF_FORMAT, "p");
@@ -651,20 +715,105 @@ void CodeGeneratorCTemplate::generateBasicTypeField(const ComposableField *p_cur
   p_paramSectDict->SetValue(COMPARE_CONDITION, condition);
 }
 
-void CodeGeneratorCTemplate::generateStructCompareSection(ctemplate::TemplateDictionary *p_rootDictionnary, const StructType *p_structType)
+void CodeGeneratorCTemplate::generateDeclarationOfAnonymousType(ctemplate::TemplateDictionary* p_compareDict, const ComposableType* p_composedType)
 {
-  ctemplate::TemplateDictionary *compareDict = p_rootDictionnary->AddSectionDictionary(STRUCT_COMPARE_SECTION);
-  if(p_structType->isTypedDef())
+  ctemplate::TemplateDictionary *anonymousDeclDict = p_compareDict->AddIncludeDictionary(RECURSIVE_ANONYMOUS_TYPE_DECLARATION_SECTION);
+  anonymousDeclDict->SetFilename(RECURSIVE_ANONYMOUS_TYPE_DECLARATION_TEMPLATE_NAME);
+
+  std::string typeVar("");
+  if(p_composedType->isStruct())
   {
-    compareDict->SetValue(STRUCT_NAME, p_structType->getTypedDefName());
+    typeVar.append("struct");
+  }
+  else if(p_composedType->isUnion())
+  {
+    typeVar.append("union");
   }
   else
   {
-    ctemplate::TemplateDictionary *nonTypedDefCompTypeSec = compareDict->AddSectionDictionary(NON_TYPED_DEF_COMPOSED_TYPE_SECTION);
-    nonTypedDefCompTypeSec->SetValue(NON_TYPED_DEF_COMPOSED_TYPE_VAR,"struct");
-    compareDict->SetValue(STRUCT_NAME, p_structType->getName());
+    fprintf(stderr, "Declaration string unknown composable type\n\r");
+    assert(false);
   }
-  const ComposableField::Vector& vectField = p_structType->getContainedFields();
+  anonymousDeclDict->SetValue(RECURSIVE_ANONYMOUS_TYPE_DECLARATION_TYPE_TEMPLATE_VAR, typeVar);
+  anonymousDeclDict->SetValue(RECURSIVE_ANONYMOUS_TYPE_DECLARATION_NAME_TEMPLATE_VAR, p_composedType->getUniqueName());
+
+  const ComposableField::Vector& vectField = p_composedType->getContainedFields();
+  for (ComposableField::Vector::const_iterator it = vectField.begin(); it != vectField.end(); ++it)
+  {
+    ctemplate::TemplateDictionary *curFieldDict = anonymousDeclDict->AddIncludeDictionary(RECURSIVE_ANONYMOUS_TYPE_DECLARATION_FIELD_SECTION);
+    curFieldDict->SetFilename(RECURSIVE_ANONYMOUS_TYPE_DECLARATION_TEMPLATE_FIELD_NAME);
+    const ComposableField *curField = *it;
+    const TypeItf* fieldType = curField->getType();
+
+    if(fieldType->isComposableType())
+    {
+      generateDeclarationOfAnonymousType(curFieldDict, dynamic_cast<const ComposableType*>(fieldType));
+    }
+    else
+    {
+      ctemplate::TemplateDictionary *curFieldValDict = curFieldDict->AddSectionDictionary(ANONYMOUS_TYPE_DECLARATION_FIELD_SECTION);
+      curFieldValDict->SetFormattedValue(ANONYMOUS_TYPE_DECLARATION_FIELD_TYPE_TEMPLATE_VAR, "%s%s", fieldType->getName().c_str(), curField->isPointer() ? "*" : "");
+      curFieldValDict->SetValue(ANONYMOUS_TYPE_DECLARATION_FIELD_NAME_TEMPLATE_VAR, curField->getName());
+    }
+  }
+}
+
+void CodeGeneratorCTemplate::generateComposedTypedCompareSection(ctemplate::TemplateDictionary *p_rootDictionnary, const ComposableType *p_composedType, std::string p_uniquePrepend, std::string p_declPrepend)
+{
+  const std::string& uniqueName = p_composedType->getUniqueName();
+  const std::string& mostDefinedName = p_composedType->getMostDefinedName();
+
+  //Generate each comparator only once.
+  if(m_generatedStructs.find(p_uniquePrepend) != m_generatedStructs.end())
+  {
+    return;
+  }
+
+  p_uniquePrepend.append(uniqueName);
+
+  p_declPrepend.append(mostDefinedName);
+
+  ctemplate::TemplateDictionary *compareDict = p_rootDictionnary->AddSectionDictionary(COMPOSED_TYPE_COMPARE_SECTION);
+
+  //Take care of generating the declaration of the anonymous type within the scope of the compare function
+  if(p_composedType->isAnonymous())
+  {
+    generateDeclarationOfAnonymousType(compareDict, p_composedType);
+  }
+
+  if(p_composedType->isStruct())
+  {
+    //The space before struct is needed
+    compareDict->SetValue(COMPOSED_TYPE_TEMPLATE_VAR, " struct");
+  }
+  else if(p_composedType->isUnion())
+  {
+    //Weird value but we want 'an union' iso 'a union'
+    compareDict->SetValue(COMPOSED_TYPE_TEMPLATE_VAR, "n union");
+  }
+  else
+  {
+    fprintf(stderr, "Unknown composed type given\n\r");
+    assert(false);
+  }
+
+  std::string declarationString;
+  if(p_composedType->isAnonymous())
+  {
+    declarationString.append(p_composedType->getUniqueName());
+  }
+  else if(!p_composedType->isEmbeddedInOtherType())
+  {
+    declarationString.append(p_composedType->getFullDeclarationName());
+  }
+  else
+  {
+    declarationString.append(p_declPrepend);
+  }
+  compareDict->SetValue(COMPOSED_TYPED_DECL_STRING, declarationString);
+  compareDict->SetValue(COMPOSED_TYPED_UNIQUE_NAME, p_uniquePrepend);
+
+  const ComposableField::Vector& vectField = p_composedType->getContainedFields();
   for (ComposableField::Vector::const_iterator it = vectField.begin(); it != vectField.end(); ++it)
   {
     const ComposableField *curField = *it;
@@ -672,15 +821,17 @@ void CodeGeneratorCTemplate::generateStructCompareSection(ctemplate::TemplateDic
     {
       ctemplate::TemplateDictionary *arrayParamSect = compareDict->AddSectionDictionary(STRUCT_COMPARE_ARRAY_SECTION);
       arrayParamSect->SetValue(STRUCT_COMPARE_FIELD, curField->getName());
-      generateBodyStructCompare(p_rootDictionnary, arrayParamSect, p_structType, curField);
+      generateBodyStructCompare(p_rootDictionnary, arrayParamSect, p_composedType, curField, p_uniquePrepend, p_declPrepend);
     }
     else
     {
       if(!curField->isUnboundSpecifiedArray())
       {
+        //simple variable case
         ctemplate::TemplateDictionary *paramSectDict = compareDict->AddSectionDictionary(STRUCT_COMPARE_PARAM_SECTION);
-        generateBodyStructCompare(p_rootDictionnary, paramSectDict, p_structType, curField);
+        generateBodyStructCompare(p_rootDictionnary, paramSectDict, p_composedType, curField, p_uniquePrepend, p_declPrepend);
       }
+      //else {???} Since we do not know the how many element is in the array, we cannot generate any code for it
     }
   }
 }

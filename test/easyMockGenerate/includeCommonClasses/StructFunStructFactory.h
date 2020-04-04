@@ -6,10 +6,6 @@
 #include <structFunStruct.h>
 #include <iostream>
 
-typedef struct s1 (*structFunStruct_funPtr)(struct s2);
-typedef void (*structFunStruct_funExpectPtr)(struct s2 a, struct s1 rv, EasyMock_Matcher match_a);
-typedef int (*structFunStruct_funMatcherPtr)(EASYMOCK_MATCHER_PARAM);
-
 class StructFunStructFactory : public FunctionFactory<s1, std::tuple<s2>, std::tuple<EasyMock_Matcher>>
 {
 public:

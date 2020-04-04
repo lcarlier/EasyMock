@@ -67,8 +67,16 @@ void IntFunIntIntFactory::setupTestCase(EasyMockTestCase::TestCase tc)
       m_params.push_back(std::make_tuple(8, 8)); //Second call fails
       m_compare.push_back(std::make_tuple(&cmp_int, &cmp_int));
       break;
-    case EasyMockTestCase::NoExpect:
     case EasyMockTestCase::NotEnoughCall:
+      for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::NotEnoughCall_NbExpects; expectIdx++)
+      {
+        m_rv.push_back(5);
+        m_expects.push_back(std::make_tuple(6, 7));
+        m_params.push_back(std::make_tuple(6, 7));
+        m_compare.push_back(std::make_tuple(&cmp_int, &cmp_int));
+      }
+      break;
+    case EasyMockTestCase::NoExpect:
       break;
   }
 }

@@ -15,7 +15,7 @@ class voidFunStrucWithArray_testCase : public genGenerate_testCase<VoidFunStruct
 public:
   voidFunStrucWithArray_testCase() : genGenerate_testCase<VoidFunStructWithArrayFactory>()
   {
-    setStructTypeToMatch("structWithArray");
+    setComparatorToMatch("cmp_struct_structWithArray");
   }
 };
 
