@@ -16,12 +16,14 @@ private:
   void generateFunctionSection(ctemplate::TemplateDictionary *rootDictionnary, const ElementToMock *f);
   void generateFunctionParamSection(ctemplate::TemplateDictionary *rootDictionnary, ctemplate::TemplateDictionary *dict, const Parameter::Vector& functionParam);
   //p_uniquePrepend and p_declPrepend must never become a reference because the string appended in recursive calls must reverted when the recursive call returns
-  void generateBodyStructCompare(ctemplate::TemplateDictionary *rootDictionnary, ctemplate::TemplateDictionary *paramSectDict, const ComposableType *p_structType, const ComposableField *curField, std::string p_uniquePrepend, std::string p_declPrepend);
+  void generateBodyStructCompare(ctemplate::TemplateDictionary *rootDictionnary, ctemplate::TemplateDictionary *paramSectDict, const ComposableType *p_structType, const ComposableField *p_curField, const ComposableField *p_previousField, std::string p_uniquePrepend, std::string p_declPrepend);
   void generateComposedTypedCompareSection(ctemplate::TemplateDictionary *rootDictionnary, const ComposableType *p_composedType, std::string p_uniquePrepend, std::string p_declPrepend);
   void generateDeclarationOfAnonymousType(ctemplate::TemplateDictionary *compareDir, const ComposableType *p_composedType);
   bool generateCodeToFile(const std::string &outDir, const std::string &filename, const std::string &extension, const std::string &generatedCode);
   std::string getDeclaratorString(const Declarator* decl);
   void generateBasicTypeField(const ComposableField *curField, ctemplate::TemplateDictionary *paramSectDict, const ComposableType *p_composedType, std::string p_declPrepend);
+
+  void generateFieldCmp(std::string &p_condition, const ComposableType *p_composedType, const ComposableField *p_curField, const ComposableField *p_previousField, std::string p_varName);
 
   std::unordered_set<std::string> m_generatedStructs;
 };

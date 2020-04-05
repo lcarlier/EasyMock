@@ -11,6 +11,8 @@
 template<class T>
 static void printComposableTypeToOstream(std::ostream& os, const T& composableType, std::string classname);
 
+static std::string gs_indentation;
+
 std::ostream& operator<<(std::ostream& os, const Function& fun) {
   os << std::endl << "funPrototype: " << fun.getFunctionPrototype() << std::endl;
 
@@ -52,7 +54,7 @@ std::ostream& operator<<(std::ostream& os, const TypeItf& typeItf)
 
 std::ostream& operator<<(std::ostream& os, const CType& ctype)
 {
-  return os << "Ctype: " << ctype.getName();
+  return os << "Ctype: " << ctype.getName() << std::endl;
 }
 
 std::ostream& operator<<(std::ostream& os, const StructType& structType)
@@ -64,7 +66,9 @@ std::ostream& operator<<(std::ostream& os, const StructType& structType)
 std::ostream& operator<<(std::ostream& os, const Parameter& param)
 {
   os << "Parameter name: " << param.getName() << std::endl;
-  os << "\t" << *param.getType();
+  gs_indentation.push_back('\t');
+  os << gs_indentation << *param.getType();
+  gs_indentation.pop_back();
 
   return os;
 }
@@ -76,7 +80,10 @@ std::ostream& operator<<(std::ostream& os, const ComposableField& composableFiel
   os << "isRecursive: " << (composableField.isRecursiveTypeField() ? "yes" : " no") << ", ";
   os << "isPointer: " << (composableField.isPointer() ? "yes" : " no") << ", ";
   os << "type: " << std::endl;
-  os << "\t\t\t" << *composableField.getType() << ")END ComposableField " << composableField.getName();
+  gs_indentation.push_back('\t');
+  os << gs_indentation << *composableField.getType();
+  gs_indentation.pop_back();
+  os << gs_indentation << ")END ComposableField '" << composableField.getName() << "'";
   return os;
 }
 
@@ -103,6 +110,8 @@ static void printComposableTypeToOstream(std::ostream& os, const T& composableTy
   for(fieldIdx = 0; fieldIdx < nbFields; fieldIdx++)
   {
     const ComposableField& curField = structFields[fieldIdx];
-    os << "\t\tField: " << fieldIdx << ": " << curField << std::endl;
+    gs_indentation.push_back('\t');
+    os << gs_indentation << "Field: " << fieldIdx << ": " << curField << std::endl;
+    gs_indentation.pop_back();
   }
 }

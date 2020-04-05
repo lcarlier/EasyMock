@@ -155,6 +155,11 @@ bool ComposableField::isUnboundSpecifiedArray() const
   return m_isArray && m_arraySize == 0;
 }
 
+bool ComposableField::isAnonymous() const
+{
+  return m_name.empty();
+}
+
 bool ComposableField::setArray(bool value)
 {
   m_isArray = value;

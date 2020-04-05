@@ -1,8 +1,8 @@
-#include "VoidFunStructWithAnonymousStructFieldFactory.h"
+#include <VoidFunStructWithFirstAnonymousStructFieldFactory.h>
 
 #include <StructType.h>
 
-Function VoidFunStructWithAnonymousStructFieldFactory::functionFactory()
+Function VoidFunStructWithFirstAnonymousStructFieldFactory::functionFactory()
 {
   const unsigned int NB_ANONYMOUS_TYPE_IN_THIS_UT = 1;
   /*
@@ -13,61 +13,61 @@ Function VoidFunStructWithAnonymousStructFieldFactory::functionFactory()
    */
   ComposableType::m_number_of_anonymous_composable_type -= NB_ANONYMOUS_TYPE_IN_THIS_UT;
   bool isEmbeddedStruct = true;
-  StructType* top = new StructType("topAnonymousStructField", !isEmbeddedStruct); //NOT EMBEDDED
-  top->addStructField(new ComposableField(CTYPE_INT, "a"));
+  StructType* top = new StructType("topAnonymousFirstStructField", !isEmbeddedStruct); //NOT EMBEDDED
   StructType* beingDefined = new StructType("", isEmbeddedStruct);
   beingDefined->addStructField(new ComposableField(CTYPE_INT, "s1"));
   beingDefined->addStructField(new ComposableField(CTYPE_FLOAT, "s2"));
   top->addStructField(new ComposableField(beingDefined, ""));
+  top->addStructField(new ComposableField(CTYPE_INT, "a"));
   Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), Parameter::Vector({new Parameter(top, "t")}));
 
   return f;
 }
 
-Function* VoidFunStructWithAnonymousStructFieldFactory::newFunctionFactory()
+Function* VoidFunStructWithFirstAnonymousStructFieldFactory::newFunctionFactory()
 {
   return functionFactory().clone();
 }
 
 
-std::string VoidFunStructWithAnonymousStructFieldFactory::functionGetFunctionName()
+std::string VoidFunStructWithFirstAnonymousStructFieldFactory::functionGetFunctionName()
 {
-  return std::string("voidFunStructWithAnonymousStructField");
+  return std::string("voidFunStructWithFirstAnonymousStructField");
 }
 
-std::string VoidFunStructWithAnonymousStructFieldFactory::getFilename()
+std::string VoidFunStructWithFirstAnonymousStructFieldFactory::getFilename()
 {
-   return "voidFunStructWithAnonymousStructField.h";
+   return "voidFunStructWithFirstAnonymousStructField.h";
 }
 
-std::string VoidFunStructWithAnonymousStructFieldFactory::getMatcherFunctionName()
+std::string VoidFunStructWithFirstAnonymousStructFieldFactory::getMatcherFunctionName()
 {
-  return "cmp_struct_topAnonymousStructField";
+  return "cmp_struct_topAnonymousFirstStructField";
 }
 
-std::string VoidFunStructWithAnonymousStructFieldFactory::getFieldWrongName()
+std::string VoidFunStructWithFirstAnonymousStructFieldFactory::getFieldWrongName()
 {
   return "t";
 }
 
-std::string VoidFunStructWithAnonymousStructFieldFactory::getSubFieldWrongName()
+std::string VoidFunStructWithFirstAnonymousStructFieldFactory::getSubFieldWrongName()
 {
   return "s2";
 }
 
-std::string VoidFunStructWithAnonymousStructFieldFactory::getSubFieldWrongTypeName()
+std::string VoidFunStructWithFirstAnonymousStructFieldFactory::getSubFieldWrongTypeName()
 {
-  return "topAnonymousStructField::<anonymous>";
+  return "topAnonymousFirstStructField::<anonymous>";
 }
 
-std::string VoidFunStructWithAnonymousStructFieldFactory::getSubComposableTypeType()
+std::string VoidFunStructWithFirstAnonymousStructFieldFactory::getSubComposableTypeType()
 {
   return " struct";
 }
 
-void VoidFunStructWithAnonymousStructFieldFactory::setupTestCase(EasyMockTestCase::TestCase tc)
+void VoidFunStructWithFirstAnonymousStructFieldFactory::setupTestCase(EasyMockTestCase::TestCase tc)
 {
-  struct topAnonymousStructField aToExpect;
+  struct topAnonymousFirstStructField aToExpect;
 
   aToExpect.a = 42;
   aToExpect.s1 = 42;

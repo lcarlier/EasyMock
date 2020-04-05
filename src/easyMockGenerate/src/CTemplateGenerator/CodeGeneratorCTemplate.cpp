@@ -247,7 +247,7 @@ static const char templateText[] =
         TEMPLATE_BEG_SECTION(STRUCT_COMPARE_PARAM_SECTION)
         TEMPLATE_BEG_SECTION(STRUCT_COMPARE_PRE_IF_SECTION)
         "    std::string " TEMPLATE_VAR(STRUCT_COMPARE_PRE_IF_SECTION_VAR_NAME) "(paramName);" CARRIAGE_RETURN
-        "    " TEMPLATE_VAR(STRUCT_COMPARE_PRE_IF_SECTION_VAR_NAME) ".append(\"." TEMPLATE_VAR(STRUCT_COMPARE_PRE_IF_SECTION_FIELD_NAME) "\");" CARRIAGE_RETURN
+        "    " TEMPLATE_VAR(STRUCT_COMPARE_PRE_IF_SECTION_VAR_NAME) ".append(\"" TEMPLATE_VAR(STRUCT_COMPARE_PRE_IF_SECTION_FIELD_NAME) "\");" CARRIAGE_RETURN
         TEMPLATE_END_SECTION(STRUCT_COMPARE_PRE_IF_SECTION)
         "    if(" STRUCT_COMPARE_PARAM_SECTION_COMPARE_CONDITION_VAR ")" CARRIAGE_RETURN
         "    {" CARRIAGE_RETURN
@@ -263,7 +263,7 @@ static const char templateText[] =
         "    {" CARRIAGE_RETURN
         TEMPLATE_BEG_SECTION(STRUCT_COMPARE_PRE_IF_SECTION)
         "        std::string " TEMPLATE_VAR(STRUCT_COMPARE_PRE_IF_SECTION_VAR_NAME) "(paramName);" CARRIAGE_RETURN
-        "        " TEMPLATE_VAR(STRUCT_COMPARE_PRE_IF_SECTION_VAR_NAME) ".append(\"." TEMPLATE_VAR(STRUCT_COMPARE_PRE_IF_SECTION_FIELD_NAME) "\");" CARRIAGE_RETURN
+        "        " TEMPLATE_VAR(STRUCT_COMPARE_PRE_IF_SECTION_VAR_NAME) ".append(\"" TEMPLATE_VAR(STRUCT_COMPARE_PRE_IF_SECTION_FIELD_NAME) "\");" CARRIAGE_RETURN
         TEMPLATE_END_SECTION(STRUCT_COMPARE_PRE_IF_SECTION)
         "        if(" STRUCT_COMPARE_PARAM_SECTION_COMPARE_CONDITION_VAR ")" CARRIAGE_RETURN
         "        {" CARRIAGE_RETURN
@@ -450,13 +450,13 @@ static const char declareAnonymousComposableTypeTemplate[] =
         "typedef " RECURSIVE_ANONYMOUS_TYPE_DECLARATION_TYPE_VAR CARRIAGE_RETURN
         "{" CARRIAGE_RETURN
         "    " TEMPLATE_INCL_SECTION(RECURSIVE_ANONYMOUS_TYPE_DECLARATION_FIELD_SECTION) CARRIAGE_RETURN
-        "} " RECURSIVE_ANONYMOUS_TYPE_DECLARATION_NAME_VAR ";" CARRIAGE_RETURN;
+        "} " RECURSIVE_ANONYMOUS_TYPE_DECLARATION_NAME_VAR ";";
 
 static const char declareAnonymousComposableTypeFieldTemplate[] =
         TEMPLATE_BEG_SECTION(ANONYMOUS_TYPE_DECLARATION_FIELD_SECTION)
         ANONYMOUS_TYPE_DECLARATION_FIELD_TYPE_VAR " " ANONYMOUS_TYPE_DECLARATION_FIELD_NAME_VAR ";" CARRIAGE_RETURN
         TEMPLATE_END_SECTION(ANONYMOUS_TYPE_DECLARATION_FIELD_SECTION)
-        TEMPLATE_INCL_SECTION(RECURSIVE_ANONYMOUS_TYPE_DECLARATION_SECTION) CARRIAGE_RETURN;
+        TEMPLATE_INCL_SECTION(RECURSIVE_ANONYMOUS_TYPE_DECLARATION_SECTION);
 
 CodeGeneratorCTemplate::CodeGeneratorCTemplate()
 {
@@ -610,8 +610,54 @@ extern "C" int cmp_struct_{{STRUCT_NAME}} ( void *currentCall_ptr, void *expecte
 {{END_STRUCT_COMPARE_SECTION}}
  */
 
-void CodeGeneratorCTemplate::generateBodyStructCompare(ctemplate::TemplateDictionary *rootDictionnary, ctemplate::TemplateDictionary *p_paramSectDict, const ComposableType *p_composedType, const ComposableField *p_curField, std::string p_uniquePrepend, std::string p_declPrepend)
+void CodeGeneratorCTemplate::generateFieldCmp(std::string& p_condition, const ComposableType *p_composedType, const ComposableField *p_curField, const ComposableField *p_previousField, std::string p_varName)
 {
+  if(p_curField->isAnonymous())
+  {
+    if(p_previousField)
+    {
+      p_condition.append("(char*)&");
+      p_condition.append(p_varName);
+      p_condition.append("->");
+      p_condition.append(p_previousField->getName());
+      /*
+       * If the parent composable type is an union, we do not need to add sizeof
+       * because all of the elements of the union have the same base address
+       */
+      if(!p_composedType->isUnion())
+      {
+        p_condition.append(" + sizeof(");
+        p_condition.append(p_varName);
+        p_condition.append("->");
+        p_condition.append(p_previousField->getName());
+        p_condition.append(")");
+      }
+    }
+    else
+    {
+      /*
+       * This anonymous composable type is the first field of the parent
+       * composable type, so we just give the pointer as is
+       */
+      p_condition.append(p_varName);
+    }
+  }
+  else
+  {
+    p_condition.push_back('&');
+    p_condition.append(p_varName);
+    p_condition.append("->");
+    p_condition.append(p_curField->getName());
+  }
+  if(p_curField->isBoundSpecifiedArray())
+  {
+    p_condition.append("[idx]");
+  }
+}
+
+void CodeGeneratorCTemplate::generateBodyStructCompare(ctemplate::TemplateDictionary *rootDictionnary, ctemplate::TemplateDictionary *p_paramSectDict, const ComposableType *p_composedType, const ComposableField *p_curField, const ComposableField *p_previousField, std::string p_uniquePrepend, std::string p_declPrepend)
+{
+  static unsigned int s_nbAnonymousField = 0;
   const TypeItf *curType = p_curField->getType();
   if(curType->isComposableType())
   {
@@ -627,32 +673,35 @@ void CodeGeneratorCTemplate::generateBodyStructCompare(ctemplate::TemplateDictio
       ctemplate::TemplateDictionary *ifPreSectionDict = p_paramSectDict->AddSectionDictionary(STRUCT_COMPARE_PRE_IF_SECTION);
       std::string uniqueName = curComposableType->getUniqueName();
 
-      std::string preFieldVarName(p_curField->getName());
-      preFieldVarName.append("_parameter");
+      std::string preFieldVarName("");
+      if(p_curField->isAnonymous())
+      {
+        preFieldVarName.append("parameter_");
+        preFieldVarName.append(std::to_string(s_nbAnonymousField));
+        s_nbAnonymousField++;
+      }
+      else
+      {
+        preFieldVarName.append(p_curField->getName());
+        preFieldVarName.append("_parameter");
+        std::string ifSectionFieldName(".");
+        ifSectionFieldName.append(p_curField->getName());
+        ifPreSectionDict->SetValue(STRUCT_COMPARE_PRE_IF_SECTION_FIELD_NAME, ifSectionFieldName);
+      }
       ifPreSectionDict->SetValue(STRUCT_COMPARE_PRE_IF_SECTION_VAR_NAME, preFieldVarName.c_str());
-      ifPreSectionDict->SetValue(STRUCT_COMPARE_PRE_IF_SECTION_FIELD_NAME, p_curField->getName());
       condition.append("cmp_");
       condition.append(p_uniquePrepend);
       condition.push_back('_');
       condition.append(uniqueName);
-      condition.append("(&currentCall_val->");
-      condition.append(p_curField->getName());
-      if(p_curField->isBoundSpecifiedArray())
-      {
-        condition.append("[idx]");
-      }
+      condition.push_back('(');
+      generateFieldCmp(condition, p_composedType, p_curField, p_previousField, "currentCall_val");
       condition.append(", ");
-      condition.append("&expectedCall_val->");
-      condition.append(p_curField->getName());
-      if(p_curField->isBoundSpecifiedArray())
-      {
-        condition.append("[idx]");
-      }
+      generateFieldCmp(condition, p_composedType, p_curField, p_previousField, "expectedCall_val");
       condition.append(", ");
       condition.append(preFieldVarName.c_str());
       condition.append(".c_str(), errorMessage)");
 
-      p_uniquePrepend.append("_");
+      p_uniquePrepend.push_back('_');
       p_declPrepend.append("::");
       generateComposedTypedCompareSection(rootDictionnary, curComposableType, p_uniquePrepend, p_declPrepend);
 
@@ -814,6 +863,7 @@ void CodeGeneratorCTemplate::generateComposedTypedCompareSection(ctemplate::Temp
   compareDict->SetValue(COMPOSED_TYPED_UNIQUE_NAME, p_uniquePrepend);
 
   const ComposableField::Vector& vectField = p_composedType->getContainedFields();
+  const ComposableField *prevField = nullptr;
   for (ComposableField::Vector::const_iterator it = vectField.begin(); it != vectField.end(); ++it)
   {
     const ComposableField *curField = *it;
@@ -821,7 +871,7 @@ void CodeGeneratorCTemplate::generateComposedTypedCompareSection(ctemplate::Temp
     {
       ctemplate::TemplateDictionary *arrayParamSect = compareDict->AddSectionDictionary(STRUCT_COMPARE_ARRAY_SECTION);
       arrayParamSect->SetValue(STRUCT_COMPARE_FIELD, curField->getName());
-      generateBodyStructCompare(p_rootDictionnary, arrayParamSect, p_composedType, curField, p_uniquePrepend, p_declPrepend);
+      generateBodyStructCompare(p_rootDictionnary, arrayParamSect, p_composedType, curField, prevField, p_uniquePrepend, p_declPrepend);
     }
     else
     {
@@ -829,10 +879,11 @@ void CodeGeneratorCTemplate::generateComposedTypedCompareSection(ctemplate::Temp
       {
         //simple variable case
         ctemplate::TemplateDictionary *paramSectDict = compareDict->AddSectionDictionary(STRUCT_COMPARE_PARAM_SECTION);
-        generateBodyStructCompare(p_rootDictionnary, paramSectDict, p_composedType, curField, p_uniquePrepend, p_declPrepend);
+        generateBodyStructCompare(p_rootDictionnary, paramSectDict, p_composedType, curField, prevField, p_uniquePrepend, p_declPrepend);
       }
       //else {???} Since we do not know the how many element is in the array, we cannot generate any code for it
     }
+    prevField = curField;
   }
 }
 

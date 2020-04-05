@@ -47,6 +47,7 @@ public:
   bool isArray() const;
   bool isBoundSpecifiedArray() const;
   bool isUnboundSpecifiedArray() const;
+  bool isAnonymous() const;
   bool setArray(bool value);
   bool setArraySize(uint64_t size);
   uint64_t getArraySize() const;

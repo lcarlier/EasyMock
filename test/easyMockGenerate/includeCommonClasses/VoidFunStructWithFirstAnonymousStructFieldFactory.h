@@ -1,10 +1,10 @@
-#ifndef VOIDFUNSTRUCTWITHANONYMOUSSTRUCTFIELDFACTORY_H
-#define VOIDFUNSTRUCTWITHANONYMOUSSTRUCTFIELDFACTORY_H
+#ifndef VOIDFUNSTRUCTWITHFIRSTANONYMOUSSTRUCTFIELDFACTORY_H
+#define VOIDFUNSTRUCTWITHFIRSTANONYMOUSSTRUCTFIELDFACTORY_H
 
 #include <FunctionFactory.h>
-#include <voidFunStructWithAnonymousStructField.h>
+#include <voidFunStructWithFirstAnonymousStructField.h>
 
-class VoidFunStructWithAnonymousStructFieldFactory : public FunctionFactory<int, std::tuple<struct topAnonymousStructField>, std::tuple<EasyMock_Matcher>>
+class VoidFunStructWithFirstAnonymousStructFieldFactory : public FunctionFactory<int, std::tuple<struct topAnonymousFirstStructField>, std::tuple<EasyMock_Matcher>>
 {
 public:
   Function functionFactory() override;
@@ -21,5 +21,5 @@ public:
 
 };
 
-#endif /* VOIDFUNSTRUCTWITHANONYMOUSSTRUCTFIELDFACTORY_H */
+#endif /* VOIDFUNSTRUCTWITHFIRSTANONYMOUSSTRUCTFIELDFACTORY_H */
 

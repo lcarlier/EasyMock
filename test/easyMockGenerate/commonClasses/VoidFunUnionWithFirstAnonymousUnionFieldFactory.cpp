@@ -1,8 +1,8 @@
-#include "VoidFunStructWithAnonymousStructFieldFactory.h"
+#include <VoidFunUnionWithFirstAnonymousUnionFieldFactory.h>
 
-#include <StructType.h>
+#include <UnionType.h>
 
-Function VoidFunStructWithAnonymousStructFieldFactory::functionFactory()
+Function VoidFunUnionWithFirstAnonymousUnionFieldFactory::functionFactory()
 {
   const unsigned int NB_ANONYMOUS_TYPE_IN_THIS_UT = 1;
   /*
@@ -13,61 +13,70 @@ Function VoidFunStructWithAnonymousStructFieldFactory::functionFactory()
    */
   ComposableType::m_number_of_anonymous_composable_type -= NB_ANONYMOUS_TYPE_IN_THIS_UT;
   bool isEmbeddedStruct = true;
-  StructType* top = new StructType("topAnonymousStructField", !isEmbeddedStruct); //NOT EMBEDDED
-  top->addStructField(new ComposableField(CTYPE_INT, "a"));
-  StructType* beingDefined = new StructType("", isEmbeddedStruct);
+  UnionType* top = new UnionType("topAnonymousFirstUnionField", !isEmbeddedStruct); //NOT EMBEDDED
+  UnionType* beingDefined = new UnionType("", isEmbeddedStruct);
   beingDefined->addStructField(new ComposableField(CTYPE_INT, "s1"));
   beingDefined->addStructField(new ComposableField(CTYPE_FLOAT, "s2"));
   top->addStructField(new ComposableField(beingDefined, ""));
+  top->addStructField(new ComposableField(CTYPE_INT, "a"));
   Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), Parameter::Vector({new Parameter(top, "t")}));
 
   return f;
 }
 
-Function* VoidFunStructWithAnonymousStructFieldFactory::newFunctionFactory()
+Function* VoidFunUnionWithFirstAnonymousUnionFieldFactory::newFunctionFactory()
 {
   return functionFactory().clone();
 }
 
 
-std::string VoidFunStructWithAnonymousStructFieldFactory::functionGetFunctionName()
+std::string VoidFunUnionWithFirstAnonymousUnionFieldFactory::functionGetFunctionName()
 {
-  return std::string("voidFunStructWithAnonymousStructField");
+  return std::string("voidFunUnionWithFirstAnonymousUnionField");
 }
 
-std::string VoidFunStructWithAnonymousStructFieldFactory::getFilename()
+std::string VoidFunUnionWithFirstAnonymousUnionFieldFactory::getFilename()
 {
-   return "voidFunStructWithAnonymousStructField.h";
+   return "voidFunUnionWithFirstAnonymousUnionField.h";
 }
 
-std::string VoidFunStructWithAnonymousStructFieldFactory::getMatcherFunctionName()
+std::string VoidFunUnionWithFirstAnonymousUnionFieldFactory::getMatcherFunctionName()
 {
-  return "cmp_struct_topAnonymousStructField";
+  return "cmp_union_topAnonymousFirstUnionField";
 }
 
-std::string VoidFunStructWithAnonymousStructFieldFactory::getFieldWrongName()
+std::string VoidFunUnionWithFirstAnonymousUnionFieldFactory::getFieldWrongName()
 {
   return "t";
 }
 
-std::string VoidFunStructWithAnonymousStructFieldFactory::getSubFieldWrongName()
+std::string VoidFunUnionWithFirstAnonymousUnionFieldFactory::getSubFieldWrongName()
 {
-  return "s2";
+  /*
+   * Even though the setupTestCase function modify s2, the field of the union
+   * which will return an error is the first. I.E: s1
+   */
+  return "s1";
 }
 
-std::string VoidFunStructWithAnonymousStructFieldFactory::getSubFieldWrongTypeName()
+std::string VoidFunUnionWithFirstAnonymousUnionFieldFactory::getSubFieldWrongTypeName()
 {
-  return "topAnonymousStructField::<anonymous>";
+  /*
+   * As the opposite of voidFunUnionWithAnonymousFieldUnion, we execute the
+   * comparator of the anonymous union, so the anonymous string should be
+   * returned
+   */
+  return "topAnonymousFirstUnionField::<anonymous>";
 }
 
-std::string VoidFunStructWithAnonymousStructFieldFactory::getSubComposableTypeType()
+std::string VoidFunUnionWithFirstAnonymousUnionFieldFactory::getSubComposableTypeType()
 {
-  return " struct";
+  return "n union";
 }
 
-void VoidFunStructWithAnonymousStructFieldFactory::setupTestCase(EasyMockTestCase::TestCase tc)
+void VoidFunUnionWithFirstAnonymousUnionFieldFactory::setupTestCase(EasyMockTestCase::TestCase tc)
 {
-  struct topAnonymousStructField aToExpect;
+  union topAnonymousFirstUnionField aToExpect;
 
   aToExpect.a = 42;
   aToExpect.s1 = 42;
