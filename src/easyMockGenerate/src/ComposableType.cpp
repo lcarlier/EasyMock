@@ -81,11 +81,6 @@ const std::string ComposableType::getUniqueName() const
   return uniqueName;
 }
 
-bool ComposableType::isAnonymous() const
-{
-  return this->getName().empty() && this->getTypedDefName().empty();
-}
-
 bool ComposableType::isEmbeddedInOtherType() const
 {
   return m_is_embedded_in_other_type;
@@ -136,7 +131,7 @@ void ComposableType::addStructField(ComposableField* newField)
   m_elem.push_back(newField);
 }
 
-void ComposableType::correctRecursiveType(const ComposableType *newPtr, const ComposableType* toReplace)
+void ComposableType::correctRecursiveType(ComposableType *newPtr, const ComposableType* toReplace)
 {
   for (ComposableField::Vector::iterator it = m_elem.begin(); it != m_elem.end(); ++it)
   {

@@ -11,7 +11,6 @@ class Parameter : public Declarator
 {
 public:
   Parameter(TypeItf *p_type, std::string p_name);
-  Parameter(TypeItf *p_type, std::string p_name, bool isPointer);
 
   typedef AutoCleanVectorPtr<Parameter> Vector;
 

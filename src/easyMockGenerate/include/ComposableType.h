@@ -29,7 +29,6 @@ public:
    * based on internal logic to generate the name
    */
   const std::string getUniqueName() const;
-  bool isAnonymous() const;
   bool isEmbeddedInOtherType() const;
 
   bool operator==(const ComposableType &other) const;
@@ -47,8 +46,8 @@ private:
   bool m_is_embedded_in_other_type;
   int m_anonymous_number;
 
-  void correctRecursiveType(const ComposableType *newPtr, const ComposableType* oldPtrToReplace);
-  friend void ComposableField::updateRecursiveTypePtr(const ComposableType* newPtr, const ComposableType* oldPtrToReplace);
+  void correctRecursiveType(ComposableType *newPtr, const ComposableType* oldPtrToReplace);
+  friend void ComposableField::updateRecursiveTypePtr(ComposableType* newPtr, const ComposableType* oldPtrToReplace);
 
   /*
    * The tool is foreseen to generate only 1 header file, no more.

@@ -4,8 +4,9 @@
 #include <FunctionFactory.h>
 #include <CType.h>
 #include <vector>
+#include <Pointer.h>
 
-template <typename PTR_TYPE, easyMock_cTypes_t C_TYPE>
+template <typename PTR_TYPE, easyMock_cTypes_t C_TYPE, bool isConst>
 class PtrFunPtrGenericFactory : public FunctionFactory<PTR_TYPE *, std::tuple<PTR_TYPE *>, std::tuple<EasyMock_Matcher>>
 {
   public:
@@ -19,8 +20,13 @@ class PtrFunPtrGenericFactory : public FunctionFactory<PTR_TYPE *, std::tuple<PT
 
   Function functionFactory() override
   {
-    bool isPointer = true;
-    Function f(functionGetFunctionName(), ReturnValue(new CType(C_TYPE), isPointer), Parameter::Vector({NamedParameter(C_TYPE, "ptr", isPointer)}));
+    TypeItf *rvType = new Pointer(new CType(C_TYPE, isConst));
+    TypeItf *paramType = rvType->clone();
+
+    Function f(functionGetFunctionName(), ReturnValue(rvType), Parameter::Vector({new Parameter(paramType, "ptr")}));
+
+    rvType = nullptr; //We lost the ownership
+    paramType = nullptr; //We lost the ownership
     return f;
   }
 
@@ -50,9 +56,19 @@ class PtrFunPtrGenericFactory : public FunctionFactory<PTR_TYPE *, std::tuple<PT
     }
 
     std::string &firstToken = tokens[0];
-    std::string funName(firstToken);
+    std::string funName;
+    if(isConst)
+    {
+      funName.append("const");
+      firstToken[0] = std::toupper(firstToken[0]);
+    }
+    funName.append(firstToken);
     funName.append(type_subName);
     funName.append("PtrFun");
+    if(isConst)
+    {
+      funName.append("Const");
+    }
     firstToken[0] = std::toupper(firstToken[0]);
     funName.append(firstToken);
     funName.append(type_subName);
@@ -114,7 +130,7 @@ class PtrFunPtrGenericFactory : public FunctionFactory<PTR_TYPE *, std::tuple<PT
           this->m_rv.push_back((PTR_TYPE *) ptrToExpect);
           this->m_expects.push_back(std::make_tuple((PTR_TYPE *) ptrToExpect));
           this->m_params.push_back(std::make_tuple((PTR_TYPE *) ptrToExpect));
-          this->m_compare.push_back(std::make_tuple(&cmp_pointer));  
+          this->m_compare.push_back(std::make_tuple(&cmp_pointer));
         }
       case EasyMockTestCase::NoExpect:
         break;
@@ -149,20 +165,21 @@ private:
 /*
  * Specialisation of all the factories
  */
-class VoidPtrFunVoidPtrFactory : public PtrFunPtrGenericFactory<void, CTYPE_VOID>{};
-class CharPtrFunCharPtrFactory : public PtrFunPtrGenericFactory<char, CTYPE_CHAR>{};
-class UnsCharPtrFunUnsCharPtrFactory : public PtrFunPtrGenericFactory<unsigned char, CTYPE_UCHAR>{};
-class ShortPtrFunShortPtrFactory : public PtrFunPtrGenericFactory<short, CTYPE_SHORT>{};
-class UnsShortPtrFunUnsShortPtrFactory : public PtrFunPtrGenericFactory<unsigned short, CTYPE_USHORT>{};
-class IntPtrFunIntPtrFactory : public PtrFunPtrGenericFactory<int, CTYPE_INT>{};
-class UnsIntPtrFunUnsIntPtrFactory : public PtrFunPtrGenericFactory<unsigned int, CTYPE_UINT>{};
-class LongPtrFunLongPtrFactory : public PtrFunPtrGenericFactory<long, CTYPE_LONG>{};
-class UnsLongPtrFunUnsLongPtrFactory : public PtrFunPtrGenericFactory<unsigned long, CTYPE_ULONG>{};
-class LongLongPtrFunLongLongPtrFactory : public PtrFunPtrGenericFactory<long long, CTYPE_LONG_LONG>{};
-class UnsLongLongPtrFunUnsLongLongPtrFactory : public PtrFunPtrGenericFactory<unsigned long long, CTYPE_ULONG_LONG>{};
-class FloatPtrFunFloatPtrFactory : public PtrFunPtrGenericFactory<int, CTYPE_FLOAT>{};
-class DoublePtrFunDoublePtrFactory : public PtrFunPtrGenericFactory<double, CTYPE_DOUBLE>{};
-class LongDoublePtrFunLongDoublePtrFactory : public PtrFunPtrGenericFactory<long double, CTYPE_LONG_DOUBLE>{};
+class VoidPtrFunVoidPtrFactory : public PtrFunPtrGenericFactory<void, CTYPE_VOID, false>{};
+class CharPtrFunCharPtrFactory : public PtrFunPtrGenericFactory<char, CTYPE_CHAR, false>{};
+class UnsCharPtrFunUnsCharPtrFactory : public PtrFunPtrGenericFactory<unsigned char, CTYPE_UCHAR, false>{};
+class ShortPtrFunShortPtrFactory : public PtrFunPtrGenericFactory<short, CTYPE_SHORT, false>{};
+class UnsShortPtrFunUnsShortPtrFactory : public PtrFunPtrGenericFactory<unsigned short, CTYPE_USHORT, false>{};
+class IntPtrFunIntPtrFactory : public PtrFunPtrGenericFactory<int, CTYPE_INT, false>{};
+class UnsIntPtrFunUnsIntPtrFactory : public PtrFunPtrGenericFactory<unsigned int, CTYPE_UINT, false>{};
+class LongPtrFunLongPtrFactory : public PtrFunPtrGenericFactory<long, CTYPE_LONG, false>{};
+class UnsLongPtrFunUnsLongPtrFactory : public PtrFunPtrGenericFactory<unsigned long, CTYPE_ULONG, false>{};
+class LongLongPtrFunLongLongPtrFactory : public PtrFunPtrGenericFactory<long long, CTYPE_LONG_LONG, false>{};
+class UnsLongLongPtrFunUnsLongLongPtrFactory : public PtrFunPtrGenericFactory<unsigned long long, CTYPE_ULONG_LONG, false>{};
+class FloatPtrFunFloatPtrFactory : public PtrFunPtrGenericFactory<int, CTYPE_FLOAT, false>{};
+class DoublePtrFunDoublePtrFactory : public PtrFunPtrGenericFactory<double, CTYPE_DOUBLE, false>{};
+class LongDoublePtrFunLongDoublePtrFactory : public PtrFunPtrGenericFactory<long double, CTYPE_LONG_DOUBLE, false>{};
+class ConstIntPtrFunConstIntPtr : public PtrFunPtrGenericFactory<int, CTYPE_INT, true>{};
 
 #endif /* PTRFUNPTRGENERICFACTORY_H */
 

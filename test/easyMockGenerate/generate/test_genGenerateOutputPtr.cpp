@@ -31,8 +31,10 @@ TYPED_TEST(genGenerateOutputPtr_testCase, TestOutputPtrGenerated)
   const Parameter::Vector &parameters = f.getFunctionsParameters();
   const Parameter &firstParam = parameters[0];
   const TypeItf &firstParamType = *firstParam.getType();
+  const TypeItf& pointedType = *dynamic_cast<const Pointer &>(firstParamType).getPointedType();
   //Parameter of type void * doesn't have an output function because the mock doesn't know the size of the contained void pointer
-  if(firstParamType.isCType() && firstParam.isPointer() && firstParamType.getCType() == CTYPE_VOID)
+  if((firstParamType.isPointer() && pointedType.isCType() && pointedType.getCType() == CTYPE_VOID) ||
+     (firstParamType.isPointer() && pointedType.isConst()))
   {
     ASSERT_EQ(fptr_output_ptr, nullptr);
   }

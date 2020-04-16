@@ -4,9 +4,10 @@ CType::CType() : CType(CTYPE_INVALID)
 {
 }
 
-CType::CType(const easyMock_cTypes_t p_cType) :
+CType::CType(const easyMock_cTypes_t p_cType, bool isConst) :
 TypeItf(easyMock_arrayCTypeStr[p_cType]), m_cType(p_cType)
 {
+  this->setConst(isConst);
   this->setCType(true);
 }
 

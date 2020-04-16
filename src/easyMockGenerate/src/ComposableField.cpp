@@ -2,18 +2,27 @@
 #include "ComposableType.h"
 #include "TypeItf.h"
 #include "CType.h"
+#include "Pointer.h"
+
+#include <cassert>
 
 ComposableField::ComposableField(const easyMock_cTypes_t p_ctype, std::string p_name) :
-ComposableField(new CType(p_ctype), p_name, {.isPointer = false, .isArray = false, .arraySize = 0, .isRecursiveTypeField = false})
+ComposableField(new CType(p_ctype), p_name, ComposableField::attributes(
+{
+  .isArray = false,
+  .arraySize = 0,
+  .isRecursiveTypeField = false
+}))
 {
 }
 
 ComposableField::ComposableField(TypeItf* p_type, std::string p_name) :
-ComposableField(p_type, p_name, {.isPointer = false, .isArray = false, .arraySize = 0, .isRecursiveTypeField = false})
-{ }
+ComposableField(p_type, p_name, {.isArray = false, .arraySize = 0, .isRecursiveTypeField = false})
+{
+}
 
 ComposableField::ComposableField(TypeItf* p_type, std::string p_name, ComposableField::attributes p_attrib) :
-Declarator(nullptr, p_attrib.isPointer),
+Declarator(nullptr), //is set later
 m_name(p_name),
 m_recursiveType(nullptr),
 m_isArray(p_attrib.isArray),
@@ -22,7 +31,13 @@ m_arraySize(p_attrib.arraySize)
   if(p_attrib.isRecursiveTypeField)
   {
     //If type is recursive, keep it's pointer only. It doesn't need to be deleted
-    m_recursiveType = static_cast<const ComposableType*>(p_type);
+    m_recursiveType = dynamic_cast<Pointer*>(p_type);
+    if(!m_recursiveType)
+    {
+      fprintf(stderr, "Error in calling building ComposableField with non Pointer type and recursive attribute");
+      assert(false);
+    }
+    m_recursiveType->setDeletePointedTypeOnDelete(false);
   }
   else
   {
@@ -34,18 +49,28 @@ ComposableField::ComposableField(const ComposableField& other) :
 Declarator(other)
 {
   m_name = other.m_name;
-  m_recursiveType = other.m_recursiveType;
+  m_recursiveType = other.m_recursiveType ? other.m_recursiveType->clone() : nullptr;
   m_isArray = other.m_isArray;
   m_arraySize = other.m_arraySize;
 }
 
-void ComposableField::updateRecursiveTypePtr(const ComposableType* newPtr, const ComposableType* toReplace)
+ComposableField::ComposableField(ComposableField&& other):
+m_recursiveType(nullptr)
 {
-  if(m_recursiveType == toReplace)
+  swap(*this, other);
+}
+
+void ComposableField::updateRecursiveTypePtr(ComposableType* newPtr, const ComposableType* toReplace)
+{
+  if(m_recursiveType && m_recursiveType->getPointedType() == toReplace)
   {
-    m_recursiveType = newPtr;
+    if(!m_recursiveType->setPointedType(newPtr))
+    {
+      fprintf(stderr, "BUG IN EASYMOCK. Contact the owner for the bug fix");
+      assert(false);
+    }
   }
-  else if(m_type && m_type->isStruct())
+  else if(m_type && m_type->isComposableType())
   {
     //I'm a friend of ComposableType :)
     static_cast<ComposableType*>(m_type)->correctRecursiveType(newPtr, toReplace);
@@ -65,11 +90,6 @@ ComposableField& ComposableField::operator=(ComposableField other)
   return *this;
 }
 
-ComposableField::ComposableField(ComposableField&& other)
-{
-  swap(*this, other);
-}
-
 void swap(ComposableField &first, ComposableField &second)
 {
   swap(static_cast<Declarator&>(first), static_cast<Declarator&>(second));
@@ -80,9 +100,9 @@ void swap(ComposableField &first, ComposableField &second)
 }
 
 /*
- * For recursive field, we consider them equal if they have the same
- * m_recursiveType attribute set. If we don't do that we get an
- * infinite loop when comparing the structure
+ * For recursive field, we consider them equal if they have the pointed
+ * type name is the same. If we don't do that we get an
+ * infinite loop when comparing the ComposableField object
  */
 bool ComposableField::operator==(const ComposableField& other) const
 {
@@ -92,7 +112,7 @@ bool ComposableField::operator==(const ComposableField& other) const
                    this->m_arraySize == other.m_arraySize;
   if(m_recursiveType)
   {
-    return commonVal && other.m_recursiveType && m_recursiveType->getName() == other.m_recursiveType->getName();
+    return commonVal && other.m_recursiveType && m_recursiveType->getPointedType()->getName() == other.m_recursiveType->getPointedType()->getName();
   }
   else
   {
@@ -128,15 +148,22 @@ const TypeItf* ComposableField::getType() const
   }
 }
 
-void ComposableField::setType(TypeItf* type)
+void ComposableField::setType(TypeItf* p_type)
 {
   if(m_recursiveType)
   {
-    m_recursiveType = static_cast<const ComposableType*>(type);
+    delete m_recursiveType;
+    m_recursiveType = dynamic_cast<Pointer*>(p_type);
+    if(!m_recursiveType)
+    {
+      fprintf(stderr, "Error in calling setType with non Pointer type and recursive attribute");
+      assert(false);
+    }
+    m_recursiveType->setDeletePointedTypeOnDelete(false);
   }
   else
   {
-    Declarator::setType(type);
+    Declarator::setType(p_type);
   }
 }
 
@@ -195,4 +222,8 @@ ComposableField* ComposableField::clone() const
 
 ComposableField::~ComposableField()
 {
+  if(m_recursiveType)
+  {
+    delete m_recursiveType;
+  }
 }

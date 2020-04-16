@@ -13,6 +13,7 @@
 
 #include "TypeItf.h"
 #include "ComposableType.h"
+#include "Pointer.h"
 
 #define TEMPLATE_VAR(VAR_NAME) "{{" VAR_NAME "}}"
 #define TEMPLATE_BEG_SECTION(SECTION_NAME) "{{#" SECTION_NAME "}}"
@@ -47,6 +48,7 @@
 #define FUNCTION_PARAM_SECTION_SEPARATOR FUNCTION_PARAM_SECTION "_separator"
 #define FUNCTION_PARAM_PTR_SECTION_SEPARATOR FUNCTION_PARAM_PTR_SECTION "_separator"
 #define FUNCTION_PARAM_TYPE "TYPEDEF_PARAM_RETURN_VALUE"
+#define FUNCTION_PARAM_NON_QUALIFIED_TYPE "FUNCTION_PARAM_NON_QUALIFIED_TYPE"
 #define FUNCTION_PARAM_NAME "TYPEDEF_PARAM_NAME"
 #define FUNCTION_RETURN_VALUE_PARAM_SECTION "FUNCTION_RETURN_VALUE_PARAM_SECTION"
 #define FUNCTION_RETURN_VALUE_PARAM "FUNCTION_RETURN_VALUE_PARAM"
@@ -93,7 +95,11 @@
 
 #define PARAMETER_NAME(PREFIX) PREFIX TEMPLATE_VAR(FUNCTION_PARAM_NAME)
 #define PARAMETER_TYPE TEMPLATE_VAR(FUNCTION_PARAM_TYPE)
+#define PARAMETER_NON_QUALIFIED_TYPE TEMPLATE_VAR(FUNCTION_PARAM_NON_QUALIFIED_TYPE)
 #define FUNCTION_RETURN_VALUE_TYPE TEMPLATE_VAR(FUNCTION_RETURN_VALUE)
+
+#define FUNCTION_NON_QUALIFIED_RETURN_VALUE "FUNCTION_NON_QUALIFIED_RETURN_VALUE"
+#define FUNCTION_NON_QUALIFIED_RETURN_VALUE_TYPE TEMPLATE_VAR(FUNCTION_NON_QUALIFIED_RETURN_VALUE)
 
 #define PRINT_CMP_ARRAY_IDX \
   IF_PARAM_LIST(STRUCT_PRINT_IDX_SECTION, "at idx == %d")
@@ -103,6 +109,9 @@
 
 #define DECLARE_PARAMETER(PREFIX) \
 PARAMETER_TYPE " " PARAMETER_NAME(PREFIX)
+
+#define DECLARE_NON_QUALIFIED_PARAMETER(PREFIX) \
+PARAMETER_NON_QUALIFIED_TYPE " " PARAMETER_NAME(PREFIX)
 
 #define FUNCTION_PARAM_LIST(SECTION, PREFIX) \
   TEMPLATE_BEG_SECTION(SECTION) \
@@ -284,10 +293,10 @@ static const char templateText[] =
         GENERATE_COMMENT CARRIAGE_RETURN
         "typedef struct {" CARRIAGE_RETURN
         TEMPLATE_BEG_SECTION(FUNCTION_PARAM_SECTION)
-        "    " DECLARE_PARAMETER("") ";" CARRIAGE_RETURN
+        "    " DECLARE_NON_QUALIFIED_PARAMETER("") ";" CARRIAGE_RETURN
         "    EasyMock_Matcher " FUNCTION_MOCK_DATA_CUR_MATCH_VAR ";" CARRIAGE_RETURN
         TEMPLATE_END_SECTION(FUNCTION_PARAM_SECTION)
-        IF_RETURN_VALUE("    " FUNCTION_RETURN_VALUE_TYPE " " FUNCTION_MOCK_DATA_RETURN_VALUE_VARIABLE ";" CARRIAGE_RETURN)
+        IF_RETURN_VALUE("    " FUNCTION_NON_QUALIFIED_RETURN_VALUE_TYPE " " FUNCTION_MOCK_DATA_RETURN_VALUE_VARIABLE ";" CARRIAGE_RETURN)
         TEMPLATE_BEG_SECTION(FUNCTION_PARAM_PTR_SECTION)
         "    " DECLARE_PARAMETER(MOCK_OUT_PREFIX) ";" CARRIAGE_RETURN
         TEMPLATE_END_SECTION(FUNCTION_PARAM_PTR_SECTION)
@@ -295,7 +304,7 @@ static const char templateText[] =
         CARRIAGE_RETURN
         "static " FUNCTION_EXPECT_RETURN_AND_OUTPUT_COMMON_SIGNATURE ";" CARRIAGE_RETURN
         "static MockedFunction<" FUNCTION_MOCK_DATA_TYPE "> " TEMPLATE_MOCKED_FUN_CLASS "(\"" TEMPLATE_FUNCTION_TO_BE_MOCKED "\");" CARRIAGE_RETURN
-        IF_RETURN_VALUE("static " FUNCTION_RETURN_VALUE_TYPE " dummyRes;" CARRIAGE_RETURN)
+        IF_RETURN_VALUE("static " FUNCTION_NON_QUALIFIED_RETURN_VALUE_TYPE " dummyRes;" CARRIAGE_RETURN)
         CARRIAGE_RETURN
         "extern \"C\" " TEMPLATE_FUNCTION_TO_BE_MOCKED CARRIAGE_RETURN
         "{" CARRIAGE_RETURN
@@ -304,7 +313,7 @@ static const char templateText[] =
         CARRIAGE_RETURN
         IF_RETURN_VALUE
         (
-            "    " FUNCTION_RETURN_VALUE_TYPE " default_res;" CARRIAGE_RETURN
+            "    " FUNCTION_NON_QUALIFIED_RETURN_VALUE_TYPE " default_res;" CARRIAGE_RETURN
             "    std::memcpy(&default_res, &dummyRes, sizeof(default_res));" CARRIAGE_RETURN
             CARRIAGE_RETURN
         )
@@ -525,14 +534,30 @@ void CodeGeneratorCTemplate::generateFunctionSection(ctemplate::TemplateDictiona
 
   const ReturnValue *returnValue = p_elemToMock->getReturnType();
   const TypeItf* rvType = returnValue->getType();
-  std::string returnTypeStr = getDeclaratorString(returnValue);
+  std::string returnTypeStr = getDeclaratorString(rvType);
+  std::string nonQualRetTypeStr = getNonQualifiedDeclaratorString(rvType);
   functionSectionDict->SetValue(FUNCTION_RETURN_VALUE, returnTypeStr);
+  if(!rvType->isPointer())
+  {
+    functionSectionDict->SetValue(FUNCTION_NON_QUALIFIED_RETURN_VALUE, nonQualRetTypeStr);
+  }
+  else
+  {
+    functionSectionDict->SetValue(FUNCTION_NON_QUALIFIED_RETURN_VALUE, returnTypeStr);
+  }
 
-  bool isRvVoid = rvType->isCType() && rvType->getCType() == CTYPE_VOID && !returnValue->isPointer();
+  bool isRvVoid = rvType->isCType() && rvType->getCType() == CTYPE_VOID && !rvType->isPointer();
   if (!isRvVoid)
   {
     ctemplate::TemplateDictionary *returnValParamDict = functionSectionDict->AddSectionDictionary(FUNCTION_RETURN_VALUE_PARAM_SECTION);
-    returnValParamDict->SetValue(FUNCTION_RETURN_VALUE, returnTypeStr);
+    if(!rvType->isPointer())
+    {
+      returnValParamDict->SetValue(FUNCTION_NON_QUALIFIED_RETURN_VALUE, nonQualRetTypeStr);
+    }
+    else
+    {
+      returnValParamDict->SetValue(FUNCTION_NON_QUALIFIED_RETURN_VALUE, returnTypeStr);
+    }
   }
   generateFunctionParamSection(p_rootDictionnary, functionSectionDict, p_elemToMock->getFunctionsParameters());
 }
@@ -549,26 +574,53 @@ void CodeGeneratorCTemplate::generateFunctionParamSection(ctemplate::TemplateDic
   {
     ctemplate::TemplateDictionary* newTypedefParamSection = p_functionSectionDict->AddSectionDictionary(FUNCTION_PARAM_SECTION);
     const Parameter *fParam = *it;
-    std::string argType = getDeclaratorString(fParam);
-    if(fParam->getType()->isStruct() || fParam->getType()->isUnion())
+    const TypeItf *paramType = fParam->getType();
+    //For the rest of this function paramPtrType tells whether we are dealing with a pointer parameter or not
+    const Pointer *paramPtrType = dynamic_cast<const Pointer *>(paramType);
+    std::string argType = getDeclaratorString(paramType);
+    std::string nonQualifiedArgType = getNonQualifiedDeclaratorString(paramType);
+    if(paramPtrType)
+    {
+      paramType = paramPtrType->getPointedType();
+    }
+    if(paramType->isStruct() || paramType->isUnion())
     {
       std::string prepend("");
       std::string declare("");
-      generateComposedTypedCompareSection(p_rootDictionnary, dynamic_cast<const ComposableType*>(fParam->getType()), prepend, declare);
+      generateComposedTypedCompareSection(p_rootDictionnary, dynamic_cast<const ComposableType*>(paramType), prepend, declare);
     }
     newTypedefParamSection->SetValue(FUNCTION_PARAM_TYPE, argType);
-    newTypedefParamSection->SetValue(FUNCTION_PARAM_NAME, fParam->getName());
-    //It doesn't make sense to generate an output parameter for void pointer. The mock doesn't know the size of the data to copy into the pointer
-    if(fParam->isPointer() && fParam->getType()->getCType() != CTYPE_VOID)
+    if(!paramPtrType)
     {
-      if(!ptrSectionAdded)
+      newTypedefParamSection->SetValue(FUNCTION_PARAM_NON_QUALIFIED_TYPE, nonQualifiedArgType);
+    }
+    else
+    {
+      newTypedefParamSection->SetValue(FUNCTION_PARAM_NON_QUALIFIED_TYPE, argType);
+    }
+    newTypedefParamSection->SetValue(FUNCTION_PARAM_NAME, fParam->getName());
+
+    /*
+     * It doesn't make sense to generate an output parameter for void pointer.
+     * The mock doesn't know the size of the data to copy into the pointer.
+     * Also do not generate the output parameter for const pointers.
+     */
+    if(paramPtrType)
+    {
+      const TypeItf* pointedType = paramPtrType->getPointedType();
+      if(pointedType->getCType() != CTYPE_VOID &&
+         !pointedType->isConst())
       {
-        p_functionSectionDict->AddSectionDictionary(FUNCTION_PARAM_PTR_LIST_SECTION);
-        ptrSectionAdded = true;
+        if(!ptrSectionAdded)
+        {
+          p_functionSectionDict->AddSectionDictionary(FUNCTION_PARAM_PTR_LIST_SECTION);
+          ptrSectionAdded = true;
+        }
+        ctemplate::TemplateDictionary* newPtrParamSection = p_functionSectionDict->AddSectionDictionary(FUNCTION_PARAM_PTR_SECTION);
+        //No need to add the FUNCTION_PARAM_NON_QUALIFIED_TYPE because we will not generate output pointer for const
+        newPtrParamSection->SetValue(FUNCTION_PARAM_TYPE, argType);
+        newPtrParamSection->SetValue(FUNCTION_PARAM_NAME, fParam->getName());
       }
-      ctemplate::TemplateDictionary* newPtrParamSection = p_functionSectionDict->AddSectionDictionary(FUNCTION_PARAM_PTR_SECTION);
-      newPtrParamSection->SetValue(FUNCTION_PARAM_TYPE, argType);
-      newPtrParamSection->SetValue(FUNCTION_PARAM_NAME, fParam->getName());
     }
   }
 }
@@ -658,7 +710,11 @@ void CodeGeneratorCTemplate::generateFieldCmp(std::string& p_condition, const Co
 void CodeGeneratorCTemplate::generateBodyStructCompare(ctemplate::TemplateDictionary *rootDictionnary, ctemplate::TemplateDictionary *p_paramSectDict, const ComposableType *p_composedType, const ComposableField *p_curField, const ComposableField *p_previousField, std::string p_uniquePrepend, std::string p_declPrepend)
 {
   static unsigned int s_nbAnonymousField = 0;
-  const TypeItf *curType = p_curField->getType();
+  const TypeItf* curType = p_curField->getType();
+  if(curType->isPointer())
+  {
+    curType = dynamic_cast<const Pointer *>(curType)->getPointedType();
+  }
   if(curType->isComposableType())
   {
     const ComposableType* curComposableType = dynamic_cast<const ComposableType*>(curType);
@@ -752,14 +808,14 @@ void CodeGeneratorCTemplate::generateBasicTypeField(const ComposableField *p_cur
     }
   }
   errorDict->SetValue(STRUCT_COMPARE_TYPE, compareType);
-  if(p_curField->isPointer())
+  const TypeItf *curFieldType = p_curField->getType();
+  if(curFieldType->isPointer())
   {
     errorDict->SetValue(STRUCT_COMPARE_PRINTF_FORMAT, "p");
   }
   else
   {
-    const TypeItf *curType = p_curField->getType();
-    errorDict->SetValue(STRUCT_COMPARE_PRINTF_FORMAT, easyMock_printfFormat[curType->getCType()]);
+    errorDict->SetValue(STRUCT_COMPARE_PRINTF_FORMAT, easyMock_printfFormat[curFieldType->getCType()]);
   }
   p_paramSectDict->SetValue(COMPARE_CONDITION, condition);
 }
@@ -801,7 +857,7 @@ void CodeGeneratorCTemplate::generateDeclarationOfAnonymousType(ctemplate::Templ
     else
     {
       ctemplate::TemplateDictionary *curFieldValDict = curFieldDict->AddSectionDictionary(ANONYMOUS_TYPE_DECLARATION_FIELD_SECTION);
-      curFieldValDict->SetFormattedValue(ANONYMOUS_TYPE_DECLARATION_FIELD_TYPE_TEMPLATE_VAR, "%s%s", fieldType->getName().c_str(), curField->isPointer() ? "*" : "");
+      curFieldValDict->SetValue(ANONYMOUS_TYPE_DECLARATION_FIELD_TYPE_TEMPLATE_VAR, fieldType->getFullDeclarationName());
       curFieldValDict->SetValue(ANONYMOUS_TYPE_DECLARATION_FIELD_NAME_TEMPLATE_VAR, curField->getName());
     }
   }
@@ -920,14 +976,12 @@ closeFile:
   return rv;
 }
 
-std::string CodeGeneratorCTemplate::getDeclaratorString(const Declarator* p_decl)
+std::string CodeGeneratorCTemplate::getNonQualifiedDeclaratorString(const TypeItf* p_type)
 {
-  const TypeItf* rvType = p_decl->getType();
-  std::string returnTypeStr;
-  returnTypeStr.append(rvType->getFullDeclarationName());
-  if(p_decl->isPointer())
-  {
-    returnTypeStr.push_back('*');
-  }
-  return returnTypeStr;
+  return p_type->getFullNonQualifiedDeclarationName();
+}
+
+std::string CodeGeneratorCTemplate::getDeclaratorString(const TypeItf* p_type)
+{
+  return p_type->getFullDeclarationName();
 }

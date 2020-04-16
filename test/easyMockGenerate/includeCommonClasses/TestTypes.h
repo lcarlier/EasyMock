@@ -41,10 +41,12 @@
 #include <VoidFunUnionWithAnonymousUnionFieldFactory.h>
 #include <VoidFunStructWithFirstAnonymousStructFieldFactory.h>
 #include <VoidFunUnionWithFirstAnonymousUnionFieldFactory.h>
+#include <ConstIntFunConstIntFactory.h>
 
 /*
+ * Note lcarlier:
  * Google test supports maximum 50 different classes when running class templated
- * UT. We have UT that have more than 50 classes so we extend Google test
+ * UT. I have UT that have more than 50 classes so I extend Google test
  * here.
  * Note that I didn't understand how this works. I just copied/pasted the
  * needed part Google of the header file and extended the parameters.
@@ -58,11 +60,6 @@ namespace testing
 {
   namespace internal
   {
-    /*
-     * In case of a new template parameter is needed:
-     * Copy paste this struct with a version with 1 template parameter more.
-     * Increase by one any integer you see in type names.
-     */
     template <typename T1, typename T2, typename T3, typename T4, typename T5,
         typename T6, typename T7, typename T8, typename T9, typename T10,
         typename T11, typename T12, typename T13, typename T14, typename T15,
@@ -81,6 +78,51 @@ namespace testing
           T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29,
           T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43,
           T44, T45, T46, T47, T48, T49, T50, T51> Tail;
+    };
+
+    /*
+     * In case of a new template parameter is needed:
+     * Copy paste this struct with a version with 1 template parameter more.
+     * Increase by one any integer you see in type names.
+     */
+    template <typename T1, typename T2, typename T3, typename T4, typename T5,
+        typename T6, typename T7, typename T8, typename T9, typename T10,
+        typename T11, typename T12, typename T13, typename T14, typename T15,
+        typename T16, typename T17, typename T18, typename T19, typename T20,
+        typename T21, typename T22, typename T23, typename T24, typename T25,
+        typename T26, typename T27, typename T28, typename T29, typename T30,
+        typename T31, typename T32, typename T33, typename T34, typename T35,
+        typename T36, typename T37, typename T38, typename T39, typename T40,
+        typename T41, typename T42, typename T43, typename T44, typename T45,
+        typename T46, typename T47, typename T48, typename T49, typename T50,
+        typename T51, typename T52>
+    struct Types52 {
+      typedef T1 Head;
+      //Types51 takes 51 arguments from T2 to T52
+      typedef Types51<T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15,
+          T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29,
+          T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43,
+          T44, T45, T46, T47, T48, T49, T50, T51, T52> Tail;
+    };
+
+    template <typename T1, typename T2, typename T3, typename T4, typename T5,
+        typename T6, typename T7, typename T8, typename T9, typename T10,
+        typename T11, typename T12, typename T13, typename T14, typename T15,
+        typename T16, typename T17, typename T18, typename T19, typename T20,
+        typename T21, typename T22, typename T23, typename T24, typename T25,
+        typename T26, typename T27, typename T28, typename T29, typename T30,
+        typename T31, typename T32, typename T33, typename T34, typename T35,
+        typename T36, typename T37, typename T38, typename T39, typename T40,
+        typename T41, typename T42, typename T43, typename T44, typename T45,
+        typename T46, typename T47, typename T48, typename T49, typename T50,
+        typename T51, typename T52, typename T53>
+    struct Types53 {
+      typedef T1 Head;
+      //Types52 takes 51 arguments from T2 to T53
+      typedef Types52<T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15,
+          T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29,
+          T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43,
+          T44, T45, T46, T47, T48, T49, T50, T51, T52, T53> Tail;
     };
   } //namespace internal
 
@@ -114,19 +156,15 @@ namespace testing
       typename T45 = internal::None, typename T46 = internal::None,
       typename T47 = internal::None, typename T48 = internal::None,
       typename T49 = internal::None, typename T50 = internal::None,
-      typename T51 = internal::None>
+      typename T51 = internal::None, typename T52 = internal::None,
+      typename T53 = internal::None>
   struct BigTypes {
-    typedef internal::Types51<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12,
+    typedef internal::Types53<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12,
         T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26,
         T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40,
-        T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51> type;
+        T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53> type;
   };
 
-  /*
-   * In case of a new template parameter is needed:
-   * Copy paste this struct with a version with 1 template parameter more.
-   * Increase by one any integer you see in type names.
-   */
   template <typename T1, typename T2, typename T3, typename T4, typename T5,
       typename T6, typename T7, typename T8, typename T9, typename T10,
       typename T11, typename T12, typename T13, typename T14, typename T15,
@@ -147,13 +185,55 @@ namespace testing
         T41, T42, T43, T44, T45, T46, T47, T48, T49, T50> type;
   };
 
+  template <typename T1, typename T2, typename T3, typename T4, typename T5,
+      typename T6, typename T7, typename T8, typename T9, typename T10,
+      typename T11, typename T12, typename T13, typename T14, typename T15,
+      typename T16, typename T17, typename T18, typename T19, typename T20,
+      typename T21, typename T22, typename T23, typename T24, typename T25,
+      typename T26, typename T27, typename T28, typename T29, typename T30,
+      typename T31, typename T32, typename T33, typename T34, typename T35,
+      typename T36, typename T37, typename T38, typename T39, typename T40,
+      typename T41, typename T42, typename T43, typename T44, typename T45,
+      typename T46, typename T47, typename T48, typename T49, typename T50,
+      typename T51>
+  struct BigTypes<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15,
+      T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30,
+      T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45,
+      T46, T47, T48, T49, T50, T51, internal::None> {
+    typedef internal::Types51<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12,
+        T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26,
+        T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40,
+        T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51> type;
+  };
+
+  /*
+   * In case of a new template parameter is needed:
+   * Copy paste this struct with a version with 1 template parameter more.
+   * Increase by one any integer you see in type names.
+   */
+  template <typename T1, typename T2, typename T3, typename T4, typename T5,
+      typename T6, typename T7, typename T8, typename T9, typename T10,
+      typename T11, typename T12, typename T13, typename T14, typename T15,
+      typename T16, typename T17, typename T18, typename T19, typename T20,
+      typename T21, typename T22, typename T23, typename T24, typename T25,
+      typename T26, typename T27, typename T28, typename T29, typename T30,
+      typename T31, typename T32, typename T33, typename T34, typename T35,
+      typename T36, typename T37, typename T38, typename T39, typename T40,
+      typename T41, typename T42, typename T43, typename T44, typename T45,
+      typename T46, typename T47, typename T48, typename T49, typename T50,
+      typename T51, typename T52>
+  struct BigTypes<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15,
+      T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30,
+      T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45,
+      T46, T47, T48, T49, T50, T51, T52, internal::None> {
+    typedef internal::Types52<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12,
+        T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26,
+        T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40,
+        T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52> type;
+  };
+
   namespace internal
   {
-    /*
-     * In case of a new template parameter is needed:
-     * Copy paste this struct with a version with 1 template parameter more.
-     * Increase by one any integer you see in type names.
-     */
     template <typename T1, typename T2, typename T3, typename T4, typename T5,
         typename T6, typename T7, typename T8, typename T9, typename T10,
         typename T11, typename T12, typename T13, typename T14, typename T15,
@@ -174,6 +254,53 @@ namespace testing
           T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40,
           T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51>::type type;
     };
+
+    template <typename T1, typename T2, typename T3, typename T4, typename T5,
+        typename T6, typename T7, typename T8, typename T9, typename T10,
+        typename T11, typename T12, typename T13, typename T14, typename T15,
+        typename T16, typename T17, typename T18, typename T19, typename T20,
+        typename T21, typename T22, typename T23, typename T24, typename T25,
+        typename T26, typename T27, typename T28, typename T29, typename T30,
+        typename T31, typename T32, typename T33, typename T34, typename T35,
+        typename T36, typename T37, typename T38, typename T39, typename T40,
+        typename T41, typename T42, typename T43, typename T44, typename T45,
+        typename T46, typename T47, typename T48, typename T49, typename T50,
+        typename T51, typename T52>
+    struct TypeList<BigTypes<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13,
+        T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28,
+        T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43,
+        T44, T45, T46, T47, T48, T49, T50, T51, T52> > {
+      typedef typename BigTypes<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12,
+          T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26,
+          T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40,
+          T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52>::type type;
+    };
+
+    /*
+     * In case of a new template parameter is needed:
+     * Copy paste this struct with a version with 1 template parameter more.
+     * Increase by one any integer you see in type names.
+     */
+    template <typename T1, typename T2, typename T3, typename T4, typename T5,
+        typename T6, typename T7, typename T8, typename T9, typename T10,
+        typename T11, typename T12, typename T13, typename T14, typename T15,
+        typename T16, typename T17, typename T18, typename T19, typename T20,
+        typename T21, typename T22, typename T23, typename T24, typename T25,
+        typename T26, typename T27, typename T28, typename T29, typename T30,
+        typename T31, typename T32, typename T33, typename T34, typename T35,
+        typename T36, typename T37, typename T38, typename T39, typename T40,
+        typename T41, typename T42, typename T43, typename T44, typename T45,
+        typename T46, typename T47, typename T48, typename T49, typename T50,
+        typename T51, typename T52, typename T53>
+    struct TypeList<BigTypes<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13,
+        T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28,
+        T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43,
+        T44, T45, T46, T47, T48, T49, T50, T51, T52, T53> > {
+      typedef typename BigTypes<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12,
+          T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26,
+          T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40,
+          T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53>::type type;
+    };
   } //namespace internal
 } //namespace testing
 
@@ -191,7 +318,8 @@ namespace testing
         UnsLongLongPtrFunUnsLongLongPtrFactory, \
         FloatPtrFunFloatPtrFactory, \
         DoublePtrFunDoublePtrFactory, \
-        LongDoublePtrFunLongDoublePtrFactory
+        LongDoublePtrFunLongDoublePtrFactory, \
+        ConstIntPtrFunConstIntPtr
 
 #define NON_PTR_FUN_FACTORIES \
         VoidFunVoidFactory, \
@@ -216,7 +344,8 @@ namespace testing
         UnionFunUnionFactory, \
         UnionTypedDefFunUnionTypedDefFactory, \
         UnionAnonymousTypedDefFunUnionAnonymousTypedDefFactory, \
-        StructWithUnionFunStructWithUnionFactory
+        StructWithUnionFunStructWithUnionFactory, \
+        ConstIntFunConstIntFactory
 
 #define VOID_FUN_COMPOSABLE_TYPE_WITH_COMPOSABLE_TYPE_TYPES \
         VoidFunStructWithEmbeddedStructFactory, \

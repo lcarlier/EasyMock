@@ -32,30 +32,21 @@ bool Function::operator!=(const Function& other) const
 const std::string Function::getFunctionPrototype() const
 {
   std::string rv_funcProto;
-  const TypeItf* retTypeItf = m_returnType.getType();
-  rv_funcProto.append(retTypeItf->getFullDeclarationName());
-  if(m_returnType.isPointer())
-  {
-    rv_funcProto.push_back('*');
-  }
+  rv_funcProto.append(m_returnType.getType()->getFullDeclarationName());
   rv_funcProto.push_back(' ');
   rv_funcProto.append(m_name);
   rv_funcProto.push_back('(');
-  for (Parameter::Vector::const_iterator it = m_parameters.begin(); it != m_parameters.end(); ++it)
+  bool firstElem = true;
+  for(Parameter *fParam: m_parameters)
   {
-    if(it != m_parameters.begin())
+    if(!firstElem)
     {
       rv_funcProto.append(", ");
     }
-    const Parameter *fParam = *it;
-    const TypeItf *type = fParam->getType();
-    rv_funcProto.append(type->getFullDeclarationName());
-    if(fParam->isPointer())
-    {
-      rv_funcProto.push_back('*');
-    }
+    rv_funcProto.append(fParam->getType()->getFullDeclarationName());
     rv_funcProto.push_back(' ');
     rv_funcProto.append(fParam->getName());
+    firstElem = false;
   }
   rv_funcProto.push_back(')');
 

@@ -1,4 +1,5 @@
 add_executable(test_easyMockGenerate_common
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/gTestPrintClasses.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/common/test_moveCopy.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/common/test_equality.cpp
 )

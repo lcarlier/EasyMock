@@ -2,11 +2,16 @@
 
 #include <EasyMockStructHelper.h>
 
+#include <Pointer.h>
+
 Function VoidFunStructPtrFactory::functionFactory()
 {
-  Parameter::Vector p = structS2Parameter();
-  p[0].setPointer(true);
-  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), p);
+  StructType *s2 = newStructS2Type();
+  Parameter *p = new Parameter(new Pointer(s2), "s");
+  s2 = nullptr; //We lost the ownership
+  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), Parameter::Vector({p}));
+  p = nullptr; //We lost the ownership
+
   return f;
 }
 

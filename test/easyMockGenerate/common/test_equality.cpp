@@ -7,6 +7,7 @@
 #include <UnionType.h>
 #include <ComposableField.h>
 #include <AutoCleanVectorPtr.h>
+#include <Pointer.h>
 
 TEST(equality, CType)
 {
@@ -69,9 +70,18 @@ TEST(equality, ParameterSameParam)
 
 TEST(equality, ParameterPointerSameParam)
 {
-  bool isPointer = true;
-  Parameter p1(new CType(CTYPE_VOID), "v1", isPointer);
-  Parameter p2(new CType(CTYPE_VOID), "v2", isPointer);
+  Parameter p1(new Pointer(new CType(CTYPE_VOID)), "v1");
+  Parameter p2(new Pointer(new CType(CTYPE_VOID)), "v2");
+
+  //Even though name is different parameters are the same
+  ASSERT_EQ(p1, p2);
+}
+
+TEST(equality, ParameterConstSameParam)
+{
+  bool isConst = true;
+  Parameter p1(new CType(CTYPE_VOID, isConst), "v1");
+  Parameter p2(new CType(CTYPE_VOID, isConst), "v2");
 
   //Even though name is different parameters are the same
   ASSERT_EQ(p1, p2);
@@ -87,16 +97,27 @@ TEST(equality, ParameterDifferentParam)
 
 TEST(equality, ParameterPointerDifferentParam)
 {
-  bool isPointer = true;
-  Parameter p1(new CType(CTYPE_INT), "p1", isPointer);
-  Parameter p2(new CType(CTYPE_VOID), "p1", isPointer);
+  Parameter p1(new Pointer(new CType(CTYPE_INT)), "p1");
+  Parameter p2(new Pointer(new CType(CTYPE_VOID)), "p1");
 
   ASSERT_NE(p1, p2);
 
-  isPointer = true;
-  Parameter p3(new CType(CTYPE_INT), "p1", isPointer);
-  isPointer = false;
-  Parameter p4(new CType(CTYPE_INT), "p1", isPointer);
+  Parameter p3(new Pointer(new CType(CTYPE_INT)), "p1");
+  Parameter p4(new CType(CTYPE_INT), "p1");
+
+  ASSERT_NE(p3, p4);
+}
+
+TEST(equality, ParameterConstDifferentParam)
+{
+  bool isConst = true;
+  Parameter p1(new CType(CTYPE_INT, isConst), "p1");
+  Parameter p2(new CType(CTYPE_VOID, isConst), "p1");
+
+  ASSERT_NE(p1, p2);
+
+  Parameter p3(new CType(CTYPE_INT, isConst), "p1");
+  Parameter p4(new CType(CTYPE_INT, !isConst), "p1");
 
   ASSERT_NE(p3, p4);
 }
@@ -111,9 +132,17 @@ TEST(equality, ReturnValueSame)
 
 TEST(equality, ReturnValuePointerSame)
 {
-  bool isPointer = true;
-  ReturnValue rv1(new CType(CTYPE_INT), isPointer);
-  ReturnValue rv2(new CType(CTYPE_INT), isPointer);
+  ReturnValue rv1(new Pointer(new CType(CTYPE_INT)));
+  ReturnValue rv2(new Pointer(new CType(CTYPE_INT)));
+
+  ASSERT_EQ(rv1, rv2);
+}
+
+TEST(equality, ReturnValueConstSame)
+{
+  bool isConst = true;
+  ReturnValue rv1(new CType(CTYPE_INT, isConst));
+  ReturnValue rv2(new CType(CTYPE_INT, isConst));
 
   ASSERT_EQ(rv1, rv2);
 }
@@ -129,8 +158,7 @@ TEST(equality, ReturnValueDifferent)
 TEST(equality, ReturnValuePointerDifferent)
 {
   bool isPointer = true;
-  ReturnValue rv1 = VoidReturnValue();
-  rv1.setPointer(isPointer);
+  ReturnValue rv1 = VoidReturnValue(isPointer);
   ReturnValue rv2 = TypedReturnValue(CTYPE_INT, isPointer);
 
   ASSERT_NE(rv1, rv2);
@@ -139,6 +167,21 @@ TEST(equality, ReturnValuePointerDifferent)
   ReturnValue rv3 = TypedReturnValue(CTYPE_INT, isPointer);
   isPointer = false;
   ReturnValue rv4 = TypedReturnValue(CTYPE_INT, isPointer);
+
+  ASSERT_NE(rv3, rv4);
+}
+
+TEST(equality, ReturnValueConstDifferent)
+{
+  bool isConst = true;
+
+  ReturnValue rv1 = VoidReturnValue();
+  ReturnValue rv2 = ReturnValue(new CType(CTYPE_INT, isConst));
+
+  ASSERT_NE(rv1, rv2);
+
+  ReturnValue rv3 = ReturnValue(new CType(CTYPE_INT, isConst));
+  ReturnValue rv4 = ReturnValue(new CType(CTYPE_INT, !isConst));
 
   ASSERT_NE(rv3, rv4);
 }
@@ -162,9 +205,9 @@ TEST(equality, StructFieldPointerSame)
   ComposableField f1(CTYPE_INT, "a");
   ComposableField f2(CTYPE_INT, "a");
 
-  f1.setPointer(true);
+  f1.getType()->setPointer(true);
   ASSERT_NE(f1, f2);
-  f2.setPointer(true);
+  f2.getType()->setPointer(true);
   ASSERT_EQ(f1, f2);
 
   bool isEmbeddedInOtherType = false;
@@ -172,9 +215,9 @@ TEST(equality, StructFieldPointerSame)
   ComposableField f4(new StructType("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "c"), new ComposableField(CTYPE_INT, "d")}), isEmbeddedInOtherType), "e");
 
   ASSERT_EQ(f3, f4);
-  f3.getType()->getContainedFields()[1].setPointer(true);
+  f3.getType()->getContainedFields()[1].getType()->setPointer(true);
   ASSERT_NE(f3, f4);
-  f4.getType()->getContainedFields()[1].setPointer(true);
+  f4.getType()->getContainedFields()[1].getType()->setPointer(true);
   ASSERT_EQ(f3, f4);
 
   f3.getType()->getContainedFields()[1].setArray(true);

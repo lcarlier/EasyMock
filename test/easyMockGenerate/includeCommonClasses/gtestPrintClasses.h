@@ -10,6 +10,7 @@ class Parameter;
 class CType;
 class ComposableField;
 class UnionType;
+class Pointer;
 
 std::ostream& operator<<(std::ostream& os, const Function& fun);
 std::ostream& operator<<(std::ostream& os, const ReturnValue& rv);
@@ -19,6 +20,7 @@ std::ostream& operator<<(std::ostream& os, const Parameter& param);
 std::ostream& operator<<(std::ostream& os, const CType& ctype);
 std::ostream& operator<<(std::ostream& os, const ComposableField& composableField);
 std::ostream& operator<<(std::ostream& os, const UnionType& unionType);
+std::ostream& operator<<(std::ostream& os, const Pointer& pointer);
 
 #endif /* GTESTPRINTCLASSES_H */
 

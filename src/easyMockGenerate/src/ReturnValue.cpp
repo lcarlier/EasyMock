@@ -2,23 +2,20 @@
 #include "TypeItf.h"
 #include "CType.h"
 #include "StructType.h"
+#include "Pointer.h"
 
 ReturnValue::ReturnValue() :
-ReturnValue(nullptr, false)
+ReturnValue(nullptr)
 {
 }
 
 ReturnValue::ReturnValue(TypeItf* type) :
-ReturnValue(type, false)
-{ }
-
-ReturnValue::ReturnValue(TypeItf* type, bool isPointer) :
-Declarator(type, isPointer)
+Declarator(type)
 {
 }
 
 ReturnValue::ReturnValue(const ReturnValue& other) :
-ReturnValue(other.m_type->clone(), other.m_isPointer)
+Declarator(other)
 {
 }
 
@@ -45,22 +42,32 @@ ReturnValue::~ReturnValue()
 
 ReturnValue VoidReturnValue (bool p_isPointer)
 {
-  ReturnValue rv = ReturnValue(new CType(CTYPE_VOID));
-  rv.setPointer(p_isPointer);
-  return rv;
+  return TypedReturnValue(CTYPE_VOID, p_isPointer);
 }
 
 ReturnValue TypedReturnValue(easyMock_cTypes_t p_type, bool p_isPointer)
 {
-  ReturnValue rv = ReturnValue(new CType(p_type));
-  rv.setPointer(p_isPointer);
+  TypeItf *curType = new CType(p_type);
+  if(p_isPointer)
+  {
+    curType = new Pointer(curType);
+  }
+
+  ReturnValue rv = ReturnValue(curType);
+
   return rv;
 }
 
 ReturnValue StructReturnValue(StructType *type, bool p_isPointer)
 {
-  ReturnValue rv = ReturnValue(type);
-  rv.setPointer(p_isPointer);
+  TypeItf *curType = type;
+  if(p_isPointer)
+  {
+    curType = new Pointer(type);
+  }
+
+  ReturnValue rv = ReturnValue(curType);
+
   return rv;
 }
 

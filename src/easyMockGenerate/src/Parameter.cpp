@@ -2,19 +2,15 @@
 #include "TypeItf.h"
 #include "CType.h"
 #include "StructType.h"
+#include "Pointer.h"
 
 Parameter::Parameter(TypeItf* p_type, std::string p_name) :
-Parameter(p_type, p_name, false)
-{
-}
-
-Parameter::Parameter(TypeItf* p_type, std::string p_name, bool isPointer) :
-Declarator(p_type, isPointer), m_name(p_name)
+Declarator(p_type), m_name(p_name)
 {
 }
 
 Parameter::Parameter(const Parameter& other) :
-Parameter(other.m_type->clone(), other.m_name, other.m_isPointer)
+Declarator(other), m_name(other.m_name)
 {
 }
 
@@ -54,7 +50,12 @@ Parameter* VoidParameter(std::string p_name)
 
 Parameter* NamedParameter(easyMock_cTypes_t p_type, std::string p_name, bool p_isPointer)
 {
-  Parameter *p = new Parameter(new CType(p_type), p_name, p_isPointer);
+  TypeItf *curType = new CType(p_type);
+  if(p_isPointer)
+  {
+    curType = new Pointer(curType);
+  }
+  Parameter *p = new Parameter(curType, p_name);
 
   return p;
 }

@@ -7,6 +7,7 @@
 #include <ComposableField.h>
 #include <StructType.h>
 #include <UnionType.h>
+#include <Pointer.h>
 
 template<class T>
 static void printComposableTypeToOstream(std::ostream& os, const T& composableType, std::string classname);
@@ -17,7 +18,11 @@ std::ostream& operator<<(std::ostream& os, const Function& fun) {
   os << std::endl << "funPrototype: " << fun.getFunctionPrototype() << std::endl;
 
   const ReturnValue *rv = fun.getReturnType();
-  os << "Return value:" << std::endl << "\t" << *rv << std::endl;
+  os << "Return value:";
+  gs_indentation.push_back('\t');
+  os << std::endl << gs_indentation;
+  os << *rv << std::endl;
+  gs_indentation.pop_back();
 
   const Parameter::Vector& params = fun.getFunctionsParameters();
   const Parameter::Vector::size_type nbParams = params.size();
@@ -32,11 +37,23 @@ std::ostream& operator<<(std::ostream& os, const Function& fun) {
 
 std::ostream& operator<<(std::ostream& os, const ReturnValue& rv) {
   const TypeItf *typeItf = rv.getType();
-  return os << *typeItf;
+  os << "ReturnValue: ";
+  gs_indentation.push_back('\t');
+  os << std::endl << gs_indentation;
+  os << *typeItf;
+  gs_indentation.pop_back();
+  return os;
 }
 
 std::ostream& operator<<(std::ostream& os, const TypeItf& typeItf)
 {
+  os << "TypeItf:" << typeItf.getMostDefinedName() << ", ";
+  os << "isTypeDef:" << (typeItf.isTypedDef() ? "yes" : "no") << ", ";
+  os << "isAnonymous:" << (typeItf.isAnonymous() ? "yes" : "no") << ", ";
+  os << "isPointer:" << (typeItf.isPointer() ? "yes" : "no") << ", ";
+  os << "isConst:" << (typeItf.isConst() ? "yes" : "no") << ", ";
+  os << std::endl << gs_indentation;
+
   if(typeItf.isCType())
   {
     os << dynamic_cast<const CType &>(typeItf);
@@ -48,6 +65,10 @@ std::ostream& operator<<(std::ostream& os, const TypeItf& typeItf)
   else if(typeItf.isUnion())
   {
     os << dynamic_cast<const UnionType &>(typeItf);
+  }
+  else if(typeItf.isPointer())
+  {
+    os << dynamic_cast<const Pointer &>(typeItf);
   }
   return os;
 }
@@ -65,9 +86,11 @@ std::ostream& operator<<(std::ostream& os, const StructType& structType)
 
 std::ostream& operator<<(std::ostream& os, const Parameter& param)
 {
-  os << "Parameter name: " << param.getName() << std::endl;
+  const TypeItf *type = param.getType();
+  os << "Parameter name: " << param.getName() << ", ";
+  os << std::endl;
   gs_indentation.push_back('\t');
-  os << gs_indentation << *param.getType();
+  os << gs_indentation << *type;
   gs_indentation.pop_back();
 
   return os;
@@ -78,7 +101,6 @@ std::ostream& operator<<(std::ostream& os, const ComposableField& composableFiel
   os << "ComposableField(";
   os << "name: '" << composableField.getName() << "', ";
   os << "isRecursive: " << (composableField.isRecursiveTypeField() ? "yes" : " no") << ", ";
-  os << "isPointer: " << (composableField.isPointer() ? "yes" : " no") << ", ";
   os << "type: " << std::endl;
   gs_indentation.push_back('\t');
   os << gs_indentation << *composableField.getType();
@@ -90,6 +112,24 @@ std::ostream& operator<<(std::ostream& os, const ComposableField& composableFiel
 std::ostream& operator<<(std::ostream& os, const UnionType& unionType)
 {
   printComposableTypeToOstream(os, unionType, "UnionType");
+  return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const Pointer& pointerType)
+{
+  os << "Pointer: ";
+  os << "deletePointedTypeOnDelete: " << (pointerType.m_deletePointedTypeOnDelete ? "yes" : "no");
+  gs_indentation.push_back('\t');
+  os << std::endl << gs_indentation;
+  if(pointerType.m_deletePointedTypeOnDelete)
+  {
+    os << *pointerType.getPointedType();
+  }
+  else
+  {
+    os << "pointedType pointer: " << pointerType.getPointedType();
+  }
+  gs_indentation.pop_back();
   return os;
 }
 

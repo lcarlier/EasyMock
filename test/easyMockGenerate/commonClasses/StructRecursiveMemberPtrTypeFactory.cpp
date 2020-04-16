@@ -1,19 +1,24 @@
 #include <StructRecursiveMemberPtrTypeFactory.h>
 
-#include "StructType.h"
-#include "ComposableField.h"
+#include <StructType.h>
+#include <ComposableField.h>
+#include <Pointer.h>
 
 Function StructRecursiveMemberPtrTypeFactory::functionFactory()
 {
   bool isRecursiveType = true;
   bool isEmbeddedInOtherType = false;
   StructType *recurStruct = new StructType("recurs", isEmbeddedInOtherType);
-  ComposableField::attributes attrib = {.isPointer = false, .isArray = false, .arraySize = 0, .isRecursiveTypeField = isRecursiveType};
-  ComposableField *valField = new ComposableField(recurStruct, "val", attrib);
-  valField->setPointer(true);
+  ComposableField::attributes attrib =
+  {
+    .isArray = false,
+    .arraySize = 0,
+    .isRecursiveTypeField = isRecursiveType
+  };
+  ComposableField *valField = new ComposableField(new Pointer(recurStruct), "val", attrib);
   recurStruct->addStructField(valField);
-  bool isPointer = false;
-  Function f(functionGetFunctionName(), VoidReturnValue(), Parameter::Vector({new Parameter(recurStruct, "rec", isPointer)}));
+
+  Function f(functionGetFunctionName(), VoidReturnValue(), Parameter::Vector({new Parameter(recurStruct, "rec")}));
   recurStruct = nullptr; //Invalidate because we lost the ownership
   return f;
 }

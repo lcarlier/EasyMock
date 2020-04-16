@@ -1,6 +1,10 @@
-#include "LLVMParser.h"
-#include "StructType.h"
-#include "UnionType.h"
+#include <LLVMParser.h>
+#include <StructType.h>
+#include <UnionType.h>
+#include <Function.h>
+#include <TypeItf.h>
+#include <CType.h>
+#include <Pointer.h>
 
 #include <clang/AST/RecursiveASTVisitor.h>
 #include <clang/Frontend/CompilerInstance.h>
@@ -16,10 +20,6 @@
 #include <boost/filesystem/path.hpp>
 #include <unordered_map>
 #include <string>
-
-#include <Function.h>
-#include <TypeItf.h>
-#include <CType.h>
 
 class FunctionDeclASTVisitor : public clang::RecursiveASTVisitor<FunctionDeclASTVisitor>
 {
@@ -60,12 +60,13 @@ private:
   ReturnValue getFunctionReturnValue(clang::FunctionDecl* func)
   {
     ReturnValue rv;
-    const clang::Type* clangType = func->getReturnType().getTypePtr();
+    const clang::QualType &rvQualType = func->getReturnType();
     structKnownTypeMap structKnownType;
-    TypeItf *type = getEasyMocktype(*clangType, structKnownType);
-    rv.setPointer(clangType->isPointerType());
+
+    TypeItf *type = getEasyMocktype(rvQualType, structKnownType);
     rv.setType(type);
-    type = nullptr; //We lost ownership
+    type = nullptr; //We lost the ownership
+
     return rv;
   }
 
@@ -77,17 +78,22 @@ private:
     for(unsigned paramIdx = 0; paramIdx < nbParam; paramIdx++)
     {
       const clang::ParmVarDecl *param = func->getParamDecl(paramIdx);
-      const clang::Type* paramType = param->getType().getTypePtr();
+      const clang::QualType paramQualType = param->getType();
+
       structKnownTypeMap structKnownType;
-      TypeItf *type = getEasyMocktype(*paramType, structKnownType);
-      vectParam.push_back(new Parameter(type, param->getNameAsString(), paramType->isPointerType()));
+      const std::string paramName = param->getNameAsString();
+      TypeItf *type = getEasyMocktype(paramQualType, structKnownType);
+
+      vectParam.push_back(new Parameter(type, paramName));
+      type = nullptr; //We lost the ownership
     }
 
     return vectParam;
   }
 
-  TypeItf* getEasyMocktype(const clang::Type &clangType, structKnownTypeMap &structKnownType)
+  TypeItf* getEasyMocktype(const clang::QualType &clangQualType, structKnownTypeMap &structKnownType)
   {
+    const clang::Type &clangType = *clangQualType.getTypePtr();
     TypeItf *type = nullptr;
     if(clangType.isBuiltinType())
     {
@@ -115,6 +121,7 @@ private:
       clangType.dump();
       assert(false);
     }
+    type->setConst(clangQualType.isLocalConstQualified());
 
     return type;
   }
@@ -249,12 +256,14 @@ private:
     }
     for (clang::FieldDecl *FD :
           RD->fields()) {
-      const clang::Type *typePtr = FD->getType().getTypePtr();
-      TypeItf *type = getEasyMocktype(*typePtr, structKnownType);
-      bool isRecursiveType = structKnownType.find(type->getName()) != structKnownType.end();
+      const clang::QualType &qualType = FD->getType();
+      const clang::Type *typePtr = qualType.getTypePtr();
+      TypeItf *type = getEasyMocktype(qualType, structKnownType);
+      std::string currentTypeName = getMostDefinedTypeName(type);
+      bool isRecursiveType = structKnownType.find(currentTypeName) != structKnownType.end();
       uint64_t arraySize = getArraySize(*typePtr);
       ComposableField::attributes attrib =
-        {.isPointer            = typePtr->isPointerType(),
+        {
          .isArray              = typePtr->isArrayType(),
          .arraySize            = arraySize,
          .isRecursiveTypeField = isRecursiveType
@@ -263,24 +272,34 @@ private:
       ComposableField *sf = new ComposableField(type, fName, attrib);
       sType->addStructField(sf);
     }
+#if 0
+    if(typedDefName.compare("") != 0)
+    {
+      structKnownType.erase(typedDefName);
+    }
+    else
+    {
+      structKnownType.erase(typeName);
+    }
+#endif
     structKnownType.erase(typeName);
     return sType;
   }
 
   TypeItf* getFromPointerType(const clang::Type &type, structKnownTypeMap &structKnownType)
   {
-    const clang::Type &pointeeType = *type.getPointeeType().getTypePtr();
-    TypeItf *rv = getEasyMocktype(pointeeType, structKnownType);
+    const clang::QualType &pointeeQualType = type.getPointeeType();
+    TypeItf *rv = getEasyMocktype(pointeeQualType, structKnownType);
 
-    return rv;
+    return new Pointer(rv);
   }
 
   TypeItf* getFromArrayType(const clang::Type &type, structKnownTypeMap &structKnownType)
   {
     const clang::ArrayType &arrayType = *type.getAsArrayTypeUnsafe();
-    const clang::Type &arrayElem = *arrayType.getElementType().getTypePtr();
+    const clang::QualType &arrayElemQualType = arrayType.getElementType();
 
-    TypeItf *rv = getEasyMocktype(arrayElem, structKnownType);
+    TypeItf *rv = getEasyMocktype(arrayElemQualType, structKnownType);
 
     return rv;
   }
@@ -355,6 +374,20 @@ private:
       size = sizeMod.getSExtValue();
     }
     return size;
+  }
+
+  std::string getMostDefinedTypeName(TypeItf *p_type)
+  {
+    std::string currentTypeName;
+    if(p_type->isPointer())
+    {
+      currentTypeName = dynamic_cast<const Pointer *>(p_type)->getPointedType()->getMostDefinedName();
+    }
+    else
+    {
+      currentTypeName = p_type->getMostDefinedName();
+    }
+    return currentTypeName;
   }
 };
 

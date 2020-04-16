@@ -22,7 +22,8 @@ public:
   const std::string &getTypedDefName() const;
   const std::string &getMostDefinedName() const; //If typedef is set, returns it, otherwise returns the name;
 
-  const std::string getFullDeclarationName() const; //return the string that should be used to declare a variable of the type
+  std::string getFullDeclarationName() const; //returns the string that should be used to declare a variable of the type
+  std::string getFullNonQualifiedDeclarationName() const; //returns the same as getFullDeclarationName but without the const qualifier
 
   virtual easyMock_cTypes_t getCType() const;
   virtual ComposableField::Vector& getContainedFields();
@@ -34,6 +35,10 @@ public:
   bool isTypedDef() const;
   bool isAnonymous() const;
   bool isComposableType() const;
+  bool isPointer() const;
+  bool isConst() const;
+
+  TypeItf* setConst(bool value);
 
   virtual bool isEqual(const TypeItf &other) const;
 
@@ -48,16 +53,21 @@ public:
   std::string prefix ## typed_def_name; \
   bool prefix ## isCType; \
   bool prefix ## isStruct; \
-  bool prefix ## isUnion;
+  bool prefix ## isUnion; \
+  bool prefix ## isPointer; \
+  bool prefix ## isConst;
 
 protected:
+  TypeItf(); //Needed for Pointer subclass
   void setStruct(bool value);
   void setUnion(bool value);
   void setCType(bool value);
+  void setPointer(bool value);
   void setName(std::string p_name);
   void setTypedDefName(std::string p_typed_def_name);
 
 private:
+  static std::string s_getFullDeclarationName(const TypeItf* type, bool fullyQualified);
   typedef struct
   {
     TYPEITF_COMMON_CLASS_MEMBERS()

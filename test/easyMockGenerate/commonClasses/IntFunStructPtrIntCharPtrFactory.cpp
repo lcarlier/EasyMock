@@ -2,15 +2,18 @@
 
 #include <EasyMockStructHelper.h>
 
-#include "CType.h"
+#include <CType.h>
+#include <Pointer.h>
 
 Function IntFunStructPtrIntCharPtrFactory::functionFactory()
 {
-  Parameter::Vector p = structS2Parameter();
-  p[0].setPointer(true);
+  StructType *s2 = newStructS2Type();
+  Parameter *structParam = new Parameter(new Pointer(s2), "s");
+  Parameter::Vector p = Parameter::Vector({structParam});
+  structParam = nullptr; //We lost the ownership
   p.push_back(new Parameter(new CType(CTYPE_INT), "a"));
-  bool isPointer = true;
-  p.push_back(new Parameter(new CType(CTYPE_CHAR), "c", isPointer));
+
+  p.push_back(new Parameter(new Pointer(new CType(CTYPE_CHAR)), "c"));
   Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_INT), p);
   return f;
 }

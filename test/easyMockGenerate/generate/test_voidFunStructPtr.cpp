@@ -26,9 +26,9 @@ TEST_F(voidFunStructPtr_testCase, OnePtrOut)
   funExpectOutputPtr funExpectOutput = nullptr;
   getFunPtr((void **) &fun, nullptr, &cmpStruct, (void **) &funExpectOutput);
 
-  ASSERT_TRUE(fun);
-  ASSERT_TRUE(cmpStruct);
-  ASSERT_TRUE(funExpectOutput);
+  ASSERT_NE(fun, nullptr);
+  ASSERT_NE(cmpStruct, nullptr);
+  ASSERT_NE(funExpectOutput, nullptr);
 
   struct s2 sOut;
   struct s2 s2ExpectOut;

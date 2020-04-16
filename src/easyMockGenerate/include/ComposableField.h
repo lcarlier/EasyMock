@@ -11,13 +11,13 @@
 //Forward declare TypeItf to avoid circular include dependencies
 class TypeItf;
 class ComposableType;
+class Pointer;
 
 class ComposableField : public Declarator
 {
 public:
   typedef struct
   {
-    bool isPointer;
     bool isArray;
     uint64_t arraySize; //Only valid if isArray is true
     bool isRecursiveTypeField;
@@ -26,7 +26,7 @@ public:
   ComposableField(TypeItf *p_type, std::string p_name);
   ComposableField(TypeItf *p_type, std::string p_name, attributes p_attrib);
 
-  void updateRecursiveTypePtr(const ComposableType *ptr, const ComposableType* toReplace);
+  void updateRecursiveTypePtr(ComposableType *ptr, const ComposableType* toReplace);
   bool isRecursiveTypeField() const;
 
   typedef AutoCleanVectorPtr<ComposableField> Vector;
@@ -59,8 +59,7 @@ public:
 private:
   /* Do not make this constant otherwise the object is not copyable anymore */
   std::string m_name;
-  //Shadow copy of recursive that which cannot be modified
-  const ComposableType* m_recursiveType;
+  Pointer* m_recursiveType;
   bool m_isArray;
   uint64_t m_arraySize; //Only valid if m_isArray is true
 

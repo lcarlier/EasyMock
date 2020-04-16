@@ -8,9 +8,17 @@ Function VoidFunStructWithArrayFactory::functionFactory()
 {
   bool isEmbeddedInOtherType = false;
   StructType *st = new StructType("structWithArray", isEmbeddedInOtherType);
-  st->addStructField(new ComposableField(new CType(CTYPE_INT), "a", {.isPointer = false, .isArray = true, .arraySize = 10, .isRecursiveTypeField = false}));
+  ComposableField::attributes composableFieldAttrib(
+  {
+    .isArray = true,
+    .arraySize = 10,
+    .isRecursiveTypeField = false
+  });
+  st->addStructField(new ComposableField(new CType(CTYPE_INT), "a", composableFieldAttrib));
   st->addStructField(new ComposableField(CTYPE_FLOAT, "f"));
-  st->addStructField(new ComposableField(new CType(CTYPE_INT), "b", {.isPointer = false, .isArray = true, .arraySize = 0, .isRecursiveTypeField = false}));
+
+  composableFieldAttrib.arraySize = 0;
+  st->addStructField(new ComposableField(new CType(CTYPE_INT), "b", composableFieldAttrib));
   Parameter::Vector p({new Parameter(st, "param")});
   Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), p);
   return f;

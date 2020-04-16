@@ -7,7 +7,7 @@ class CType : public TypeItf
 {
 public:
   CType();
-  CType(const easyMock_cTypes_t p_cType);
+  explicit CType(const easyMock_cTypes_t p_cType, bool isConst = false);
   easyMock_cTypes_t getCType() const override;
   bool setUnsigned(bool val);
 

@@ -9,16 +9,13 @@ class Declarator
 {
 public:
   Declarator();
-  Declarator(TypeItf* typeItf, bool isPointer);
+  explicit Declarator(TypeItf* typeItf);
   virtual ~Declarator();
 
   Declarator(const Declarator& other);
   Declarator &operator=(Declarator other);
 
   Declarator(Declarator &&other);
-
-  bool isPointer() const;
-  bool setPointer(bool value);
 
   virtual TypeItf* getType();
   virtual const TypeItf* getType() const;
@@ -30,7 +27,6 @@ public:
   bool operator!=(const Declarator &other) const;
 protected:
   TypeItf* m_type;
-  bool m_isPointer;
 
   friend void swap(Declarator &first, Declarator &second);
 };

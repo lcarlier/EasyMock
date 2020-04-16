@@ -5,17 +5,17 @@
 #include <stddef.h>
 
 Declarator::Declarator() :
-Declarator(nullptr, false)
+Declarator(nullptr)
 {
 }
 
-Declarator::Declarator(TypeItf* typeItf, bool isPointer) :
-m_type(typeItf), m_isPointer(isPointer)
+Declarator::Declarator(TypeItf* typeItf) :
+m_type(typeItf)
 {
 }
 
 Declarator::Declarator(const Declarator& other) :
-m_type(other.m_type ? other.m_type->clone(): nullptr), m_isPointer(other.m_isPointer)
+m_type(other.m_type ? other.m_type->clone(): nullptr)
 {
 }
 
@@ -34,18 +34,6 @@ Declarator& Declarator::operator=(Declarator other)
 Declarator::~Declarator()
 {
   delete m_type;
-}
-
-bool Declarator::isPointer() const
-{
-  return m_isPointer;
-}
-
-bool Declarator::setPointer(bool value)
-{
-  m_isPointer = value;
-
-  return true;
 }
 
 TypeItf* Declarator::getType()
@@ -87,7 +75,7 @@ bool Declarator::operator==(const Declarator& other) const
   {
     typeMatch = true;
   }
-  return typeMatch && this->m_isPointer == other.m_isPointer;
+  return typeMatch;
 }
 
 bool Declarator::operator!=(const Declarator& other) const
@@ -98,5 +86,4 @@ bool Declarator::operator!=(const Declarator& other) const
 void swap(Declarator &first, Declarator &second)
 {
   std::swap(first.m_type, second.m_type);
-  std::swap(first.m_isPointer, second.m_isPointer);
 }
