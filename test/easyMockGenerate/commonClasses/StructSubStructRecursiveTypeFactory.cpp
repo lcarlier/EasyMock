@@ -41,3 +41,81 @@ std::string StructSubStructRecursiveTypeFactory::getFilename()
   return "structSubStructRecursiveType.h";
 }
 
+std::string StructSubStructRecursiveTypeFactory::getMatcherFunctionName()
+{
+  return "cmp_struct_st1";
+}
+
+std::string StructSubStructRecursiveTypeFactory::getFieldWrongName()
+{
+  return "st1Val.st1SubSt2";
+}
+
+std::string StructSubStructRecursiveTypeFactory::getSubFieldWrongName()
+{
+  return "st2SubSt1";
+}
+
+std::string StructSubStructRecursiveTypeFactory::getSubFieldWrongTypeName()
+{
+  return "st2";
+}
+
+std::string StructSubStructRecursiveTypeFactory::getSubComposableTypeType()
+{
+  return " struct";
+}
+
+void StructSubStructRecursiveTypeFactory::setupTestCase(EasyMockTestCase::TestCase tc)
+{
+  struct st1 aToExpect;
+  aToExpect.st1SubSt2.st2SubSt1 = (struct st1*)0xf00;
+  aToExpect.st1SubSt2.st2SubSt1 = (struct st1*)0xba3;
+
+  switch(tc)
+  {
+    case EasyMockTestCase::OneExpect:
+      m_expects.push_back(std::make_tuple(aToExpect));
+      m_params.push_back(std::make_tuple(aToExpect));
+      m_compare.push_back(std::make_tuple(m_user_matcher));
+      break;
+    case EasyMockTestCase::ThreeExpects:
+    {
+      for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::ThreeExpects_NbExpects; expectIdx++)
+      {
+        aToExpect.st1SubSt2.st2SubSt1++;
+        m_expects.push_back(std::make_tuple(aToExpect));
+        m_params.push_back(std::make_tuple(aToExpect));
+        m_compare.push_back(std::make_tuple(m_user_matcher));
+      }
+      break;
+    }
+    case EasyMockTestCase::OneExpectArgIsBad:
+      m_expects.push_back(std::make_tuple(aToExpect));
+      aToExpect.st1SubSt2.st2SubSt1++;
+      m_params.push_back(std::make_tuple(aToExpect));
+      m_compare.push_back(std::make_tuple(m_user_matcher));
+      break;
+    case EasyMockTestCase::SecondExpectArgIsBad:
+      m_expects.push_back(std::make_tuple(aToExpect));
+      m_params.push_back(std::make_tuple(aToExpect));
+      m_compare.push_back(std::make_tuple(m_user_matcher));
+
+      m_expects.push_back(std::make_tuple(aToExpect));
+      aToExpect.st1SubSt2.st2SubSt1++;
+      m_params.push_back(std::make_tuple(aToExpect)); //second call fails
+      m_compare.push_back(std::make_tuple(m_user_matcher));
+      break;
+    case EasyMockTestCase::NotEnoughCall:
+      for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::NotEnoughCall_NbExpects; expectIdx++)
+      {
+        aToExpect.st1SubSt2.st2SubSt1++;
+        m_expects.push_back(std::make_tuple(aToExpect));
+        m_params.push_back(std::make_tuple(aToExpect));
+        m_compare.push_back(std::make_tuple(m_user_matcher));
+      }
+      break;
+    case EasyMockTestCase::NoExpect:
+      break;
+  }
+}

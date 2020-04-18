@@ -87,9 +87,26 @@ CType* CType::clone() const
   return new CType(*this);
 }
 
+bool CType::isEqual(const TypeItf& p_other) const
+{
+  bool parentEq = TypeItf::isEqual(p_other);
+  if(!parentEq)
+  {
+    return false;
+  }
+  if(!p_other.isCType())
+  {
+    return false;
+  }
+  const CType &other = dynamic_cast<const CType &>(p_other);
+  bool ctypeEq = this->m_cType == other.m_cType;
+
+  return ctypeEq;
+}
+
 bool CType::operator==(const CType& other) const
 {
-  return TypeItf::operator ==(other) && m_cType == other.m_cType;
+  return this->isEqual(other);
 }
 
 bool CType::operator!=(const CType& other) const

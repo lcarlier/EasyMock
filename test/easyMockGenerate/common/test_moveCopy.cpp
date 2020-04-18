@@ -414,6 +414,27 @@ TEST(moveCopy, ParameterWithStructSubRecursive)
   testMoveCopyParameter(p1);
 }
 
+TEST(moveCopy, ParameterWithPointerToStructSubRecursive)
+{
+  bool isEmbeddedInOtherType = false;
+  StructType *st1 = new StructType("st1", isEmbeddedInOtherType);
+  StructType *st2 = new StructType("st2", isEmbeddedInOtherType);
+  st1->addStructField(new ComposableField(st2, "st1SubSt2"));
+  //st1 is recursive in st2 because it is access via the parameter "st1Val" which is type st2 and has a st1 as field member
+  ComposableField::attributes composableFieldAttrib(
+  {
+    .isArray = false,
+    .arraySize = 0,
+    .isRecursiveTypeField = true
+  });
+  st2->addStructField(new ComposableField(new Pointer(st1), "st2SubSt1", composableFieldAttrib));
+  st2->addStructField(new ComposableField(new Pointer(st2), "st2SubSt2", composableFieldAttrib));
+  Parameter p1(new Pointer(st1), "st1Val");
+
+  testMoveCopyParameter(p1);
+}
+
+
 TEST(moveCopy, ReturnValue)
 {
   bool isEmbeddedInOtherType = false;

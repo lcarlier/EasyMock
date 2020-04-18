@@ -5,13 +5,19 @@
 #include <easyMock.h>
 #include <structSubStructRecursiveType.h>
 
-class StructSubStructRecursiveTypeFactory : public FunctionFactory<unsigned short, std::tuple<struct st1*>, std::tuple<EasyMock_Matcher>>
+class StructSubStructRecursiveTypeFactory : public FunctionFactory<unsigned short, std::tuple<struct st1>, std::tuple<EasyMock_Matcher>>
 {
 public:
   Function functionFactory() override;
   std::string functionGetFunctionName() override;
   std::string getFilename() override;
-  //No test en generates because it boils down of testing the field structures that are pointers
+  std::string getMatcherFunctionName() override;
+  std::string getFieldWrongName() override;
+  std::string getSubFieldWrongName() override;
+  std::string getSubFieldWrongTypeName() override;
+  std::string getSubComposableTypeType() override;
+
+  void setupTestCase(EasyMockTestCase::TestCase tc) override;
 };
 
 #endif /* STRUCTSUBSTRUCTRECURSIVETYPEFACTORY_H */

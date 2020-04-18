@@ -18,6 +18,8 @@ public:
   bool operator==(const CType &other) const;
   bool operator!=(const CType &other) const;
 
+  bool isEqual(const TypeItf& other) const override;
+
   CType *clone() const override;
   /*
    * bool isEqual(const TypeItf &other);

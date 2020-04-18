@@ -246,11 +246,11 @@ private:
       case UNION:
         sType = new UnionType(typeName, typedDefName, isEmbeddedInOtherType);
     }
-    if(typedDefName.compare("") != 0)
+    if(!typedDefName.empty())
     {
       structKnownType[typedDefName] = sType;
     }
-    else
+    if(!typeName.empty())
     {
       structKnownType[typeName] = sType;
     }
@@ -272,11 +272,11 @@ private:
       ComposableField *sf = new ComposableField(type, fName, attrib);
       sType->addStructField(sf);
     }
-    if(typedDefName.compare("") != 0)
+    if(!typedDefName.empty())
     {
       structKnownType.erase(typedDefName);
     }
-    else
+    if(!typeName.empty())
     {
       structKnownType.erase(typeName);
     }
