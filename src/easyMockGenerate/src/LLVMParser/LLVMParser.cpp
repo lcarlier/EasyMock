@@ -272,7 +272,6 @@ private:
       ComposableField *sf = new ComposableField(type, fName, attrib);
       sType->addStructField(sf);
     }
-#if 0
     if(typedDefName.compare("") != 0)
     {
       structKnownType.erase(typedDefName);
@@ -281,8 +280,7 @@ private:
     {
       structKnownType.erase(typeName);
     }
-#endif
-    structKnownType.erase(typeName);
+
     return sType;
   }
 
