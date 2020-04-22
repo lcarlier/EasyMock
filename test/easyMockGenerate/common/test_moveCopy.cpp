@@ -30,9 +30,8 @@ TEST(moveCopy, CType)
   ASSERT_EQ(ctype6, ctype1);
 }
 
-TEST(moveCopy, Pointer)
+static void testMovePointer(Pointer &p1)
 {
-  Pointer p1(new CType(CTYPE_INT));
   Pointer p2(p1);
   ASSERT_EQ(p1, p2);
 
@@ -48,6 +47,35 @@ TEST(moveCopy, Pointer)
   ASSERT_NE(p6, p2);
   p6 = std::move(p2);
   ASSERT_EQ(p6, p1);
+}
+
+TEST(moveCopy, Pointer)
+{
+  Pointer p1(new CType(CTYPE_INT));
+
+  testMovePointer(p1);
+}
+
+TEST(moveCopy, PointerWithRecursField)
+{
+  StructType *t_struct = new StructType("s_s1", "t_s1", false);
+  ComposableField::attributes cmpAttr =
+  {
+    .isArray = false,
+    .arraySize = 0,
+    .isRecursiveTypeField = true
+  };
+  t_struct->addStructField(new ComposableField(new Pointer(t_struct), "recur", cmpAttr));
+
+  Pointer p1(t_struct);
+
+  testMovePointer(p1);
+
+  ASSERT_TRUE(p1.getPointedType()->isComposableType());
+
+  Pointer p2 = std::move(p1);
+
+  ASSERT_TRUE(p2.getPointedType()->isComposableType());
 }
 
 static void testMoveComposableField(ComposableField &f1)
@@ -151,6 +179,7 @@ TEST(moveCopy, UnionType)
 
 TEST(moveCopy, StructTypeRecursive)
 {
+  const TypeItf *pointedType = nullptr;
   bool isRecursiveType = true;
   bool isEmbeddedInOtherType = false;
   StructType st1("recurs1", isEmbeddedInOtherType);
@@ -167,31 +196,38 @@ TEST(moveCopy, StructTypeRecursive)
   ASSERT_EQ(st1, st2);
   const ComposableField::Vector& st1ContaineField = st1.getContainedFields();
   const ComposableField::Vector& st2ContaineField = st2.getContainedFields();
-  ASSERT_EQ(&st1, dynamic_cast<const Pointer *>(st1ContaineField[0].getType())->getPointedType());
-  ASSERT_EQ(&st2, dynamic_cast<const Pointer *>(st2ContaineField[0].getType())->getPointedType());
+  ASSERT_EQ(st1.getFullDeclarationName(), dynamic_cast<const Pointer *>(st1ContaineField[0].getType())->getPointedType()->getFullDeclarationName());
+  ASSERT_EQ(st2.getFullDeclarationName(), dynamic_cast<const Pointer *>(st2ContaineField[0].getType())->getPointedType()->getFullDeclarationName());
 
   StructType st3("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "i")}), isEmbeddedInOtherType);
   ASSERT_NE(st3,st1);
   st3 = st1;
   ASSERT_EQ(st3,st1);
   const ComposableField::Vector& st3ContaineField = st3.getContainedFields();
-  ASSERT_EQ(&st3, dynamic_cast<const Pointer *>(st3ContaineField[0].getType())->getPointedType());
+  pointedType = dynamic_cast<const Pointer *>(st3ContaineField[0].getType())->getPointedType();
+  ASSERT_EQ(st3.getFullDeclarationName(), pointedType->getFullDeclarationName());
+  ASSERT_TRUE(pointedType->isComposableType());
 
   StructType st4 = std::move(st3);
   ASSERT_EQ(st4, st1);
   const ComposableField::Vector& st4ContaineField = st4.getContainedFields();
-  ASSERT_EQ(&st4, dynamic_cast<const Pointer *>(st4ContaineField[0].getType())->getPointedType());
+  pointedType = dynamic_cast<const Pointer *>(st4ContaineField[0].getType())->getPointedType();
+  ASSERT_EQ(st4.getFullDeclarationName(), pointedType->getFullDeclarationName());
+  ASSERT_TRUE(pointedType->isComposableType());
 
   StructType st6("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "i")}), isEmbeddedInOtherType);
   ASSERT_NE(st6, st2);
   st6 = std::move(st2);
   ASSERT_EQ(st6, st1);
   const ComposableField::Vector& st6ContaineField = st6.getContainedFields();
-  ASSERT_EQ(&st6, dynamic_cast<const Pointer *>(st6ContaineField[0].getType())->getPointedType());
+  pointedType = dynamic_cast<const Pointer *>(st6ContaineField[0].getType())->getPointedType();
+  ASSERT_EQ(st6.getFullDeclarationName(), pointedType->getFullDeclarationName());
+  ASSERT_TRUE(pointedType->isComposableType());
 }
 
 TEST(moveCopy, StructTypeSubFieldRecursive)
 {
+  const TypeItf *pointedType = nullptr;
   bool isRecursiveType = true;
   bool isEmbeddedInOtherType = true;
   StructType st1("recurs1", isEmbeddedInOtherType);
@@ -210,10 +246,14 @@ TEST(moveCopy, StructTypeSubFieldRecursive)
   ASSERT_EQ(st1, st2);
   const ComposableField::Vector& st1ContaineField = st1.getContainedFields();
   const ComposableField::Vector& st1SubStContainerField = st1ContaineField[0].getType()->getContainedFields();
-  ASSERT_EQ(&st1, dynamic_cast<const Pointer *>(st1SubStContainerField[0].getType())->getPointedType());
+  pointedType = dynamic_cast<const Pointer *>(st1SubStContainerField[0].getType())->getPointedType();
+  ASSERT_EQ(st1.getFullDeclarationName(), pointedType->getFullDeclarationName());
+  ASSERT_TRUE(pointedType->isComposableType());
   const ComposableField::Vector& st2ContaineField = st2.getContainedFields();
   const ComposableField::Vector& st2SubStContainerField = st2ContaineField[0].getType()->getContainedFields();
-  ASSERT_EQ(&st2, dynamic_cast<const Pointer *>(st2SubStContainerField[0].getType())->getPointedType());
+  pointedType = dynamic_cast<const Pointer *>(st2SubStContainerField[0].getType())->getPointedType();
+  ASSERT_EQ(st2.getFullDeclarationName(), pointedType->getFullDeclarationName());
+  ASSERT_TRUE(pointedType->isComposableType());
 
   StructType st3("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "i")}), isEmbeddedInOtherType);
   ASSERT_NE(st3,st1);
@@ -221,13 +261,17 @@ TEST(moveCopy, StructTypeSubFieldRecursive)
   ASSERT_EQ(st3,st1);
   const ComposableField::Vector& st3ContaineField = st3.getContainedFields();
   const ComposableField::Vector& st3SubStContainerField = st3ContaineField[0].getType()->getContainedFields();
-  ASSERT_EQ(&st3, dynamic_cast<const Pointer *>(st3SubStContainerField[0].getType())->getPointedType());
+  pointedType = dynamic_cast<const Pointer *>(st3SubStContainerField[0].getType())->getPointedType();
+  ASSERT_EQ(st3.getFullDeclarationName(), pointedType->getFullDeclarationName());
+  ASSERT_TRUE(pointedType->isComposableType());
 
   StructType st4 = std::move(st3);
   ASSERT_EQ(st4, st1);
   const ComposableField::Vector& st4ContaineField = st4.getContainedFields();
   const ComposableField::Vector& st4SubStContainerField = st4ContaineField[0].getType()->getContainedFields();
-  ASSERT_EQ(&st4, dynamic_cast<const Pointer *>(st4SubStContainerField[0].getType())->getPointedType());
+  pointedType = dynamic_cast<const Pointer *>(st4SubStContainerField[0].getType())->getPointedType();
+  ASSERT_EQ(st4.getFullDeclarationName(), pointedType->getFullDeclarationName());
+  ASSERT_TRUE(pointedType);
 
   StructType st6("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "i")}), isEmbeddedInOtherType);
   ASSERT_NE(st6, st2);
@@ -235,7 +279,9 @@ TEST(moveCopy, StructTypeSubFieldRecursive)
   ASSERT_EQ(st6, st1);
   const ComposableField::Vector& st6ContaineField = st6.getContainedFields();
   const ComposableField::Vector& st6SubStContainerField = st6ContaineField[0].getType()->getContainedFields();
-  ASSERT_EQ(&st6, dynamic_cast<const Pointer *>(st6SubStContainerField[0].getType())->getPointedType());
+  pointedType = dynamic_cast<const Pointer *>(st6SubStContainerField[0].getType())->getPointedType();
+  ASSERT_EQ(st6.getFullDeclarationName(), pointedType->getFullDeclarationName());
+  ASSERT_TRUE(pointedType);
 }
 
 /*
@@ -339,6 +385,35 @@ TEST(moveCopy, UnionEmbeddedInOtherType)
   UnionType u1("foo", "NotAnonymous", isEmbeddedInOtherType);
 
   testComposableType(u1);
+}
+
+TEST(moveCopy, fromSTDIO)
+{
+  bool isEmbeddedInOtherType = false;
+  StructType *FILE_T = new StructType("MY_IO_FILE", "T_MY_IO_FILE", isEmbeddedInOtherType);
+  StructType *IO_MARK = new StructType("MY_IO_MARK", isEmbeddedInOtherType);
+
+  ComposableField::attributes fieldAttr =
+  {
+    .isArray = false,
+    .arraySize = 0,
+    .isRecursiveTypeField = true
+  };
+
+  IO_MARK->addStructField(new ComposableField(new Pointer(IO_MARK), "_next", fieldAttr));
+  IO_MARK->addStructField(new ComposableField(new Pointer(FILE_T), "_sbuf", fieldAttr));
+
+  FILE_T->addStructField(new ComposableField(new Pointer(IO_MARK), "_markers"));
+  FILE_T->addStructField(new ComposableField(new Pointer(FILE_T), "_chain", fieldAttr));
+
+  Parameter *p = new Parameter(new Pointer(FILE_T), "file");
+  FILE_T = nullptr; //We lost the ownership
+  Function f1("structFileFromStdio", TypedReturnValue(CTYPE_VOID), Parameter::Vector({p}));
+  p = nullptr; //We lost the ownership
+
+  Function f2(f1);
+
+  ASSERT_EQ(f1, f2);
 }
 
 TEST(moveCopy, AutoCleanVectorPtr)

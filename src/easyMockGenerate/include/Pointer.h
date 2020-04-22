@@ -21,7 +21,7 @@ public:
   TypeItf* getPointedType();
 
   bool setPointedType(TypeItf* newPointedType);
-  void setDeletePointedTypeOnDelete(bool value);
+  void setRecursivePointer(bool value);
 
   bool isEqual(const TypeItf& other) const override;
 
@@ -30,7 +30,7 @@ public:
 private:
   void swap(Pointer &first, Pointer &second);
   TypeItf* m_pointedType;
-  bool m_deletePointedTypeOnDelete;
+  bool m_isRecursivePointer;
 };
 
 #endif /* POINTER_H */

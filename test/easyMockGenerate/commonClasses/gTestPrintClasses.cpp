@@ -118,10 +118,10 @@ std::ostream& operator<<(std::ostream& os, const UnionType& unionType)
 std::ostream& operator<<(std::ostream& os, const Pointer& pointerType)
 {
   os << "Pointer: ";
-  os << "deletePointedTypeOnDelete: " << (pointerType.m_deletePointedTypeOnDelete ? "yes" : "no");
+  os << "recursivePointer: " << (pointerType.m_isRecursivePointer ? "yes" : "no");
   gs_indentation.push_back('\t');
   os << std::endl << gs_indentation;
-  if(pointerType.m_deletePointedTypeOnDelete)
+  if(!pointerType.m_isRecursivePointer)
   {
     os << *pointerType.getPointedType();
   }

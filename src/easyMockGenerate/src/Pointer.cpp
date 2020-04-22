@@ -1,7 +1,7 @@
 #include "Pointer.h"
 
 Pointer::Pointer(TypeItf *type, bool isConst):
-m_pointedType(type), m_deletePointedTypeOnDelete(true)
+m_pointedType(type), m_isRecursivePointer(true)
 {
   this->setConst(isConst);
   this->setPointer(true);
@@ -10,19 +10,12 @@ m_pointedType(type), m_deletePointedTypeOnDelete(true)
 Pointer::Pointer(const Pointer& other):
 TypeItf(other)
 {
-  if(other.m_pointedType && other.m_deletePointedTypeOnDelete)
-  {
-    m_pointedType = other.m_pointedType->clone();
-  }
-  else
-  {
-    m_pointedType = other.m_pointedType;
-  }
-  m_deletePointedTypeOnDelete = other.m_deletePointedTypeOnDelete;
+  m_pointedType = other.m_pointedType->clone();
+  m_isRecursivePointer = other.m_isRecursivePointer;
 }
 
 Pointer::Pointer(Pointer &&other):
-m_pointedType(nullptr), m_deletePointedTypeOnDelete(true)
+m_pointedType(nullptr), m_isRecursivePointer(true)
 {
   swap(*this, other);
 }
@@ -56,23 +49,19 @@ TypeItf* Pointer::getPointedType()
 
 bool Pointer::setPointedType(TypeItf* newPointedType)
 {
-  if(m_deletePointedTypeOnDelete)
-  {
-    return false;
-  }
   m_pointedType = newPointedType;
   return true;
 }
 
-void Pointer::setDeletePointedTypeOnDelete(bool value)
+void Pointer::setRecursivePointer(bool value)
 {
-  m_deletePointedTypeOnDelete = value;
+  m_isRecursivePointer = value;
 }
 
 void Pointer::swap(Pointer &first, Pointer &second)
 {
   std::swap(first.m_pointedType, second.m_pointedType);
-  std::swap(first.m_deletePointedTypeOnDelete, second.m_deletePointedTypeOnDelete);
+  std::swap(first.m_isRecursivePointer, second.m_isRecursivePointer);
 }
 
 bool Pointer::isEqual(const TypeItf& p_other) const
@@ -82,13 +71,13 @@ bool Pointer::isEqual(const TypeItf& p_other) const
     return false;
   }
   const Pointer& other = static_cast<const Pointer&>(p_other);
-  bool deletePointedTypeEqual = this->m_deletePointedTypeOnDelete == other.m_deletePointedTypeOnDelete;
+  bool deletePointedTypeEqual = this->m_isRecursivePointer == other.m_isRecursivePointer;
   if(!deletePointedTypeEqual)
   {
     return false;
   }
   bool typeEqual;
-  if(this->m_deletePointedTypeOnDelete)
+  if(!this->m_isRecursivePointer)
   {
     typeEqual = *this->m_pointedType == *other.m_pointedType;
   }
@@ -107,9 +96,5 @@ Pointer* Pointer::clone() const
 
 Pointer::~Pointer()
 {
-  if(m_deletePointedTypeOnDelete)
-  {
-    delete m_pointedType;
-  }
+  delete m_pointedType;
 }
-

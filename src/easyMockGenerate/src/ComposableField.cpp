@@ -30,14 +30,24 @@ m_arraySize(p_attrib.arraySize)
 {
   if(p_attrib.isRecursiveTypeField)
   {
-    //If type is recursive, keep it's pointer only. It doesn't need to be deleted
-    m_recursiveType = dynamic_cast<Pointer*>(p_type);
-    if(!m_recursiveType)
+    if(!p_type->isPointer())
     {
       fprintf(stderr, "Error in calling building ComposableField with non Pointer type and recursive attribute");
       assert(false);
     }
-    m_recursiveType->setDeletePointedTypeOnDelete(false);
+    /*
+     * We keep the pointer object but we make a copy of the pointed type.
+     * This means that the pointed object must at least contains the type name
+     * and its typed def if any. This is not the purpose that we can go
+     * recursively to the pointed type fields via this attribute.
+     * 
+     * TODO: use a more specific class to store m_recursiveType
+     */
+    Pointer *p = dynamic_cast<Pointer*>(p_type);
+    TypeItf *pointedType = p->getPointedType();
+    m_recursiveType = p;
+    m_recursiveType->setRecursivePointer(true);
+    m_recursiveType->setPointedType(pointedType->clone());
   }
   else
   {
@@ -159,7 +169,7 @@ void ComposableField::setType(TypeItf* p_type)
       fprintf(stderr, "Error in calling setType with non Pointer type and recursive attribute");
       assert(false);
     }
-    m_recursiveType->setDeletePointedTypeOnDelete(false);
+    m_recursiveType->setRecursivePointer(false);
   }
   else
   {
