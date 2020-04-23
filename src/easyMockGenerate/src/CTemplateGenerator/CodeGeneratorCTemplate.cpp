@@ -304,7 +304,7 @@ static const char templateText[] =
         CARRIAGE_RETURN
         "static " FUNCTION_EXPECT_RETURN_AND_OUTPUT_COMMON_SIGNATURE ";" CARRIAGE_RETURN
         "static MockedFunction<" FUNCTION_MOCK_DATA_TYPE "> " TEMPLATE_MOCKED_FUN_CLASS "(\"" TEMPLATE_FUNCTION_TO_BE_MOCKED "\");" CARRIAGE_RETURN
-        IF_RETURN_VALUE("static " FUNCTION_NON_QUALIFIED_RETURN_VALUE_TYPE " dummyRes;" CARRIAGE_RETURN)
+        IF_RETURN_VALUE("static " FUNCTION_NON_QUALIFIED_RETURN_VALUE_TYPE " dummyRes_" TEMPLATE_VAR(FUNCTION_NAME) ";" CARRIAGE_RETURN)
         CARRIAGE_RETURN
         "extern \"C\" " TEMPLATE_FUNCTION_TO_BE_MOCKED CARRIAGE_RETURN
         "{" CARRIAGE_RETURN
@@ -314,7 +314,7 @@ static const char templateText[] =
         IF_RETURN_VALUE
         (
             "    " FUNCTION_NON_QUALIFIED_RETURN_VALUE_TYPE " default_res;" CARRIAGE_RETURN
-            "    std::memcpy(&default_res, &dummyRes, sizeof(default_res));" CARRIAGE_RETURN
+            "    std::memcpy(&default_res, &dummyRes_" TEMPLATE_VAR(FUNCTION_NAME) ", sizeof(default_res));" CARRIAGE_RETURN
             CARRIAGE_RETURN
         )
         "    if(!" TEMPLATE_MOCKED_FUN_CLASS ".addActualCall())" CARRIAGE_RETURN
@@ -469,7 +469,7 @@ static const char declareAnonymousComposableTypeFieldTemplate[] =
 
 CodeGeneratorCTemplate::CodeGeneratorCTemplate()
 {
-  m_generatedStructs.clear();
+  m_generatedComparator.clear();
 }
 
 
@@ -869,10 +869,11 @@ void CodeGeneratorCTemplate::generateComposedTypedCompareSection(ctemplate::Temp
   const std::string& mostDefinedName = p_composedType->getMostDefinedName();
 
   //Generate each comparator only once.
-  if(m_generatedStructs.find(p_uniquePrepend) != m_generatedStructs.end())
+  if(m_generatedComparator.find(mostDefinedName) != m_generatedComparator.end())
   {
     return;
   }
+  m_generatedComparator.insert(mostDefinedName);
 
   p_uniquePrepend.append(uniqueName);
 

@@ -11,6 +11,7 @@ add_executable(test_easyMockGenerate_generate
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/generate/test_generateVoidFunStructWithArray.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/generate/test_structSubStructRecursiveType.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/generate/test_voidFunComposableTypeWithComposableType.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/generate/test_compileOnly.cpp
 )
 
 target_compile_options(test_easyMockGenerate_generate PRIVATE ${TEST_COMPILE_FLAGS})

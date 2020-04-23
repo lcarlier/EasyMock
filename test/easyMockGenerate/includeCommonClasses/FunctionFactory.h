@@ -72,20 +72,23 @@ std::tuple<Formats...> as_tuple(std::array<T, N> const& arr) {
 template<typename ...>
 class FunctionFactory;
 
+using ElementToMockList = std::vector<Function*>;
+
 // Specialisation of the template. Out of the n parameters, the first is RV, second is std::tuple<Params...>, and third is std::tuple<Compare ...>
 template<typename RV, typename ... Params, typename ... Compare>
 class FunctionFactory<RV, std::tuple<Params ...>, std::tuple<Compare ...>>
 {
 public:
-  virtual Function functionFactory() = 0;
-  virtual Function* newFunctionFactory() { return functionFactory().clone(); };
+  virtual Function functionFactory() {fprintf(stderr, "Function %s must be overriden\n\r", __FUNCTION__); assert(false);}
+  virtual ElementToMockList functionFactoryArray() {ElementToMockList rv; rv.push_back(functionFactory().clone()); return rv;}
+  virtual Function* newFunctionFactory() { return functionFactory().clone(); }
   virtual std::string functionGetFunctionName() = 0;
-  virtual void setupTestCase(EasyMockTestCase::TestCase tc) {fprintf(stderr, "Function %s must be overriden\n\r", __FUNCTION__); assert(false);}; //Not virtual. Only the factories that support generic way of testing the mock generation should implement this
-  virtual std::string getMatcherFunctionName() {fprintf(stderr, "Function %s must be overriden\n\r", __FUNCTION__); assert(false);};
-  virtual std::string getFieldWrongName() {fprintf(stderr, "Function %s must be overriden\n\r", __FUNCTION__); assert(false);};
-  virtual std::string getSubFieldWrongName() {fprintf(stderr, "Function %s must be overriden\n\r", __FUNCTION__); assert(false);};
-  virtual std::string getSubFieldWrongTypeName() {fprintf(stderr, "Function %s must be overriden\n\r", __FUNCTION__); assert(false);};
-  virtual std::string getSubComposableTypeType() {fprintf(stderr, "Function %s must be overriden\n\r", __FUNCTION__); assert(false);};
+  virtual void setupTestCase(EasyMockTestCase::TestCase tc) {fprintf(stderr, "Function %s must be overriden\n\r", __FUNCTION__); assert(false);} //Not virtual. Only the factories that support generic way of testing the mock generation should implement this
+  virtual std::string getMatcherFunctionName() {fprintf(stderr, "Function %s must be overriden\n\r", __FUNCTION__); assert(false);}
+  virtual std::string getFieldWrongName() {fprintf(stderr, "Function %s must be overriden\n\r", __FUNCTION__); assert(false);}
+  virtual std::string getSubFieldWrongName() {fprintf(stderr, "Function %s must be overriden\n\r", __FUNCTION__); assert(false);}
+  virtual std::string getSubFieldWrongTypeName() {fprintf(stderr, "Function %s must be overriden\n\r", __FUNCTION__); assert(false);}
+  virtual std::string getSubComposableTypeType() {fprintf(stderr, "Function %s must be overriden\n\r", __FUNCTION__); assert(false);}
   virtual std::string getFilename() = 0;
 
   void setupTestCaseAndMatcher(EasyMockTestCase::TestCase tc, EasyMock_Matcher matcher){

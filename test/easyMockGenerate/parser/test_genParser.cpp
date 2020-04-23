@@ -23,8 +23,13 @@ TYPED_TEST(GenericParser_testCase, parser)
   fileName.append(funFactory.getFilename());
   parser.setFilename(fileName);
   parser.getElementToStub(elem);
-  ASSERT_EQ(elem.size(), 1);
-  Function funFromFactory = funFactory.functionFactory();
-  Function& funFromParser = Function::toFunction(elem[0]);
-  ASSERT_EQ(funFromFactory, funFromParser);
+  ElementToMockList funList = funFactory.functionFactoryArray();
+  ASSERT_EQ(elem.size(), funList.size());
+  for(size_t funIdx = 0; funIdx < funList.size(); funIdx++)
+  {
+    Function* funFromFactory = funList[funIdx];
+    Function& funFromParser = Function::toFunction(elem[funIdx]);
+    ASSERT_EQ(*funFromFactory, funFromParser) << "funIdx: " << funIdx;
+    delete funFromFactory;
+  }
 }

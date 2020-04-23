@@ -8,6 +8,8 @@
 
 #include <TestTypes.h>
 
+#include <Pointer.h>
+
 template<class T>
 class genGenerateOutputPtr_testCase : public genGenerate_testCase<T>
 {
