@@ -1,7 +1,7 @@
 #include "Pointer.h"
 
 Pointer::Pointer(TypeItf *type, bool isConst):
-m_pointedType(type), m_isRecursivePointer(true)
+m_pointedType(type), m_isRecursivePointer(false)
 {
   this->setConst(isConst);
   this->setPointer(true);
@@ -15,13 +15,14 @@ TypeItf(other)
 }
 
 Pointer::Pointer(Pointer &&other):
-m_pointedType(nullptr), m_isRecursivePointer(true)
+TypeItf(other), m_pointedType(nullptr), m_isRecursivePointer(false)
 {
   swap(*this, other);
 }
 
 Pointer& Pointer::operator=(Pointer other)
 {
+  TypeItf::operator=(other);
   swap(*this, other);
 
   return *this;
@@ -66,6 +67,11 @@ void Pointer::swap(Pointer &first, Pointer &second)
 
 bool Pointer::isEqual(const TypeItf& p_other) const
 {
+  bool parentEq = TypeItf::isEqual(p_other);
+  if(!parentEq)
+  {
+    return false;
+  }
   if(!p_other.isPointer())
   {
     return false;

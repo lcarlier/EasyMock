@@ -27,6 +27,28 @@ TEST(equality, CType)
   ASSERT_NE(tiC2,tiC3);
 }
 
+TEST(equality, PointerToConstSame)
+{
+  bool isConst = true;
+  Pointer p1(new CType(CTYPE_INT, isConst));
+  Pointer p2(new CType(CTYPE_INT, !isConst));
+
+  ASSERT_NE(p1, p2);
+  p2.getPointedType()->setConst(isConst);
+  ASSERT_EQ(p1, p2);
+}
+
+TEST(equality, ConstPointerSame)
+{
+  bool isConst = true;
+  Pointer p1(new CType(CTYPE_INT), isConst);
+  Pointer p2(new CType(CTYPE_INT), !isConst);
+
+  ASSERT_NE(p1, p2);
+  p2.setConst(isConst);
+  ASSERT_EQ(p1, p2);
+}
+
 TEST(equality, FunctionWithDifferentParams)
 {
   Function f1("foo", VoidReturnValue(), Parameter::Vector({NamedParameter(CTYPE_INT, "foo")}));

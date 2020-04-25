@@ -29,7 +29,7 @@ TYPED_TEST(GenericParser_testCase, parser)
   {
     Function* funFromFactory = funList[funIdx];
     Function& funFromParser = Function::toFunction(elem[funIdx]);
-    ASSERT_EQ(*funFromFactory, funFromParser) << "funIdx: " << funIdx;
+    EXPECT_EQ(*funFromFactory, funFromParser) << "funIdx: " << funIdx;
     delete funFromFactory;
   }
 }

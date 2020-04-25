@@ -81,6 +81,10 @@
 #define RECURSIVE_ANONYMOUS_TYPE_DECLARATION_TEMPLATE_NAME "include_anonymous_decl_template"
 #define RECURSIVE_ANONYMOUS_TYPE_DECLARATION_TEMPLATE_FIELD_NAME "include_anonymous_decl_template_field"
 
+#define VARIADIC_SECTION "VARIADIC_SECTION"
+#define VARIADIC_VAR "VARIADIC_VAR"
+#define VARIADIC_TEMPLATE_VAR TEMPLATE_VAR(VARIADIC_VAR)
+
 #define VOID_FUNCTION_RETURN_VALUE "void"
 
 #define IF_RETURN_VALUE(STR_TO_PRINT) \
@@ -211,7 +215,7 @@ TEMPLATE_VAR(FUNCTION_NAME) "_match_" PARAMETER_NAME("")
 #define MOCKED_DATA "mockedData"
 #define MOCKED_DATA_MEMBER(member) MOCKED_DATA "." member
 
-#define TEMPLATE_FUNCTION_TO_BE_MOCKED FUNCTION_RETURN_VALUE_TYPE " " TEMPLATE_VAR(FUNCTION_NAME) "(" FUNCTION_PARAM_LIST(FUNCTION_PARAM_SECTION, "") ")"
+#define TEMPLATE_FUNCTION_TO_BE_MOCKED FUNCTION_RETURN_VALUE_TYPE " " TEMPLATE_VAR(FUNCTION_NAME) "(" FUNCTION_PARAM_LIST(FUNCTION_PARAM_SECTION, "") IF_PARAM_LIST(VARIADIC_SECTION, VARIADIC_TEMPLATE_VAR) ")"
 #define MOCKED_FUN_CLASS(F_NAME) "mocked_" F_NAME
 #define TEMPLATE_MOCKED_FUN_CLASS MOCKED_FUN_CLASS(TEMPLATE_VAR(FUNCTION_NAME))
 
@@ -559,7 +563,19 @@ void CodeGeneratorCTemplate::generateFunctionSection(ctemplate::TemplateDictiona
       returnValParamDict->SetValue(FUNCTION_NON_QUALIFIED_RETURN_VALUE, returnTypeStr);
     }
   }
-  generateFunctionParamSection(p_rootDictionnary, functionSectionDict, p_elemToMock->getFunctionsParameters());
+  const Parameter::Vector& funParams = p_elemToMock->getFunctionsParameters();
+  generateFunctionParamSection(p_rootDictionnary, functionSectionDict, funParams);
+  if(p_elemToMock->isVariadic())
+  {
+    ctemplate::TemplateDictionary *variadicSection = functionSectionDict->AddSectionDictionary(VARIADIC_SECTION);
+    std::string variadicString;
+    if(funParams.size() > 0)
+    {
+      variadicString.append(", ");
+    }
+    variadicString.append("...");
+    variadicSection->SetValue(VARIADIC_VAR, variadicString);
+  }
 }
 
 void CodeGeneratorCTemplate::generateFunctionParamSection(ctemplate::TemplateDictionary *p_rootDictionnary, ctemplate::TemplateDictionary *p_functionSectionDict, const Parameter::Vector& p_functionParam)

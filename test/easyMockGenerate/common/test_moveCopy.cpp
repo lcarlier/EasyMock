@@ -56,6 +56,22 @@ TEST(moveCopy, Pointer)
   testMovePointer(p1);
 }
 
+TEST(moveCopy, PointerToConst)
+{
+  bool isConst = true;
+  Pointer p1(new CType(CTYPE_INT, isConst));
+
+  testMovePointer(p1);
+}
+
+TEST(moveCopy, ConstPointer)
+{
+  bool isConst = true;
+  Pointer p1(new CType(CTYPE_INT), isConst);
+
+  testMovePointer(p1);
+}
+
 TEST(moveCopy, PointerWithRecursField)
 {
   StructType *t_struct = new StructType("s_s1", "t_s1", false);

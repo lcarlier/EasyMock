@@ -21,7 +21,8 @@ const ReturnValue* Function::getReturnType() const
 
 bool Function::operator==(const Function& other) const
 {
-  return ElementToMock::operator==(other) && this->m_returnType == other.m_returnType;
+  return ElementToMock::operator==(other) &&
+          this->m_returnType == other.m_returnType;
 }
 
 bool Function::operator!=(const Function& other) const
@@ -47,6 +48,14 @@ const std::string Function::getFunctionPrototype() const
     rv_funcProto.push_back(' ');
     rv_funcProto.append(fParam->getName());
     firstElem = false;
+  }
+  if(m_isVariadic)
+  {
+    if(!firstElem)
+    {
+      rv_funcProto.append(", ");
+    }
+    rv_funcProto.append("...");
   }
   rv_funcProto.push_back(')');
 

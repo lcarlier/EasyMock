@@ -38,7 +38,9 @@ public:
 
       ReturnValue rv = getFunctionReturnValue(func);
       Parameter::Vector param = getFunctionParameters(func);
-      m_elem.push_back(new Function(funName, rv, param));
+      Function *f = new Function(funName, rv, param);
+      f->setVariadic(func->isVariadic());
+      m_elem.push_back(f);
     }
     return true;
   }

@@ -93,7 +93,6 @@ bool ComposableType::operator==(const ComposableType& other) const
 
 bool ComposableType::isEqual(const TypeItf& p_other) const
 {
-  const ComposableType& other = static_cast<const ComposableType&>(p_other);
   bool parentEq = TypeItf::isEqual(p_other);
   if(!parentEq)
   {
@@ -105,6 +104,7 @@ bool ComposableType::isEqual(const TypeItf& p_other) const
      */
     return false;
   }
+  const ComposableType& other = static_cast<const ComposableType&>(p_other);
   bool elemEq = this->m_elem == other.m_elem;
   bool embedEq = this->m_is_embedded_in_other_type == other.m_is_embedded_in_other_type;
   bool anonEq = this->m_anonymous_number == other.m_anonymous_number;

@@ -21,6 +21,9 @@ public:
   virtual ElementToMock_Type getMockType() const = 0;
   virtual const ReturnValue *getReturnType() const = 0;
 
+  bool isVariadic() const;
+  void setVariadic(bool value);
+
   ElementToMock(const ElementToMock &other) = default;
   ElementToMock& operator=(const ElementToMock &other) = default;
   ElementToMock(ElementToMock &&other) = default;
@@ -35,6 +38,7 @@ public:
 protected:
   std::string m_name;
   Parameter::Vector m_parameters;
+  bool m_isVariadic;
 };
 
 #endif /* ELEMENTTOMOCK_H */
