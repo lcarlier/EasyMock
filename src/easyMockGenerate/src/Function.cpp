@@ -30,7 +30,7 @@ bool Function::operator!=(const Function& other) const
   return (*this == other) == false;
 }
 
-const std::string Function::getFunctionPrototype() const
+std::string Function::getFunctionPrototype() const
 {
   std::string rv_funcProto;
   rv_funcProto.append(m_returnType.getType()->getFullDeclarationName());

@@ -12,7 +12,7 @@ public:
   Function(std::string functionName, ReturnValue functionReturnType, Parameter::Vector functionParameters);
   ElementToMock_Type getMockType() const;
   const ReturnValue *getReturnType() const;
-  const std::string getFunctionPrototype() const;
+  std::string getFunctionPrototype() const;
 
   Function(const Function &other) = default;
   Function& operator=(const Function &other) = default;

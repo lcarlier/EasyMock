@@ -7,6 +7,7 @@
 #include "CodeGeneratorCTemplate.h"
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string/replace.hpp>
+#include <unordered_set>
 
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -14,6 +15,7 @@
 #include "TypeItf.h"
 #include "ComposableType.h"
 #include "Pointer.h"
+#include "Function.h"
 
 #define TEMPLATE_VAR(VAR_NAME) "{{" VAR_NAME "}}"
 #define TEMPLATE_BEG_SECTION(SECTION_NAME) "{{#" SECTION_NAME "}}"
@@ -512,14 +514,22 @@ void CodeGeneratorCTemplate::fillInTemplateVariables(ctemplate::TemplateDictiona
   std::string fileNameWithoutExtUpper = p_mockedHeader.substr(0, p_mockedHeader.find_last_of("."));
   std::transform(fileNameWithoutExtUpper.begin(), fileNameWithoutExtUpper.end(), fileNameWithoutExtUpper.begin(), ::toupper);
   p_rootDictionnary->SetValue(MOCKED_FILE_NAME_WITHOUT_EXT_UPPER, fileNameWithoutExtUpper);
+  std::unordered_set<std::string> generatedElements;
   for (ElementToMock::Vector::const_iterator it = p_fList.begin(); it != p_fList.end(); ++it)
   {
-    const ElementToMock *f = *it;
-    switch (f->getMockType())
+    const ElementToMock *elemToMock = *it;
+    switch (elemToMock->getMockType())
     {
       case ETS_function:
       {
-        generateFunctionSection(p_rootDictionnary, f);
+        const Function* fun = dynamic_cast<const Function*>(elemToMock);
+        std::string functionPrototype = fun->getFunctionPrototype();
+        if(generatedElements.find(functionPrototype) != generatedElements.end())
+        {
+          break;
+        }
+        generatedElements.insert(functionPrototype);
+        generateFunctionSection(p_rootDictionnary, elemToMock);
         break;
       }
       default:
