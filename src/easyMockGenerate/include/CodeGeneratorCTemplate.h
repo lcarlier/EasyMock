@@ -29,6 +29,7 @@ private:
   void generateFieldCmp(std::string &p_condition, const ComposableType *p_composedType, const ComposableField *p_curField, const ComposableField *p_previousField, std::string p_varName);
 
   std::unordered_set<std::string> m_generatedComparator;
+  unsigned int m_nbUnamedParam;
 };
 
 #endif /* CODEGENERATORCTEMPLATE_H */

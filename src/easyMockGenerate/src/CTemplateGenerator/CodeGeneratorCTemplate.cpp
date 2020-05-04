@@ -475,7 +475,8 @@ static const char declareAnonymousComposableTypeFieldTemplate[] =
         TEMPLATE_END_SECTION(ANONYMOUS_TYPE_DECLARATION_FIELD_SECTION)
         TEMPLATE_INCL_SECTION(RECURSIVE_ANONYMOUS_TYPE_DECLARATION_SECTION);
 
-CodeGeneratorCTemplate::CodeGeneratorCTemplate()
+CodeGeneratorCTemplate::CodeGeneratorCTemplate():
+m_nbUnamedParam(0)
 {
   m_generatedComparator.clear();
 }
@@ -627,7 +628,13 @@ void CodeGeneratorCTemplate::generateFunctionParamSection(ctemplate::TemplateDic
     {
       newTypedefParamSection->SetValue(FUNCTION_PARAM_NON_QUALIFIED_TYPE, argType);
     }
-    newTypedefParamSection->SetValue(FUNCTION_PARAM_NAME, fParam->getName());
+    std::string paramName = fParam->getName();
+    if(paramName.empty())
+    {
+      paramName.append("param" + std::to_string(m_nbUnamedParam));
+      m_nbUnamedParam++;
+    }
+    newTypedefParamSection->SetValue(FUNCTION_PARAM_NAME, paramName);
 
     /*
      * It doesn't make sense to generate an output parameter for void pointer.
@@ -649,7 +656,7 @@ void CodeGeneratorCTemplate::generateFunctionParamSection(ctemplate::TemplateDic
         ctemplate::TemplateDictionary* newPtrParamSection = p_functionSectionDict->AddSectionDictionary(FUNCTION_PARAM_PTR_SECTION);
         //No need to add the FUNCTION_PARAM_NON_QUALIFIED_TYPE because we will not generate output pointer for const
         newPtrParamSection->SetValue(FUNCTION_PARAM_TYPE, argType);
-        newPtrParamSection->SetValue(FUNCTION_PARAM_NAME, fParam->getName());
+        newPtrParamSection->SetValue(FUNCTION_PARAM_NAME, paramName);
       }
     }
   }
