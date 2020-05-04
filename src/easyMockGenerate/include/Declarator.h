@@ -23,10 +23,14 @@ public:
   virtual void setType(TypeItf* type);
   const std::string& getTypeName() const;
 
+  void setDeclareString(const std::string& newString);
+  const std::string& getDeclareString() const;
+
   bool operator==(const Declarator &other) const;
   bool operator!=(const Declarator &other) const;
 protected:
   TypeItf* m_type;
+  std::string m_declaredString;
 
   friend void swap(Declarator &first, Declarator &second);
 };

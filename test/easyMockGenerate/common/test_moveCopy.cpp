@@ -156,6 +156,22 @@ TEST(moveCopy, StructFieldUnBoundedArray)
   testMoveComposableField(f1);
 }
 
+TEST(moveCopy, ComposableFieldConst)
+{
+  bool isConst = true;
+  ComposableField f1(new CType(CTYPE_INT, isConst), "a");
+
+  testMoveComposableField(f1);
+}
+
+TEST(moveCopy, ComposableFieldDeclString)
+{
+  ComposableField f1(new CType(CTYPE_INT), "a");
+  f1.setDeclareString("fromDefine");
+
+  testMoveComposableField(f1);
+}
+
 template <class T>
 static void testComposableType(T &st1)
 {
@@ -485,6 +501,22 @@ TEST(moveCopy, ParameterPointer)
   testMoveCopyParameter(p1);
 }
 
+TEST(moveCopy, ParameterPointerConst)
+{
+  bool isConst = true;
+  Parameter p1(new Pointer(new CType(CTYPE_INT, isConst)), "v");
+
+  testMoveCopyParameter(p1);
+}
+
+TEST(moveCopy, ParameterPointerDeclareString)
+{
+  Parameter p1(new Pointer(new CType(CTYPE_INT)), "v");
+  p1.setDeclareString("fromDefine");
+
+  testMoveCopyParameter(p1);
+}
+
 TEST(moveCopy, ParameterWithStructSubRecursive)
 {
   bool isEmbeddedInOtherType = false;
@@ -525,11 +557,9 @@ TEST(moveCopy, ParameterWithPointerToStructSubRecursive)
   testMoveCopyParameter(p1);
 }
 
-
-TEST(moveCopy, ReturnValue)
+static void testMoveCopyReturnValue(ReturnValue& rv1)
 {
   bool isEmbeddedInOtherType = false;
-  ReturnValue rv1 = VoidReturnValue();
   ReturnValue rv2(rv1);
   ASSERT_EQ(rv1, rv2);
 
@@ -547,26 +577,35 @@ TEST(moveCopy, ReturnValue)
   ASSERT_EQ(rv6, rv1);
 }
 
+TEST(moveCopy, ReturnValue)
+{
+  ReturnValue rv1 = VoidReturnValue();
+
+  testMoveCopyReturnValue(rv1);
+}
+
 TEST(moveCopy, ReturnValuePointer)
 {
   bool isPointer = true;
-  bool isEmbeddedInOtherType = false;
   ReturnValue rv1 = VoidReturnValue(isPointer);
-  ReturnValue rv2(rv1);
-  ASSERT_EQ(rv1, rv2);
 
-  ReturnValue rv3 = StructReturnValue(new StructType("s1", ComposableField::Vector({new ComposableField(CTYPE_INT, "a")}), isEmbeddedInOtherType), isPointer);
-  ASSERT_NE(rv3,rv1);
-  rv3 = rv1;
-  ASSERT_EQ(rv3,rv1);
+  testMoveCopyReturnValue(rv1);
+}
 
-  ReturnValue rv4 = std::move(rv3);
-  ASSERT_EQ(rv4, rv1);
+TEST(moveCopy, ReturnValueConst)
+{
+  bool isConst = true;
+  ReturnValue rv1(new CType(CTYPE_INT, isConst));
 
-  ReturnValue rv6 = StructReturnValue(new StructType("s1", ComposableField::Vector({new ComposableField(CTYPE_INT, "a")}), isEmbeddedInOtherType), isPointer);
-  ASSERT_NE(rv6, rv2);
-  rv6 = std::move(rv2);
-  ASSERT_EQ(rv6, rv1);
+  testMoveCopyReturnValue(rv1);
+}
+
+TEST(moveCopy, ReturnValueDeclareString)
+{
+  ReturnValue rv1(new CType(CTYPE_INT));
+  rv1.setDeclareString("fromDefine");
+
+  testMoveCopyReturnValue(rv1);
 }
 
 TEST(moveCopy, Function)

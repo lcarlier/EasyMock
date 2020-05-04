@@ -48,6 +48,7 @@ m_arraySize(p_attrib.arraySize)
     m_recursiveType = p;
     m_recursiveType->setRecursivePointer(true);
     m_recursiveType->setPointedType(pointedType->clone());
+    Declarator::setDeclareString(m_recursiveType->getFullDeclarationName());
   }
   else
   {

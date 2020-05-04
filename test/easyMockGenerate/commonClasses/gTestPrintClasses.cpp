@@ -37,7 +37,7 @@ std::ostream& operator<<(std::ostream& os, const Function& fun) {
 
 std::ostream& operator<<(std::ostream& os, const ReturnValue& rv) {
   const TypeItf *typeItf = rv.getType();
-  os << "ReturnValue: ";
+  os << "ReturnValue " << " declString: '" << rv.getDeclareString() << "'";
   gs_indentation.push_back('\t');
   os << std::endl << gs_indentation;
   os << *typeItf;
@@ -54,6 +54,7 @@ std::ostream& operator<<(std::ostream& os, const TypeItf& typeItf)
   os << "isConst:" << (typeItf.isConst() ? "yes" : "no") << ", ";
   os << "isStruct:" << (typeItf.isStruct() ? "yes" : "no") << ", ";
   os << "isUnion:" << (typeItf.isUnion() ? "yes" : "no") << ", ";
+  os << "isImplicit:" << (typeItf.isImplicit() ? "yes" : "no") << ", ";
   os << std::endl << gs_indentation;
 
   if(typeItf.isCType())
@@ -89,7 +90,8 @@ std::ostream& operator<<(std::ostream& os, const StructType& structType)
 std::ostream& operator<<(std::ostream& os, const Parameter& param)
 {
   const TypeItf *type = param.getType();
-  os << "Parameter name: " << param.getName() << ", ";
+  os << "Parameter declString: '" << param.getDeclareString() << "', ";
+  os << "name: '" << param.getName() << "'";
   os << std::endl;
   gs_indentation.push_back('\t');
   os << gs_indentation << *type;
@@ -101,6 +103,7 @@ std::ostream& operator<<(std::ostream& os, const Parameter& param)
 std::ostream& operator<<(std::ostream& os, const ComposableField& composableField)
 {
   os << "ComposableField(";
+  os << "declString: '" << composableField.getDeclareString() << "', ";
   os << "name: '" << composableField.getName() << "', ";
   os << "isRecursive: " << (composableField.isRecursiveTypeField() ? "yes" : " no") << ", ";
   os << "type: " << std::endl;

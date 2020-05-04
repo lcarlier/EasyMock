@@ -6,6 +6,8 @@
 #include <string>
 #include <unordered_set>
 
+class Declarator;
+
 class CodeGeneratorCTemplate : public CodeGeneratorItf
 {
 public:
@@ -20,8 +22,8 @@ private:
   void generateComposedTypedCompareSection(ctemplate::TemplateDictionary *rootDictionnary, const ComposableType *p_composedType, std::string p_uniquePrepend, std::string p_declPrepend);
   void generateDeclarationOfAnonymousType(ctemplate::TemplateDictionary *compareDir, const ComposableType *p_composedType);
   bool generateCodeToFile(const std::string &outDir, const std::string &filename, const std::string &extension, const std::string &generatedCode);
-  std::string getDeclaratorString(const TypeItf* p_decl);
-  std::string getNonQualifiedDeclaratorString(const TypeItf* p_decl);
+  const std::string& getDeclaratorString(const Declarator* p_decl);
+  std::string getNonQualifiedDeclaratorString(const Declarator* p_decl);
   void generateBasicTypeField(const ComposableField *curField, ctemplate::TemplateDictionary *paramSectDict, const ComposableType *p_composedType, std::string p_declPrepend);
 
   void generateFieldCmp(std::string &p_condition, const ComposableType *p_composedType, const ComposableField *p_curField, const ComposableField *p_previousField, std::string p_varName);

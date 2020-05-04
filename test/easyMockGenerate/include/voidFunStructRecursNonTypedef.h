@@ -13,7 +13,7 @@ extern "C"
 
   typedef struct s_s1 t_s1;
 
-  void voidFunStructRecursNonTypedef(t_s1 *s);
+  void voidFunStructRecursNonTypedef(t_s1* s);
 
 
 #ifdef __cplusplus

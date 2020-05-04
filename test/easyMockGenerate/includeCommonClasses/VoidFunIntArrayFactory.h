@@ -2,7 +2,6 @@
 #define VOIDFUNINTARRAYFACTORY_H
 
 #include <FunctionFactory.h>
-#include <voidFunStructPtr.h>
 
 class VoidFunIntArrayFactory: public FunctionFactory<int, std::tuple<int *>, std::tuple<EasyMock_Matcher>>
 {

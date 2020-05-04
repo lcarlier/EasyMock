@@ -6,7 +6,7 @@ extern "C"
 {
 #endif
 
-short *shortPtrFunShortPtr(short* ptr);
+short* shortPtrFunShortPtr(short* ptr);
 
 #ifdef __cplusplus
 }

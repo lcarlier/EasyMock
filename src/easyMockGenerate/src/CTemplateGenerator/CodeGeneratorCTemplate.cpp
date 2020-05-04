@@ -55,6 +55,7 @@
 #define FUNCTION_RETURN_VALUE_PARAM_SECTION "FUNCTION_RETURN_VALUE_PARAM_SECTION"
 #define FUNCTION_RETURN_VALUE_PARAM "FUNCTION_RETURN_VALUE_PARAM"
 #define FUNCTION_RETURN_VALUE "FUNCTION_RETURN_VALUE"
+#define FUNCTION_TO_RETURN_VALUE "FUNCTION_TO_RETURN_VALUE"
 #define FUNCTION_NAME "FUNCTION_NAME"
 #define FUNCTION_NAME_UPPER "FUNCTION_NAME_UPPER"
 #define FUNCTION_MATCHER_LIST_SECTION "FUNCTION_MATCHER_LIST_SECTION"
@@ -103,6 +104,7 @@
 #define PARAMETER_TYPE TEMPLATE_VAR(FUNCTION_PARAM_TYPE)
 #define PARAMETER_NON_QUALIFIED_TYPE TEMPLATE_VAR(FUNCTION_PARAM_NON_QUALIFIED_TYPE)
 #define FUNCTION_RETURN_VALUE_TYPE TEMPLATE_VAR(FUNCTION_RETURN_VALUE)
+#define FUNCTION_TO_RETURN_VALUE_TYPE TEMPLATE_VAR(FUNCTION_TO_RETURN_VALUE)
 
 #define FUNCTION_NON_QUALIFIED_RETURN_VALUE "FUNCTION_NON_QUALIFIED_RETURN_VALUE"
 #define FUNCTION_NON_QUALIFIED_RETURN_VALUE_TYPE TEMPLATE_VAR(FUNCTION_NON_QUALIFIED_RETURN_VALUE)
@@ -166,7 +168,7 @@ PARAMETER_NON_QUALIFIED_TYPE " " PARAMETER_NAME(PREFIX)
 TEMPLATE_VAR(FUNCTION_NAME) "_ExpectAndReturn("
 
 #define FUNCTION_EXPECT_RETURN_AND_OUTPUT_PARAM \
-FUNCTION_PARAM_LIST(FUNCTION_PARAM_SECTION, "") IF_RETURN_VALUE(IF_PARAM_LIST(FUNCTION_PARAM_LIST_SECTION, ", ") FUNCTION_RETURN_VALUE_TYPE " to_return") IF_PARAM_LIST(FUNCTION_PARAM_LIST_SECTION, ", ") FUNCTION_MATCHER_LIST
+FUNCTION_PARAM_LIST(FUNCTION_PARAM_SECTION, "") IF_RETURN_VALUE(IF_PARAM_LIST(FUNCTION_PARAM_LIST_SECTION, ", ") FUNCTION_TO_RETURN_VALUE_TYPE " to_return") IF_PARAM_LIST(FUNCTION_PARAM_LIST_SECTION, ", ") FUNCTION_MATCHER_LIST
 
 #define FUNCTION_EXPECT_AND_RETURN_SIGNATURE \
 "void " FUNCTION_EXPECT_AND_RETURN_NAME FUNCTION_EXPECT_RETURN_AND_OUTPUT_PARAM ")"
@@ -388,12 +390,12 @@ static const char templateText[] =
         "    " FUNCTION_MOCK_DATA_TYPE " " MOCKED_DATA ";" CARRIAGE_RETURN
         CARRIAGE_RETURN
         TEMPLATE_BEG_SECTION(FUNCTION_PARAM_SECTION)
-        "    " MOCKED_DATA_MEMBER(PARAMETER_NAME("")) " = " PARAMETER_NAME("") ";" CARRIAGE_RETURN
+        "     std::memcpy(&" MOCKED_DATA_MEMBER(PARAMETER_NAME("")) ", &" PARAMETER_NAME("") ", sizeof(" MOCKED_DATA_MEMBER(PARAMETER_NAME("")) "));" CARRIAGE_RETURN
         "    " MOCKED_DATA_MEMBER(FUNCTION_MOCK_DATA_CUR_MATCH_VAR) " = " FUNCTION_PARAM_MATCH_VAR ";" CARRIAGE_RETURN
         CARRIAGE_RETURN
         TEMPLATE_END_SECTION(FUNCTION_PARAM_SECTION)
         TEMPLATE_BEG_SECTION(FUNCTION_PARAM_PTR_SECTION)
-        "    " MOCKED_DATA_MEMBER(PARAMETER_NAME(MOCK_OUT_PREFIX)) " = " PARAMETER_NAME(MOCK_OUT_PREFIX) ";" CARRIAGE_RETURN
+        "     std::memcpy(&" MOCKED_DATA_MEMBER(PARAMETER_NAME(MOCK_OUT_PREFIX)) ", &" PARAMETER_NAME(MOCK_OUT_PREFIX) ", sizeof(" MOCKED_DATA_MEMBER(PARAMETER_NAME(MOCK_OUT_PREFIX)) "));" CARRIAGE_RETURN
         TEMPLATE_END_SECTION(FUNCTION_PARAM_PTR_SECTION)
         IF_RETURN_VALUE("    " MOCKED_DATA_MEMBER(FUNCTION_MOCK_DATA_RETURN_VALUE_VARIABLE) " = to_return;" CARRIAGE_RETURN CARRIAGE_RETURN)
         "    " TEMPLATE_MOCKED_FUN_CLASS ".addExpectedCall(mockedData);" CARRIAGE_RETURN
@@ -547,10 +549,11 @@ void CodeGeneratorCTemplate::generateFunctionSection(ctemplate::TemplateDictiona
   functionSectionDict->SetValue(FUNCTION_NAME_UPPER, upperString);
 
   const ReturnValue *returnValue = p_elemToMock->getReturnType();
-  const TypeItf* rvType = returnValue->getType();
-  std::string returnTypeStr = getDeclaratorString(rvType);
-  std::string nonQualRetTypeStr = getNonQualifiedDeclaratorString(rvType);
+  const std::string returnTypeStr = returnValue->getType()->getFullDeclarationName();
+  std::string nonQualRetTypeStr = getNonQualifiedDeclaratorString(returnValue);
   functionSectionDict->SetValue(FUNCTION_RETURN_VALUE, returnTypeStr);
+  functionSectionDict->SetValue(FUNCTION_TO_RETURN_VALUE, returnTypeStr);
+  const TypeItf* rvType = returnValue->getType();
   if(!rvType->isPointer())
   {
     functionSectionDict->SetValue(FUNCTION_NON_QUALIFIED_RETURN_VALUE, nonQualRetTypeStr);
@@ -603,13 +606,13 @@ void CodeGeneratorCTemplate::generateFunctionParamSection(ctemplate::TemplateDic
     const TypeItf *paramType = fParam->getType();
     //For the rest of this function paramPtrType tells whether we are dealing with a pointer parameter or not
     const Pointer *paramPtrType = dynamic_cast<const Pointer *>(paramType);
-    std::string argType = getDeclaratorString(paramType);
-    std::string nonQualifiedArgType = getNonQualifiedDeclaratorString(paramType);
+    const std::string& argType = getDeclaratorString(fParam);
+    std::string nonQualifiedArgType = getNonQualifiedDeclaratorString(fParam);
     if(paramPtrType)
     {
       paramType = paramPtrType->getPointedType();
     }
-    if(paramType->isStruct() || paramType->isUnion())
+    if((paramType->isStruct() || paramType->isUnion()) && !paramType->isImplicit())
     {
       std::string prepend("");
       std::string declare("");
@@ -635,7 +638,8 @@ void CodeGeneratorCTemplate::generateFunctionParamSection(ctemplate::TemplateDic
     {
       const TypeItf* pointedType = paramPtrType->getPointedType();
       if(pointedType->getCType() != CTYPE_VOID &&
-         !pointedType->isConst())
+         !pointedType->isConst() &&
+         !pointedType->isImplicit())
       {
         if(!ptrSectionAdded)
         {
@@ -884,7 +888,14 @@ void CodeGeneratorCTemplate::generateDeclarationOfAnonymousType(ctemplate::Templ
     {
       ctemplate::TemplateDictionary *curFieldValDict = curFieldDict->AddSectionDictionary(ANONYMOUS_TYPE_DECLARATION_FIELD_SECTION);
       curFieldValDict->SetValue(ANONYMOUS_TYPE_DECLARATION_FIELD_TYPE_TEMPLATE_VAR, fieldType->getFullDeclarationName());
-      curFieldValDict->SetValue(ANONYMOUS_TYPE_DECLARATION_FIELD_NAME_TEMPLATE_VAR, curField->getName());
+      std::string fieldName = curField->getName();
+      if(curField->isBoundSpecifiedArray())
+      {
+        fieldName.push_back('[');
+        fieldName.append(std::to_string(curField->getArraySize()));
+        fieldName.push_back(']');
+      }
+      curFieldValDict->SetValue(ANONYMOUS_TYPE_DECLARATION_FIELD_NAME_TEMPLATE_VAR, fieldName);
     }
   }
 }
@@ -1003,12 +1014,12 @@ closeFile:
   return rv;
 }
 
-std::string CodeGeneratorCTemplate::getNonQualifiedDeclaratorString(const TypeItf* p_type)
+std::string CodeGeneratorCTemplate::getNonQualifiedDeclaratorString(const Declarator* p_decl)
 {
-  return p_type->getFullNonQualifiedDeclarationName();
+  return p_decl->getType()->getFullNonQualifiedDeclarationName();
 }
 
-std::string CodeGeneratorCTemplate::getDeclaratorString(const TypeItf* p_type)
+const std::string& CodeGeneratorCTemplate::getDeclaratorString(const Declarator* p_decl)
 {
-  return p_type->getFullDeclarationName();
+  return p_decl->getDeclareString();
 }

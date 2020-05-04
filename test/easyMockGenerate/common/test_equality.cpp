@@ -109,6 +109,17 @@ TEST(equality, ParameterConstSameParam)
   ASSERT_EQ(p1, p2);
 }
 
+TEST(equality, ParameterDeclareStringSameParam)
+{
+  Parameter p1(new CType(CTYPE_VOID), "v1");
+  Parameter p2(new CType(CTYPE_VOID), "v2");
+  p1.setDeclareString(p1.getType()->getFullDeclarationName());
+  p2.setDeclareString(p2.getType()->getFullDeclarationName());
+
+  //Even though name is different parameters are the same
+  ASSERT_EQ(p1, p2);
+}
+
 TEST(equality, ParameterDifferentParam)
 {
   Parameter p1(new CType(CTYPE_INT), "p1");
@@ -144,6 +155,22 @@ TEST(equality, ParameterConstDifferentParam)
   ASSERT_NE(p3, p4);
 }
 
+TEST(equality, ParameterDeclareStringDifferentParam)
+{
+  Parameter p1(new CType(CTYPE_INT), "p1");
+  Parameter p2(new CType(CTYPE_INT), "p1");
+  p1.setDeclareString("fromDefine");
+
+  ASSERT_NE(p1, p2);
+
+  Parameter p3(new CType(CTYPE_INT), "p1");
+  Parameter p4(new CType(CTYPE_INT), "p1");
+  p3.setDeclareString(p3.getType()->getFullDeclarationName());
+  p4.setDeclareString("FromDefine");
+
+  ASSERT_NE(p3, p4);
+}
+
 TEST(equality, ReturnValueSame)
 {
   ReturnValue rv1;
@@ -165,6 +192,16 @@ TEST(equality, ReturnValueConstSame)
   bool isConst = true;
   ReturnValue rv1(new CType(CTYPE_INT, isConst));
   ReturnValue rv2(new CType(CTYPE_INT, isConst));
+
+  ASSERT_EQ(rv1, rv2);
+}
+
+TEST(equality, ReturnValueDeclareStringSame)
+{
+  ReturnValue rv1(new CType(CTYPE_INT));
+  ReturnValue rv2(new CType(CTYPE_INT));
+  rv1.setDeclareString(rv1.getType()->getFullDeclarationName());
+  rv2.setDeclareString(rv2.getType()->getFullDeclarationName());
 
   ASSERT_EQ(rv1, rv2);
 }
@@ -204,6 +241,22 @@ TEST(equality, ReturnValueConstDifferent)
 
   ReturnValue rv3 = ReturnValue(new CType(CTYPE_INT, isConst));
   ReturnValue rv4 = ReturnValue(new CType(CTYPE_INT, !isConst));
+
+  ASSERT_NE(rv3, rv4);
+}
+
+TEST(equality, ReturnValueDeclareStringDifferent)
+{
+  ReturnValue rv1(new CType(CTYPE_INT));
+  ReturnValue rv2(new CType(CTYPE_INT));
+  rv1.setDeclareString("FromDefine");
+
+  ASSERT_NE(rv1, rv2);
+
+  ReturnValue rv3(new CType(CTYPE_INT));
+  ReturnValue rv4(new CType(CTYPE_INT));
+  rv3.setDeclareString(rv3.getType()->getFullDeclarationName());
+  rv4.setDeclareString("FromDefine");
 
   ASSERT_NE(rv3, rv4);
 }
@@ -253,6 +306,25 @@ TEST(equality, StructFieldPointerSame)
   ASSERT_EQ(f3, f4);
 }
 
+TEST(equality, StructFieldConstSame)
+{
+  bool isConst = true;
+  ComposableField f1(new CType(CTYPE_INT, isConst), "a");
+  ComposableField f2(new CType(CTYPE_INT, isConst), "a");
+
+  ASSERT_EQ(f1, f2);
+}
+
+TEST(equality, StructFieldDeclStringSame)
+{
+  ComposableField f1(new CType(CTYPE_INT), "a");
+  ComposableField f2(new CType(CTYPE_INT), "a");
+  f1.setDeclareString(f1.getType()->getFullDeclarationName());
+  f2.setDeclareString(f2.getType()->getFullDeclarationName());
+
+  ASSERT_EQ(f1, f2);
+}
+
 TEST(equality, StructFieldDifferent)
 {
   ComposableField f1(CTYPE_INT, "a");
@@ -265,6 +337,25 @@ TEST(equality, StructFieldDifferent)
   ComposableField f4(new StructType("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "c"), new ComposableField(CTYPE_DOUBLE, "d")}), isEmbeddedInOtherType), "e");
 
   ASSERT_NE(f3, f4);
+}
+
+TEST(equality, StructFieldConstDifferent)
+{
+  bool isConst = true;
+  ComposableField f1(new CType(CTYPE_INT, !isConst), "a");
+  ComposableField f2(new CType(CTYPE_INT, isConst), "a");
+
+  ASSERT_NE(f1, f2);
+}
+
+TEST(equality, StructFieldDeclStringDifferent)
+{
+  ComposableField f1(new CType(CTYPE_INT), "a");
+  ComposableField f2(new CType(CTYPE_INT), "a");
+  f1.setDeclareString(f1.getType()->getFullDeclarationName());
+  f2.setDeclareString("FromMacro");
+
+  ASSERT_NE(f1, f2);
 }
 
 template <class T>

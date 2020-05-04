@@ -10,8 +10,8 @@ struct st1;
 
 struct st2
 {
-  struct st1 *st2SubSt1;
-  struct st2 *st2SubSt2;
+  struct st1* st2SubSt1;
+  struct st2* st2SubSt2;
 };
 
 struct st1

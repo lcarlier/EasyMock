@@ -8,7 +8,7 @@ extern "C"
 
   struct recurs
   {
-    struct recurs *val;
+    struct recurs* val;
   };
 
   void structRecursivePtrType(struct recurs rec);

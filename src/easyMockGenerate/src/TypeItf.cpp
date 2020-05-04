@@ -4,6 +4,7 @@
 
 #include <cassert>
 #include <boost/algorithm/string/replace.hpp>
+#include <boost/algorithm/string.hpp>
 
 TypeItf::TypeItf():
 TypeItf("")
@@ -21,7 +22,8 @@ TypeItf({.name = p_name, .typed_def_name = p_typed_def_name,
         .isStruct = false,
         .isUnion = false,
         .isPointer = false,
-        .isConst = false
+        .isConst = false,
+        .isImplicit = false
         })
 {
 }
@@ -35,6 +37,7 @@ TypeItf::TypeItf(TypeItf::attributes attrib)
   this->m_isUnion = attrib.isUnion;
   this->m_isPointer = attrib.isPointer;
   this->m_isConst = attrib.isConst;
+  this->m_isImplicit = attrib.isImplicit;
 }
 
 const std::string &TypeItf::getName() const
@@ -70,6 +73,7 @@ std::string TypeItf::s_getFullDeclarationName(const TypeItf* type, bool fullyQua
     fullDeclarationName.append("union ");
   }
   fullDeclarationName.append(type->m_name);
+  boost::trim_right(fullDeclarationName);
 
   return fullDeclarationName;
 }
@@ -151,6 +155,18 @@ TypeItf* TypeItf::setConst(bool value)
   return this;
 }
 
+bool TypeItf::isImplicit() const
+{
+  return m_isImplicit;
+}
+
+TypeItf* TypeItf::setImplicit(bool value)
+{
+  m_isImplicit = value;
+
+  return this;
+}
+
 ComposableField::Vector& TypeItf::getContainedFields()
 {
   return const_cast<ComposableField::Vector &>(static_cast<const TypeItf &>(*this).getContainedFields());
@@ -186,7 +202,8 @@ bool TypeItf::isTypedDef() const
 
 bool TypeItf::isAnonymous() const
 {
-  return m_name.empty() && m_typed_def_name.empty();
+  //Pointer types are never anonymous
+  return !m_isPointer && m_name.empty() && m_typed_def_name.empty();
 }
 
 bool TypeItf::isComposableType() const
@@ -217,7 +234,8 @@ bool TypeItf::isEqual(const TypeItf& other) const
           this->m_isStruct == other.m_isStruct &&
           this->m_isUnion == other.m_isUnion &&
           this->m_isPointer == other.m_isPointer &&
-          this->m_isConst == other.m_isConst;
+          this->m_isConst == other.m_isConst &&
+          this->m_isImplicit == other.m_isImplicit;
 }
 
 bool TypeItf::operator!=(const TypeItf& other) const

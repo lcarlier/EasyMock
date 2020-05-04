@@ -37,8 +37,10 @@ public:
   bool isComposableType() const;
   bool isPointer() const;
   bool isConst() const;
+  bool isImplicit() const;
 
   TypeItf* setConst(bool value);
+  TypeItf* setImplicit(bool value);
 
   virtual bool isEqual(const TypeItf &other) const;
 
@@ -55,7 +57,8 @@ public:
   bool prefix ## isStruct; \
   bool prefix ## isUnion; \
   bool prefix ## isPointer; \
-  bool prefix ## isConst;
+  bool prefix ## isConst; \
+  bool prefix ## isImplicit;
 
 protected:
   TypeItf(); //Needed for Pointer subclass

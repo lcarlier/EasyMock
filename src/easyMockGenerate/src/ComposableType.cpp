@@ -72,7 +72,7 @@ const std::string ComposableType::getUniqueName() const
 
   if(this->isAnonymous())
   {
-    uniqueName.append("anonymous_type_in_file_");
+    uniqueName.append("_anonymous_type_in_file_");
     uniqueName.append(std::to_string(m_unique_hash));
     uniqueName.append("_number_");
     uniqueName.append(std::to_string(m_number_of_anonymous_composable_type));

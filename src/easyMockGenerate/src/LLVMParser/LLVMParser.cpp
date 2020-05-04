@@ -30,7 +30,7 @@ public:
   explicit FunctionDeclASTVisitor(clang::SourceManager& sm, ElementToMock::Vector& elem)
   : m_sourceManager(sm), m_elem(elem), m_context(nullptr) { }
 
-  virtual bool VisitFunctionDecl(clang::FunctionDecl* func)
+  bool VisitFunctionDecl(clang::FunctionDecl* func)
   {
     if (m_sourceManager.isWrittenInMainFile(func->getSourceRange().getBegin()))
     {
@@ -48,11 +48,15 @@ public:
   void setAstContext(const clang::ASTContext &ctx)
   {
     m_context = &ctx;
+    m_SM = &ctx.getSourceManager();
+    m_LO = &ctx.getLangOpts();
   }
 private:
   clang::SourceManager& m_sourceManager;
   ElementToMock::Vector& m_elem;
   const clang::ASTContext *m_context;
+  const clang::SourceManager *m_SM;
+  const clang::LangOptions *m_LO;
 
   enum ContainerType {
     STRUCT,
@@ -66,6 +70,8 @@ private:
     structKnownTypeMap structKnownType;
 
     TypeItf *type = getEasyMocktype(rvQualType, structKnownType);
+    //only to return the return type's string
+    rv.setDeclareString(getDeclareString(func->getLocStart(), func->getNameInfo().getLocStart()));
     rv.setType(type);
     type = nullptr; //We lost the ownership
 
@@ -86,11 +92,48 @@ private:
       const std::string paramName = param->getNameAsString();
       TypeItf *type = getEasyMocktype(paramQualType, structKnownType);
 
-      vectParam.push_back(new Parameter(type, paramName));
+      Parameter *p = new Parameter(type, paramName);
+      p->setDeclareString(getDeclareString(param->getLocStart(), param->getLocEnd()));
+      vectParam.push_back(p);
       type = nullptr; //We lost the ownership
     }
 
     return vectParam;
+  }
+
+  std::string getDeclareString(const clang::SourceLocation& startLoc, const clang::SourceLocation& endLoc)
+  {
+    clang::CharSourceRange sourceRange = clang::Lexer::getAsCharRange(startLoc, *m_SM, *m_LO);
+    sourceRange.setEnd(endLoc);
+    clang::StringRef strRef = clang::Lexer::getSourceText(sourceRange, *m_SM, *m_LO);
+    std::string declareString = strRef.str();
+    /*
+     * When delclaration are inlined, we ignore the whole declaration in this way
+     */
+    size_t bracketPos = declareString.find_first_of('{', 0);
+    if(bracketPos != std::string::npos)
+    {
+      declareString.erase(declareString.begin() + bracketPos, declareString.end());
+    }
+    else
+    {
+      while(declareString.back() != ' ' &&
+              declareString.back() != '*' &&
+              !declareString.empty())
+      {
+        declareString.pop_back();
+      }
+    }
+    while((declareString.back() == ' '  ||
+           declareString.back() == '\n' ||
+           declareString.back() == '\t' ||
+           declareString.back() == '\r') &&
+            !declareString.empty())
+    {
+      declareString.pop_back();
+    }
+
+    return declareString;
   }
 
   TypeItf* getEasyMocktype(const clang::QualType &clangQualType, structKnownTypeMap &structKnownType)
@@ -124,6 +167,12 @@ private:
       assert(false);
     }
     type->setConst(clangQualType.isLocalConstQualified());
+
+    clang::RecordDecl *recDecl = clangType.getAsRecordDecl();
+    if(recDecl)
+    {
+      type->setImplicit(recDecl->isImplicit());
+    }
 
     return type;
   }
@@ -272,6 +321,7 @@ private:
         };
       std::string fName = FD->getNameAsString();
       ComposableField *sf = new ComposableField(type, fName, attrib);
+      sf->setDeclareString(getDeclareString(FD->getLocStart(), FD->getLocEnd()));
       sType->addStructField(sf);
     }
     if(!typedDefName.empty())
@@ -399,7 +449,7 @@ public:
   explicit FunctionDeclASTConsumer(clang::CompilerInstance& ci, ElementToMock::Vector& elem)
   : clang::ASTConsumer(), m_visitor(ci.getSourceManager(), elem) { }
 
-  virtual void HandleTranslationUnit(clang::ASTContext& astContext)
+  virtual void HandleTranslationUnit(clang::ASTContext& astContext) override
   {
     m_visitor.setAstContext(astContext);
     m_visitor.TraverseDecl(astContext.getTranslationUnitDecl());
@@ -416,7 +466,7 @@ public:
   {
   }
 
-  virtual std::unique_ptr<clang::ASTConsumer> CreateASTConsumer(clang::CompilerInstance& CI, clang::StringRef file)
+  virtual std::unique_ptr<clang::ASTConsumer> CreateASTConsumer(clang::CompilerInstance& CI, clang::StringRef file) override
   {
     return std::make_unique<FunctionDeclASTConsumer>(CI, m_elem); // pass CI pointer to ASTConsumer
   }
@@ -454,7 +504,8 @@ CodeParser_errCode LLVMParser::getElementToStub(ElementToMock::Vector& elem) con
   std::string dir = ".";
   llvm::Twine twineDir(dir);
   //clang::tooling::FixedCompilationDatabase db(twineDir, {"-I/usr//lib/llvm-7/lib/clang/7.0.0/include/"});
-  clang::tooling::FixedCompilationDatabase db(twineDir, {"-I/usr//lib/gcc/x86_64-linux-gnu/7/include/"});
+  //clang::tooling::FixedCompilationDatabase db(twineDir, {"-I/usr//lib/gcc/x86_64-linux-gnu/7/include/"});
+  clang::tooling::FixedCompilationDatabase db(twineDir, {"-I/usr/lib/gcc/x86_64-linux-gnu/7/include", "-I/usr/local/include", "-I/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed", "-I/usr/include/x86_64-linux-gnu", "-I/usr/include"});
   std::vector<std::string> arRef({m_filename});
   clang::tooling::ClangTool tool(db, arRef);
   tool.run(newFunctionDeclFrontendAction(elem).get());

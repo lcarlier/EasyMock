@@ -8,6 +8,8 @@ Function VoidFunIntArrayFactory::functionFactory()
 {
   //Even though an array is passed as parameter. C/C++ sees it as a pointer
   Parameter::Vector p({new Parameter(new Pointer(new CType(CTYPE_INT)), "a")});
+  //Parameter is int array[10] so the string to declare the type of the array is 'int'
+  p[0].setDeclareString("int");
   Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), p);
   return f;
 }

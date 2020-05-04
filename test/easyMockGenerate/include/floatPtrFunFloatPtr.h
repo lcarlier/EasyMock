@@ -6,7 +6,7 @@ extern "C"
 {
 #endif
 
-float *floatPtrFunFloatPtr(float* ptr);
+float* floatPtrFunFloatPtr(float* ptr);
 
 #ifdef __cplusplus
 }

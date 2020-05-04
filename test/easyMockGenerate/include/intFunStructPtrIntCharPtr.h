@@ -8,7 +8,7 @@ extern "C"
 
 #include "structCommonDeclaration.h"
 
-  int intFunStructPtrIntCharPtr(struct s2* s, int a, char *c);
+  int intFunStructPtrIntCharPtr(struct s2* s, int a, char* c);
 
 #ifdef __cplusplus
 }

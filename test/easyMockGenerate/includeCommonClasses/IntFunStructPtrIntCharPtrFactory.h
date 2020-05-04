@@ -2,7 +2,6 @@
 #define INTFUNSTRUCTPTRINTCHARPTRFACTORY_H
 
 #include <FunctionFactory.h>
-#include <voidFunStructPtr.h>
 
 class IntFunStructPtrIntCharPtrFactory : public FunctionFactory<int, std::tuple<struct s2*, int, char*>, std::tuple<EasyMock_Matcher, EasyMock_Matcher, EasyMock_Matcher>>
 {
