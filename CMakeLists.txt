@@ -79,6 +79,7 @@ message("-- EASYMOCK_DEFAULT_FULL_LD_PARAM: ${EASYMOCK_DEFAULT_FULL_LD_PARAM}")
 
 set(LLVM_PARSER_OBJ llvmParser)
 set(CTEMPLATE_GENERATE_OBJ ctemplateGenerate)
+set(CXXOPTS_CMD_LINE_PARSER_OBJ cxxoptsCmdLineParser)
 set(EASYMOCK_COMMON_OBJ easyMockCommonObj)
 
 add_subdirectory(src)

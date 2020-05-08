@@ -494,18 +494,20 @@ LLVMParser::LLVMParser() : CodeParserItf()
 {
 }
 
-LLVMParser::LLVMParser(std::string& filename, std::string& flags)  : CodeParserItf(filename, flags)
+LLVMParser::LLVMParser(std::string& filename, ParserExtraArgs& flags)  : CodeParserItf(filename, flags)
 {
 }
 
 CodeParser_errCode LLVMParser::getElementToStub(ElementToMock::Vector& elem) const
 {
-  //std::string dir = boost::filesystem::path(m_filename).parent_path().string();
   std::string dir = ".";
   llvm::Twine twineDir(dir);
-  //clang::tooling::FixedCompilationDatabase db(twineDir, {"-I/usr//lib/llvm-7/lib/clang/7.0.0/include/"});
-  //clang::tooling::FixedCompilationDatabase db(twineDir, {"-I/usr//lib/gcc/x86_64-linux-gnu/7/include/"});
-  clang::tooling::FixedCompilationDatabase db(twineDir, {"-I/usr/lib/gcc/x86_64-linux-gnu/7/include", "-I/usr/local/include", "-I/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed", "-I/usr/include/x86_64-linux-gnu", "-I/usr/include"});
+  std::vector<std::string> LLVMExtraArgs({"-I/usr/lib/gcc/x86_64-linux-gnu/7/include", "-I/usr/local/include", "-I/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed", "-I/usr/include/x86_64-linux-gnu", "-I/usr/include"});
+  for(const std::string extraArg: m_flags)
+  {
+    LLVMExtraArgs.emplace_back(extraArg);
+  }
+  clang::tooling::FixedCompilationDatabase db(twineDir, LLVMExtraArgs);
   std::vector<std::string> arRef({m_filename});
   clang::tooling::ClangTool tool(db, arRef);
   tool.run(newFunctionDeclFrontendAction(elem).get());

@@ -7,7 +7,7 @@ class LLVMParser : public CodeParserItf
 {
 public:
   LLVMParser();
-  LLVMParser(std::string &filename, std::string& flags);
+  LLVMParser(std::string &filename, ParserExtraArgs& flags);
   CodeParser_errCode getElementToStub(ElementToMock::Vector& elem) const;
   virtual ~LLVMParser();
 private:
