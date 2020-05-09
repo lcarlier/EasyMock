@@ -2,6 +2,7 @@
 #include <easyMock_framework.h>
 #include <MockedFunction.h>
 
+#include <algorithm>
 #include <cstdio>
 #include <string>
 #include <map>

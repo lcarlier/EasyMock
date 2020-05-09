@@ -240,7 +240,6 @@ TEMPLATE_VAR(FUNCTION_NAME) "_match_" PARAMETER_NAME("")
 "//----------------- END GENERATION '" TEMPLATE_FUNCTION_TO_BE_MOCKED "' -----------------"
 
 static const char templateText[] =
-        "#include \"" TEMPLATE_VAR(MOCKED_HEADER_FILENAME) "\"" CARRIAGE_RETURN
         "#include \"" MOCK_FRAMEWORK_NAME "_" TEMPLATE_VAR(MOCKED_HEADER_FILENAME) "\"" CARRIAGE_RETURN
         "#include <easyMock_framework.h>" CARRIAGE_RETURN
         "#include <MockedFunction.h>" CARRIAGE_RETURN

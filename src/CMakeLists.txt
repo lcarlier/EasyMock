@@ -1,1 +1,2 @@
+add_subdirectory(easyMockFramework)
 add_subdirectory(easyMockGenerate)
