@@ -13,6 +13,7 @@ EasyMockOptions CXXOptsCmdLineParser::getParsedArguments(int argc,char* argv[]) 
   int argIdx;
   const char* inputParam = g_inputHeaderParam.c_str();
   const char* outputParam = g_outputDirParam.c_str();
+  const char* mockOnlyParam = g_mockOnlyParam.c_str();
   for(argIdx = 1; argv[argIdx] != nullptr && argIdx < argc; argIdx++)
   {
     const char* currentArg = argv[argIdx];
@@ -22,6 +23,11 @@ EasyMockOptions CXXOptsCmdLineParser::getParsedArguments(int argc,char* argv[]) 
       continue;
     }
     if(std::strncmp(currentArg, outputParam, std::strlen(outputParam) + 1) == 0)
+    {
+      argIdx++;
+      continue;
+    }
+    if(std::strncmp(currentArg, mockOnlyParam, std::strlen(outputParam) + 1) == 0)
     {
       argIdx++;
       continue;
@@ -39,13 +45,20 @@ EasyMockOptions CXXOptsCmdLineParser::getParsedArguments(int argc,char* argv[]) 
   std::string helpParamOpt(&g_helpParamShort[1]);
   helpParamOpt.push_back(',');
   helpParamOpt.append(g_helpParamLong.substr(2));
+  std::vector<std::string> mockOnlyList;
   options.add_options()
       (&inputParam[1], "Input header file", cxxopts::value<std::string>())
       (&outputParam[1], "Output directory", cxxopts::value<std::string>())
+      (&mockOnlyParam[2], "Mock only the function specified in this parameter. Can be used several times", cxxopts::value(mockOnlyList))
       (helpParamOpt.c_str(), "Print usage")
   ;
 
   cxxopts::ParseResult result = options.parse(argc, argv);
+
+  for(std::string str : mockOnlyList)
+  {
+    opt.m_mockOnlyList.insert(str);
+  }
 
   if(result.count(&g_helpParamShort[1]))
   {

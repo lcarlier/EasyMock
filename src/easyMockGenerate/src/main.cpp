@@ -34,9 +34,12 @@ int main(int argc, char *argv[])
     return 1;
   }
 
-  CodeGeneratorCTemplate cg;
   LLVMParser of;
   of.setFlags(opt.m_extraArgs);
+
+  CodeGeneratorCTemplate cg;
+  cg.setMockOnlyFunction(opt.m_mockOnlyList);
+
   MainCodeGenerator cp(opt.m_inputHeaderFile, of, cg);
   cp.generateCode(opt.m_outputDir);
 

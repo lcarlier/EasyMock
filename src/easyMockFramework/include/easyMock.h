@@ -39,6 +39,8 @@ extern "C"
   DECLARE_MATCHER(long_double);
   DECLARE_MATCHER(pointer);
 
+  int cmp_str( void *currentCall_ptr, void *expectedCall_ptr, const char *paramName, char *errorMessage );
+
 #ifdef __cplusplus
 }
 #endif

@@ -1,5 +1,6 @@
 #include <easyMock.h>
 #include <stdio.h>
+#include <string.h>
 
 #define IMPLEMENT_MATCHER(typeName, cType, printFormat) \
   extern "C" DECLARE_MATCHER(typeName) \
@@ -30,4 +31,16 @@ IMPLEMENT_MATCHER(double, double, "%lf");
 IMPLEMENT_MATCHER(long_double, long double, "%Lf");
 IMPLEMENT_MATCHER(pointer, void *, "%p");
 
-
+extern "C" int cmp_str(void *currentCall_ptr, void *expectedCall_ptr, const char *paramName, char *errorMessage )
+{
+  char* currentCall_val = *((char **)currentCall_ptr);
+  char* expectedCall_val = *((char **)expectedCall_ptr);
+  if(strcmp(currentCall_val, expectedCall_val) == 0)
+  {
+    return 0;
+  }
+  snprintf(errorMessage, EASYMOCK_MAX_CMP_ERR,
+  "Parameter '%s' has value '%s', was expecting '%s'",
+        paramName, currentCall_val, expectedCall_val);
+  return -1;
+}

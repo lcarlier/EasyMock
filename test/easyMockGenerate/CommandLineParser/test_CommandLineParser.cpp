@@ -102,3 +102,19 @@ TYPED_TEST(CommandLineParser_testCase, ParamHelpLong)
   ASSERT_TRUE(opt.m_errorMessage.empty()) << opt.m_errorMessage;
   ASSERT_FALSE(opt.m_helpMessage.empty()) << opt.m_helpMessage;
 }
+
+TYPED_TEST(CommandLineParser_testCase, MockOnly)
+{
+  TypeParam parser;
+  CommandLineParserItf& parserItf = parser;
+  const char * const parsedArgs[] = {"./test", "-i", "foo", "-o", "bar", "--mock-only", "fopen", "--mock-only", "fread", "--mock-only", "fwrite", NULL};
+  EasyMockOptions opt = parserItf.getParsedArguments(ARRAY_SIZE(parsedArgs) - 1, (char **) parsedArgs);
+
+  MockOnlyList mockOnlyExpect = {"fopen", "fread", "fwrite"};
+  ASSERT_TRUE(opt.m_errorMessage.empty()) << opt.m_errorMessage;
+  ASSERT_TRUE(opt.m_helpMessage.empty()) << opt.m_helpMessage;
+  ASSERT_EQ(opt.m_inputHeaderFile, "foo");
+  ASSERT_EQ(opt.m_outputDir, "bar");
+  ASSERT_EQ(opt.m_extraArgs, std::vector<std::string>());
+  ASSERT_EQ(opt.m_mockOnlyList, mockOnlyExpect);
+}

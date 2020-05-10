@@ -19,6 +19,7 @@ add_library(${EASYMOCK_COMMON_OBJ}
   ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/UnionType.cpp
   ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/ComposableType.cpp
   ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/Pointer.cpp
+  ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/CodeGeneratorItf.cpp
 )
 
 set(EASYMOCK_GEN_SOURCE_FILE
