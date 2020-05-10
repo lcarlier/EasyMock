@@ -1,7 +1,6 @@
 #include <cstdio>
 #include <cstdlib>
 #include <vector>
-#include <cassert>
 #include <algorithm>
 #include <cstring>
 #include "CodeGeneratorCTemplate.h"
@@ -16,6 +15,9 @@
 #include "ComposableType.h"
 #include "Pointer.h"
 #include "Function.h"
+
+#undef NDEBUG
+#include <cassert>
 
 #define TEMPLATE_VAR(VAR_NAME) "{{" VAR_NAME "}}"
 #define TEMPLATE_BEG_SECTION(SECTION_NAME) "{{#" SECTION_NAME "}}"

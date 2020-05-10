@@ -10,8 +10,10 @@
 #include <tuple>
 #include <cstring>
 #include <iostream>
-#include <cassert>
 #include <easyMock.h>
+
+#undef NDEBUG
+#include <cassert>
 
 namespace EasyMockTestCase {
   typedef enum

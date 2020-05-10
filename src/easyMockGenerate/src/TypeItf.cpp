@@ -1,10 +1,11 @@
 #include "TypeItf.h"
 #include "Pointer.h"
-#include <cassert>
 
-#include <cassert>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string.hpp>
+
+#undef NDEBUG
+#include <cassert>
 
 TypeItf::TypeItf():
 TypeItf("")

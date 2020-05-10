@@ -1,6 +1,29 @@
 cmake_minimum_required (VERSION 2.6)
 project (EasyMock)
 
+set(build_debug "Debug")
+set(build_release "Release")
+set(default_build_type ${build_release})
+
+if(EXISTS "${CMAKE_SOURCE_DIR}/.git")
+    set(default_build_type ${build_debug})
+endif()
+
+if(EXISTS "${CMAKE_SOURCE_DIR}/.hg")
+    set(default_build_type ${build_debug})
+endif()
+
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    message(STATUS "Setting build type to '${default_build_type}' as none was specified.")
+    set(CMAKE_BUILD_TYPE "${default_build_type}" CACHE
+        STRING "Choose the type of build." FORCE)
+    # Set the possible values of build type for cmake-gui
+    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
+      ${build_debug} ${build_release})
+endif()
+
+message(STATUS "Building for ${CMAKE_BUILD_TYPE}.")
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
@@ -18,8 +41,16 @@ if (NOT LLVM)
     message (FATAL_ERROR "llvm-config-${LLVM_VERSION} command not found")
 endif()
 
-set(EASYMOCK_DEFAULT_CFLAGS -fsanitize=address -fno-omit-frame-pointer -g -O0 -Werror -Wall)
-set(EASYMOCK_DEFAULT_LDFLAGS -fsanitize=address)
+if(CMAKE_BUILD_TYPE STREQUAL build_debug)
+    set(EASYMOCK_DEFAULT_CFLAGS ${EASYMOCK_DEFAULT_CFLAGS} -fsanitize=address -fno-omit-frame-pointer -g -O0)
+    message(STATUS "Setting extra debug flags (${EASYMOCK_DEFAULT_CFLAGS})")
+endif()
+set(EASYMOCK_DEFAULT_LDFLAGS)
+
+if(CMAKE_BUILD_TYPE STREQUAL build_debug)
+    set(EASYMOCK_DEFAULT_LDFLAGS ${EASYMOCK_DEFAULT_LDFLAGS} -fsanitize=address)
+    message(STATUS "Setting extra link flags (${EASYMOCK_DEFAULT_LDFLAGS})")
+endif()
 
 set(LLVM_PATH llvm-${LLVM_VERSION}/lib) #relative to /usr/lib
 set(LINK_LIB
@@ -84,8 +115,10 @@ set(EASYMOCK_COMMON_OBJ easyMockCommonObj)
 
 add_subdirectory(src)
 
-include(CTest)
-enable_testing()
-add_subdirectory(test)
+if(CMAKE_BUILD_TYPE STREQUAL build_debug)
+    include(CTest)
+    enable_testing()
+    add_subdirectory(test)
 
-add_custom_target(check COMMAND GTEST_COLOR=1 ${CMAKE_CTEST_COMMAND} --output-on-failure --verbose)
+    add_custom_target(check COMMAND GTEST_COLOR=1 ${CMAKE_CTEST_COMMAND} --output-on-failure --verbose)
+endif()

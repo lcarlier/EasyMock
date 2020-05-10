@@ -15,10 +15,12 @@
 #include <cxxabi.h>
 #include <elfutils/libdwfl.h>
 #include <string.h>
-#include <assert.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <boost/core/demangle.hpp>
+
+#undef NDEBUG
+#include <assert.h>
 
 static void append_string(std::string &str, const char *fmt, ...);
 
