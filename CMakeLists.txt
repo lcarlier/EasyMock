@@ -112,6 +112,7 @@ set(LLVM_PARSER_OBJ llvmParser)
 set(CTEMPLATE_GENERATE_OBJ ctemplateGenerate)
 set(CXXOPTS_CMD_LINE_PARSER_OBJ cxxoptsCmdLineParser)
 set(EASYMOCK_COMMON_OBJ easyMockCommonObj)
+set(EASYMOCK_FRAMEWORK_LIBRARY EasyMockFramework)
 
 add_subdirectory(src)
 

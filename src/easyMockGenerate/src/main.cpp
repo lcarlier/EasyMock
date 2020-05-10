@@ -11,7 +11,7 @@
 #include <sys/stat.h>
 
 static bool fileExists(const std::string& path);
-static bool dirExists(const std::string& path);
+static bool isDirectory(const std::string& path);
 
 static bool validateParameter(const EasyMockOptions& opt);
 
@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
   {
     return 1;
   }
-  
+
   CodeGeneratorCTemplate cg;
   LLVMParser of;
   of.setFlags(opt.m_extraArgs);
@@ -52,9 +52,9 @@ static bool validateParameter(const EasyMockOptions& opt)
     return false;
   }
   const char* outputDir = opt.m_outputDir.c_str();
-  if(!dirExists(opt.m_outputDir))
+  if(!isDirectory(opt.m_outputDir))
   {
-    std::fprintf(stderr, "Error: output directory '%s' doesn't exists\n\r", outputDir);
+    std::fprintf(stderr, "Error: output directory '%s' is not valid\n\r", outputDir);
     return false;
   }
   return true;
@@ -66,7 +66,7 @@ static bool fileExists(const std::string& path)
   return f.good();
 }
 
-static bool dirExists(const std::string& path)
+static bool isDirectory(const std::string& path)
 {
   struct stat info;
 

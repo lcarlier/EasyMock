@@ -112,3 +112,4 @@ target_include_directories(${TEST_FACTORIES_COMMON_OBJ} PRIVATE ${TEST_INCLUDE_D
 add_subdirectory(easyMockGenerate)
 add_subdirectory(CType)
 add_subdirectory(StructType)
+add_subdirectory(end2end)
