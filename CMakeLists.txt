@@ -31,6 +31,7 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(CTEMPLATE REQUIRED libctemplate>=2.3)
 pkg_check_modules(LIBUNWIND REQUIRED libunwind>=1.21)
 pkg_check_modules(LIBDW REQUIRED libdw>=0.170)
+pkg_check_modules(LIBNCURSES REQUIRED ncurses>=5)
 
 find_package(Boost 1.65 REQUIRED system filesystem)
 
