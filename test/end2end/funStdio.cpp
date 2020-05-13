@@ -2,6 +2,8 @@
 
 #include <easyMock.h>
 
+#include <cstring>
+
 #include "easyMock_stdio.h"
 
 TEST(stdio, testOk)
@@ -16,9 +18,23 @@ TEST(stdio, testOk)
     ASSERT_EQ(frrv, &fr);
     ASSERT_EQ(fwrv, &fw);
 
-    ASSERT_EQ(easyMock_check(), 1);
+    char dataReadToReturn[] = "myDataRead";
+    size_t dataToReturnSize = std::strlen(dataReadToReturn) + 1;
+    char dataRead[32];
+    size_t sizeofDataRead = sizeof(dataRead);
+    fread_ExpectReturnAndOutput(dataRead, 1, sizeofDataRead, frrv, dataToReturnSize, cmp_pointer, cmp_long, cmp_long, cmp_pointer, &dataReadToReturn, dataToReturnSize, nullptr);
+    size_t actualSizeRead = fread(dataRead, 1, sizeofDataRead, frrv);
+    ASSERT_EQ(actualSizeRead, dataToReturnSize);
+    ASSERT_STREQ(dataRead, dataReadToReturn);
+
+    fwrite_ExpectAndReturn(dataRead, dataToReturnSize, 1, fwrv, dataToReturnSize, cmp_str, cmp_long, cmp_long, cmp_pointer);
+    size_t byteWritten = fwrite(dataRead, dataToReturnSize, 1, fwrv);
+    ASSERT_EQ(byteWritten, dataToReturnSize);
+
     const char* errorMsg = easyMock_getErrorStr();
     ASSERT_FALSE(errorMsg) << errorMsg;
+
+    ASSERT_EQ(easyMock_check(), 1);
 }
 
 TEST(stdio, testNok)
