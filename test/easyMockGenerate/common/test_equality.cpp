@@ -173,8 +173,8 @@ TEST(equality, ParameterDeclareStringDifferentParam)
 
 TEST(equality, ReturnValueSame)
 {
-  ReturnValue rv1;
-  ReturnValue rv2;
+  ReturnValue rv1(new CType(CTYPE_INT));
+  ReturnValue rv2(new CType(CTYPE_INT));
 
   ASSERT_EQ(rv1, rv2);
 }
@@ -293,11 +293,6 @@ TEST(equality, StructFieldPointerSame)
   f3.getType()->getContainedFields()[1].getType()->setPointer(true);
   ASSERT_NE(f3, f4);
   f4.getType()->getContainedFields()[1].getType()->setPointer(true);
-  ASSERT_EQ(f3, f4);
-
-  f3.getType()->getContainedFields()[1].setArray(true);
-  ASSERT_NE(f3, f4);
-  f4.getType()->getContainedFields()[1].setArray(true);
   ASSERT_EQ(f3, f4);
 
   f3.getType()->getContainedFields()[1].setArraySize(10);

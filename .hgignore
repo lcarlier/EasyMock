@@ -1,2 +1,4 @@
 build/*
 .swp
+docs/doxygen/html/
+docs/doxygen/latex/

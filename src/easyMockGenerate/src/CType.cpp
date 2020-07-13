@@ -5,7 +5,12 @@ CType::CType() : CType(CTYPE_INVALID)
 }
 
 CType::CType(const easyMock_cTypes_t p_cType, bool isConst) :
-TypeItf(easyMock_arrayCTypeStr[p_cType]), m_cType(p_cType)
+CType(p_cType, "", isConst)
+{
+}
+
+CType::CType(const easyMock_cTypes_t p_cType, std::string p_typeDefName, bool isConst) :
+TypeItf(easyMock_arrayCTypeStr[p_cType], p_typeDefName), m_cType(p_cType)
 {
   this->setConst(isConst);
   this->setCType(true);

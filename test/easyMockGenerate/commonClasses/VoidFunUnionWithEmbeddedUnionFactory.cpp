@@ -7,9 +7,9 @@ Function VoidFunUnionWithEmbeddedUnionFactory::functionFactory()
   bool isEmbeddedStruct = true;
   UnionType* top = new UnionType("topEmbeddedUnion", !isEmbeddedStruct); //NOT EMBEDDED
   UnionType* beingDefined = new UnionType("embeddedUnion", isEmbeddedStruct);
-  beingDefined->addStructField(new ComposableField(CTYPE_INT, "a"));
-  beingDefined->addStructField(new ComposableField(CTYPE_FLOAT, "b"));
-  top->addStructField(new ComposableField(beingDefined, "eu"));
+  beingDefined->addField(new ComposableField(CTYPE_INT, "a"));
+  beingDefined->addField(new ComposableField(CTYPE_FLOAT, "b"));
+  top->addField(new ComposableField(beingDefined, "eu"));
   Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), Parameter::Vector({new Parameter(top, "u")}));
   return f;
 }

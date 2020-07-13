@@ -15,10 +15,10 @@ Function VoidFunUnionWithFirstAnonymousUnionFieldFactory::functionFactory()
   bool isEmbeddedStruct = true;
   UnionType* top = new UnionType("topAnonymousFirstUnionField", !isEmbeddedStruct); //NOT EMBEDDED
   UnionType* beingDefined = new UnionType("", isEmbeddedStruct);
-  beingDefined->addStructField(new ComposableField(CTYPE_INT, "s1"));
-  beingDefined->addStructField(new ComposableField(CTYPE_FLOAT, "s2"));
-  top->addStructField(new ComposableField(beingDefined, ""));
-  top->addStructField(new ComposableField(CTYPE_INT, "a"));
+  beingDefined->addField(new ComposableField(CTYPE_INT, "s1"));
+  beingDefined->addField(new ComposableField(CTYPE_FLOAT, "s2"));
+  top->addField(new ComposableField(beingDefined, ""));
+  top->addField(new ComposableField(CTYPE_INT, "a"));
   Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), Parameter::Vector({new Parameter(top, "t")}));
 
   return f;

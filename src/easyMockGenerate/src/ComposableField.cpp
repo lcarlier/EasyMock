@@ -9,15 +9,14 @@
 ComposableField::ComposableField(const easyMock_cTypes_t p_ctype, std::string p_name) :
 ComposableField(new CType(p_ctype), p_name, ComposableField::attributes(
 {
-  .isArray = false,
-  .arraySize = 0,
+  .arraySize = -1,
   .isRecursiveTypeField = false
 }))
 {
 }
 
 ComposableField::ComposableField(TypeItf* p_type, std::string p_name) :
-ComposableField(p_type, p_name, {.isArray = false, .arraySize = 0, .isRecursiveTypeField = false})
+ComposableField(p_type, p_name, {.arraySize = -1, .isRecursiveTypeField = false})
 {
 }
 
@@ -25,7 +24,6 @@ ComposableField::ComposableField(TypeItf* p_type, std::string p_name, Composable
 Declarator(nullptr), //is set later
 m_name(p_name),
 m_recursiveType(nullptr),
-m_isArray(p_attrib.isArray),
 m_arraySize(p_attrib.arraySize)
 {
   if(p_attrib.isRecursiveTypeField)
@@ -40,7 +38,7 @@ m_arraySize(p_attrib.arraySize)
      * This means that the pointed object must at least contains the type name
      * and its typed def if any. This is not the purpose that we can go
      * recursively to the pointed type fields via this attribute.
-     * 
+     *
      * TODO: use a more specific class to store m_recursiveType
      */
     Pointer *p = dynamic_cast<Pointer*>(p_type);
@@ -61,7 +59,6 @@ Declarator(other)
 {
   m_name = other.m_name;
   m_recursiveType = other.m_recursiveType ? other.m_recursiveType->clone() : nullptr;
-  m_isArray = other.m_isArray;
   m_arraySize = other.m_arraySize;
 }
 
@@ -106,7 +103,6 @@ void swap(ComposableField &first, ComposableField &second)
   swap(static_cast<Declarator&>(first), static_cast<Declarator&>(second));
   std::swap(first.m_name, second.m_name);
   std::swap(first.m_recursiveType, second.m_recursiveType);
-  std::swap(first.m_isArray, second.m_isArray);
   std::swap(first.m_arraySize, second.m_arraySize);
 }
 
@@ -119,7 +115,6 @@ bool ComposableField::operator==(const ComposableField& other) const
 {
   bool commonVal = Declarator::operator ==(other) &&
                    this->m_name == other.m_name &&
-                   this->m_isArray == other.m_isArray &&
                    this->m_arraySize == other.m_arraySize;
   if(m_recursiveType)
   {
@@ -180,17 +175,17 @@ void ComposableField::setType(TypeItf* p_type)
 
 bool ComposableField::isArray() const
 {
-  return m_isArray;
+  return !(m_arraySize < 0);
 }
 
 bool ComposableField::isBoundSpecifiedArray() const
 {
-  return m_isArray && m_arraySize > 0;
+  return isArray() && m_arraySize > 0;
 }
 
 bool ComposableField::isUnboundSpecifiedArray() const
 {
-  return m_isArray && m_arraySize == 0;
+  return isArray() && m_arraySize == 0;
 }
 
 bool ComposableField::isAnonymous() const
@@ -198,31 +193,15 @@ bool ComposableField::isAnonymous() const
   return m_name.empty();
 }
 
-bool ComposableField::setArray(bool value)
-{
-  m_isArray = value;
-  m_arraySize = 0;
-
-  return true;
-}
-
 bool ComposableField::setArraySize(uint64_t size)
 {
-  if(!m_isArray)
-  {
-    return false;
-  }
   m_arraySize = size;
 
   return true;
 }
 
-uint64_t ComposableField::getArraySize() const
+int64_t ComposableField::getArraySize() const
 {
-  if(!m_isArray)
-  {
-    return 0;
-  }
   return m_arraySize;
 }
 

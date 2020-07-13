@@ -23,10 +23,10 @@ Function StructSubStructRecursiveTypeFactory::functionFactory()
   bool isEmbeddedInOtherType = false;
   StructType *st1 = new StructType("st1", isEmbeddedInOtherType);
   StructType *st2 = new StructType("st2", isEmbeddedInOtherType);
-  st1->addStructField(new ComposableField(st2, "st1SubSt2"));
+  st1->addField(new ComposableField(st2, "st1SubSt2"));
   //st1 is recursive in st2 because it is access via the parameter "st1Val" which is type st2 and has a st1 as field member
-  st2->addStructField(new ComposableField(new Pointer (st1), "st2SubSt1", {.isArray = false, .arraySize=0, .isRecursiveTypeField=true}));
-  st2->addStructField(new ComposableField(new Pointer (st2), "st2SubSt2", {.isArray = false, .arraySize=0, .isRecursiveTypeField=true}));
+  st2->addField(new ComposableField(new Pointer (st1), "st2SubSt1", {.arraySize=-1, .isRecursiveTypeField=true}));
+  st2->addField(new ComposableField(new Pointer (st2), "st2SubSt2", {.arraySize=-1, .isRecursiveTypeField=true}));
   Function f(functionGetFunctionName(), VoidReturnValue(), Parameter::Vector({new Parameter(st1, "st1Val")}));
   return f;
 }

@@ -5,7 +5,6 @@ set(EASYMOCK_GEN_INCLUDE_DIR ${EasyMock_SOURCE_DIR}/src/common/include
 
 add_library(${EASYMOCK_COMMON_OBJ}
   ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/CodeParserItf.cpp
-  ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/CodeParserCLang.cpp
   ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/TypeItf.cpp
   ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/CType.cpp
   ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/StructType.cpp

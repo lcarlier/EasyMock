@@ -1,3 +1,6 @@
+/*! \file
+ * \brief Contains the interface that an ElementToMock proposes.
+ */
 #ifndef ELEMENTTOMOCK_H
 #define ELEMENTTOMOCK_H
 
@@ -9,6 +12,12 @@ enum ElementToMock_Type
   ETS_function
 };
 
+/*!
+ * \brief Interface of an ElementToMock.
+ *
+ * Currently only C function are supported but it is the purpose
+ * to add more. I.e. C++ classes.
+ */
 class ElementToMock
 {
 public:

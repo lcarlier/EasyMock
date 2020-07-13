@@ -1,3 +1,6 @@
+/*! \file
+ * \brief Contains the class to represent a function.
+ */
 #ifndef FUNCTION_H
 #define FUNCTION_H
 
@@ -6,6 +9,9 @@
 
 #include <string>
 
+/*!
+ * \brief Represents a function.
+ */
 class Function : public ElementToMock
 {
 public:

@@ -1,3 +1,9 @@
+/*!
+ * \file
+ *
+ * \brief This header defines the MockedFunction class which is a templated
+ * class used by the mocked header code to help mocking a specific function.
+ */
 #ifndef MOCKEDFUNCTION_H
 #define MOCKEDFUNCTION_H
 
@@ -6,6 +12,10 @@
 #include <string>
 #include <queue>
 
+/*!
+ * \brief Templated class used by the mocked header code to help mocking a
+ * specific function
+ */
 template <class T>
 class MockedFunction
 {
@@ -38,7 +48,10 @@ public:
 
   bool addActualCall()
   {
-    //Increment the actualCall anyway because verify() will check the equality of m_actualCall and m_expectedCall
+    /*
+     * Increment the actualCall anyway because verify() will check the equality
+     * of m_actualCall and m_expectedCall
+     */
     m_actualCall++;
     if ((m_actualCall - 1) == m_expectedCall)
     {
@@ -68,7 +81,9 @@ public:
   {
     if (m_expectedCall != m_actualCall)
     {
-      easyMock_addError(false, "Error: For function '%s' bad number of call. Expected %d, got %d", m_name.c_str(), m_expectedCall, m_actualCall);
+      easyMock_addError(false, "Error: For function '%s' bad number of call. "
+                               "Expected %d, got %d",
+                               m_name.c_str(), m_expectedCall, m_actualCall);
       return false;
     }
     return true;

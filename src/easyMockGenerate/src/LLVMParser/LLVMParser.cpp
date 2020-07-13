@@ -21,6 +21,9 @@
 #include <unordered_map>
 #include <string>
 
+/*!
+ * \brief An implementation of a LLVM clang::RecursiveASTVisitor<FunctionDeclASTVisitor>
+ */
 class FunctionDeclASTVisitor : public clang::RecursiveASTVisitor<FunctionDeclASTVisitor>
 {
 private:
@@ -30,6 +33,12 @@ public:
   explicit FunctionDeclASTVisitor(clang::SourceManager& sm, ElementToMock::Vector& elem)
   : m_sourceManager(sm), m_elem(elem), m_context(nullptr) { }
 
+  /*!
+   * \brief Parses a single function.
+   *
+   * This function adds a new ElementToMock object to the list of ElementVector
+   * which is returned by the parser.
+   */
   bool VisitFunctionDecl(clang::FunctionDecl* func)
   {
     if (m_sourceManager.isWrittenInMainFile(func->getSourceRange().getBegin()))
@@ -65,15 +74,14 @@ private:
 
   ReturnValue getFunctionReturnValue(clang::FunctionDecl* func)
   {
-    ReturnValue rv;
     const clang::QualType &rvQualType = func->getReturnType();
     structKnownTypeMap structKnownType;
 
     TypeItf *type = getEasyMocktype(rvQualType, structKnownType);
     //only to return the return type's string
-    rv.setDeclareString(getDeclareString(func->getLocStart(), func->getNameInfo().getLocStart()));
-    rv.setType(type);
+    ReturnValue rv(type);
     type = nullptr; //We lost the ownership
+    rv.setDeclareString(getDeclareString(func->getLocStart(), func->getNameInfo().getLocStart()));
 
     return rv;
   }
@@ -312,17 +320,20 @@ private:
       TypeItf *type = getEasyMocktype(qualType, structKnownType);
       std::string currentTypeName = getMostDefinedTypeName(type);
       bool isRecursiveType = structKnownType.find(currentTypeName) != structKnownType.end();
-      uint64_t arraySize = getArraySize(*typePtr);
+      int64_t arraySize = getArraySize(*typePtr);
+      if(!typePtr->isArrayType())
+      {
+          arraySize = -1;
+      }
       ComposableField::attributes attrib =
         {
-         .isArray              = typePtr->isArrayType(),
          .arraySize            = arraySize,
          .isRecursiveTypeField = isRecursiveType
         };
       std::string fName = FD->getNameAsString();
       ComposableField *sf = new ComposableField(type, fName, attrib);
       sf->setDeclareString(getDeclareString(FD->getLocStart(), FD->getLocEnd()));
-      sType->addStructField(sf);
+      sType->addField(sf);
     }
     if(!typedDefName.empty())
     {

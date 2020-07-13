@@ -10,7 +10,7 @@ ElementToMockList CompileTwoFunctionsFactory::functionFactoryArray()
   ReturnValue rv((new CType(CTYPE_INT)));
 
   StructType* curType = new StructType("twoFunStruct", false);
-  curType->addStructField(new ComposableField(new CType(CTYPE_INT), "a"));
+  curType->addField(new ComposableField(new CType(CTYPE_INT), "a"));
   Parameter *param = new Parameter(curType, "s");
 
   Function* f1 = new Function(functionGetFunctionName(), rv, Parameter::Vector({param->clone()}));

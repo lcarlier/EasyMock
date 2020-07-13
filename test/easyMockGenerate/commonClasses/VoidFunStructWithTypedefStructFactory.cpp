@@ -7,10 +7,10 @@
 Function VoidFunStructWithTypedefStructFactory::functionFactory()
 {
   StructType *t_subStructVar = new StructType("", "t_subStruct", false);
-  t_subStructVar->addStructField(new ComposableField(new CType(CTYPE_INT), "a"));
+  t_subStructVar->addField(new ComposableField(new CType(CTYPE_INT), "a"));
 
   StructType *t_structVar = new StructType("", "t_struct", false);
-  t_structVar->addStructField(new ComposableField(t_subStructVar, "sub"));
+  t_structVar->addField(new ComposableField(t_subStructVar, "sub"));
   t_subStructVar = nullptr; //We lost the ownership
 
   Parameter *p = new Parameter(t_structVar, "s");

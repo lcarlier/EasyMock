@@ -50,6 +50,11 @@ TypeItf* Pointer::getPointedType()
 
 bool Pointer::setPointedType(TypeItf* newPointedType)
 {
+  if(m_pointedType && !m_isRecursivePointer)
+  {
+    delete m_pointedType;
+    m_pointedType = nullptr;
+  }
   m_pointedType = newPointedType;
   return true;
 }

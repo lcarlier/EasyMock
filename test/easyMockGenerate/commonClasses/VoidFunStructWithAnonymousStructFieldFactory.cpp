@@ -14,11 +14,11 @@ Function VoidFunStructWithAnonymousStructFieldFactory::functionFactory()
   ComposableType::m_number_of_anonymous_composable_type -= NB_ANONYMOUS_TYPE_IN_THIS_UT;
   bool isEmbeddedStruct = true;
   StructType* top = new StructType("topAnonymousStructField", !isEmbeddedStruct); //NOT EMBEDDED
-  top->addStructField(new ComposableField(CTYPE_INT, "a"));
+  top->addField(new ComposableField(CTYPE_INT, "a"));
   StructType* beingDefined = new StructType("", isEmbeddedStruct);
-  beingDefined->addStructField(new ComposableField(CTYPE_INT, "s1"));
-  beingDefined->addStructField(new ComposableField(CTYPE_FLOAT, "s2"));
-  top->addStructField(new ComposableField(beingDefined, ""));
+  beingDefined->addField(new ComposableField(CTYPE_INT, "s1"));
+  beingDefined->addField(new ComposableField(CTYPE_FLOAT, "s2"));
+  top->addField(new ComposableField(beingDefined, ""));
   Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), Parameter::Vector({new Parameter(top, "t")}));
 
   return f;

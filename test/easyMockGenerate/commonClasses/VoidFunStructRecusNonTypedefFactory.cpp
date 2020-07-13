@@ -10,14 +10,13 @@ Function VoidFunStructRecusNonTypedefFactory::functionFactory()
   StructType *t_struct = new StructType("s_s1", "t_s1", false);
   ComposableField::attributes cmpAttr =
   {
-    .isArray = false,
-    .arraySize = 0,
+    .arraySize = -1,
     .isRecursiveTypeField = true
   };
   ComposableField* cf = new ComposableField(new Pointer(t_struct), "recur", cmpAttr);
   //When the recur field is declared, it is not yet typed def
   cf->setDeclareString("struct s_s1*");
-  t_struct->addStructField(cf);
+  t_struct->addField(cf);
 
   Parameter *p = new Parameter(new Pointer(t_struct), "s");
   t_struct = nullptr; //We lost the ownership

@@ -6,8 +6,8 @@ Function UnionTypedDefFunUnionTypedDefFactory::functionFactory()
 {
   bool isEmbeddedInOtherType = false;
   UnionType *st1 = new UnionType("u", "t_u", isEmbeddedInOtherType);
-  st1->addStructField(new ComposableField(CTYPE_INT, "a"));
-  st1->addStructField(new ComposableField(CTYPE_INT, "b"));
+  st1->addField(new ComposableField(CTYPE_INT, "a"));
+  st1->addField(new ComposableField(CTYPE_INT, "b"));
   UnionType *rv = st1->clone();
 
   Function f(functionGetFunctionName(), ReturnValue(rv), Parameter::Vector({new Parameter(st1, "s2")}));

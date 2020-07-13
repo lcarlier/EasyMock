@@ -4,11 +4,6 @@
 #include "StructType.h"
 #include "Pointer.h"
 
-ReturnValue::ReturnValue() :
-ReturnValue(nullptr)
-{
-}
-
 ReturnValue::ReturnValue(TypeItf* type) :
 Declarator(type)
 {

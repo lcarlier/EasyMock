@@ -60,11 +60,6 @@ void Declarator::setType(TypeItf* type)
   }
 }
 
-const std::string& Declarator::getTypeName() const
-{
-  return m_type->getName();
-}
-
 void Declarator::setDeclareString(const std::string& newString)
 {
   if(!newString.empty())

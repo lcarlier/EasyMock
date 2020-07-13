@@ -11,12 +11,11 @@ Function StructRecursiveMemberPtrTypeFactory::functionFactory()
   StructType *recurStruct = new StructType("recurs", isEmbeddedInOtherType);
   ComposableField::attributes attrib =
   {
-    .isArray = false,
-    .arraySize = 0,
+    .arraySize = -1,
     .isRecursiveTypeField = isRecursiveType
   };
   ComposableField *valField = new ComposableField(new Pointer(recurStruct), "val", attrib);
-  recurStruct->addStructField(valField);
+  recurStruct->addField(valField);
 
   Function f(functionGetFunctionName(), VoidReturnValue(), Parameter::Vector({new Parameter(recurStruct, "rec")}));
   recurStruct = nullptr; //Invalidate because we lost the ownership

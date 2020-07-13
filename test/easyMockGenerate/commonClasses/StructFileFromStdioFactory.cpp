@@ -13,24 +13,23 @@ Function StructFileFromStdioFactory::functionFactory()
 
   ComposableField::attributes fieldAttr =
   {
-    .isArray = false,
-    .arraySize = 0,
+    .arraySize = -1,
     .isRecursiveTypeField = true
   };
 
   ComposableField* cf = new ComposableField(new Pointer(IO_MARK), "_next", fieldAttr);
-  IO_MARK->addStructField(cf);
+  IO_MARK->addField(cf);
   cf = new ComposableField(new Pointer(FILE_T), "_sbuf", fieldAttr);
   //When the _sbuf field is declared, it is not yet typed def
   cf->setDeclareString("struct MY_IO_FILE*");
-  IO_MARK->addStructField(cf);
+  IO_MARK->addField(cf);
 
   cf = new ComposableField(new Pointer(IO_MARK), "_markers");
-  FILE_T->addStructField(cf);
+  FILE_T->addField(cf);
   cf = new ComposableField(new Pointer(FILE_T), "_chain", fieldAttr);
   //When the _chain field is declared, it is not yet typed def
   cf->setDeclareString("struct MY_IO_FILE*");
-  FILE_T->addStructField(cf);
+  FILE_T->addField(cf);
 
   Parameter *p = new Parameter(new Pointer(FILE_T), "file");
   FILE_T = nullptr; //We lost the ownership

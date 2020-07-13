@@ -1,10 +1,26 @@
+/*! @file
+ *
+ * \brief Contains the implement of a vector whose elements are freed whenever
+ * the vector is deleted.
+ */
 #ifndef AUTOCLEANVECTORPTR_H
 #define AUTOCLEANVECTORPTR_H
 
 #include <vector>
 
-/*
- * AutoCleanVectorPtr can be used only to store pointers allocated with the 'new' operator
+/*!
+ * This templated class is used to hold pointers that will be deleted when
+ * the AutoCleanVectorPtr is deleted.
+ *
+ * This class is:
+ * - copyable
+ * - moveable
+ *
+ * This class is actually a wrapper of a std::vector class. As such, it
+ * has the same interface and can be used in the same way as an std::vector.
+ *
+ * The advantage of using this class is that the user doesn't need to take
+ * care of managing the pointers held by this data structure.
  */
 template <class T>
 class AutoCleanVectorPtr
@@ -39,7 +55,7 @@ public:
   {
     swap(*this, other);
   }
-  //With elision pattern, no need for a move consutructor
+  //With elision pattern, no need for a move constructor
 
   bool operator==(const AutoCleanVectorPtr &other) const
   {

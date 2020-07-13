@@ -7,9 +7,9 @@ Function StructWithUnionFunStructWithUnionFactory::functionFactory()
 {
   StructType *st = new StructType("", "sWithUnion", false);
   UnionType *ut = new UnionType("ut", "", true);
-  ut->addStructField(new ComposableField(CTYPE_INT, "a"));
-  ut->addStructField(new ComposableField(CTYPE_FLOAT, "b"));
-  st->addStructField(new ComposableField(ut, "u"));
+  ut->addField(new ComposableField(CTYPE_INT, "a"));
+  ut->addField(new ComposableField(CTYPE_FLOAT, "b"));
+  st->addField(new ComposableField(ut, "u"));
   StructType *rv = st->clone();
   Function f(functionGetFunctionName(), ReturnValue(rv), Parameter::Vector({new Parameter(st, "st")}));
   return f;

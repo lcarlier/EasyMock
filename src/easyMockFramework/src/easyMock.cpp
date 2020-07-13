@@ -36,7 +36,7 @@ class EasyMock
 public:
 
   EasyMock() :
-  m_checkFifoCall(false), m_printCallStack(true) { };
+  m_checkCallsOrder(false), m_printCallStack(true) { };
 
   void registerMock(const easyMock_mockedFileRegister_t *args)
   {
@@ -135,9 +135,9 @@ public:
     return currentCall;
   }
 
-  bool checkFifoCall()
+  bool checkCallsOrder()
   {
-    return m_checkFifoCall;
+    return m_checkCallsOrder;
   }
 
   bool printCallStack()
@@ -150,9 +150,9 @@ public:
     m_printCallStack = val;
   }
 
-  void setCheckFifoCall(bool val)
+  void setCheckCallsOrder(bool val)
   {
-    m_checkFifoCall = val;
+    m_checkCallsOrder = val;
   }
 private:
 
@@ -270,7 +270,7 @@ private:
     }
   }
 
-  bool m_checkFifoCall;
+  bool m_checkCallsOrder;
   bool m_printCallStack;
   MockMap_t m_registeredMock;
   FifoCall_t m_fifoCall;
@@ -279,12 +279,12 @@ private:
 
 static EasyMock __attribute ((init_priority(101))) easyMock;
 
-void easyMock_registerMock(const easyMock_mockedFileRegister_t *args)
+void easyMock_registerMockedFile(const easyMock_mockedFileRegister_t *args)
 {
   easyMock.registerMock(args);
 }
 
-void easyMock_unregisterMock(const easyMock_mockedFileRegister_t *args)
+void easyMock_unregisterMockedFile(const easyMock_mockedFileRegister_t *args)
 {
   easyMock.unregisterMock(args);
 }
@@ -315,9 +315,9 @@ void easyMock_addError(bool callstack, const char *fmt, ...)
   easyMock.addError(error, callstack);
 }
 
-bool easyMock_checkFifoCall()
+bool easyMock_checkCallsOrder()
 {
-  return easyMock.checkFifoCall();
+  return easyMock.checkCallsOrder();
 }
 
 bool easyMock_printCallStack()
@@ -350,9 +350,9 @@ extern "C" void easyMock_printCallStack(bool val)
   easyMock.setPrintCallStack(val);
 }
 
-extern "C" void easyMock_checkFifoCall(bool val)
+extern "C" void easyMock_checkCallsOrder(bool val)
 {
-  easyMock.setCheckFifoCall(val);
+  easyMock.setCheckCallsOrder(val);
 }
 
 static void append_string(std::string &str, const char *fmt, ...)

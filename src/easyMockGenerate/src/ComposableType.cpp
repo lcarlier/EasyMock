@@ -126,7 +126,7 @@ const ComposableField::Vector& ComposableType::getContainedFields() const
   return m_elem;
 }
 
-void ComposableType::addStructField(ComposableField* newField)
+void ComposableType::addField(ComposableField* newField)
 {
   m_elem.push_back(newField);
 }

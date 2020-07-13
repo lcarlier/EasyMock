@@ -15,8 +15,8 @@ Function VoidFunStructWithEmbeddedAnonymousStructFactory::functionFactory()
   bool isEmbeddedStruct = true;
   StructType* top = new StructType("topEmbeddedAnonymous", !isEmbeddedStruct); //NOT EMBEDDED
   StructType* beingDefined = new StructType("", isEmbeddedStruct);
-  beingDefined->addStructField(new ComposableField(CTYPE_INT, "a"));
-  top->addStructField(new ComposableField(beingDefined, "af"));
+  beingDefined->addField(new ComposableField(CTYPE_INT, "a"));
+  top->addField(new ComposableField(beingDefined, "af"));
   Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), Parameter::Vector({new Parameter(top, "s")}));
 
   return f;

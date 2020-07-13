@@ -6,9 +6,9 @@ Function UnionFunUnionFactory::functionFactory()
 {
   bool isEmbeddedInOtherType = false;
   UnionType *st1 = new UnionType("u1", "", isEmbeddedInOtherType);
-  st1->addStructField(new ComposableField(CTYPE_INT, "a"));
+  st1->addField(new ComposableField(CTYPE_INT, "a"));
   UnionType *st2 = new UnionType("u2", "", isEmbeddedInOtherType);
-  st2->addStructField(new ComposableField(CTYPE_INT, "b"));
+  st2->addField(new ComposableField(CTYPE_INT, "b"));
 
   Function f(functionGetFunctionName(), ReturnValue(st1), Parameter::Vector({new Parameter(st2, "u")}));
   return f;

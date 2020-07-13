@@ -1,3 +1,7 @@
+/*! @file
+ *
+ * \brief Contains the class to represent a return value.
+ */
 #ifndef RETURNVALUE_H
 #define RETURNVALUE_H
 
@@ -9,11 +13,31 @@
 class TypeItf;
 class StructType;
 
+/*!
+ * This class represents a function's return value.
+ *
+ * For instance, in the following code
+ * \code{.c}
+ * void foo();
+ * int bar();
+ * \endcode
+ * The following elements are represented by the ReturnValue class
+ * - <tt>void</tt>
+ * - <tt>int</tt>
+ */
 class ReturnValue : public Declarator
 {
 public:
-  ReturnValue();
-  explicit ReturnValue(TypeItf *type);
+  /*!
+   * \brief Creates a new ReturnValue object.
+   *
+   * \param p_type The type of the return value.
+   *
+   * \heapPointer
+   *
+   * \see TypeItf
+   */
+  explicit ReturnValue(TypeItf *p_type);
 
   ReturnValue(const ReturnValue &other);
   ReturnValue& operator=(ReturnValue other);
@@ -21,6 +45,11 @@ public:
   ReturnValue(ReturnValue &&other);
   //With elision pattern no need for move assignment
 
+  /*!
+   * \brief Compares 2 ReturnValue objects.
+   *
+   * \copydetails Declarator::operator==()
+   */
   bool operator==(const ReturnValue &other) const;
   bool operator!=(const ReturnValue &other) const;
 

@@ -15,10 +15,10 @@ ElementToMockList FunctionVaArgsFactory::functionFactoryArray()
   param1->setDeclareString(param1->getType()->getFullDeclarationName());
 
   StructType* vaListArg = new StructType("__va_list_tag", false);
-  vaListArg->addStructField(new ComposableField(new CType(CTYPE_UINT), "gp_offset"));
-  vaListArg->addStructField(new ComposableField(new CType(CTYPE_UINT), "fp_offset"));
-  vaListArg->addStructField(new ComposableField(new Pointer(new CType(CTYPE_VOID)), "overflow_arg_area"));
-  vaListArg->addStructField(new ComposableField(new Pointer(new CType(CTYPE_VOID)), "reg_save_area"));
+  vaListArg->addField(new ComposableField(new CType(CTYPE_UINT), "gp_offset"));
+  vaListArg->addField(new ComposableField(new CType(CTYPE_UINT), "fp_offset"));
+  vaListArg->addField(new ComposableField(new Pointer(new CType(CTYPE_VOID)), "overflow_arg_area"));
+  vaListArg->addField(new ComposableField(new Pointer(new CType(CTYPE_VOID)), "reg_save_area"));
   vaListArg->setImplicit(true);
 
   Parameter* param2 = new Parameter(new Pointer(vaListArg), "args");
