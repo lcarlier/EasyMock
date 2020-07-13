@@ -32,6 +32,8 @@ public:
 
   bool isVariadic() const;
   void setVariadic(bool value);
+  bool isInline() const;
+  void setInline(bool value);
 
   ElementToMock(const ElementToMock &other) = default;
   ElementToMock& operator=(const ElementToMock &other) = default;
@@ -48,6 +50,7 @@ protected:
   std::string m_name;
   Parameter::Vector m_parameters;
   bool m_isVariadic;
+  bool m_isInline;
 };
 
 #endif /* ELEMENTTOMOCK_H */

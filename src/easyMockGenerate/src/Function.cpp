@@ -33,6 +33,10 @@ bool Function::operator!=(const Function& other) const
 std::string Function::getFunctionPrototype() const
 {
   std::string rv_funcProto;
+  if(m_isInline)
+  {
+      rv_funcProto.append("inline ");
+  }
   rv_funcProto.append(m_returnType.getType()->getFullDeclarationName());
   rv_funcProto.push_back(' ');
   rv_funcProto.append(m_name);

@@ -15,7 +15,9 @@ static void printComposableTypeToOstream(std::ostream& os, const T& composableTy
 static std::string gs_indentation;
 
 std::ostream& operator<<(std::ostream& os, const Function& fun) {
-  os << std::endl << "funPrototype: " << fun.getFunctionPrototype() << std::endl;
+  os << std::endl << "funPrototype: " << fun.getFunctionPrototype() << ", ";
+  os << "isVariadic: " << (fun.isVariadic() ? "yes" : "no") << ", ";
+  os << "isInline: " << (fun.isInline() ? "yes" : "no") << std::endl;
 
   const ReturnValue *rv = fun.getReturnType();
   os << "Return value:";

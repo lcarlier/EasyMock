@@ -601,6 +601,10 @@ void CodeGeneratorCTemplate::fillInTemplateVariables(ctemplate::TemplateDictiona
   for (ElementToMock::Vector::const_iterator it = p_fList.begin(); it != p_fList.end(); ++it)
   {
     const ElementToMock *elemToMock = *it;
+    if(elemToMock->isInline())
+    {
+        continue;
+    }
     if(m_mockOnlyList.size() > 0 && m_mockOnlyList.find(*elemToMock->getName()) == m_mockOnlyList.end())
     {
       continue;

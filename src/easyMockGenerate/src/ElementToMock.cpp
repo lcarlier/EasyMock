@@ -1,7 +1,7 @@
 #include "ElementToMock.h"
 
 ElementToMock::ElementToMock(std::string name, const Parameter::Vector functionParameters)
-: m_name(name), m_parameters(functionParameters), m_isVariadic(false) { }
+: m_name(name), m_parameters(functionParameters), m_isVariadic(false), m_isInline(false) { }
 
 const Parameter::Vector& ElementToMock::getFunctionsParameters() const
 {
@@ -23,11 +23,22 @@ void ElementToMock::setVariadic(bool value)
   m_isVariadic = value;
 }
 
+bool ElementToMock::isInline() const
+{
+  return m_isInline;
+}
+
+void ElementToMock::setInline(bool value)
+{
+  m_isInline = value;
+}
+
 bool ElementToMock::operator==(const ElementToMock& other) const
 {
   return this->m_name == other.m_name &&
           this->m_parameters == other.m_parameters &&
-          this->m_isVariadic == other.m_isVariadic;
+          this->m_isVariadic == other.m_isVariadic &&
+          this->m_isInline == other.m_isInline;
 }
 
 bool ElementToMock::operator!=(const ElementToMock& other) const

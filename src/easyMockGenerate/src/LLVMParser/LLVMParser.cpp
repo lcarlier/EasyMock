@@ -44,11 +44,24 @@ public:
     if (m_sourceManager.isWrittenInMainFile(func->getSourceRange().getBegin()))
     {
       std::string funName = func->getNameInfo().getName().getAsString();
+      bool isInline = func->isInlined();
 
       ReturnValue rv = getFunctionReturnValue(func);
+      if(isInline)
+      {
+          std::string declString = rv.getDeclareString();
+          std::string toErase("inline ");
+          size_t pos = declString.find(toErase);
+          if(pos != std::string::npos)
+          {
+              declString.erase(pos, toErase.length());
+          }
+          rv.setDeclareString(declString);
+      }
       Parameter::Vector param = getFunctionParameters(func);
       Function *f = new Function(funName, rv, param);
       f->setVariadic(func->isVariadic());
+      f->setInline(isInline);
       m_elem.push_back(f);
     }
     return true;
