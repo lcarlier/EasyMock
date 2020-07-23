@@ -15,6 +15,10 @@ const std::string g_helpParamShort("-h");
 const std::string g_helpParamLong("--help");
 const std::string g_mockOnlyParam("--mock-only");
 
+const std::string g_errorInputMissing("Error: The input header file is not provided");
+const std::string g_errorOutputMissing("Error: The output directory is not provided");
+const std::string g_errorMockOnlyParamMissing("Error: Argument to --mock-only is missing");
+
 using ExtraArgsList = std::vector<std::string>;
 using MockOnlyList = std::unordered_set<std::string>;
 
@@ -32,6 +36,8 @@ struct EasyMockOptions
   std::string m_errorMessage;
   /*!
    * \brief The help message to be printed if required.
+   *
+   * If this string is not empty, the value of the other members are not valid.
    */
   std::string m_helpMessage;
   /*!
@@ -77,7 +83,7 @@ public:
   * \return An EasyMockOptions which contains the value of all the options
   * that are given to EasyMockGenerate.
   */
-  virtual EasyMockOptions getParsedArguments(int argc, char *argv[]) const = 0;
+  virtual EasyMockOptions getParsedArguments(int argc,const char *argv[]) const = 0;
   virtual ~CommandLineParserItf() {}
 };
 

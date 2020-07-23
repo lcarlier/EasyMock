@@ -1,7 +1,7 @@
 #include <CodeGeneratorCTemplate.h>
 #include "MainCodeGenerator.h"
 #include "Function.h"
-#include <CXXOptsCmdLineParser.h>
+#include <CmdLineParser.h>
 #include <LLVMParser.h>
 
 #include <stdio.h>
@@ -16,8 +16,8 @@ static bool validateParameter(const EasyMockOptions& opt);
 
 int main(int argc, char *argv[])
 {
-  CXXOptsCmdLineParser cmdParser;
-  EasyMockOptions opt = cmdParser.getParsedArguments(argc, argv);
+  CmdLineParser cmdParser;
+  EasyMockOptions opt = cmdParser.getParsedArguments(argc, (const char **) argv);
   if(!opt.m_helpMessage.empty())
   {
     std::fprintf(stdout, "%s\n\r", opt.m_helpMessage.c_str());
