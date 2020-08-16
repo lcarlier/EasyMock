@@ -3,7 +3,7 @@
 #include <ReturnValue.h>
 #include <CType.h>
 
-Function ConstIntFunConstIntFactory::functionFactory()
+FunctionDeclaration ConstIntFunConstIntFactory::functionFactory()
 {
   ReturnValue rv((new CType(CTYPE_INT))->setConst(true));
 
@@ -12,12 +12,12 @@ Function ConstIntFunConstIntFactory::functionFactory()
   Parameter *param = new Parameter(curType, "i");
   curType = nullptr; //We lost the ownership
 
-  Function f(functionGetFunctionName(), rv, Parameter::Vector({param}));
+  FunctionDeclaration f(functionGetFunctionName(), rv, Parameter::Vector({param}));
   param = nullptr;
   return f;
 }
 
-Function* ConstIntFunConstIntFactory::newFunctionFactory()
+FunctionDeclaration* ConstIntFunConstIntFactory::newFunctionFactory()
 {
   return functionFactory().clone();
 }

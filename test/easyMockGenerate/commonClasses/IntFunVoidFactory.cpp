@@ -1,12 +1,12 @@
 #include <IntFunVoidFactory.h>
 
-Function IntFunVoidFactory::functionFactory()
+FunctionDeclaration IntFunVoidFactory::functionFactory()
 {
-  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_INT),{});
+  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_INT),{});
   return f;
 }
 
-Function* IntFunVoidFactory::newFunctionFactory()
+FunctionDeclaration* IntFunVoidFactory::newFunctionFactory()
 {
   return functionFactory().clone();
 }

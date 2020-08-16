@@ -14,7 +14,8 @@ Declarator(other), m_name(other.m_name)
 {
 }
 
-Parameter::Parameter(Parameter&& other)
+Parameter::Parameter(Parameter&& other):
+Declarator(other)
 {
   swap(*this, other);
 }

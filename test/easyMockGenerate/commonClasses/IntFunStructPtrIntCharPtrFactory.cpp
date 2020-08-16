@@ -5,7 +5,7 @@
 #include <CType.h>
 #include <Pointer.h>
 
-Function IntFunStructPtrIntCharPtrFactory::functionFactory()
+FunctionDeclaration IntFunStructPtrIntCharPtrFactory::functionFactory()
 {
   StructType *s2 = newStructS2Type();
   Parameter *structParam = new Parameter(new Pointer(s2), "s");
@@ -14,11 +14,11 @@ Function IntFunStructPtrIntCharPtrFactory::functionFactory()
   p.push_back(new Parameter(new CType(CTYPE_INT), "a"));
 
   p.push_back(new Parameter(new Pointer(new CType(CTYPE_CHAR)), "c"));
-  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_INT), p);
+  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_INT), p);
   return f;
 }
 
-Function* IntFunStructPtrIntCharPtrFactory::newFunctionFactory()
+FunctionDeclaration* IntFunStructPtrIntCharPtrFactory::newFunctionFactory()
 {
   return functionFactory().clone();
 }

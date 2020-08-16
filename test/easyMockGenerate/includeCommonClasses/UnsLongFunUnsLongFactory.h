@@ -7,8 +7,8 @@
 class UnsLongFunUnsLongFactory : public FunctionFactory<unsigned long, std::tuple<unsigned long>, std::tuple<EasyMock_Matcher>>
 {
 public:
-  Function functionFactory() override;
-  Function* newFunctionFactory() override;
+  FunctionDeclaration functionFactory() override;
+  FunctionDeclaration* newFunctionFactory() override;
   std::string functionGetFunctionName() override;
   std::string getFilename() override;
   void setupTestCase(EasyMockTestCase::TestCase tc) override;

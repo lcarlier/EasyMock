@@ -7,8 +7,8 @@
 class VoidFunStructWithEmbeddedAnonymousStructFactory : public FunctionFactory<int, std::tuple<struct topEmbeddedAnonymous>, std::tuple<EasyMock_Matcher>>
 {
 public:
-  Function functionFactory() override;
-  Function* newFunctionFactory() override;
+  FunctionDeclaration functionFactory() override;
+  FunctionDeclaration* newFunctionFactory() override;
   std::string functionGetFunctionName() override;
   std::string getFilename() override;
   std::string getMatcherFunctionName() override;

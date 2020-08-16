@@ -63,6 +63,7 @@ Declarator(other)
 }
 
 ComposableField::ComposableField(ComposableField&& other):
+Declarator(other),
 m_recursiveType(nullptr)
 {
   swap(*this, other);

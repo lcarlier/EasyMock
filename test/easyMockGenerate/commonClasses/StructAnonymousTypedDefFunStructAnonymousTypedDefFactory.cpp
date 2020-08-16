@@ -2,14 +2,14 @@
 
 #include <StructType.h>
 
-Function StructAnonymousTypedDefFunStructAnonymousTypedDefFactory::functionFactory()
+FunctionDeclaration StructAnonymousTypedDefFunStructAnonymousTypedDefFactory::functionFactory()
 {
   bool isEmbeddedInOtherType = false;
   StructType *st1 = new StructType("", "TypedDefAnonymousStruct", isEmbeddedInOtherType);
   st1->addField(new ComposableField(CTYPE_INT, "a"));
   StructType *rv = st1->clone();
 
-  Function f(functionGetFunctionName(), ReturnValue(rv), Parameter::Vector({new Parameter(st1, "s1")}));
+  FunctionDeclaration f(functionGetFunctionName(), ReturnValue(rv), Parameter::Vector({new Parameter(st1, "s1")}));
   return f;
 }
 

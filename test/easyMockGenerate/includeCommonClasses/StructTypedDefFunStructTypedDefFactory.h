@@ -8,7 +8,7 @@
 class StructTypedDefFunStructTypedDefFactory : public FunctionFactory<TypedDefStruct, std::tuple<TypedDefStruct>, std::tuple<EasyMock_Matcher>>
 {
 public:
-  Function functionFactory() override;
+  FunctionDeclaration functionFactory() override;
   std::string functionGetFunctionName() override;
   std::string getFilename() override;
   void setupTestCase(EasyMockTestCase::TestCase tc) override;

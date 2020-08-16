@@ -1,6 +1,6 @@
 #include <InlineVoidFactory.h>
 
-#include <Function.h>
+#include <FunctionDeclaration.h>
 #include <CType.h>
 
 ElementToMockList InlineVoidFactory::functionFactoryArray()
@@ -8,16 +8,16 @@ ElementToMockList InlineVoidFactory::functionFactoryArray()
   ElementToMockList returnedList;
   ReturnValue rv(new CType(CTYPE_VOID));
 
-  Function* f1 = new Function(functionGetFunctionName(), rv, Parameter::Vector({}));
+  FunctionDeclaration* f1 = new FunctionDeclaration(functionGetFunctionName(), rv, Parameter::Vector({}));
   returnedList.push_back(f1);
 
   ReturnValue rv2(new CType(CTYPE_INT));
-  Function* f2 = new Function("inline1", rv2, Parameter::Vector());
-  f2->setInline(true);
+  FunctionDeclaration* f2 = new FunctionDeclaration("inline1", rv2, Parameter::Vector());
+  f2->setInlined(true);
   returnedList.push_back(f2);
 
-  Function* f3 = new Function("inline2", rv2, Parameter::Vector());
-  f3->setInline(true);
+  FunctionDeclaration* f3 = new FunctionDeclaration("inline2", rv2, Parameter::Vector());
+  f3->setInlined(true);
   returnedList.push_back(f3);
 
   return returnedList;

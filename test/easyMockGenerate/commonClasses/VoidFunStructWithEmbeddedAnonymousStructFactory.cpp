@@ -2,7 +2,7 @@
 
 #include <StructType.h>
 
-Function VoidFunStructWithEmbeddedAnonymousStructFactory::functionFactory()
+FunctionDeclaration VoidFunStructWithEmbeddedAnonymousStructFactory::functionFactory()
 {
   const unsigned int NB_ANONYMOUS_TYPE_IN_THIS_UT = 1;
   /*
@@ -17,12 +17,12 @@ Function VoidFunStructWithEmbeddedAnonymousStructFactory::functionFactory()
   StructType* beingDefined = new StructType("", isEmbeddedStruct);
   beingDefined->addField(new ComposableField(CTYPE_INT, "a"));
   top->addField(new ComposableField(beingDefined, "af"));
-  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), Parameter::Vector({new Parameter(top, "s")}));
+  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), Parameter::Vector({new Parameter(top, "s")}));
 
   return f;
 }
 
-Function* VoidFunStructWithEmbeddedAnonymousStructFactory::newFunctionFactory()
+FunctionDeclaration* VoidFunStructWithEmbeddedAnonymousStructFactory::newFunctionFactory()
 {
   return functionFactory().clone();
 }

@@ -7,6 +7,8 @@
 #include <UnionType.h>
 #include <AutoCleanVectorPtr.h>
 #include <Pointer.h>
+#include <FunctionDeclaration.h>
+#include <FunctionType.h>
 
 #include <gtestPrintClasses.h>
 
@@ -599,22 +601,38 @@ TEST(moveCopy, ReturnValueDeclareString)
   testMoveCopyReturnValue(rv1);
 }
 
-TEST(moveCopy, Function)
+template <typename T>
+void testFunction()
 {
-  Function f1("foo", VoidReturnValue(), {});
-  Function f2(f1);
+  T f1("foo", VoidReturnValue(), {});
+  T f2(f1);
   ASSERT_EQ(f1, f2);
 
-  Function f3("bar", TypedReturnValue(CTYPE_INT), {});
+  T f3("bar", TypedReturnValue(CTYPE_INT), {});
   ASSERT_NE(f3,f1);
   f3 = f1;
   ASSERT_EQ(f3,f1);
 
-  Function f4 = std::move(f3);
+  T f4 = std::move(f3);
   ASSERT_EQ(f4, f1);
 
-  Function f6("bar", TypedReturnValue(CTYPE_INT), {});
+  T f6("bar", TypedReturnValue(CTYPE_INT), {});
   ASSERT_NE(f6, f2);
   f6 = std::move(f2);
   ASSERT_EQ(f6, f1);
+}
+
+TEST(moveCopy, Function)
+{
+    testFunction<Function>();
+}
+
+TEST(moveCopy, FunctionDeclaration)
+{
+    testFunction<FunctionDeclaration>();
+}
+
+TEST(moveCopy, FunctionType)
+{
+    testFunction<FunctionType>();
 }

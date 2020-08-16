@@ -6,8 +6,8 @@
 class UnsIntFunVoidFactory : public FunctionFactory<unsigned int, std::tuple<>, std::tuple<>>
 {
 public:
-  Function functionFactory() override;
-  Function* newFunctionFactory() override;
+  FunctionDeclaration functionFactory() override;
+  FunctionDeclaration* newFunctionFactory() override;
   std::string functionGetFunctionName() override;
   std::string getFilename() override;
   void setupTestCase(EasyMockTestCase::TestCase tc) override;

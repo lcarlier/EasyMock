@@ -1,12 +1,12 @@
 #include <UnsCharFunUnsCharFactory.h>
 
-Function UnsCharFunUnsCharFactory::functionFactory()
+FunctionDeclaration UnsCharFunUnsCharFactory::functionFactory()
 {
-  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_UCHAR), Parameter::Vector({NamedParameter(CTYPE_UCHAR, "uc")}));
+  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_UCHAR), Parameter::Vector({NamedParameter(CTYPE_UCHAR, "uc")}));
   return f;
 }
 
-Function* UnsCharFunUnsCharFactory::newFunctionFactory()
+FunctionDeclaration* UnsCharFunUnsCharFactory::newFunctionFactory()
 {
   return functionFactory().clone();
 }

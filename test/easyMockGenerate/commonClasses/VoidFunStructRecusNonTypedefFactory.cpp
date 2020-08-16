@@ -5,7 +5,7 @@
 #include <CType.h>
 #include <Pointer.h>
 
-Function VoidFunStructRecusNonTypedefFactory::functionFactory()
+FunctionDeclaration VoidFunStructRecusNonTypedefFactory::functionFactory()
 {
   StructType *t_struct = new StructType("s_s1", "t_s1", false);
   ComposableField::attributes cmpAttr =
@@ -20,13 +20,13 @@ Function VoidFunStructRecusNonTypedefFactory::functionFactory()
 
   Parameter *p = new Parameter(new Pointer(t_struct), "s");
   t_struct = nullptr; //We lost the ownership
-  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), Parameter::Vector({p}));
+  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), Parameter::Vector({p}));
   p = nullptr; //We lost the ownership
 
   return f;
 }
 
-Function* VoidFunStructRecusNonTypedefFactory::newFunctionFactory()
+FunctionDeclaration* VoidFunStructRecusNonTypedefFactory::newFunctionFactory()
 {
   return functionFactory().clone();
 }

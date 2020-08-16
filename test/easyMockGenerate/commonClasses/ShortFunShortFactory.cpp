@@ -2,13 +2,13 @@
 
 #include "EasyMockGenerateTypes.h"
 
-Function ShortFunShortFactory::functionFactory()
+FunctionDeclaration ShortFunShortFactory::functionFactory()
 {
-  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_SHORT), Parameter::Vector({NamedParameter(CTYPE_SHORT, "s")}));
+  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_SHORT), Parameter::Vector({NamedParameter(CTYPE_SHORT, "s")}));
   return f;
 }
 
-Function* ShortFunShortFactory::newFunctionFactory()
+FunctionDeclaration* ShortFunShortFactory::newFunctionFactory()
 {
   return functionFactory().clone();
 }

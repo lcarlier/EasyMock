@@ -25,7 +25,7 @@ ElementToMockList FunctionVaArgsFactory::functionFactoryArray()
   param2->setDeclareString("va_list");
   vaListArg = nullptr;
 
-  Function* f1 = new Function(functionGetFunctionName(), rv, Parameter::Vector({param1, param2}));
+  FunctionDeclaration* f1 = new FunctionDeclaration(functionGetFunctionName(), rv, Parameter::Vector({param1, param2}));
   param1 = nullptr;
   returnedList.push_back(f1);
 

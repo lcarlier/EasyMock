@@ -1,12 +1,12 @@
 #include <LongDoubleFunLongDoubleFactory.h>
 
-Function LongDoubleFunLongDoubleFactory::functionFactory()
+FunctionDeclaration LongDoubleFunLongDoubleFactory::functionFactory()
 {
-  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_LONG_DOUBLE),Parameter::Vector({NamedParameter(CTYPE_LONG_DOUBLE, "ld")}));
+  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_LONG_DOUBLE),Parameter::Vector({NamedParameter(CTYPE_LONG_DOUBLE, "ld")}));
   return f;
 }
 
-Function* LongDoubleFunLongDoubleFactory::newFunctionFactory()
+FunctionDeclaration* LongDoubleFunLongDoubleFactory::newFunctionFactory()
 {
   return functionFactory().clone();
 }

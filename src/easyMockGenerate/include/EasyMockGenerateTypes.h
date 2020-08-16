@@ -5,68 +5,68 @@
 #define EASYMOCKGENERATETYPES_H
 
 /*!
- * @brief enum listing all the possible C Type
+ * \brief enum listing all the possible C Type
  */
 typedef enum
 {
   /*!
-   * @brief @c char type
+   * \brief @c char type
    */
   CTYPE_CHAR,
   /*!
-   * @brief <tt> unsigned char </tt> type
+   * \brief <tt> unsigned char </tt> type
    */
   CTYPE_UCHAR,
   /*!
-   * @brief @c short type
+   * \brief @c short type
    */
   CTYPE_SHORT,
   /*!
-   * @brief <tt> unsigned short </tt> type
+   * \brief <tt> unsigned short </tt> type
    */
   CTYPE_USHORT,
   /*!
-   * @brief @c int type
+   * \brief @c int type
    */
   CTYPE_INT,
   /*!
-   * @brief <tt> unsigned int </tt> type
+   * \brief <tt> unsigned int </tt> type
    */
   CTYPE_UINT,
   /*!
-   * @brief @c long type
+   * \brief @c long type
    */
   CTYPE_LONG,
   /*!
-   * @brief <tt> unsigned long </tt> type
+   * \brief <tt> unsigned long </tt> type
    */
   CTYPE_ULONG,
   /*!
-   * @brief <tt> long long </tt> type
+   * \brief <tt> long long </tt> type
    */
   CTYPE_LONG_LONG,
   /*!
-   * @brief <tt> unsigned long long </tt> type
+   * \brief <tt> unsigned long long </tt> type
    */
   CTYPE_ULONG_LONG,
   /*!
-   * @brief @c float type
+   * \brief @c float type
    */
   CTYPE_FLOAT,
   /*!
-   * @brief @c double type
+   * \brief @c double type
    */
   CTYPE_DOUBLE,
   /*!
-   * @brief <tt> long double </tt> type
+   * \brief <tt> long double </tt> type
    */
   CTYPE_LONG_DOUBLE,
   /*!
-   * @brief @c void type
+   * \brief @c void type
    */
   CTYPE_VOID,
   /*!
-   * @brief An invalid C type
+   * \brief An invalid C type
    */
   CTYPE_INVALID
 } easyMock_cTypes_t;

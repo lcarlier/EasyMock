@@ -7,8 +7,8 @@
 class VoidFunStructPtrFactory : public FunctionFactory<int, std::tuple<struct s2*>, std::tuple<EasyMock_Matcher>>
 {
 public:
-  Function functionFactory() override;
-  Function* newFunctionFactory() override;
+  FunctionDeclaration functionFactory() override;
+  FunctionDeclaration* newFunctionFactory() override;
   std::string functionGetFunctionName() override;
   std::string getFilename() override;
 

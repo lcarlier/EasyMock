@@ -2,18 +2,18 @@
 
 #include <StructType.h>
 
-Function VoidFunStructWithEmbeddedStructFactory::functionFactory()
+FunctionDeclaration VoidFunStructWithEmbeddedStructFactory::functionFactory()
 {
   bool isEmbeddedStruct = true;
   StructType* top = new StructType("topEmbedded", !isEmbeddedStruct); //NOT EMBEDDED
   StructType* beingDefined = new StructType("embeddedStruct", isEmbeddedStruct);
   beingDefined->addField(new ComposableField(CTYPE_INT, "a"));
   top->addField(new ComposableField(beingDefined, "b"));
-  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), Parameter::Vector({new Parameter(top, "t")}));
+  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), Parameter::Vector({new Parameter(top, "t")}));
   return f;
 }
 
-Function* VoidFunStructWithEmbeddedStructFactory::newFunctionFactory()
+FunctionDeclaration* VoidFunStructWithEmbeddedStructFactory::newFunctionFactory()
 {
   return functionFactory().clone();
 }

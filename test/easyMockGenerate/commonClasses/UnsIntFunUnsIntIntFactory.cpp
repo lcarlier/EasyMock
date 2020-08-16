@@ -13,13 +13,13 @@ static Parameter::Vector getIntFunIntIntPamrameters()
   return funParam;
 }
 
-Function UnsIntFunUnsIntIntFactory::functionFactory()
+FunctionDeclaration UnsIntFunUnsIntIntFactory::functionFactory()
 {
-  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_UINT), getIntFunIntIntPamrameters());
+  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_UINT), getIntFunIntIntPamrameters());
   return f;
 }
 
-Function* UnsIntFunUnsIntIntFactory::newFunctionFactory()
+FunctionDeclaration* UnsIntFunUnsIntIntFactory::newFunctionFactory()
 {
   return functionFactory().clone();
 }

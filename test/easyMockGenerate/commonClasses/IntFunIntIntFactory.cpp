@@ -1,16 +1,16 @@
 #include <IntFunIntIntFactory.h>
 
-Function IntFunIntIntFactory::functionFactory()
+FunctionDeclaration IntFunIntIntFactory::functionFactory()
 {
   Parameter::Vector funParam({
       NamedParameter(CTYPE_INT, "a"),
       NamedParameter(CTYPE_INT, "b")
   });
-  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_INT),funParam);
+  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_INT),funParam);
   return f;
 }
 
-Function* IntFunIntIntFactory::newFunctionFactory()
+FunctionDeclaration* IntFunIntIntFactory::newFunctionFactory()
 {
   return functionFactory().clone();
 }

@@ -18,19 +18,19 @@ class PtrFunPtrGenericFactory : public FunctionFactory<PTR_TYPE *, std::tuple<PT
     return filename;
   }
 
-  Function functionFactory() override
+  FunctionDeclaration functionFactory() override
   {
     TypeItf *rvType = new Pointer(new CType(C_TYPE, isConst));
     TypeItf *paramType = rvType->clone();
 
-    Function f(functionGetFunctionName(), ReturnValue(rvType), Parameter::Vector({new Parameter(paramType, "ptr")}));
+    FunctionDeclaration f(functionGetFunctionName(), ReturnValue(rvType), Parameter::Vector({new Parameter(paramType, "ptr")}));
 
     rvType = nullptr; //We lost the ownership
     paramType = nullptr; //We lost the ownership
     return f;
   }
 
-  Function * newFunctionFactory() override
+  FunctionDeclaration * newFunctionFactory() override
   {
     return functionFactory().clone();
   }

@@ -5,13 +5,13 @@ std::string VoidFunVoidFactory::getFilename()
    return "voidFunVoid.h";
 }
 
-Function VoidFunVoidFactory::functionFactory()
+FunctionDeclaration VoidFunVoidFactory::functionFactory()
 {
-  Function f(functionGetFunctionName(), VoidReturnValue(),{});
+  FunctionDeclaration f(functionGetFunctionName(), VoidReturnValue(),{});
   return f;
 }
 
-Function* VoidFunVoidFactory::newFunctionFactory()
+FunctionDeclaration* VoidFunVoidFactory::newFunctionFactory()
 {
   return functionFactory().clone();
 }

@@ -2,7 +2,7 @@
 
 #include <StructType.h>
 
-Function VoidFunStructWithFirstAnonymousStructFieldFactory::functionFactory()
+FunctionDeclaration VoidFunStructWithFirstAnonymousStructFieldFactory::functionFactory()
 {
   const unsigned int NB_ANONYMOUS_TYPE_IN_THIS_UT = 1;
   /*
@@ -19,12 +19,12 @@ Function VoidFunStructWithFirstAnonymousStructFieldFactory::functionFactory()
   beingDefined->addField(new ComposableField(CTYPE_FLOAT, "s2"));
   top->addField(new ComposableField(beingDefined, ""));
   top->addField(new ComposableField(CTYPE_INT, "a"));
-  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), Parameter::Vector({new Parameter(top, "t")}));
+  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), Parameter::Vector({new Parameter(top, "t")}));
 
   return f;
 }
 
-Function* VoidFunStructWithFirstAnonymousStructFieldFactory::newFunctionFactory()
+FunctionDeclaration* VoidFunStructWithFirstAnonymousStructFieldFactory::newFunctionFactory()
 {
   return functionFactory().clone();
 }

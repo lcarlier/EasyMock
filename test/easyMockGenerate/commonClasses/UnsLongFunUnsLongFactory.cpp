@@ -1,12 +1,12 @@
 #include <UnsLongFunUnsLongFactory.h>
 
-Function UnsLongFunUnsLongFactory::functionFactory()
+FunctionDeclaration UnsLongFunUnsLongFactory::functionFactory()
 {
-  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_ULONG), Parameter::Vector({NamedParameter(CTYPE_ULONG, "ul")}));
+  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_ULONG), Parameter::Vector({NamedParameter(CTYPE_ULONG, "ul")}));
   return f;
 }
 
-Function* UnsLongFunUnsLongFactory::newFunctionFactory()
+FunctionDeclaration* UnsLongFunUnsLongFactory::newFunctionFactory()
 {
   return functionFactory().clone();
 }

@@ -1,7 +1,7 @@
 #include <gtest/gtest.h> // googletest header file
 
 #include <LLVMParser.h>
-#include <Function.h>
+#include <FunctionDeclaration.h>
 
 #include <TestTypes.h>
 
@@ -27,8 +27,8 @@ TYPED_TEST(GenericParser_testCase, parser)
   ASSERT_EQ(elem.size(), funList.size());
   for(size_t funIdx = 0; funIdx < funList.size(); funIdx++)
   {
-    Function* funFromFactory = funList[funIdx];
-    Function& funFromParser = Function::toFunction(elem[funIdx]);
+    FunctionDeclaration* funFromFactory = funList[funIdx];
+    FunctionDeclaration& funFromParser = FunctionDeclaration::toFunctionDeclaration(elem[funIdx]);
     EXPECT_EQ(*funFromFactory, funFromParser) << "funIdx: " << funIdx;
     delete funFromFactory;
   }

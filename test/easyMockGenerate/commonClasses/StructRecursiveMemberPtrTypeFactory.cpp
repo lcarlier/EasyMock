@@ -4,7 +4,7 @@
 #include <ComposableField.h>
 #include <Pointer.h>
 
-Function StructRecursiveMemberPtrTypeFactory::functionFactory()
+FunctionDeclaration StructRecursiveMemberPtrTypeFactory::functionFactory()
 {
   bool isRecursiveType = true;
   bool isEmbeddedInOtherType = false;
@@ -17,7 +17,7 @@ Function StructRecursiveMemberPtrTypeFactory::functionFactory()
   ComposableField *valField = new ComposableField(new Pointer(recurStruct), "val", attrib);
   recurStruct->addField(valField);
 
-  Function f(functionGetFunctionName(), VoidReturnValue(), Parameter::Vector({new Parameter(recurStruct, "rec")}));
+  FunctionDeclaration f(functionGetFunctionName(), VoidReturnValue(), Parameter::Vector({new Parameter(recurStruct, "rec")}));
   recurStruct = nullptr; //Invalidate because we lost the ownership
   return f;
 }

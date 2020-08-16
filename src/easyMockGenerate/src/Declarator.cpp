@@ -4,17 +4,12 @@
 #include <utility>
 #include <stddef.h>
 
-Declarator::Declarator() :
-Declarator(nullptr)
-{
-}
-
 Declarator::Declarator(TypeItf* typeItf) :
 m_type(typeItf), m_declaredString("")
 {
   if(m_type)
   {
-    m_declaredString = typeItf->getFullDeclarationName();
+    m_declaredString = m_type->getFullDeclarationName();
   }
 }
 

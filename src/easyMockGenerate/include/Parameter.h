@@ -35,6 +35,9 @@ public:
    */
   Parameter(TypeItf *p_type, std::string p_name);
 
+  /*!
+   * \brief An AutoCleanVectorPtr containing Parameter objects
+   */
   typedef AutoCleanVectorPtr<Parameter> Vector;
 
   Parameter(const Parameter &other);

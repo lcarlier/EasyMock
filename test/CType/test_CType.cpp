@@ -40,25 +40,6 @@ TEST_P(ctype_unsigned_testcase, ctypeSetUnsigned)
   ASSERT_EQ(t.getName(), easyMock_arrayCTypeStr[params.signedType]);
 }
 
-#if 0
-TEST_P(ctype_unsigned_testcase, ctypeSetPointers)
-{
-  const ParamType &params = GetParam();
-
-  CType t = CType(params.signedType);
-
-  ASSERT_FALSE(t.isPointer());
-
-  ASSERT_EQ(t.getCType(), params.unsignedType);
-  ASSERT_EQ(t.getName(), easyMock_arrayCTypeStr[params.unsignedType]);
-
-  ASSERT_TRUE(t.set(false));
-
-  ASSERT_EQ(t.getCType(), params.signedType);
-  ASSERT_EQ(t.getName(), easyMock_arrayCTypeStr[params.signedType]);
-}
-#endif
-
 static ctype_params test_unsigned_params[]
 {
   {CTYPE_CHAR, CTYPE_UCHAR},

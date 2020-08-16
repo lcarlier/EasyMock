@@ -8,8 +8,8 @@
 class StructWithUnionFunStructWithUnionFactory : public FunctionFactory<sWithUnion, std::tuple<sWithUnion>, std::tuple<EasyMock_Matcher>>
 {
 public:
-  Function functionFactory() override;
-  Function* newFunctionFactory() override;
+  FunctionDeclaration functionFactory() override;
+  FunctionDeclaration* newFunctionFactory() override;
   std::string functionGetFunctionName() override;
   std::string getFilename() override;
   void setupTestCase(EasyMockTestCase::TestCase tc) override;

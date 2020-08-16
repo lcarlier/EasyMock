@@ -1,12 +1,12 @@
 #include <UnsShortFunUnsShortFactory.h>
 
-Function UnsShortFunUnsShortFactory::functionFactory()
+FunctionDeclaration UnsShortFunUnsShortFactory::functionFactory()
 {
-  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_USHORT), Parameter::Vector({NamedParameter(CTYPE_USHORT, "s")}));
+  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_USHORT), Parameter::Vector({NamedParameter(CTYPE_USHORT, "s")}));
   return f;
 }
 
-Function* UnsShortFunUnsShortFactory::newFunctionFactory()
+FunctionDeclaration* UnsShortFunUnsShortFactory::newFunctionFactory()
 {
   return functionFactory().clone();
 }

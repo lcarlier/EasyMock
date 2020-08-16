@@ -1,5 +1,6 @@
 #include "TypeItf.h"
 #include "Pointer.h"
+#include "FunctionType.h"
 
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string.hpp>
@@ -18,11 +19,12 @@ TypeItf(p_name, "")
 }
 
 TypeItf::TypeItf(const std::string p_name, const std::string p_typed_def_name) :
-TypeItf({.name = p_name, .typed_def_name = p_typed_def_name,
+TypeItf({.name = p_name, .typedDefName = p_typed_def_name,
         .isCType = false,
         .isStruct = false,
         .isUnion = false,
         .isPointer = false,
+        .isFunction = false,
         .isConst = false,
         .isImplicit = false
         })
@@ -32,11 +34,12 @@ TypeItf({.name = p_name, .typed_def_name = p_typed_def_name,
 TypeItf::TypeItf(TypeItf::attributes attrib)
 {
   this->m_name = attrib.name;
-  this->m_typed_def_name = attrib.typed_def_name;
+  this->m_typedDefName = attrib.typedDefName;
   this->m_isCType = attrib.isCType;
   this->m_isStruct = attrib.isStruct;
   this->m_isUnion = attrib.isUnion;
   this->m_isPointer = attrib.isPointer;
+  this->m_isFunction = attrib.isFunction;
   this->m_isConst = attrib.isConst;
   this->m_isImplicit = attrib.isImplicit;
 }
@@ -49,20 +52,35 @@ const std::string &TypeItf::getName() const
 //static
 std::string TypeItf::s_getFullDeclarationName(const TypeItf* type, bool fullyQualified)
 {
+  const Pointer *ptrType = dynamic_cast<const Pointer*>(type);
+  const TypeItf *pointedType = ptrType ? ptrType->getPointedType() : nullptr;
+  const FunctionType* pointedFuncType = pointedType ? dynamic_cast<const FunctionType*>(pointedType) : nullptr;
   std::string fullDeclarationName("");
-  if(type->m_isPointer)
+  if(ptrType)
   {
-    const Pointer *ptrType = dynamic_cast<const Pointer*>(type);
-    fullDeclarationName.append(s_getFullDeclarationName(ptrType->getPointedType(), fullyQualified));
+    if(pointedFuncType)
+    {
+      const FunctionType* funcType = dynamic_cast<const FunctionType*>(pointedType);
+      fullDeclarationName.append(funcType->getReturnType()->getDeclareString());
+      fullDeclarationName.push_back('(');
+    }
+    else
+    {
+      fullDeclarationName.append(s_getFullDeclarationName(pointedType, fullyQualified));
+    }
     fullDeclarationName.append("* ");
+    if(pointedFuncType)
+    {
+      fullDeclarationName.pop_back(); //Pop the trailing space
+    }
   }
   if(type->m_isConst && fullyQualified)
   {
     fullDeclarationName.append("const ");
   }
-  if(!type->m_typed_def_name.empty())
+  if(!type->m_typedDefName.empty())
   {
-    fullDeclarationName.append(type->m_typed_def_name);
+    fullDeclarationName.append(type->m_typedDefName);
     return fullDeclarationName;
   }
   if(type->m_isStruct)
@@ -91,14 +109,14 @@ std::string TypeItf::getFullNonQualifiedDeclarationName() const
 
 const std::string& TypeItf::getTypedDefName() const
 {
-  return m_typed_def_name;
+  return m_typedDefName;
 }
 
 const std::string& TypeItf::getMostDefinedName() const
 {
-  if(!m_typed_def_name.empty())
+  if(!m_typedDefName.empty())
   {
-    return m_typed_def_name;
+    return m_typedDefName;
   }
   else
   {
@@ -119,7 +137,7 @@ void TypeItf::setTypedDefName(std::string p_typed_def_name)
 {
   //It doesn't make sense that subclasses wants to clear the typedef name.
   assert(!p_typed_def_name.empty());
-  m_typed_def_name = p_typed_def_name;
+  m_typedDefName = p_typed_def_name;
 }
 
 bool TypeItf::isStruct() const
@@ -196,15 +214,20 @@ void TypeItf::setPointer(bool value)
   m_isPointer = value;
 }
 
+void TypeItf::setFunction(bool value)
+{
+  m_isFunction = value;
+}
+
 bool TypeItf::isTypedDef() const
 {
-  return m_typed_def_name.size() != 0;
+  return m_typedDefName.size() != 0;
 }
 
 bool TypeItf::isAnonymous() const
 {
   //Pointer types are never anonymous
-  return !m_isPointer && m_name.empty() && m_typed_def_name.empty();
+  return !m_isPointer && m_name.empty() && m_typedDefName.empty();
 }
 
 bool TypeItf::isComposableType() const
@@ -215,6 +238,11 @@ bool TypeItf::isComposableType() const
 bool TypeItf::isPointer() const
 {
   return m_isPointer;
+}
+
+bool TypeItf::isFunction() const
+{
+  return m_isFunction;
 }
 
 easyMock_cTypes_t TypeItf::getCType() const
@@ -230,11 +258,12 @@ bool TypeItf::operator==(const TypeItf& other) const
 bool TypeItf::isEqual(const TypeItf& other) const
 {
   return this->m_name == other.m_name &&
-          this->m_typed_def_name == other.m_typed_def_name &&
+          this->m_typedDefName == other.m_typedDefName &&
           this->m_isCType == other.m_isCType &&
           this->m_isStruct == other.m_isStruct &&
           this->m_isUnion == other.m_isUnion &&
           this->m_isPointer == other.m_isPointer &&
+          this->m_isFunction == other.m_isFunction &&
           this->m_isConst == other.m_isConst &&
           this->m_isImplicit == other.m_isImplicit;
 }

@@ -7,8 +7,8 @@
 class FloatFunFloatFactory : public FunctionFactory<float, std::tuple<float>, std::tuple<EasyMock_Matcher>>
 {
 public:
-  Function functionFactory() override;
-  Function* newFunctionFactory() override;
+  FunctionDeclaration functionFactory() override;
+  FunctionDeclaration* newFunctionFactory() override;
   std::string functionGetFunctionName() override;
   std::string getFilename() override;
   void setupTestCase(EasyMockTestCase::TestCase tc) override;

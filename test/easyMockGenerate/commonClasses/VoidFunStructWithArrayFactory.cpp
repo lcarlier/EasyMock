@@ -4,7 +4,7 @@
 #include <CType.h>
 #include <voidFunStructWithArray.h>
 
-Function VoidFunStructWithArrayFactory::functionFactory()
+FunctionDeclaration VoidFunStructWithArrayFactory::functionFactory()
 {
   bool isEmbeddedInOtherType = false;
   StructType *st = new StructType("structWithArray", isEmbeddedInOtherType);
@@ -19,11 +19,11 @@ Function VoidFunStructWithArrayFactory::functionFactory()
   composableFieldAttrib.arraySize = 0;
   st->addField(new ComposableField(new CType(CTYPE_INT), "b", composableFieldAttrib));
   Parameter::Vector p({new Parameter(st, "param")});
-  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), p);
+  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), p);
   return f;
 }
 
-Function* VoidFunStructWithArrayFactory::newFunctionFactory()
+FunctionDeclaration* VoidFunStructWithArrayFactory::newFunctionFactory()
 {
   return functionFactory().clone();
 }

@@ -1,12 +1,12 @@
 #include <FloatFunFloatFactory.h>
 
-Function FloatFunFloatFactory::functionFactory()
+FunctionDeclaration FloatFunFloatFactory::functionFactory()
 {
-  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_FLOAT), Parameter::Vector({NamedParameter(CTYPE_FLOAT, "f")}));
+  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_FLOAT), Parameter::Vector({NamedParameter(CTYPE_FLOAT, "f")}));
   return f;
 }
 
-Function* FloatFunFloatFactory::newFunctionFactory()
+FunctionDeclaration* FloatFunFloatFactory::newFunctionFactory()
 {
   return functionFactory().clone();
 }

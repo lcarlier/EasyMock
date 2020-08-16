@@ -9,7 +9,7 @@ ElementToMockList MultipleDefinitionsFactory::functionFactoryArray()
 
   Parameter *param = new Parameter(new CType(CTYPE_INT), "a");
 
-  Function* f1 = new Function(functionGetFunctionName(), rv, Parameter::Vector({param}));
+  FunctionDeclaration* f1 = new FunctionDeclaration(functionGetFunctionName(), rv, Parameter::Vector({param}));
   param = nullptr;
   returnedList.push_back(f1->clone());
   returnedList.push_back(f1);

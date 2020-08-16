@@ -10,7 +10,7 @@ ElementToMockList VariadicFunctionsFactory::functionFactoryArray()
 
   Parameter *param = new Parameter(new CType(CTYPE_INT), "a");
 
-  Function* f1 = new Function(functionGetFunctionName(), rv, Parameter::Vector({param}));
+  FunctionDeclaration* f1 = new FunctionDeclaration(functionGetFunctionName(), rv, Parameter::Vector({param}));
   param = nullptr;
   f1->setVariadic(true);
   returnedList.push_back(f1);
@@ -18,7 +18,7 @@ ElementToMockList VariadicFunctionsFactory::functionFactoryArray()
   Pointer *constCtype = new Pointer(new CType(CTYPE_CHAR));
   constCtype->getPointedType()->setConst(true);
   param = new Parameter(constCtype, "fmt");
-  Function* f2 = new Function("variadicFunctions2", rv, Parameter::Vector({param}));
+  FunctionDeclaration* f2 = new FunctionDeclaration("variadicFunctions2", rv, Parameter::Vector({param}));
   param = nullptr;
   f2->setVariadic(true);
   returnedList.push_back(f2);

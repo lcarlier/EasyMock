@@ -5,7 +5,7 @@
 #include <CType.h>
 #include <Pointer.h>
 
-Function StructFileFromStdioFactory::functionFactory()
+FunctionDeclaration StructFileFromStdioFactory::functionFactory()
 {
   bool isEmbeddedInOtherType = false;
   StructType *FILE_T = new StructType("MY_IO_FILE", "T_MY_IO_FILE", isEmbeddedInOtherType);
@@ -33,13 +33,13 @@ Function StructFileFromStdioFactory::functionFactory()
 
   Parameter *p = new Parameter(new Pointer(FILE_T), "file");
   FILE_T = nullptr; //We lost the ownership
-  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), Parameter::Vector({p}));
+  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), Parameter::Vector({p}));
   p = nullptr; //We lost the ownership
 
   return f;
 }
 
-Function* StructFileFromStdioFactory::newFunctionFactory()
+FunctionDeclaration* StructFileFromStdioFactory::newFunctionFactory()
 {
   return functionFactory().clone();
 }

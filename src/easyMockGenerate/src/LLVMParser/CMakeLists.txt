@@ -3,7 +3,7 @@ add_library(${LLVM_PARSER_OBJ}
 )
 
 set(EASYMOCK_LLVM_FULL_CC_PARAM ${EASYMOCK_DEFAULT_FULL_CC_PARAM})
-#If the LLVM object is not compiled with optimisation, the address sanitiser is
+#If the LLVM object is not compiled with optimisation, the address sanitiser
 #creates an error. So we replace -O0 by -O1 just for this object
 #In my cmake version, TRANSFORM is not yet supported
 list(REMOVE_ITEM EASYMOCK_LLVM_FULL_CC_PARAM "-O0")

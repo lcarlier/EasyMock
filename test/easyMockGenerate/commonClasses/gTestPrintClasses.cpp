@@ -8,16 +8,20 @@
 #include <StructType.h>
 #include <UnionType.h>
 #include <Pointer.h>
+#include <FunctionType.h>
+#include <FunctionDeclaration.h>
 
 template<class T>
 static void printComposableTypeToOstream(std::ostream& os, const T& composableType, std::string classname);
 
 static std::string gs_indentation;
 
-std::ostream& operator<<(std::ostream& os, const Function& fun) {
+template <typename T>
+std::ostream& printFunction(std::ostream& os, const T& fun)
+{
   os << std::endl << "funPrototype: " << fun.getFunctionPrototype() << ", ";
   os << "isVariadic: " << (fun.isVariadic() ? "yes" : "no") << ", ";
-  os << "isInline: " << (fun.isInline() ? "yes" : "no") << std::endl;
+  os << "isInline: " << (fun.isInlined() ? "yes" : "no") << std::endl;
 
   const ReturnValue *rv = fun.getReturnType();
   os << "Return value:";
@@ -35,6 +39,21 @@ std::ostream& operator<<(std::ostream& os, const Function& fun) {
     os << "Parameter " << curParamIdx << ": " << curParamObj;
   }
   return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const Function& fun)
+{
+  return printFunction(os, fun);
+}
+
+std::ostream& operator<<(std::ostream& os, const FunctionType& fun)
+{
+  return printFunction(os, fun);
+}
+
+std::ostream& operator<<(std::ostream& os, const FunctionDeclaration& fun)
+{
+  return printFunction(os, fun);
 }
 
 std::ostream& operator<<(std::ostream& os, const ReturnValue& rv) {

@@ -13,10 +13,10 @@ ElementToMockList CompileTwoFunctionsFactory::functionFactoryArray()
   curType->addField(new ComposableField(new CType(CTYPE_INT), "a"));
   Parameter *param = new Parameter(curType, "s");
 
-  Function* f1 = new Function(functionGetFunctionName(), rv, Parameter::Vector({param->clone()}));
+  FunctionDeclaration* f1 = new FunctionDeclaration(functionGetFunctionName(), rv, Parameter::Vector({param->clone()}));
   returnedList.push_back(f1);
 
-  Function* f2 = new Function("f2", rv, Parameter::Vector({param}));
+  FunctionDeclaration* f2 = new FunctionDeclaration("f2", rv, Parameter::Vector({param}));
   returnedList.push_back(f2);
   param = nullptr;
 

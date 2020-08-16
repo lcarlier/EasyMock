@@ -1,12 +1,12 @@
 #include <DoubleFunDoubleFactory.h>
 
-Function DoubleFunDoubleFactory::functionFactory()
+FunctionDeclaration DoubleFunDoubleFactory::functionFactory()
 {
-  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_DOUBLE), Parameter::Vector({NamedParameter(CTYPE_DOUBLE, "d")}));
+  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_DOUBLE), Parameter::Vector({NamedParameter(CTYPE_DOUBLE, "d")}));
   return f;
 }
 
-Function* DoubleFunDoubleFactory::newFunctionFactory()
+FunctionDeclaration* DoubleFunDoubleFactory::newFunctionFactory()
 {
   return functionFactory().clone();
 }

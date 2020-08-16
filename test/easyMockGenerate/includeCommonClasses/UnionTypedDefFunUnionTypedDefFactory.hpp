@@ -8,7 +8,7 @@
 class UnionTypedDefFunUnionTypedDefFactory : public FunctionFactory<union u, std::tuple<t_u>, std::tuple<EasyMock_Matcher>>
 {
 public:
-  Function functionFactory() override;
+  FunctionDeclaration functionFactory() override;
   std::string functionGetFunctionName() override;
   std::string getFilename() override;
   void setupTestCase(EasyMockTestCase::TestCase tc) override;

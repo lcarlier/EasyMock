@@ -2,7 +2,7 @@
 
 #include <UnionType.h>
 
-Function VoidFunUnionWithAnonymousUnionFieldFactory::functionFactory()
+FunctionDeclaration VoidFunUnionWithAnonymousUnionFieldFactory::functionFactory()
 {
   const unsigned int NB_ANONYMOUS_TYPE_IN_THIS_UT = 1;
   /*
@@ -19,12 +19,12 @@ Function VoidFunUnionWithAnonymousUnionFieldFactory::functionFactory()
   beingDefined->addField(new ComposableField(CTYPE_INT, "s1"));
   beingDefined->addField(new ComposableField(CTYPE_FLOAT, "s2"));
   top->addField(new ComposableField(beingDefined, ""));
-  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), Parameter::Vector({new Parameter(top, "t")}));
+  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), Parameter::Vector({new Parameter(top, "t")}));
 
   return f;
 }
 
-Function* VoidFunUnionWithAnonymousUnionFieldFactory::newFunctionFactory()
+FunctionDeclaration* VoidFunUnionWithAnonymousUnionFieldFactory::newFunctionFactory()
 {
   return functionFactory().clone();
 }

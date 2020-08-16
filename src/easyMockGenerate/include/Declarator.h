@@ -109,10 +109,6 @@ public:
 protected:
   /*!
    * \brief Creates a new declarator.
-   */
-  Declarator();
-  /*!
-   * \brief Creates a new declarator.
    *
    * \param p_typeItf The TypeItf object which is hold by this declarator.
    */

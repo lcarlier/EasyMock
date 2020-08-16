@@ -3,18 +3,18 @@
 #include <Parameter.h>
 #include <CType.h>
 
-Function VoidFunParamNoNameFactory::functionFactory()
+FunctionDeclaration VoidFunParamNoNameFactory::functionFactory()
 {
   Parameter* p1 = new Parameter(new CType(CTYPE_INT), "");
   Parameter* p2 = new Parameter(new CType(CTYPE_FLOAT), "");
-  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), Parameter::Vector({p1, p2}));
+  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), Parameter::Vector({p1, p2}));
   p1 = nullptr; //We lost the ownership
   p2 = nullptr; //We lost the ownership
 
   return f;
 }
 
-Function* VoidFunParamNoNameFactory::newFunctionFactory()
+FunctionDeclaration* VoidFunParamNoNameFactory::newFunctionFactory()
 {
   return functionFactory().clone();
 }

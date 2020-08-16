@@ -31,13 +31,13 @@ static ReturnValue structFunStructReturnValue()
   return rv;
 }
 
-Function StructFunStructFactory::functionFactory()
+FunctionDeclaration StructFunStructFactory::functionFactory()
 {
-  Function f(functionGetFunctionName(), structFunStructReturnValue(), structS2Parameter());
+  FunctionDeclaration f(functionGetFunctionName(), structFunStructReturnValue(), structS2Parameter());
   return f;
 }
 
-Function* StructFunStructFactory::newFunctionFactory()
+FunctionDeclaration* StructFunStructFactory::newFunctionFactory()
 {
   return functionFactory().clone();
 }

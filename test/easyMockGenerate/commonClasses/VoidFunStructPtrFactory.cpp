@@ -4,18 +4,18 @@
 
 #include <Pointer.h>
 
-Function VoidFunStructPtrFactory::functionFactory()
+FunctionDeclaration VoidFunStructPtrFactory::functionFactory()
 {
   StructType *s2 = newStructS2Type();
   Parameter *p = new Parameter(new Pointer(s2), "s");
   s2 = nullptr; //We lost the ownership
-  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), Parameter::Vector({p}));
+  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), Parameter::Vector({p}));
   p = nullptr; //We lost the ownership
 
   return f;
 }
 
-Function* VoidFunStructPtrFactory::newFunctionFactory()
+FunctionDeclaration* VoidFunStructPtrFactory::newFunctionFactory()
 {
   return functionFactory().clone();
 }

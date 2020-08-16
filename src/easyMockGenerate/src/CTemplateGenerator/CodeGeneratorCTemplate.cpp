@@ -18,7 +18,8 @@
 #include "TypeItf.h"
 #include "ComposableType.h"
 #include "Pointer.h"
-#include "Function.h"
+#include "FunctionDeclaration.h"
+#include "FunctionType.h"
 
 #undef NDEBUG
 #include <cassert>
@@ -72,6 +73,7 @@
 #define FUNCTION_PARAM_TYPE "TYPEDEF_PARAM_RETURN_VALUE"
 #define FUNCTION_PARAM_NON_QUALIFIED_TYPE "FUNCTION_PARAM_NON_QUALIFIED_TYPE"
 #define FUNCTION_PARAM_NAME "TYPEDEF_PARAM_NAME"
+#define FUNCTION_MATCHER_PARAM_NAME "FUNCTION_MATCHER_PARAM_NAME"
 #define FUNCTION_RETURN_VALUE_PARAM_SECTION "FUNCTION_RETURN_VALUE_PARAM_SECTION"
 #define FUNCTION_RETURN_VALUE_PARAM "FUNCTION_RETURN_VALUE_PARAM"
 #define FUNCTION_RETURN_VALUE "FUNCTION_RETURN_VALUE"
@@ -103,10 +105,15 @@
 #define HFILE_TEMPLATE "hfile_template"
 #define RECURSIVE_ANONYMOUS_TYPE_DECLARATION_TEMPLATE_NAME "include_anonymous_decl_template"
 #define RECURSIVE_ANONYMOUS_TYPE_DECLARATION_TEMPLATE_FIELD_NAME "include_anonymous_decl_template_field"
+#define EXTRA_DECL_TEMPLATE_NAME "extra_decl_template_name"
+#define EXTRA_TOP_DECL_TEMPLATE_NAME "extra_top_decl_template_name"
 
 #define VARIADIC_SECTION "VARIADIC_SECTION"
 #define VARIADIC_VAR "VARIADIC_VAR"
 #define VARIADIC_TEMPLATE_VAR TEMPLATE_VAR(VARIADIC_VAR)
+
+#define EXTRA_DECL_SECTION "EXTRA_DECL_SECTION"
+#define EXTRA_TOP_LEVEL_DECL_SECTION "EXTRA_TOP_LEVEL_DECL_SECTION"
 
 #define VOID_FUNCTION_RETURN_VALUE "void"
 
@@ -133,7 +140,8 @@
   TEMPLATE_END_SECTION(SECTION)
 
 #define PARAMETER_NAME(PREFIX) PREFIX TEMPLATE_VAR(FUNCTION_PARAM_NAME)
-#define PARAMETER_OUT_SIZE_VAR PARAMETER_NAME("out_") "_size"
+#define MATCHER_NAME TEMPLATE_VAR(FUNCTION_MATCHER_PARAM_NAME)
+#define PARAMETER_OUT_SIZE_VAR PARAMETER_NAME(MOCK_OUT_PREFIX) "_size"
 #define PARAMETER_TYPE TEMPLATE_VAR(FUNCTION_PARAM_TYPE)
 #define PARAMETER_NON_QUALIFIED_TYPE TEMPLATE_VAR(FUNCTION_PARAM_NON_QUALIFIED_TYPE)
 #define FUNCTION_RETURN_VALUE_TYPE TEMPLATE_VAR(FUNCTION_RETURN_VALUE)
@@ -149,14 +157,17 @@
   IF_SECTION_EXISTS(STRUCT_PRINT_IDX_SECTION, ", idx")
 
 #define DECLARE_PARAMETER(PREFIX) \
-PARAMETER_TYPE " " PARAMETER_NAME(PREFIX)
+PARAMETER_TYPE " " PARAMETER_NAME(PREFIX) TEMPLATE_INCL_SECTION(EXTRA_DECL_SECTION)
 
 #define DECLARE_NON_QUALIFIED_PARAMETER(PREFIX) \
-PARAMETER_NON_QUALIFIED_TYPE " " PARAMETER_NAME(PREFIX)
+PARAMETER_NON_QUALIFIED_TYPE " " PARAMETER_NAME(PREFIX) TEMPLATE_INCL_SECTION(EXTRA_DECL_SECTION)
 
 /*!
  * \brief Helper macro to print all declaration of the parameters of a
- * *_expectAndReturn function.
+ * function to be mocked, a *_expectAndReturn function or *_expectReturnAndOutput case.
+ *
+ * The FUNCTION_VOID_PTR_OUT_SECTION is only added in the case of a
+ * *_expectReturnAndOutput case.
  */
 #define FUNCTION_PARAM_LIST(SECTION, PREFIX) \
   TEMPLATE_BEG_SECTION(SECTION) \
@@ -195,7 +206,7 @@ PARAMETER_NON_QUALIFIED_TYPE " " PARAMETER_NAME(PREFIX)
   TEMPLATE_END_SECTION(SECTION)
 
 #define FUNCTION_PARAM_MATCH_VAR \
-"easyMock_match_" PARAMETER_NAME("")
+"easyMock_match_" MATCHER_NAME
 
 #define FUNCTION_MATCHER_LIST \
   TEMPLATE_BEG_SECTION(FUNCTION_PARAM_SECTION) \
@@ -217,7 +228,7 @@ PARAMETER_NON_QUALIFIED_TYPE " " PARAMETER_NAME(PREFIX)
 TEMPLATE_VAR(FUNCTION_NAME) "_ExpectAndReturn("
 
 #define FUNCTION_EXPECT_RETURN_AND_OUTPUT_PARAM \
-FUNCTION_PARAM_LIST(FUNCTION_PARAM_SECTION, "") IF_RETURN_VALUE(IF_SECTION_EXISTS(FUNCTION_PARAM_LIST_SECTION, ", ") FUNCTION_TO_RETURN_VALUE_TYPE " to_return") IF_SECTION_EXISTS(FUNCTION_PARAM_LIST_SECTION, ", ") FUNCTION_MATCHER_LIST
+FUNCTION_PARAM_LIST(FUNCTION_PARAM_SECTION, "") IF_RETURN_VALUE(IF_SECTION_EXISTS(FUNCTION_PARAM_LIST_SECTION, ", ") FUNCTION_TO_RETURN_VALUE_TYPE " to_return" TEMPLATE_INCL_SECTION(EXTRA_DECL_SECTION)) IF_SECTION_EXISTS(FUNCTION_PARAM_LIST_SECTION, ", ") FUNCTION_MATCHER_LIST
 
 #define FUNCTION_EXPECT_AND_RETURN_SIGNATURE \
 "void " FUNCTION_EXPECT_AND_RETURN_NAME FUNCTION_EXPECT_RETURN_AND_OUTPUT_PARAM ")"
@@ -268,7 +279,8 @@ TEMPLATE_VAR(FUNCTION_NAME) "_match_" PARAMETER_NAME("")
 #define MOCKED_DATA "mockedData"
 #define MOCKED_DATA_MEMBER(member) MOCKED_DATA "." member
 
-#define TEMPLATE_FUNCTION_TO_BE_MOCKED FUNCTION_RETURN_VALUE_TYPE " " TEMPLATE_VAR(FUNCTION_NAME) "(" FUNCTION_PARAM_LIST(FUNCTION_PARAM_SECTION, "") IF_SECTION_EXISTS(VARIADIC_SECTION, VARIADIC_TEMPLATE_VAR) ")"
+#define FUNCTION_PARAMETERS "("  FUNCTION_PARAM_LIST(FUNCTION_PARAM_SECTION, "") IF_SECTION_EXISTS(VARIADIC_SECTION, VARIADIC_TEMPLATE_VAR) ")"
+#define TEMPLATE_FUNCTION_TO_BE_MOCKED FUNCTION_RETURN_VALUE_TYPE " " TEMPLATE_VAR(FUNCTION_NAME) FUNCTION_PARAMETERS TEMPLATE_INCL_SECTION(EXTRA_TOP_LEVEL_DECL_SECTION)
 #define MOCKED_FUN_CLASS(F_NAME) "mocked_" F_NAME
 #define TEMPLATE_MOCKED_FUN_CLASS MOCKED_FUN_CLASS(TEMPLATE_VAR(FUNCTION_NAME))
 
@@ -356,7 +368,7 @@ static const char templateText[] =
         "    " DECLARE_NON_QUALIFIED_PARAMETER("") ";" CARRIAGE_RETURN
         "    EasyMock_Matcher " FUNCTION_MOCK_DATA_CUR_MATCH_VAR ";" CARRIAGE_RETURN
         TEMPLATE_END_SECTION(FUNCTION_PARAM_SECTION)
-        IF_RETURN_VALUE("    " FUNCTION_NON_QUALIFIED_RETURN_VALUE_TYPE " " FUNCTION_MOCK_DATA_RETURN_VALUE_VARIABLE ";" CARRIAGE_RETURN)
+        IF_RETURN_VALUE("    " FUNCTION_NON_QUALIFIED_RETURN_VALUE_TYPE " " FUNCTION_MOCK_DATA_RETURN_VALUE_VARIABLE TEMPLATE_INCL_SECTION(EXTRA_DECL_SECTION) ";" CARRIAGE_RETURN)
         TEMPLATE_BEG_SECTION(FUNCTION_PARAM_PTR_SECTION)
         "    " DECLARE_PARAMETER(MOCK_OUT_PREFIX) ";" CARRIAGE_RETURN
         TEMPLATE_BEG_SECTION(FUNCTION_VOID_PTR_OUT_SECTION)
@@ -367,7 +379,7 @@ static const char templateText[] =
         CARRIAGE_RETURN
         "static " FUNCTION_EXPECT_RETURN_AND_OUTPUT_COMMON_SIGNATURE ";" CARRIAGE_RETURN
         "static MockedFunction<" FUNCTION_MOCK_DATA_TYPE "> " TEMPLATE_MOCKED_FUN_CLASS "(\"" TEMPLATE_FUNCTION_TO_BE_MOCKED "\");" CARRIAGE_RETURN
-        IF_RETURN_VALUE("static " FUNCTION_NON_QUALIFIED_RETURN_VALUE_TYPE " dummyRes_" TEMPLATE_VAR(FUNCTION_NAME) ";" CARRIAGE_RETURN)
+        IF_RETURN_VALUE("static " FUNCTION_NON_QUALIFIED_RETURN_VALUE_TYPE " dummyRes_" TEMPLATE_VAR(FUNCTION_NAME) TEMPLATE_INCL_SECTION(EXTRA_DECL_SECTION) ";" CARRIAGE_RETURN)
         CARRIAGE_RETURN
         "extern \"C\" " TEMPLATE_FUNCTION_TO_BE_MOCKED CARRIAGE_RETURN
         "{" CARRIAGE_RETURN
@@ -376,7 +388,7 @@ static const char templateText[] =
         CARRIAGE_RETURN
         IF_RETURN_VALUE
         (
-            "    " FUNCTION_NON_QUALIFIED_RETURN_VALUE_TYPE " default_res;" CARRIAGE_RETURN
+            "    " FUNCTION_NON_QUALIFIED_RETURN_VALUE_TYPE " default_res" TEMPLATE_INCL_SECTION(EXTRA_TOP_LEVEL_DECL_SECTION) ";" CARRIAGE_RETURN
             "    std::memcpy(&default_res, &dummyRes_" TEMPLATE_VAR(FUNCTION_NAME) ", sizeof(default_res));" CARRIAGE_RETURN
             CARRIAGE_RETURN
         )
@@ -551,9 +563,22 @@ static const char declareAnonymousComposableTypeTemplate[] =
 
 static const char declareAnonymousComposableTypeFieldTemplate[] =
         TEMPLATE_BEG_SECTION(ANONYMOUS_TYPE_DECLARATION_FIELD_SECTION)
-        ANONYMOUS_TYPE_DECLARATION_FIELD_TYPE_VAR " " ANONYMOUS_TYPE_DECLARATION_FIELD_NAME_VAR ";" CARRIAGE_RETURN
+        ANONYMOUS_TYPE_DECLARATION_FIELD_TYPE_VAR " " ANONYMOUS_TYPE_DECLARATION_FIELD_NAME_VAR TEMPLATE_INCL_SECTION(EXTRA_DECL_SECTION) ";" CARRIAGE_RETURN
         TEMPLATE_END_SECTION(ANONYMOUS_TYPE_DECLARATION_FIELD_SECTION)
         TEMPLATE_INCL_SECTION(RECURSIVE_ANONYMOUS_TYPE_DECLARATION_SECTION);
+
+static const char extraDeclTemplate[] =
+        ")"
+        FUNCTION_PARAMETERS
+        TEMPLATE_BEG_SECTION(EXTRA_DECL_SECTION "INSIDE")
+        TEMPLATE_INCL_SECTION(EXTRA_DECL_SECTION)
+        TEMPLATE_END_SECTION(EXTRA_DECL_SECTION "INSIDE");
+
+static const char extraTopDeclTemplate[] =
+        ")" FUNCTION_PARAMETERS
+        TEMPLATE_BEG_SECTION(EXTRA_TOP_LEVEL_DECL_SECTION "INSIDE")
+        TEMPLATE_INCL_SECTION(EXTRA_TOP_LEVEL_DECL_SECTION)
+        TEMPLATE_END_SECTION(EXTRA_TOP_LEVEL_DECL_SECTION "INSIDE");
 
 CodeGeneratorCTemplate::CodeGeneratorCTemplate():
 m_nbUnamedParam(0)
@@ -573,6 +598,8 @@ bool CodeGeneratorCTemplate::generateCode(const std::string& p_outDir, const std
   ctemplate::StringToTemplateCache(HFILE_TEMPLATE, headerFileTemplate, ctemplate::DO_NOT_STRIP);
   ctemplate::StringToTemplateCache(RECURSIVE_ANONYMOUS_TYPE_DECLARATION_TEMPLATE_NAME, declareAnonymousComposableTypeTemplate, ctemplate::DO_NOT_STRIP);
   ctemplate::StringToTemplateCache(RECURSIVE_ANONYMOUS_TYPE_DECLARATION_TEMPLATE_FIELD_NAME, declareAnonymousComposableTypeFieldTemplate, ctemplate::DO_NOT_STRIP);
+  ctemplate::StringToTemplateCache(EXTRA_DECL_TEMPLATE_NAME, extraDeclTemplate, ctemplate::DO_NOT_STRIP);
+  ctemplate::StringToTemplateCache(EXTRA_TOP_DECL_TEMPLATE_NAME, extraTopDeclTemplate, ctemplate::DO_NOT_STRIP);
 
   std::string generatedCode;
   ctemplate::ExpandTemplate(CFILE_TEMPLATE, ctemplate::DO_NOT_STRIP, &dict, &generatedCode);
@@ -601,26 +628,26 @@ void CodeGeneratorCTemplate::fillInTemplateVariables(ctemplate::TemplateDictiona
   for (ElementToMock::Vector::const_iterator it = p_fList.begin(); it != p_fList.end(); ++it)
   {
     const ElementToMock *elemToMock = *it;
-    if(elemToMock->isInline())
-    {
-        continue;
-    }
-    if(m_mockOnlyList.size() > 0 && m_mockOnlyList.find(*elemToMock->getName()) == m_mockOnlyList.end())
-    {
-      continue;
-    }
     switch (elemToMock->getMockType())
     {
       case ETS_function:
       {
-        const Function* fun = dynamic_cast<const Function*>(elemToMock);
+        const FunctionDeclaration* fun = dynamic_cast<const FunctionDeclaration*>(elemToMock);
+        if(fun->isInlined())
+        {
+            continue;
+        }
+        if(m_mockOnlyList.size() > 0 && m_mockOnlyList.find(*fun->getName()) == m_mockOnlyList.end())
+        {
+          continue;
+        }
         std::string functionPrototype = fun->getFunctionPrototype();
         if(generatedElements.find(functionPrototype) != generatedElements.end())
         {
           break;
         }
         generatedElements.insert(functionPrototype);
-        generateFunctionSection(p_rootDictionnary, elemToMock);
+        generateFunctionSection(p_rootDictionnary, fun);
         break;
       }
       default:
@@ -629,7 +656,7 @@ void CodeGeneratorCTemplate::fillInTemplateVariables(ctemplate::TemplateDictiona
   }
 }
 
-void CodeGeneratorCTemplate::generateFunctionSection(ctemplate::TemplateDictionary *p_rootDictionnary, const ElementToMock *p_elemToMock)
+void CodeGeneratorCTemplate::generateFunctionSection(ctemplate::TemplateDictionary *p_rootDictionnary, const FunctionDeclaration *p_elemToMock)
 {
   ctemplate::TemplateDictionary *functionSectionDict = p_rootDictionnary->AddSectionDictionary(FUNCTION_SECTION);
   functionSectionDict->SetValue(FUNCTION_NAME, *p_elemToMock->getName());
@@ -650,6 +677,13 @@ void CodeGeneratorCTemplate::generateFunctionSection(ctemplate::TemplateDictiona
   else
   {
     functionSectionDict->SetValue(FUNCTION_NON_QUALIFIED_RETURN_VALUE, returnTypeStr);
+    const Pointer *returnValuePointer = dynamic_cast<const Pointer*>(rvType);
+    const TypeItf *returnValuePointerPointedType = returnValuePointer->getPointedType();
+    if(returnValuePointerPointedType->isFunction())
+    {
+      const FunctionType *functionType = dynamic_cast<const FunctionType*>(returnValuePointerPointedType);
+      generateExtraDecl(p_rootDictionnary, functionSectionDict, EXTRA_TOP_LEVEL_DECL_SECTION, EXTRA_TOP_DECL_TEMPLATE_NAME, functionType);
+    }
   }
 
   bool isRvVoid = rvType->isCType() && rvType->getCType() == CTYPE_VOID && !rvType->isPointer();
@@ -662,6 +696,13 @@ void CodeGeneratorCTemplate::generateFunctionSection(ctemplate::TemplateDictiona
     }
     else
     {
+      const Pointer *returnValuePointer = dynamic_cast<const Pointer*>(rvType);
+      const TypeItf *returnValuePointerPointedType = returnValuePointer->getPointedType();
+      if(returnValuePointerPointedType->isFunction())
+      {
+        const FunctionType *functionType = dynamic_cast<const FunctionType*>(returnValuePointerPointedType);
+        generateExtraDecl(p_rootDictionnary, returnValParamDict, EXTRA_DECL_SECTION, EXTRA_DECL_TEMPLATE_NAME, functionType);
+      }
       returnValParamDict->SetValue(FUNCTION_NON_QUALIFIED_RETURN_VALUE, returnTypeStr);
     }
   }
@@ -677,6 +718,28 @@ void CodeGeneratorCTemplate::generateFunctionSection(ctemplate::TemplateDictiona
     }
     variadicString.append("...");
     variadicSection->SetValue(VARIADIC_VAR, variadicString);
+  }
+}
+
+void CodeGeneratorCTemplate::generateExtraDecl(ctemplate::TemplateDictionary *p_rootDictionnary, ctemplate::TemplateDictionary *dict, const char *sectionName, const char *templateFileName, const FunctionType *functionType)
+{
+  ctemplate::TemplateDictionary *extraDeclDict = dict->AddIncludeDictionary(sectionName);
+  extraDeclDict->SetFilename(templateFileName);
+
+  generateFunctionParamSection(p_rootDictionnary, extraDeclDict, functionType->getFunctionsParameters());
+
+  const ReturnValue *rv = functionType->getReturnType();
+  const TypeItf *returnValueType = rv->getType();
+  if(returnValueType->isPointer())
+  {
+    const Pointer *returnValueTypePointer = dynamic_cast<const Pointer*>(returnValueType);
+    const TypeItf *returnValuePointedType = returnValueTypePointer->getPointedType();
+    if(returnValuePointedType->isFunction())
+    {
+      const FunctionType *recursiveFunctionType = dynamic_cast<const FunctionType*>(returnValuePointedType);
+      ctemplate::TemplateDictionary *inInDict = extraDeclDict->AddSectionDictionary(std::string(sectionName) + "INSIDE");
+      generateExtraDecl(p_rootDictionnary, inInDict, sectionName, templateFileName, recursiveFunctionType);
+    }
   }
 }
 
@@ -715,23 +778,37 @@ void CodeGeneratorCTemplate::generateFunctionParamSection(ctemplate::TemplateDic
     else
     {
       newTypedefParamSection->SetValue(FUNCTION_PARAM_NON_QUALIFIED_TYPE, argType);
+      const TypeItf *paramPtrPointedType = paramPtrType->getPointedType();
+      if(paramPtrPointedType->isFunction())
+      {
+        const FunctionType *ft = dynamic_cast<const FunctionType*>(paramPtrPointedType);
+        generateExtraDecl(p_rootDictionnary, newTypedefParamSection, EXTRA_DECL_SECTION, EXTRA_DECL_TEMPLATE_NAME, ft);
+      }
     }
     std::string paramName = fParam->getName();
     if(paramName.empty())
     {
-      paramName.append("param" + std::to_string(m_nbUnamedParam));
+      paramName.append("__easymock_param" + std::to_string(m_nbUnamedParam));
       m_nbUnamedParam++;
     }
     newTypedefParamSection->SetValue(FUNCTION_PARAM_NAME, paramName);
+    // For easyMock_matcher_*
+    newTypedefParamSection->SetValue(FUNCTION_MATCHER_PARAM_NAME, paramName);
 
     /*
-     * Do not generate the output parameter for const pointers.
+     * Do not generate the output parameter for pointers to const value.
+     * Do not generate the output parameter for implicit type (i.e. va_args).
+     *    I can't possibly think why it would be useful and I'm not even
+     *    sure that it is even possible or sensible.
+     * Do not generate the output parameter for function type.
+     *    Output function pointer doesn't make sense.
      */
     if(paramPtrType)
     {
       const TypeItf* pointedType = paramPtrType->getPointedType();
       if(!pointedType->isConst() &&
-         !pointedType->isImplicit())
+         !pointedType->isImplicit() &&
+         !pointedType->isFunction())
       {
         if(!ptrSectionAdded)
         {
@@ -840,7 +917,7 @@ void CodeGeneratorCTemplate::generateFieldCmp(std::string& p_condition, const Co
   }
 }
 
-void CodeGeneratorCTemplate::generateBodyStructCompare(ctemplate::TemplateDictionary *rootDictionnary, ctemplate::TemplateDictionary *p_paramSectDict, const ComposableType *p_composedType, const ComposableField *p_curField, const ComposableField *p_previousField, std::string p_uniquePrepend, std::string p_declPrepend)
+void CodeGeneratorCTemplate::generateBodyStructCompare(ctemplate::TemplateDictionary *p_rootDictionnary, ctemplate::TemplateDictionary *p_paramSectDict, const ComposableType *p_composedType, const ComposableField *p_curField, const ComposableField *p_previousField, std::string p_uniquePrepend, std::string p_declPrepend)
 {
   static unsigned int s_nbAnonymousField = 0;
   const TypeItf* curType = p_curField->getType();
@@ -853,7 +930,7 @@ void CodeGeneratorCTemplate::generateBodyStructCompare(ctemplate::TemplateDictio
     const ComposableType* curComposableType = dynamic_cast<const ComposableType*>(curType);
     if(p_curField->isRecursiveTypeField())
     {
-      //Recursive types are pointers, so simple field generation will do
+      //Recursive types are pointers, so a simple field generation will do
       generateBasicTypeField(p_curField, p_paramSectDict, p_composedType, p_declPrepend);
     }
     else
@@ -892,13 +969,22 @@ void CodeGeneratorCTemplate::generateBodyStructCompare(ctemplate::TemplateDictio
 
       p_uniquePrepend.push_back('_');
       p_declPrepend.append("::");
-      generateComposedTypedCompareSection(rootDictionnary, curComposableType, p_uniquePrepend, p_declPrepend);
+      generateComposedTypedCompareSection(p_rootDictionnary, curComposableType, p_uniquePrepend, p_declPrepend);
 
       p_paramSectDict->SetValue(COMPARE_CONDITION, condition);
     }
-  } else if (curType->isCType()) {
+  }
+  else if (curType->isCType())
+  {
     generateBasicTypeField(p_curField, p_paramSectDict, p_composedType, p_declPrepend);
-  } else {
+  }
+  else if (curType->isFunction())
+  {
+    //Function types are pointers, so a simple field generation will do
+    generateBasicTypeField(p_curField, p_paramSectDict, p_composedType, p_declPrepend);
+  }
+  else
+  {
     std::fprintf(stderr, "Type '%s' unexpected here. Contact owner for bug fixing\n\r", curType->getFullDeclarationName().c_str());
     assert(false);
   }
@@ -953,7 +1039,7 @@ void CodeGeneratorCTemplate::generateBasicTypeField(const ComposableField *p_cur
   p_paramSectDict->SetValue(COMPARE_CONDITION, condition);
 }
 
-void CodeGeneratorCTemplate::generateDeclarationOfAnonymousType(ctemplate::TemplateDictionary* p_compareDict, const ComposableType* p_composedType)
+void CodeGeneratorCTemplate::generateDeclarationOfAnonymousType(ctemplate::TemplateDictionary* p_rootDictionnary, ctemplate::TemplateDictionary* p_compareDict, const ComposableType* p_composedType)
 {
   ctemplate::TemplateDictionary *anonymousDeclDict = p_compareDict->AddIncludeDictionary(RECURSIVE_ANONYMOUS_TYPE_DECLARATION_SECTION);
   anonymousDeclDict->SetFilename(RECURSIVE_ANONYMOUS_TYPE_DECLARATION_TEMPLATE_NAME);
@@ -985,7 +1071,7 @@ void CodeGeneratorCTemplate::generateDeclarationOfAnonymousType(ctemplate::Templ
 
     if(fieldType->isComposableType())
     {
-      generateDeclarationOfAnonymousType(curFieldDict, dynamic_cast<const ComposableType*>(fieldType));
+      generateDeclarationOfAnonymousType(p_rootDictionnary, curFieldDict, dynamic_cast<const ComposableType*>(fieldType));
     }
     else
     {
@@ -999,6 +1085,12 @@ void CodeGeneratorCTemplate::generateDeclarationOfAnonymousType(ctemplate::Templ
         fieldName.push_back(']');
       }
       curFieldValDict->SetValue(ANONYMOUS_TYPE_DECLARATION_FIELD_NAME_TEMPLATE_VAR, fieldName);
+      const Pointer* fieldPtrType = dynamic_cast<const Pointer *>(fieldType);
+      if(fieldPtrType && fieldPtrType->getPointedType()->isFunction())
+      {
+        const FunctionType *ft = dynamic_cast<const FunctionType*>(fieldPtrType->getPointedType());
+        generateExtraDecl(p_rootDictionnary, curFieldDict, EXTRA_DECL_SECTION, EXTRA_DECL_TEMPLATE_NAME, ft);
+      }
     }
   }
 }
@@ -1024,7 +1116,7 @@ void CodeGeneratorCTemplate::generateComposedTypedCompareSection(ctemplate::Temp
   //Take care of generating the declaration of the anonymous type within the scope of the compare function
   if(p_composedType->isAnonymous())
   {
-    generateDeclarationOfAnonymousType(compareDict, p_composedType);
+    generateDeclarationOfAnonymousType(p_rootDictionnary, compareDict, p_composedType);
   }
 
   if(p_composedType->isStruct())

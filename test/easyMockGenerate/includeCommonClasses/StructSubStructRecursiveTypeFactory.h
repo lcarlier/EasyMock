@@ -8,7 +8,7 @@
 class StructSubStructRecursiveTypeFactory : public FunctionFactory<unsigned short, std::tuple<struct st1>, std::tuple<EasyMock_Matcher>>
 {
 public:
-  Function functionFactory() override;
+  FunctionDeclaration functionFactory() override;
   std::string functionGetFunctionName() override;
   std::string getFilename() override;
   std::string getMatcherFunctionName() override;

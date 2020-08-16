@@ -1,12 +1,12 @@
 #include <UnsIntFunVoidFactory.h>
 
-Function UnsIntFunVoidFactory::functionFactory()
+FunctionDeclaration UnsIntFunVoidFactory::functionFactory()
 {
-  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_UINT),{});
+  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_UINT),{});
   return f;
 }
 
-Function* UnsIntFunVoidFactory::newFunctionFactory()
+FunctionDeclaration* UnsIntFunVoidFactory::newFunctionFactory()
 {
   return functionFactory().clone();
 }

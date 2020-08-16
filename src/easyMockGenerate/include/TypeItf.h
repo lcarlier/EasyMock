@@ -79,7 +79,7 @@ public:
    * };
    * \endcode
    * When this function returns true, the pointer or reference holding this type
-   * can be safely down casted to a ComposableType instance of a StructType instance.
+   * can be safely downcasted to a ComposableType instance of a StructType instance.
    *
    * The fields definition can be access via the ComposableType::getContainedFields() function.
    *
@@ -99,7 +99,7 @@ public:
    * };
    * \endcode
    * When this function returns true, a pointer or reference holding this type
-   * can be safely down casted to a ComposableType instance of a UnionType instance.
+   * can be safely downcasted to a ComposableType instance of a UnionType instance.
    *
    * The fields definition can be access via the ComposableType::getContainedFields() function.
    *
@@ -114,7 +114,7 @@ public:
    * All the basic C types (int, short, float, ...) are considered to be a valid C type
    *
    * When this function returns true, a pointer or reference holding this type
-   * can be safely down casted to a CType instance.
+   * can be safely downcasted to a CType instance.
    *
    * When this function returns true, the function TypeItf::getCType() returns the actual
    * C type this type defines
@@ -206,7 +206,7 @@ public:
    * \brief Returns if the type is composable (i.e. struct or union).
    *
    * When this function return true, a pointer or reference holding this type
-   * can be safely down casted to a ComposableType instance.
+   * can be safely downcasted to a ComposableType instance.
    *
    * \return True if the type is composable
    * \return False instead.
@@ -217,7 +217,7 @@ public:
    * \brief Returns if the type is a Pointer.
    *
    * When this function return true, a pointer or reference holding this type
-   * can be safely down casted to a Pointer instance.
+   * can be safely downcasted to a Pointer instance.
    *
    * Use the function Pointer::getPointedType() to know the type on which
    * the pointer points
@@ -226,6 +226,20 @@ public:
    * \return False instead.
    */
   bool isPointer() const;
+
+  /*!
+   * \brief Returns if the type is a function.
+   *
+   * When this function returns true, a pointer or reference holding this
+   * type can safely downcasted to a FunctionType instance.
+   *
+   * A function type is all the time used in combination with a Pointer
+   * object to represent a pointer to a function.
+   *
+   * \return True if the type is a function.
+   * \return False instead.
+   */
+  bool isFunction() const;
 
   /*!
    * \brief Returns if the type was declare using the \c const keyword.
@@ -238,6 +252,7 @@ public:
    * \return True if the type is constant
    * \return False instead.
    */
+
   bool isConst() const;
 
   /*!
@@ -301,11 +316,12 @@ public:
 
 #define TYPEITF_COMMON_CLASS_MEMBERS(prefix) \
   std::string prefix ## name; \
-  std::string prefix ## typed_def_name; \
+  std::string prefix ## typedDefName; \
   bool prefix ## isCType; \
   bool prefix ## isStruct; \
   bool prefix ## isUnion; \
   bool prefix ## isPointer; \
+  bool prefix ## isFunction; \
   bool prefix ## isConst; \
   bool prefix ## isImplicit;
 
@@ -341,6 +357,13 @@ protected:
    * It is called by Pointer objects
    */
   void setPointer(bool value);
+
+  /*!
+   * \brief Specify that the type is a function.
+   *
+   * It is called by FunctionType objects
+   */
+  void setFunction(bool value);
 
   /*!
    * \brief Function called by the subclasses to set the type name.

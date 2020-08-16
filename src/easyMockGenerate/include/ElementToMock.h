@@ -7,8 +7,14 @@
 #include "Parameter.h"
 #include "ReturnValue.h"
 
+/*!
+ * \brief Types of supported mock
+ */
 enum ElementToMock_Type
 {
+  /*!
+   * The mocked element is a function
+   */
   ETS_function
 };
 
@@ -21,36 +27,17 @@ enum ElementToMock_Type
 class ElementToMock
 {
 public:
-  ElementToMock(std::string name, const Parameter::Vector functionParameters);
-
   typedef AutoCleanVectorPtr<ElementToMock> Vector;
 
-  const std::string *getName() const;
-  const Parameter::Vector& getFunctionsParameters() const;
+  /*!
+   * \brief Returns the mock type
+   *
+   * See ::ElementToMock_Type enum to see which types is supported
+   */
   virtual ElementToMock_Type getMockType() const = 0;
-  virtual const ReturnValue *getReturnType() const = 0;
-
-  bool isVariadic() const;
-  void setVariadic(bool value);
-  bool isInline() const;
-  void setInline(bool value);
-
-  ElementToMock(const ElementToMock &other) = default;
-  ElementToMock& operator=(const ElementToMock &other) = default;
-  ElementToMock(ElementToMock &&other) = default;
-  ElementToMock& operator=(ElementToMock &&other) = default;
-
-  bool operator==(const ElementToMock &other) const;
-  bool operator!=(const ElementToMock &other) const;
 
   virtual ElementToMock* clone() const = 0;
   virtual ~ElementToMock();
-
-protected:
-  std::string m_name;
-  Parameter::Vector m_parameters;
-  bool m_isVariadic;
-  bool m_isInline;
 };
 
 #endif /* ELEMENTTOMOCK_H */

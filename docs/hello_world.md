@@ -38,14 +38,14 @@ The first version of the average function can be implemented like this
 
 float average(int nbNumber)
 {
-    unsigned char counter = 0;
-    for(unsigned int i = 0; i < nbNumber; i++)
-    {
-        counter += u8Rand();
-    }
-    float av = (float)counter/nbNumber;
+  unsigned char counter = 0;
+  for(unsigned int i = 0; i < nbNumber; i++)
+  {
+    counter += u8Rand();
+  }
+  float av = (float)counter/nbNumber;
 
-    return av;
+  return av;
 }
 ```
 
@@ -75,21 +75,23 @@ Then the code for the first test can be written.
 
 void test1()
 {
-    u8Rand_ExpectAndReturn(3); //First  call of u8Rand returns 3
-    u8Rand_ExpectAndReturn(4); //Second call of u8Rand returns 4
-    u8Rand_ExpectAndReturn(5); //Third  call of u8Rand returns 5
-    u8Rand_ExpectAndReturn(6); //Fourth call of u8Rand returns 6
+  easyMock_init();
 
-    float av = average(4);
+  u8Rand_ExpectAndReturn(3); //First  call of u8Rand returns 3
+  u8Rand_ExpectAndReturn(4); //Second call of u8Rand returns 4
+  u8Rand_ExpectAndReturn(5); //Third  call of u8Rand returns 5
+  u8Rand_ExpectAndReturn(6); //Fourth call of u8Rand returns 6
 
-    assert(av == 4.5);
+  float av = average(4);
+
+  assert(av == 4.5);
 }
 
 int main(int argc, char *argv[])
 {
-    test1();
+  test1();
 
-    return 0;
+  return 0;
 }
 ```
 
@@ -126,12 +128,14 @@ EasyMock to return 2 big numbers.
 ```c
 void test2()
 {
-    u8Rand_ExpectAndReturn(192); //First  call of u8Rand returns 192
-    u8Rand_ExpectAndReturn(128); //Second call of u8Rand returns 128
+  easyMock_init();
 
-    float av = average(2);
+  u8Rand_ExpectAndReturn(192); //First  call of u8Rand returns 192
+  u8Rand_ExpectAndReturn(128); //Second call of u8Rand returns 128
 
-    assert(av == 160);
+  float av = average(2);
+
+  assert(av == 160);
 }
 ```
 
@@ -150,14 +154,14 @@ is by writing the `average()` function like so:
 ```c
 float average(int nbNumber)
 {
-    unsigned int counter = 0;
-    for(unsigned int i = 0; i < nbNumber; i++)
-    {
-        counter += u8Rand();
-    }
-    float av = (float)counter/nbNumber;
+  unsigned int counter = 0;
+  for(unsigned int i = 0; i < nbNumber; i++)
+  {
+      counter += u8Rand();
+  }
+  float av = (float)counter/nbNumber;
 
-    return av;
+  return av;
 }
 ```
 

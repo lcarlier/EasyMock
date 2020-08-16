@@ -1,12 +1,12 @@
 #include <LongFunLongFactory.h>
 
-Function LongFunLongFactory::functionFactory()
+FunctionDeclaration LongFunLongFactory::functionFactory()
 {
-  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_LONG), Parameter::Vector({NamedParameter(CTYPE_LONG, "l")}));
+  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_LONG), Parameter::Vector({NamedParameter(CTYPE_LONG, "l")}));
   return f;
 }
 
-Function* LongFunLongFactory::newFunctionFactory()
+FunctionDeclaration* LongFunLongFactory::newFunctionFactory()
 {
   return functionFactory().clone();
 }

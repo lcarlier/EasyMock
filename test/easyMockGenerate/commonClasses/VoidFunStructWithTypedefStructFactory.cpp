@@ -4,7 +4,7 @@
 #include <ComposableField.h>
 #include <CType.h>
 
-Function VoidFunStructWithTypedefStructFactory::functionFactory()
+FunctionDeclaration VoidFunStructWithTypedefStructFactory::functionFactory()
 {
   StructType *t_subStructVar = new StructType("", "t_subStruct", false);
   t_subStructVar->addField(new ComposableField(new CType(CTYPE_INT), "a"));
@@ -15,13 +15,13 @@ Function VoidFunStructWithTypedefStructFactory::functionFactory()
 
   Parameter *p = new Parameter(t_structVar, "s");
   t_structVar = nullptr; //We lost the ownership
-  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), Parameter::Vector({p}));
+  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), Parameter::Vector({p}));
   p = nullptr; //We lost the ownership
 
   return f;
 }
 
-Function* VoidFunStructWithTypedefStructFactory::newFunctionFactory()
+FunctionDeclaration* VoidFunStructWithTypedefStructFactory::newFunctionFactory()
 {
   return functionFactory().clone();
 }

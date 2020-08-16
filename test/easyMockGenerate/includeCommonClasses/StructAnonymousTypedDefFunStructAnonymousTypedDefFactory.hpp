@@ -9,7 +9,7 @@
 class StructAnonymousTypedDefFunStructAnonymousTypedDefFactory : public FunctionFactory<TypedDefAnonymousStruct, std::tuple<TypedDefAnonymousStruct>, std::tuple<EasyMock_Matcher>>
 {
   public:
-  Function functionFactory() override;
+  FunctionDeclaration functionFactory() override;
   std::string functionGetFunctionName() override;
   std::string getFilename() override;
   void setupTestCase(EasyMockTestCase::TestCase tc) override;

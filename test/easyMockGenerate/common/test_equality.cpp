@@ -8,6 +8,8 @@
 #include <ComposableField.h>
 #include <AutoCleanVectorPtr.h>
 #include <Pointer.h>
+#include <FunctionType.h>
+#include <FunctionDeclaration.h>
 
 TEST(equality, CType)
 {
@@ -49,36 +51,100 @@ TEST(equality, ConstPointerSame)
   ASSERT_EQ(p1, p2);
 }
 
-TEST(equality, FunctionWithDifferentParams)
+template<typename T>
+void functionWithDifferentParams()
 {
-  Function f1("foo", VoidReturnValue(), Parameter::Vector({NamedParameter(CTYPE_INT, "foo")}));
-  Function f2("foo", VoidReturnValue(), Parameter::Vector({NamedParameter(CTYPE_DOUBLE, "foo")}));
+  T f1("foo", VoidReturnValue(), Parameter::Vector({NamedParameter(CTYPE_INT, "foo")}));
+  T f2("foo", VoidReturnValue(), Parameter::Vector({NamedParameter(CTYPE_DOUBLE, "foo")}));
 
   ASSERT_NE(f1, f2);
 }
 
-TEST(equality, FunctionWithSameParamsButWithDifferentName)
+TEST(equality, FunctionWithDifferentParams)
 {
-  Function f1("foo", VoidReturnValue(), Parameter::Vector({NamedParameter(CTYPE_INT, "foo")}));
-  Function f2("foo", VoidReturnValue(), Parameter::Vector({NamedParameter(CTYPE_INT, "bar")}));
+  functionWithDifferentParams<Function>();
+}
+
+TEST(equality, FunctionTypeWithDifferentParams)
+{
+  functionWithDifferentParams<FunctionType>();
+}
+
+TEST(equality, FunctionDeclarationWithDifferentParams)
+{
+  functionWithDifferentParams<FunctionDeclaration>();
+}
+
+template<typename T>
+void functionWithSameParamsButWithDifferentName()
+{
+  T f1("foo", VoidReturnValue(), Parameter::Vector({NamedParameter(CTYPE_INT, "foo")}));
+  T f2("foo", VoidReturnValue(), Parameter::Vector({NamedParameter(CTYPE_INT, "bar")}));
 
   ASSERT_EQ(f1, f2);
 }
 
+TEST(equality, FunctionWithSameParamsButWithDifferentName)
+{
+  functionWithSameParamsButWithDifferentName<Function>();
+}
+
+TEST(equality, FunctionTypeWithSameParamsButWithDifferentName)
+{
+  functionWithSameParamsButWithDifferentName<FunctionType>();
+}
+
+TEST(equality, FunctionDeclarationWithSameParamsButWithDifferentName)
+{
+  functionWithSameParamsButWithDifferentName<FunctionDeclaration>();
+}
+
+template<typename T>
+void functionWithSameParamsButReturnValueIsDifferent()
+{
+  T f1("foo", TypedReturnValue(CTYPE_INT), Parameter::Vector({NamedParameter(CTYPE_INT, "foo")}));
+  T f2("foo", TypedReturnValue(CTYPE_DOUBLE), Parameter::Vector({NamedParameter(CTYPE_INT, "bar")}));
+
+  ASSERT_NE(f1, f2);
+}
+
 TEST(equality, FunctionWithSameParamsButReturnValueIsDifferent)
 {
-  Function f1("foo", TypedReturnValue(CTYPE_INT), Parameter::Vector({NamedParameter(CTYPE_INT, "foo")}));
-  Function f2("foo", TypedReturnValue(CTYPE_DOUBLE), Parameter::Vector({NamedParameter(CTYPE_INT, "bar")}));
+  functionWithSameParamsButReturnValueIsDifferent<Function>();
+}
+
+TEST(equality, FunctionTypeWithSameParamsButReturnValueIsDifferent)
+{
+  functionWithSameParamsButReturnValueIsDifferent<FunctionType>();
+}
+
+TEST(equality, FunctionDeclarationWithSameParamsButReturnValueIsDifferent)
+{
+  functionWithSameParamsButReturnValueIsDifferent<FunctionDeclaration>();
+}
+
+template<typename T>
+void functionSameParamsSwaped()
+{
+  T f1("foo", VoidReturnValue(), Parameter::Vector({NamedParameter(CTYPE_INT, "aInt"), NamedParameter(CTYPE_DOUBLE, "aDouble")}));
+  T f2("foo", VoidReturnValue(), Parameter::Vector({NamedParameter(CTYPE_DOUBLE, "aDouble"), NamedParameter(CTYPE_INT, "aInt")}));
 
   ASSERT_NE(f1, f2);
 }
 
 TEST(equality, FunctionSameParamsSwaped)
 {
-  Function f1("foo", VoidReturnValue(), Parameter::Vector({NamedParameter(CTYPE_INT, "aInt"), NamedParameter(CTYPE_DOUBLE, "aDouble")}));
-  Function f2("foo", VoidReturnValue(), Parameter::Vector({NamedParameter(CTYPE_DOUBLE, "aDouble"), NamedParameter(CTYPE_INT, "aInt")}));
+  functionSameParamsSwaped<Function>();
+}
 
-  ASSERT_NE(f1, f2);
+TEST(equality, FunctionTypeSameParamsSwaped)
+{
+  functionSameParamsSwaped<FunctionType>();
+}
+
+TEST(equality, FunctionDeclarationSameParamsSwaped)
+{
+  functionSameParamsSwaped<FunctionDeclaration>();
 }
 
 TEST(equality, ParameterSameParam)

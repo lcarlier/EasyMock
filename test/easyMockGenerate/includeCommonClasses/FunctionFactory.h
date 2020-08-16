@@ -5,7 +5,7 @@
 #ifndef FUNCTIONFACTORY_H
 #define FUNCTIONFACTORY_H
 
-#include <Function.h>
+#include <FunctionDeclaration.h>
 #include <string>
 #include <cstdint>
 #include <deque>
@@ -109,7 +109,7 @@ std::tuple<Formats...> as_tuple(std::array<T, N> const& arr) {
 template<typename ...>
 class FunctionFactory;
 
-using ElementToMockList = std::vector<Function*>;
+using ElementToMockList = std::vector<FunctionDeclaration*>;
 
 // Specialisation of the template. Out of the n parameters, the first is RV, second is std::tuple<Params...>, and third is std::tuple<Compare ...>
 /*!
@@ -124,7 +124,7 @@ public:
   /*!
    * \brief Returns the function to be mocked.
    */
-  virtual Function functionFactory() {fprintf(stderr, "Function %s must be overriden\n\r", __FUNCTION__); assert(false);}
+  virtual FunctionDeclaration functionFactory() {fprintf(stderr, "Function %s must be overriden\n\r", __FUNCTION__); assert(false);}
   /*!
    * \brief Returns all the functions to be mocked within a header file.
    *
@@ -143,7 +143,7 @@ public:
    *
    * \heapPointer
    */
-  virtual Function* newFunctionFactory() { return functionFactory().clone(); }
+  virtual FunctionDeclaration* newFunctionFactory() { return functionFactory().clone(); }
   /*!
    * \brief Returns the name of the function to be tested.
    */

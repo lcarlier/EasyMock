@@ -1,12 +1,12 @@
 #include <CharFunCharFactory.h>
 
-Function CharFunCharFactory::functionFactory()
+FunctionDeclaration CharFunCharFactory::functionFactory()
 {
-  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_CHAR), Parameter::Vector({NamedParameter(CTYPE_CHAR, "c")}));
+  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_CHAR), Parameter::Vector({NamedParameter(CTYPE_CHAR, "c")}));
   return f;
 }
 
-Function* CharFunCharFactory::newFunctionFactory()
+FunctionDeclaration* CharFunCharFactory::newFunctionFactory()
 {
   return functionFactory().clone();
 }

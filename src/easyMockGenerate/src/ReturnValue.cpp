@@ -14,7 +14,8 @@ Declarator(other)
 {
 }
 
-ReturnValue::ReturnValue(ReturnValue&& other)
+ReturnValue::ReturnValue(ReturnValue&& other):
+Declarator(other)
 {
   swap(*this, other);
 }

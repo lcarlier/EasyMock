@@ -2,7 +2,7 @@
 
 #include <UnionType.h>
 
-Function VoidFunUnionWithEmbeddedUnionFactory::functionFactory()
+FunctionDeclaration VoidFunUnionWithEmbeddedUnionFactory::functionFactory()
 {
   bool isEmbeddedStruct = true;
   UnionType* top = new UnionType("topEmbeddedUnion", !isEmbeddedStruct); //NOT EMBEDDED
@@ -10,11 +10,11 @@ Function VoidFunUnionWithEmbeddedUnionFactory::functionFactory()
   beingDefined->addField(new ComposableField(CTYPE_INT, "a"));
   beingDefined->addField(new ComposableField(CTYPE_FLOAT, "b"));
   top->addField(new ComposableField(beingDefined, "eu"));
-  Function f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), Parameter::Vector({new Parameter(top, "u")}));
+  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), Parameter::Vector({new Parameter(top, "u")}));
   return f;
 }
 
-Function* VoidFunUnionWithEmbeddedUnionFactory::newFunctionFactory()
+FunctionDeclaration* VoidFunUnionWithEmbeddedUnionFactory::newFunctionFactory()
 {
   return functionFactory().clone();
 }

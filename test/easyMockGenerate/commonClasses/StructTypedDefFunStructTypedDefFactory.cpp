@@ -2,14 +2,14 @@
 
 #include <StructType.h>
 
-Function StructTypedDefFunStructTypedDefFactory::functionFactory()
+FunctionDeclaration StructTypedDefFunStructTypedDefFactory::functionFactory()
 {
   bool isEmbeddedInOtherType = false;
   StructType *st1 = new StructType("foo", "TypedDefStruct", isEmbeddedInOtherType);
   st1->addField(new ComposableField(CTYPE_INT, "a"));
   StructType *rv = st1->clone();
 
-  Function f(functionGetFunctionName(), ReturnValue(rv), Parameter::Vector({new Parameter(st1, "s2")}));
+  FunctionDeclaration f(functionGetFunctionName(), ReturnValue(rv), Parameter::Vector({new Parameter(st1, "s2")}));
   return f;
 }
 

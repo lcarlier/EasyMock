@@ -7,8 +7,8 @@
 class VoidFunStructRecusNonTypedefFactory : public FunctionFactory<int, std::tuple<t_s1>, std::tuple<EasyMock_Matcher>>
 {
 public:
-  Function functionFactory() override;
-  Function* newFunctionFactory() override;
+  FunctionDeclaration functionFactory() override;
+  FunctionDeclaration* newFunctionFactory() override;
   std::string functionGetFunctionName() override;
   std::string getFilename() override;
 

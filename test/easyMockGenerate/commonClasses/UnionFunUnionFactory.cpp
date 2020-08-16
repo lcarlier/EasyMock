@@ -2,7 +2,7 @@
 
 #include <UnionType.h>
 
-Function UnionFunUnionFactory::functionFactory()
+FunctionDeclaration UnionFunUnionFactory::functionFactory()
 {
   bool isEmbeddedInOtherType = false;
   UnionType *st1 = new UnionType("u1", "", isEmbeddedInOtherType);
@@ -10,7 +10,7 @@ Function UnionFunUnionFactory::functionFactory()
   UnionType *st2 = new UnionType("u2", "", isEmbeddedInOtherType);
   st2->addField(new ComposableField(CTYPE_INT, "b"));
 
-  Function f(functionGetFunctionName(), ReturnValue(st1), Parameter::Vector({new Parameter(st2, "u")}));
+  FunctionDeclaration f(functionGetFunctionName(), ReturnValue(st1), Parameter::Vector({new Parameter(st2, "u")}));
   return f;
 }
 

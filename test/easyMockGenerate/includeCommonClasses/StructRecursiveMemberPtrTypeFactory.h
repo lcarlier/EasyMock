@@ -8,7 +8,7 @@
 class StructRecursiveMemberPtrTypeFactory : public FunctionFactory<unsigned short, std::tuple<struct recurs>, std::tuple<EasyMock_Matcher>>
 {
 public:
-  Function functionFactory() override;
+  FunctionDeclaration functionFactory() override;
   std::string functionGetFunctionName() override;
   std::string getFilename() override;
 };
