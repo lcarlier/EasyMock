@@ -47,6 +47,7 @@ public:
    * \sa TypeItf
    */
   virtual TypeItf* getType();
+
   /*!
    * \copydoc getType()
    */
@@ -64,7 +65,7 @@ public:
    *
    * \sa setDeclareString
    */
-  const std::string& getDeclareString() const;
+  std::string getDeclareString() const;
 
   /*!
    * \brief Sets the string which is used to declare the Declarator

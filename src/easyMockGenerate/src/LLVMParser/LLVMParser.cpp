@@ -52,21 +52,10 @@ public:
 
   FunctionDeclaration* getFunctionDeclaration(const clang::FunctionDecl* func)
   {
-    const std::string funName = func->getNameInfo().getName().getAsString();
+    const std::string funName = getFunctionName(func);
     bool isInline = func->isInlined();
 
     ReturnValue rv = getFunctionReturnValue(func);
-    if(isInline)
-    {
-        std::string declString = rv.getDeclareString();
-        std::string toErase("inline ");
-        size_t pos = declString.find(toErase);
-        if(pos != std::string::npos)
-        {
-            declString.erase(pos, toErase.length());
-        }
-        rv.setDeclareString(declString);
-    }
     Parameter::Vector param = getFunctionParameters(func);
     FunctionDeclaration *f = new FunctionDeclaration(funName, rv, param);
     f->setVariadic(func->isVariadic());
@@ -95,12 +84,25 @@ private:
 
   ReturnValue getFunctionReturnValue(const clang::FunctionDecl* func)
   {
+    const std::string funName = getFunctionName(func);
     const clang::QualType &rvQualType = func->getReturnType();
     structKnownTypeMap structKnownType;
 
     TypeItf *type = getEasyMocktype(rvQualType, structKnownType);
-    //only to return the return type's string
     ReturnValue rv(type);
+    std::string declString = getDeclareString(func->getLocStart(), func->getLocEnd());
+    size_t funNamePos = declString.find(funName);
+    if(funNamePos != std::string::npos)
+    {
+      declString.erase(declString.begin() + funNamePos, declString.end());
+    }
+    while(declString.back() == ' ')
+    {
+      declString.pop_back();
+    }
+    eraseInString(declString, "inline ");
+    eraseInString(declString, "extern ");
+    setDeclaratorDeclareString(rvQualType, &rv, declString);
     type = nullptr; //We lost the ownership
 
     return rv;
@@ -123,10 +125,7 @@ private:
 
       Parameter *p = new Parameter(type, paramName);
       type = nullptr; //We lost the ownership
-      if(!isFunctiontType(paramQualType))
-      {
-        p->setDeclareString(getDeclareString(param->getLocStart(), param->getLocEnd()));
-      }
+      setDeclaratorDeclareString(paramQualType, p, getDeclareString(param->getLocStart(), param->getLocEnd()));
       vectParam.push_back(p);
       p = nullptr; //We lost the ownership
     }
@@ -395,10 +394,7 @@ private:
         };
       std::string fName = FD->getNameAsString();
       ComposableField *sf = new ComposableField(type, fName, attrib);
-      if(!isFunctiontType(qualType))
-      {
-        sf->setDeclareString(getDeclareString(FD->getLocStart(), FD->getLocEnd()));
-      }
+      setDeclaratorDeclareString(qualType, sf, getDeclareString(FD->getLocStart(), FD->getLocEnd()));
       sType->addField(sf);
     }
     if(!typedDefName.empty())
@@ -418,7 +414,16 @@ private:
     const clang::QualType &pointeeQualType = type.getPointeeType();
     TypeItf *rv = getEasyMocktype(pointeeQualType, structKnownType);
 
-    return new Pointer(rv);
+    const clang::TypedefType* TDT = type.getAs<clang::TypedefType>();
+    clang::TypedefNameDecl* TD_RD = nullptr;
+    std::string typedDefName("");
+    if(TDT != nullptr)
+    {
+      TD_RD = TDT->getDecl();
+      typedDefName = TD_RD->getNameAsString();
+    }
+
+    return new Pointer(rv, typedDefName, false);
   }
 
   TypeItf* getFromArrayType(const clang::Type &type, structKnownTypeMap &structKnownType)
@@ -491,13 +496,13 @@ private:
     return kind == clang::BuiltinType::LongDouble;
   }
 
-  bool isFunctiontType(const clang::QualType &clangQualType)
+  bool isFunctionType(const clang::QualType &clangQualType)
   {
     const clang::Type &type = *clangQualType.getTypePtr();
     if (type.isPointerType())
     {
       const clang::QualType &pointeeType = type.getPointeeType();
-      return isFunctiontType(pointeeType);
+      return isFunctionType(pointeeType);
     }
     return type.isFunctionProtoType();
   }
@@ -526,6 +531,29 @@ private:
       currentTypeName = p_type->getMostDefinedName();
     }
     return currentTypeName;
+  }
+
+  void setDeclaratorDeclareString(const clang::QualType &clangQualType, Declarator* decl, const std::string &newString)
+  {
+    bool isFuncType = isFunctionType(clangQualType);
+    if(!isFuncType || (isFuncType && decl->getType()->isTypedDef()))
+    {
+      decl->setDeclareString(newString);
+    }
+  }
+
+  std::string getFunctionName(const clang::FunctionDecl *func)
+  {
+    return func->getNameInfo().getName().getAsString();
+  }
+
+  void eraseInString(std::string &string,const std::string& toErase)
+  {
+    size_t pos = string.find(toErase);
+    if(pos != std::string::npos)
+    {
+        string.erase(pos, toErase.length());
+    }
   }
 };
 

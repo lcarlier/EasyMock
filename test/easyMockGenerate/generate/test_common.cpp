@@ -24,7 +24,6 @@ static void readStdoutStderrUntilEnd(int fdStdOut, int fdStdErr, std::string *st
 static void appendReadIntoString(int fd, std::string *str, const char *strName, bool *noMoreToRead);
 static void loadSo(const char *pathToSo, const char *functionToLoad, const char *comparatorToMatch, void **funcPtr, void **functExpectPtr, void **functMatcherPtr, void **functOutputPtr, void **handle);
 static void executeCmd(const char * const aArguments[], std::string *stdOut, std::string *stdErr, int *status);
-static void prepareTest(const ElementToMock::Vector &elem, const std::string &functionToMock, std::string &comparatorToMatch, const std::string &fullPathToFileToMock, const std::string &mockDir, void **funcPtr, void **functExpectPtr, void **functMatcherPtr, void **functOutputPtr, void **handle);
 static void cleanTest(void **handle, const std::string &mockDir, bool rmDirectory);
 
 easyMockGenerate_baseTestCase::easyMockGenerate_baseTestCase(const std::string functionToMock, const std::string pathToFileToMock, const std::string mockDir, bool rmDir) :
@@ -133,7 +132,7 @@ void rmDir(const std::string &dir)
   ASSERT_EQ(errCode.value(), 0) << "Error removing directory " << dir << " errCode: " << errCode.message();
 }
 
-static void prepareTest(const ElementToMock::Vector &elem, const std::string &functionToMock, std::string &comparatorToMatch, const std::string &fullPathToFileToMock, const std::string &mockDir, void **fptr, void **fptr_expect, void **fptr_matcher, void **fptr_output_ptr, void **handle)
+void easyMockGenerate_baseTestCase::prepareTest(const ElementToMock::Vector &elem, const std::string &functionToMock, std::string &comparatorToMatch, const std::string &fullPathToFileToMock, const std::string &mockDir, void **fptr, void **fptr_expect, void **fptr_matcher, void **fptr_output_ptr, void **handle)
 {
   char cwd[PATH_MAX];
   ASSERT_NE(getcwd(cwd, PATH_MAX), nullptr) << std::endl << "getcwd error. errno: " << errno << "(" << strerror(errno) << ")" << std::endl;
@@ -156,6 +155,13 @@ static void prepareTest(const ElementToMock::Vector &elem, const std::string &fu
   fileToCompile.append(".cpp");
   const char * const compileMockCmd[] = {"g++", "-Wall", "-Werror", "-g", "-fpic", "-I", mockDir.c_str(), "-I", PROJECT_ROOT_DIR"/src/easyMockFramework/include", "-I", PROJECT_ROOT_DIR"/test/easyMockGenerate/include", "-o", objFile.c_str(), "-c", fileToCompile.c_str(), NULL};
   executeCmd(compileMockCmd, &stdOut, &stdErr, &status);
+  if(status != 0)
+  {
+    /*
+     * When the UT fails, do not delete the folder of the generated code
+     */
+    m_rmDir = false;
+  }
   ASSERT_EQ(status, 0) << std::endl << "Compilation mock failed " << std::endl << "cwd: " << cwd << std::endl << "stdout: " << std::endl << stdOut << std::endl << "stderr:" << std::endl << stdErr << std::endl;
 
   std::string pathToLib(mockDir);
@@ -164,6 +170,13 @@ static void prepareTest(const ElementToMock::Vector &elem, const std::string &fu
   pathToLib.append(".so");
   const char * const compileLibCmd[] = {"g++", "-shared", "-o", pathToLib.c_str(), objFile.c_str(), NULL};
   executeCmd(compileLibCmd, &stdOut, &stdErr, &status);
+  if(status != 0)
+  {
+    /*
+     * When the UT fails, do not delete the folder of the generated code
+     */
+    m_rmDir = false;
+  }
   ASSERT_EQ(status, 0) << std::endl << "Compilation lib failed " << std::endl << "cwd: " << cwd << std::endl << "stdout: " << std::endl << stdOut << std::endl << "stderr:" << std::endl << stdErr << std::endl;
 
   loadSo(pathToLib.c_str(), functionToMock.c_str(), comparatorToMatch.c_str(), fptr, fptr_expect, fptr_matcher, fptr_output_ptr, handle);

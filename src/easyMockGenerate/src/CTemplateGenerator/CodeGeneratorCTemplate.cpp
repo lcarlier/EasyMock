@@ -665,7 +665,7 @@ void CodeGeneratorCTemplate::generateFunctionSection(ctemplate::TemplateDictiona
   functionSectionDict->SetValue(FUNCTION_NAME_UPPER, upperString);
 
   const ReturnValue *returnValue = p_elemToMock->getReturnType();
-  const std::string returnTypeStr = returnValue->getType()->getFullDeclarationName();
+  const std::string returnTypeStr = getDeclaratorString(returnValue);
   std::string nonQualRetTypeStr = getNonQualifiedDeclaratorString(returnValue);
   functionSectionDict->SetValue(FUNCTION_RETURN_VALUE, returnTypeStr);
   functionSectionDict->SetValue(FUNCTION_TO_RETURN_VALUE, returnTypeStr);
@@ -679,7 +679,7 @@ void CodeGeneratorCTemplate::generateFunctionSection(ctemplate::TemplateDictiona
     functionSectionDict->SetValue(FUNCTION_NON_QUALIFIED_RETURN_VALUE, returnTypeStr);
     const Pointer *returnValuePointer = dynamic_cast<const Pointer*>(rvType);
     const TypeItf *returnValuePointerPointedType = returnValuePointer->getPointedType();
-    if(returnValuePointerPointedType->isFunction())
+    if(returnValuePointerPointedType->isFunction() && !returnValuePointer->isTypedDef())
     {
       const FunctionType *functionType = dynamic_cast<const FunctionType*>(returnValuePointerPointedType);
       generateExtraDecl(p_rootDictionnary, functionSectionDict, EXTRA_TOP_LEVEL_DECL_SECTION, EXTRA_TOP_DECL_TEMPLATE_NAME, functionType);
@@ -698,7 +698,7 @@ void CodeGeneratorCTemplate::generateFunctionSection(ctemplate::TemplateDictiona
     {
       const Pointer *returnValuePointer = dynamic_cast<const Pointer*>(rvType);
       const TypeItf *returnValuePointerPointedType = returnValuePointer->getPointedType();
-      if(returnValuePointerPointedType->isFunction())
+      if(returnValuePointerPointedType->isFunction() && !returnValuePointer->isTypedDef())
       {
         const FunctionType *functionType = dynamic_cast<const FunctionType*>(returnValuePointerPointedType);
         generateExtraDecl(p_rootDictionnary, returnValParamDict, EXTRA_DECL_SECTION, EXTRA_DECL_TEMPLATE_NAME, functionType);
@@ -734,7 +734,7 @@ void CodeGeneratorCTemplate::generateExtraDecl(ctemplate::TemplateDictionary *p_
   {
     const Pointer *returnValueTypePointer = dynamic_cast<const Pointer*>(returnValueType);
     const TypeItf *returnValuePointedType = returnValueTypePointer->getPointedType();
-    if(returnValuePointedType->isFunction())
+    if(returnValuePointedType->isFunction() && !returnValueTypePointer->isTypedDef())
     {
       const FunctionType *recursiveFunctionType = dynamic_cast<const FunctionType*>(returnValuePointedType);
       ctemplate::TemplateDictionary *inInDict = extraDeclDict->AddSectionDictionary(std::string(sectionName) + "INSIDE");
@@ -779,7 +779,7 @@ void CodeGeneratorCTemplate::generateFunctionParamSection(ctemplate::TemplateDic
     {
       newTypedefParamSection->SetValue(FUNCTION_PARAM_NON_QUALIFIED_TYPE, argType);
       const TypeItf *paramPtrPointedType = paramPtrType->getPointedType();
-      if(paramPtrPointedType->isFunction())
+      if(paramPtrPointedType->isFunction() && !paramPtrType->isTypedDef())
       {
         const FunctionType *ft = dynamic_cast<const FunctionType*>(paramPtrPointedType);
         generateExtraDecl(p_rootDictionnary, newTypedefParamSection, EXTRA_DECL_SECTION, EXTRA_DECL_TEMPLATE_NAME, ft);
@@ -1076,7 +1076,7 @@ void CodeGeneratorCTemplate::generateDeclarationOfAnonymousType(ctemplate::Templ
     else
     {
       ctemplate::TemplateDictionary *curFieldValDict = curFieldDict->AddSectionDictionary(ANONYMOUS_TYPE_DECLARATION_FIELD_SECTION);
-      curFieldValDict->SetValue(ANONYMOUS_TYPE_DECLARATION_FIELD_TYPE_TEMPLATE_VAR, fieldType->getFullDeclarationName());
+      curFieldValDict->SetValue(ANONYMOUS_TYPE_DECLARATION_FIELD_TYPE_TEMPLATE_VAR, curField->getDeclareString());
       std::string fieldName = curField->getName();
       if(curField->isBoundSpecifiedArray())
       {
@@ -1086,7 +1086,7 @@ void CodeGeneratorCTemplate::generateDeclarationOfAnonymousType(ctemplate::Templ
       }
       curFieldValDict->SetValue(ANONYMOUS_TYPE_DECLARATION_FIELD_NAME_TEMPLATE_VAR, fieldName);
       const Pointer* fieldPtrType = dynamic_cast<const Pointer *>(fieldType);
-      if(fieldPtrType && fieldPtrType->getPointedType()->isFunction())
+      if(fieldPtrType && fieldPtrType->getPointedType()->isFunction()  && !fieldPtrType->isTypedDef())
       {
         const FunctionType *ft = dynamic_cast<const FunctionType*>(fieldPtrType->getPointedType());
         generateExtraDecl(p_rootDictionnary, curFieldDict, EXTRA_DECL_SECTION, EXTRA_DECL_TEMPLATE_NAME, ft);
@@ -1214,7 +1214,7 @@ std::string CodeGeneratorCTemplate::getNonQualifiedDeclaratorString(const Declar
   return p_decl->getType()->getFullNonQualifiedDeclarationName();
 }
 
-const std::string& CodeGeneratorCTemplate::getDeclaratorString(const Declarator* p_decl)
+std::string CodeGeneratorCTemplate::getDeclaratorString(const Declarator* p_decl)
 {
   return p_decl->getDeclareString();
 }

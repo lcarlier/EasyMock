@@ -60,6 +60,11 @@ public:
   const Parameter::Vector& getFunctionsParameters() const;
 
   /*!
+   * \copydoc getFunctionsParameters()
+   */
+  Parameter::Vector& getFunctionsParameters();
+
+  /*!
    * \brief Returns whether the function is variadic
    *
    * A variadic function takes a variable number of parameters.

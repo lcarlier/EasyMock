@@ -1,9 +1,14 @@
 #include "Pointer.h"
 
-Pointer::Pointer(TypeItf *type, bool isConst):
-m_pointedType(type), m_isRecursivePointer(false)
+Pointer::Pointer(TypeItf *p_type, bool p_isConst):
+Pointer(p_type, "", p_isConst)
 {
-  this->setConst(isConst);
+}
+
+Pointer::Pointer(TypeItf *p_type,  const std::string p_type_def_name, bool p_isConst):
+TypeItf("", p_type_def_name), m_pointedType(p_type), m_isRecursivePointer(false)
+{
+  this->setConst(p_isConst);
   this->setPointer(true);
 }
 

@@ -70,9 +70,17 @@ void Declarator::setDeclareString(const std::string& newString)
   }
 }
 
-const std::string& Declarator::getDeclareString() const
+std::string Declarator::getDeclareString() const
 {
-  return m_declaredString;
+  if (!m_declaredString.empty())
+  {
+    return m_declaredString;
+  }
+  if (m_type)
+  {
+    return m_type->getFullDeclarationName();
+  }
+  return "";
 }
 
 bool Declarator::operator==(const Declarator& other) const

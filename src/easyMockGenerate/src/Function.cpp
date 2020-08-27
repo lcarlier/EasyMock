@@ -19,6 +19,11 @@ const Parameter::Vector& Function::getFunctionsParameters() const
   return m_parameters;
 }
 
+Parameter::Vector& Function::getFunctionsParameters()
+{
+  return const_cast<Parameter::Vector&>(static_cast<const Function &>(*this).getFunctionsParameters());
+}
+
 const ReturnValue* Function::getReturnType() const
 {
   return &m_returnType;
@@ -46,11 +51,13 @@ void Function::setInlined(bool value)
 
 bool Function::operator==(const Function& other) const
 {
-  return this->m_name == other.m_name &&
-          this->m_parameters == other.m_parameters &&
-          this->m_isVariadic == other.m_isVariadic &&
-          this->m_isInlined == other.m_isInlined &&
-          this->m_returnType == other.m_returnType;
+  const bool nameEq = this->m_name == other.m_name;
+  const bool paramEq = this->m_parameters == other.m_parameters;
+  const bool isVariadicEq = this->m_isVariadic == other.m_isVariadic;
+  const bool isInlineEq = this->m_isInlined == other.m_isInlined;
+  const bool returnTypeEq = this->m_returnType == other.m_returnType;
+
+  return nameEq && paramEq && isVariadicEq && isInlineEq && returnTypeEq;
 }
 
 bool Function::operator!=(const Function& other) const
@@ -65,7 +72,7 @@ std::string Function::getFunctionPrototype() const
   {
       rv_funcProto.append("inline ");
   }
-  rv_funcProto.append(m_returnType.getType()->getFullDeclarationName());
+  rv_funcProto.append(m_returnType.getDeclareString());
   rv_funcProto.push_back(' ');
   rv_funcProto.append(m_name);
   rv_funcProto.push_back('(');
@@ -76,7 +83,7 @@ std::string Function::getFunctionPrototype() const
     {
       rv_funcProto.append(", ");
     }
-    rv_funcProto.append(fParam->getType()->getFullDeclarationName());
+    rv_funcProto.append(fParam->getDeclareString());
     rv_funcProto.push_back(' ');
     rv_funcProto.append(fParam->getName());
     firstElem = false;

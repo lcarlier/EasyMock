@@ -27,7 +27,7 @@ extern "C" {
       int (*funPtr)(int, float);
   };
 
-  int intFunStrutPtrFunField(struct ptrFunField ptrToFunField);
+  int intFunStructPtrFunField(struct ptrFunField ptrToFunField);
 
   struct topAnonymousStructPtrFunField
   {
@@ -38,7 +38,7 @@ extern "C" {
     };
   };
 
-  int intFunStrutPtrAnonFunField(struct topAnonymousStructPtrFunField ptrToStructAnonFunField);
+  int intFunStructPtrAnonFunField(struct topAnonymousStructPtrFunField ptrToStructAnonFunField);
 
   /*
    * TO BE ENABLED WHEN SUPPORT OF CONST POINTER IS ADDED

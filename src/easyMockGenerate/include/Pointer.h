@@ -20,10 +20,13 @@
 class Pointer : public TypeItf
 {
 public:
+  Pointer(TypeItf *p_type, bool p_isConst = false);
+
   /*!
    * \brief Creates a new Pointer
    *
    * \param p_type The TypeItf to which the pointer is pointing to.
+   * \param p_type_def_name The typedef alias associated with this pointer type
    * \param p_isConst Specifies whether the value of the pointer (i.e. the address
    * it stores) is constant or not.
    *
@@ -46,9 +49,14 @@ public:
    * I.E. the <tt>iscConst</tt> parameter must be given to the pointed
    * type and not to the pointer type itself.
    *
+   * A pointer can be typedef when having such c code
+   * \code{.c}
+   * typedef ptrInt int*;
+   * \endcode
+   *
    * \heapPointer
    */
-  Pointer(TypeItf *p_type, bool p_isConst = false);
+  Pointer(TypeItf *p_type, const std::string p_type_def_name, bool p_isConst = false);
   Pointer(const Pointer &other);
   Pointer& operator=(Pointer other);
 

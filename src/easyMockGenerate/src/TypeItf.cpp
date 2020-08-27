@@ -68,10 +68,13 @@ std::string TypeItf::s_getFullDeclarationName(const TypeItf* type, bool fullyQua
     {
       fullDeclarationName.append(s_getFullDeclarationName(pointedType, fullyQualified));
     }
-    fullDeclarationName.append("* ");
-    if(pointedFuncType)
+    if(ptrType->getTypedDefName().empty())
     {
-      fullDeclarationName.pop_back(); //Pop the trailing space
+      fullDeclarationName.append("* ");
+      if(pointedFuncType)
+      {
+        fullDeclarationName.pop_back(); //Pop the trailing space
+      }
     }
   }
   if(type->m_isConst && fullyQualified)
@@ -130,14 +133,6 @@ void TypeItf::setName(std::string p_name)
   //It doesn't make sense that subclasses wants to clear the name.
   assert(!p_name.empty());
   m_name = p_name;
-}
-
-//Protected
-void TypeItf::setTypedDefName(std::string p_typed_def_name)
-{
-  //It doesn't make sense that subclasses wants to clear the typedef name.
-  assert(!p_typed_def_name.empty());
-  m_typedDefName = p_typed_def_name;
 }
 
 bool TypeItf::isStruct() const

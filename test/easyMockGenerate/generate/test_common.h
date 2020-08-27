@@ -60,6 +60,7 @@ protected:
   void getFunPtr(void **fPtr, void **fExpectPtr, void **fMatcherPtr);
   void getFunPtr(void **fPtr, void **fExpectPtr, void **fMatcherPtr, void **fOutputPtr);
 private:
+  void prepareTest(const ElementToMock::Vector &elem, const std::string &functionToMock, std::string &comparatorToMatch, const std::string &fullPathToFileToMock, const std::string &mockDir, void **funcPtr, void **functExpectPtr, void **functMatcherPtr, void **functOutputPtr, void **handle);
   void *handle;
   void *m_fptr;
   void *m_fptr_expect;

@@ -59,7 +59,7 @@ private:
   void generateComposedTypedCompareSection(ctemplate::TemplateDictionary *p_rootDictionnary, const ComposableType *p_composedType, std::string p_uniquePrepend, std::string p_declPrepend);
   void generateDeclarationOfAnonymousType(ctemplate::TemplateDictionary *p_rootDictionnary, ctemplate::TemplateDictionary *compareDir, const ComposableType *p_composedType);
   bool generateCodeToFile(const std::string &outDir, const std::string &filename, const std::string &extension, const std::string &generatedCode);
-  const std::string& getDeclaratorString(const Declarator* p_decl);
+  std::string getDeclaratorString(const Declarator* p_decl);
   std::string getNonQualifiedDeclaratorString(const Declarator* p_decl);
   void generateBasicTypeField(const ComposableField *curField, ctemplate::TemplateDictionary *paramSectDict, const ComposableType *p_composedType, std::string p_declPrepend);
   void generateExtraDecl(ctemplate::TemplateDictionary *p_rootDictionnary, ctemplate::TemplateDictionary *dict, const char *sectionName, const char *templateFileName, const FunctionType *ft);

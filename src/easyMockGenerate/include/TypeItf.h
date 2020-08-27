@@ -29,7 +29,7 @@ public:
 
   /*!
    * \return The typedef string
-   * If there is not typedef aliasing this type, this string is empty
+   * If there is no typedef aliasing this type, this string is empty
    */
   const std::string &getTypedDefName() const;
 
@@ -415,11 +415,6 @@ protected:
    * \return False if the objects are not equal
    */
   virtual bool isEqual(const TypeItf &p_other) const;
-
-  /*!
-   * \brief Set the typedef alias
-   */
-  void setTypedDefName(std::string p_typed_def_name);
 
 private:
   static std::string s_getFullDeclarationName(const TypeItf* type, bool fullyQualified);
