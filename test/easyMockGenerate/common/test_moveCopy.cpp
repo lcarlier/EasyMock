@@ -9,6 +9,7 @@
 #include <Pointer.h>
 #include <FunctionDeclaration.h>
 #include <FunctionType.h>
+#include <Enum.h>
 
 #include <gtestPrintClasses.h>
 
@@ -635,4 +636,24 @@ TEST(moveCopy, FunctionDeclaration)
 TEST(moveCopy, FunctionType)
 {
     testFunction<FunctionType>();
+}
+
+TEST(moveCopy, Enum)
+{
+  Enum etype1("e1", "");
+  Enum etype2(etype1);
+  ASSERT_EQ(etype1, etype2);
+
+  Enum etype3("e2", "");
+  ASSERT_NE(etype3,etype1);
+  etype3 = etype1;
+  ASSERT_EQ(etype3,etype1);
+
+  Enum etype4 = std::move(etype3);
+  ASSERT_EQ(etype4, etype1);
+
+  Enum etype6("e3", "");
+  ASSERT_NE(etype6, etype2);
+  etype6 = std::move(etype2);
+  ASSERT_EQ(etype6, etype1);
 }

@@ -6,6 +6,7 @@
 #include <TypeItf.h>
 #include <CType.h>
 #include <Pointer.h>
+#include <Enum.h>
 
 #include <clang/AST/RecursiveASTVisitor.h>
 #include <clang/Frontend/CompilerInstance.h>
@@ -197,6 +198,10 @@ private:
     {
       type = getFromFunctionPrototype(clangType, structKnownType);
     }
+    else if (clangType.isEnumeralType())
+    {
+      type = getFromEnumType(clangType, structKnownType);
+    }
     else
     {
       std::fprintf(stderr, "Clang type unexpected here. Contact the owner for bug fixing\n\r");
@@ -313,6 +318,17 @@ private:
     return f;
   }
 
+  TypeItf* getFromEnumType(const clang::Type &type, structKnownTypeMap &structKnownType)
+  {
+    const clang::EnumType *ET = type.getAs<clang::EnumType>();
+    const clang::EnumDecl *ED = ET->getDecl();
+
+    const std::string name = ED->getNameAsString();
+    const std::string typedefName= getTypedefName(type);
+
+    return new Enum(name, typedefName);
+  }
+
   TypeItf* getFromContainerType(const clang::Type &type, ContainerType contType, structKnownTypeMap &structKnownType)
   {
     const clang::RecordType *RT = nullptr;
@@ -328,15 +344,7 @@ private:
 
     clang::RecordDecl* RD = RT->getDecl();
     std::string typeName = RD->getNameAsString();
-
-    const clang::TypedefType* TDT = type.getAs<clang::TypedefType>();
-    clang::TypedefNameDecl* TD_RD = nullptr;
-    std::string typedDefName("");
-    if(TDT != nullptr)
-    {
-      TD_RD = TDT->getDecl();
-      typedDefName = TD_RD->getNameAsString();
-    }
+    std::string typedDefName = getTypedefName(type);
 
     if(structKnownType.find(typedDefName) != structKnownType.end())
     {
@@ -348,6 +356,12 @@ private:
     }
 
     bool isEmbeddedInOtherType = false;
+    const clang::TypedefType* TDT = type.getAs<clang::TypedefType>();
+    clang::TypedefNameDecl* TD_RD = nullptr;
+    if(TDT != nullptr)
+    {
+      TD_RD = TDT->getDecl();
+    }
     if(TD_RD != nullptr)
     {
       //isTopLevelDeclInObjCContainer seems to be equivalent to isEmbeddedInDeclarator for typedef
@@ -414,14 +428,7 @@ private:
     const clang::QualType &pointeeQualType = type.getPointeeType();
     TypeItf *rv = getEasyMocktype(pointeeQualType, structKnownType);
 
-    const clang::TypedefType* TDT = type.getAs<clang::TypedefType>();
-    clang::TypedefNameDecl* TD_RD = nullptr;
-    std::string typedDefName("");
-    if(TDT != nullptr)
-    {
-      TD_RD = TDT->getDecl();
-      typedDefName = TD_RD->getNameAsString();
-    }
+    std::string typedDefName = getTypedefName(type);
 
     return new Pointer(rv, typedDefName, false);
   }
@@ -554,6 +561,19 @@ private:
     {
         string.erase(pos, toErase.length());
     }
+  }
+
+  std::string getTypedefName(const clang::Type &type)
+  {
+    const clang::TypedefType* TDT = type.getAs<clang::TypedefType>();
+    clang::TypedefNameDecl* TD_RD = nullptr;
+    std::string typedDefName("");
+    if(TDT != nullptr)
+    {
+      TD_RD = TDT->getDecl();
+      typedDefName = TD_RD->getNameAsString();
+    }
+    return typedDefName;
   }
 };
 

@@ -13,6 +13,7 @@ class UnionType;
 class Pointer;
 class FunctionType;
 class FunctionDeclaration;
+class Enum;
 
 std::ostream& operator<<(std::ostream& os, const Function& fun);
 std::ostream& operator<<(std::ostream& os, const ReturnValue& rv);
@@ -25,6 +26,7 @@ std::ostream& operator<<(std::ostream& os, const UnionType& unionType);
 std::ostream& operator<<(std::ostream& os, const Pointer& pointer);
 std::ostream& operator<<(std::ostream& os, const FunctionType& pointer);
 std::ostream& operator<<(std::ostream& os, const FunctionDeclaration& pointer);
+std::ostream& operator<<(std::ostream& os, const Enum& e);
 
 #endif /* GTESTPRINTCLASSES_H */
 

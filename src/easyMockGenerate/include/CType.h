@@ -9,7 +9,7 @@
 #include <string>
 
 /*!
- * This class represents any of the C basic types
+ * \brief This class represents any of the C basic types
  */
 class CType : public TypeItf
 {

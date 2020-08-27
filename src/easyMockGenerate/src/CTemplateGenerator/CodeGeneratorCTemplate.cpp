@@ -983,9 +983,14 @@ void CodeGeneratorCTemplate::generateBodyStructCompare(ctemplate::TemplateDictio
     //Function types are pointers, so a simple field generation will do
     generateBasicTypeField(p_curField, p_paramSectDict, p_composedType, p_declPrepend);
   }
+  else if (curType->isEnum())
+  {
+    //Enum types are like CType, so a simple field generation will do
+    generateBasicTypeField(p_curField, p_paramSectDict, p_composedType, p_declPrepend);
+  }
   else
   {
-    std::fprintf(stderr, "Type '%s' unexpected here. Contact owner for bug fixing\n\r", curType->getFullDeclarationName().c_str());
+    std::fprintf(stderr, "%s: Type '%s' unexpected here. Contact owner for bug fixing\n\r", __FUNCTION__, curType->getFullDeclarationName().c_str());
     assert(false);
   }
 }
@@ -1032,9 +1037,18 @@ void CodeGeneratorCTemplate::generateBasicTypeField(const ComposableField *p_cur
   {
     errorDict->SetValue(STRUCT_COMPARE_PRINTF_FORMAT, "p");
   }
-  else
+  else if(curFieldType->isEnum())
+  {
+    errorDict->SetValue(STRUCT_COMPARE_PRINTF_FORMAT, "d");
+  }
+  else if(curFieldType->isCType())
   {
     errorDict->SetValue(STRUCT_COMPARE_PRINTF_FORMAT, easyMock_printfFormat[curFieldType->getCType()]);
+  }
+  else
+  {
+    std::fprintf(stderr, "%s: Type '%s' unexpected here. Contact owner for bug fixing\n\r", __FUNCTION__, curFieldType->getFullDeclarationName().c_str());
+    assert(false);
   }
   p_paramSectDict->SetValue(COMPARE_CONDITION, condition);
 }

@@ -25,6 +25,7 @@ TypeItf({.name = p_name, .typedDefName = p_typed_def_name,
         .isUnion = false,
         .isPointer = false,
         .isFunction = false,
+        .isEnum = false,
         .isConst = false,
         .isImplicit = false
         })
@@ -40,6 +41,7 @@ TypeItf::TypeItf(TypeItf::attributes attrib)
   this->m_isUnion = attrib.isUnion;
   this->m_isPointer = attrib.isPointer;
   this->m_isFunction = attrib.isFunction;
+  this->m_isEnum = attrib.isEnum;
   this->m_isConst = attrib.isConst;
   this->m_isImplicit = attrib.isImplicit;
 }
@@ -93,6 +95,10 @@ std::string TypeItf::s_getFullDeclarationName(const TypeItf* type, bool fullyQua
   if(type->m_isUnion)
   {
     fullDeclarationName.append("union ");
+  }
+  if(type->m_isEnum)
+  {
+    fullDeclarationName.append("enum ");
   }
   fullDeclarationName.append(type->m_name);
   boost::trim_right(fullDeclarationName);
@@ -214,6 +220,11 @@ void TypeItf::setFunction(bool value)
   m_isFunction = value;
 }
 
+void TypeItf::setEnum(bool value)
+{
+  m_isEnum = value;
+}
+
 bool TypeItf::isTypedDef() const
 {
   return m_typedDefName.size() != 0;
@@ -240,6 +251,11 @@ bool TypeItf::isFunction() const
   return m_isFunction;
 }
 
+bool TypeItf::isEnum() const
+{
+  return m_isEnum;
+}
+
 easyMock_cTypes_t TypeItf::getCType() const
 {
   return CTYPE_INVALID;
@@ -259,6 +275,7 @@ bool TypeItf::isEqual(const TypeItf& other) const
           this->m_isUnion == other.m_isUnion &&
           this->m_isPointer == other.m_isPointer &&
           this->m_isFunction == other.m_isFunction &&
+          this->m_isEnum == other.m_isEnum &&
           this->m_isConst == other.m_isConst &&
           this->m_isImplicit == other.m_isImplicit;
 }

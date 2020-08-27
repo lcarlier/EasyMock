@@ -10,6 +10,7 @@
 #include <Pointer.h>
 #include <FunctionType.h>
 #include <FunctionDeclaration.h>
+#include <Enum.h>
 
 template<class T>
 static void printComposableTypeToOstream(std::ostream& os, const T& composableType, std::string classname);
@@ -76,6 +77,7 @@ std::ostream& operator<<(std::ostream& os, const TypeItf& typeItf)
   os << "isStruct:" << (typeItf.isStruct() ? "yes" : "no") << ", ";
   os << "isUnion:" << (typeItf.isUnion() ? "yes" : "no") << ", ";
   os << "isImplicit:" << (typeItf.isImplicit() ? "yes" : "no") << ", ";
+  os << "isEnum:" << (typeItf.isEnum() ? "yes" : "no") << ", ";
   os << std::endl << gs_indentation;
 
   if(typeItf.isCType())
@@ -93,6 +95,10 @@ std::ostream& operator<<(std::ostream& os, const TypeItf& typeItf)
   else if(typeItf.isPointer())
   {
     os << dynamic_cast<const Pointer &>(typeItf);
+  }
+  else if(typeItf.isEnum())
+  {
+    os << dynamic_cast<const Enum &>(typeItf);
   }
   return os;
 }
@@ -180,4 +186,9 @@ static void printComposableTypeToOstream(std::ostream& os, const T& composableTy
     os << gs_indentation << "Field: " << fieldIdx << ": " << curField << std::endl;
     gs_indentation.pop_back();
   }
+}
+
+std::ostream& operator<<(std::ostream& os, const Enum& etype)
+{
+  return os << "Enum: name:'" << etype.getName() << "' typedef:'" << etype.getTypedDefName() << "'" << std::endl;
 }

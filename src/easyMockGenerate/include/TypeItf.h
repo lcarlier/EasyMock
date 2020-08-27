@@ -242,6 +242,17 @@ public:
   bool isFunction() const;
 
   /*!
+   * \brief Returns if the type is an enum.
+   *
+   * When this function returns true, a pointer or reference holding this
+   * type can safely downcasted to an Enum instance.
+   *
+   * \return True if the type is an enum.
+   * \return False instead.
+   */
+  bool isEnum() const;
+
+  /*!
    * \brief Returns if the type was declare using the \c const keyword.
    *
    * An example of const variable is
@@ -322,6 +333,7 @@ public:
   bool prefix ## isUnion; \
   bool prefix ## isPointer; \
   bool prefix ## isFunction; \
+  bool prefix ## isEnum; \
   bool prefix ## isConst; \
   bool prefix ## isImplicit;
 
@@ -364,6 +376,13 @@ protected:
    * It is called by FunctionType objects
    */
   void setFunction(bool value);
+
+  /*!
+   * \brief Specify that the type is an enum.
+   *
+   * It is called by Enum objects
+   */
+  void setEnum(bool value);
 
   /*!
    * \brief Function called by the subclasses to set the type name.

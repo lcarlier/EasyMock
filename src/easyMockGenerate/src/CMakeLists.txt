@@ -21,6 +21,7 @@ add_library(${EASYMOCK_COMMON_OBJ}
   ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/CodeGeneratorItf.cpp
   ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/FunctionDeclaration.cpp
   ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/FunctionType.cpp
+  ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/Enum.cpp
 )
 
 set(EASYMOCK_GEN_SOURCE_FILE

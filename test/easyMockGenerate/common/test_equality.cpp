@@ -10,6 +10,7 @@
 #include <Pointer.h>
 #include <FunctionType.h>
 #include <FunctionDeclaration.h>
+#include <Enum.h>
 
 TEST(equality, CType)
 {
@@ -579,4 +580,22 @@ TEST(equality, AutoCleanVectorDifferent)
   AutoCleanVectorPtr<int> v2({new int(2), new int(1)});
 
   ASSERT_NE(v1, v2);
+}
+
+TEST(equality, Enum)
+{
+  Enum e1("e1", "");
+  Enum e2("e1", "");
+  Enum e3("e2", "");
+
+  ASSERT_EQ(e1,e2);
+  ASSERT_NE(e1,e3);
+  ASSERT_NE(e2,e3);
+
+  TypeItf &tiC1 = e1;
+  TypeItf &tiC2 = e2;
+  TypeItf &tiC3 = e3;
+  ASSERT_EQ(tiC1,tiC2);
+  ASSERT_NE(tiC1,tiC3);
+  ASSERT_NE(tiC2,tiC3);
 }

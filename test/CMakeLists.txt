@@ -101,6 +101,7 @@ add_library(${TEST_FACTORIES_COMMON_OBJ}
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/VoidFunFunPtrFactory.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/VoidFunTypedefFunPtrFactory.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/FunPtrCommonHelper.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/VoidFunEnumFactory.cpp
 )
 
 set(EASYMOCK_TEST_LIBRARY easyMockTestLibrary)
