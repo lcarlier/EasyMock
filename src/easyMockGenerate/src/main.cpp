@@ -8,6 +8,9 @@
 #include <fstream>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <unistd.h>
+#include <errno.h>
+#include <string.h>
 
 static bool fileExists(const std::string& path);
 static bool isDirectory(const std::string& path);
@@ -33,6 +36,14 @@ int main(int argc, char *argv[])
     return 1;
   }
 
+  if(!opt.m_changeWorkingDir.empty())
+  {
+    if(chdir(opt.m_changeWorkingDir.c_str()) == -1)
+    {
+      std::fprintf(stderr, "Couldn't change to directory %s: %s\n\r", opt.m_changeWorkingDir.c_str(), strerror(errno));
+      return 1;
+    }
+  }
   LLVMParser of;
   of.setFlags(opt.m_extraArgs);
 

@@ -6,19 +6,6 @@ EasyMockOptions CmdLineParser::getParsedArguments(int argc,const char* argv[]) c
 {
   EasyMockOptions opt;
 
-  const char helpMessage[] =
-  "Generate mocks to be used into a unit test inside a specific directory\n\r"
-  "Parameters not recognised by EasyMock (e.g. -I, -D) are given to the parser\n\r"
-  "responsible for parsing the header file.\n\r"
-  "Usage:\n\r"
-  "./EasyMockGenerate [OPTION...]\n\r"
-  "\n\r"
-  "-i, arg              Input header file\n\r"
-  "-o, arg              Output directory\n\r"
-  "--mock-only arg      Mock only the function specified in this parameter.\n\r"
-  "                     Can be used several times\n\r"
-  "-h, --help           Print usage\n\r";
-
   int argIdx;
   for(argIdx = 1; argv[argIdx] != nullptr && argIdx < argc; argIdx++)
   {
@@ -67,8 +54,32 @@ EasyMockOptions CmdLineParser::getParsedArguments(int argc,const char* argv[]) c
     }
     else if(currentParam == g_helpParamLong || currentParam == g_helpParamShort)
     {
-      opt.m_helpMessage = std::string(helpMessage);
+      opt.m_helpMessage = g_helpMessage;
       return opt;
+    }
+    else if(currentParam == g_changeWorkingDir)
+    {
+      if(!opt.m_changeWorkingDir.empty())
+      {
+        opt.m_changeWorkingDir.clear();
+        opt.m_errorMessage = g_errorCwdMoreThanOnce;
+        return opt;
+      }
+      if(argIdx+1 < argc)
+      {
+        if(argv[argIdx+1][0] == '-')
+        {
+          opt.m_errorMessage = g_errorCwdMissing;
+          return opt;
+        }
+        opt.m_changeWorkingDir = std::string(argv[argIdx+1]);
+        argIdx++;
+      }
+      else
+      {
+        opt.m_errorMessage = g_errorCwdMissing;
+        return opt;
+      }
     }
     else
     {

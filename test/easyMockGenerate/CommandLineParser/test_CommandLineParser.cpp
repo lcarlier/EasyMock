@@ -134,6 +134,7 @@ TYPED_TEST(CommandLineParser_testCase, ParamHelpShort)
 
   ASSERT_TRUE(opt.m_errorMessage.empty()) << opt.m_errorMessage;
   ASSERT_FALSE(opt.m_helpMessage.empty()) << opt.m_helpMessage;
+  ASSERT_STREQ(opt.m_helpMessage.c_str(), g_helpMessage.c_str());
 }
 
 TYPED_TEST(CommandLineParser_testCase, ParamHelpLong)
@@ -145,6 +146,7 @@ TYPED_TEST(CommandLineParser_testCase, ParamHelpLong)
 
   ASSERT_TRUE(opt.m_errorMessage.empty()) << opt.m_errorMessage;
   ASSERT_FALSE(opt.m_helpMessage.empty()) << opt.m_helpMessage;
+  ASSERT_STREQ(opt.m_helpMessage.c_str(), g_helpMessage.c_str());
 }
 
 TYPED_TEST(CommandLineParser_testCase, MockOnly)
@@ -171,7 +173,7 @@ TYPED_TEST(CommandLineParser_testCase, MockOnlyMissingArgBegin)
   EasyMockOptions opt = parserItf.getParsedArguments(ARRAY_SIZE(parsedArgs) - 1, parsedArgs);
 
   ASSERT_FALSE(opt.m_errorMessage.empty());
-  ASSERT_STREQ(opt.m_errorMessage.c_str(), "Error: Argument to --mock-only is missing");
+  ASSERT_STREQ(opt.m_errorMessage.c_str(), g_errorMockOnlyParamMissing.c_str());
 }
 
 TYPED_TEST(CommandLineParser_testCase, MockOnlyMissingArgEnd)
@@ -182,5 +184,53 @@ TYPED_TEST(CommandLineParser_testCase, MockOnlyMissingArgEnd)
   EasyMockOptions opt = parserItf.getParsedArguments(ARRAY_SIZE(parsedArgs) - 1, parsedArgs);
 
   ASSERT_FALSE(opt.m_errorMessage.empty());
-  ASSERT_STREQ(opt.m_errorMessage.c_str(), "Error: Argument to --mock-only is missing");
+  ASSERT_STREQ(opt.m_errorMessage.c_str(), g_errorMockOnlyParamMissing.c_str());
+}
+
+TYPED_TEST(CommandLineParser_testCase, CwdOk)
+{
+  TypeParam parser;
+  CommandLineParserItf& parserItf = parser;
+  const char * parsedArgs[] = {"./test", "-i", "foo", "-o", "bar", "--cwd", "directory", NULL};
+  EasyMockOptions opt = parserItf.getParsedArguments(ARRAY_SIZE(parsedArgs) - 1, parsedArgs);
+
+  ASSERT_TRUE(opt.m_errorMessage.empty()) << opt.m_errorMessage;
+  ASSERT_TRUE(opt.m_helpMessage.empty()) << opt.m_helpMessage;
+  ASSERT_EQ(opt.m_inputHeaderFile, "foo");
+  ASSERT_EQ(opt.m_outputDir, "bar");
+  ASSERT_EQ(opt.m_changeWorkingDir, "directory");
+}
+
+TYPED_TEST(CommandLineParser_testCase, CwdMissing)
+{
+  TypeParam parser;
+  CommandLineParserItf& parserItf = parser;
+  const char * parsedArgs[] = {"./test", "-i", "foo", "-o", "bar", "--cwd", "-notValid", NULL};
+  EasyMockOptions opt = parserItf.getParsedArguments(ARRAY_SIZE(parsedArgs) - 1, parsedArgs);
+
+  ASSERT_FALSE(opt.m_errorMessage.empty());
+  ASSERT_STREQ(opt.m_errorMessage.c_str(), g_errorCwdMissing.c_str());
+}
+
+TYPED_TEST(CommandLineParser_testCase, CwdNotGiven)
+{
+  TypeParam parser;
+  CommandLineParserItf& parserItf = parser;
+  const char * parsedArgs[] = {"./test", "-i", "foo", "-o", "bar", "--cwd", NULL};
+  EasyMockOptions opt = parserItf.getParsedArguments(ARRAY_SIZE(parsedArgs) - 1, parsedArgs);
+
+  ASSERT_FALSE(opt.m_errorMessage.empty());
+  ASSERT_STREQ(opt.m_errorMessage.c_str(), g_errorCwdMissing.c_str());
+}
+
+TYPED_TEST(CommandLineParser_testCase, CwdMoreThanOnce)
+{
+  TypeParam parser;
+  CommandLineParserItf& parserItf = parser;
+  const char * parsedArgs[] = {"./test", "-i", "foo", "-o", "bar", "--cwd", "directory", "--cwd", NULL};
+  EasyMockOptions opt = parserItf.getParsedArguments(ARRAY_SIZE(parsedArgs) - 1, parsedArgs);
+
+  ASSERT_FALSE(opt.m_errorMessage.empty());
+  ASSERT_TRUE(opt.m_changeWorkingDir.empty());
+  ASSERT_STREQ(opt.m_errorMessage.c_str(), g_errorCwdMoreThanOnce.c_str());
 }

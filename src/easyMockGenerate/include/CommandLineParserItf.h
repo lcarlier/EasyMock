@@ -14,10 +14,28 @@ const std::string g_outputDirParam("-o");
 const std::string g_helpParamShort("-h");
 const std::string g_helpParamLong("--help");
 const std::string g_mockOnlyParam("--mock-only");
+const std::string g_changeWorkingDir("--cwd");
 
 const std::string g_errorInputMissing("Error: The input header file is not provided");
 const std::string g_errorOutputMissing("Error: The output directory is not provided");
 const std::string g_errorMockOnlyParamMissing("Error: Argument to --mock-only is missing");
+const std::string g_errorCwdMissing("Error: Argument to --cwd is missing");
+const std::string g_errorCwdMoreThanOnce("Error: Argument to --cwd is given more than once");
+
+const std::string g_helpMessage =
+  "Generate mocks to be used into a unit test inside a specific directory\n\r"
+  "Parameters not recognised by EasyMock (e.g. -I, -D) are given to the parser\n\r"
+  "responsible for parsing the header file.\n\r"
+  "Usage:\n\r"
+  "./EasyMockGenerate [OPTIONS...]\n\r"
+  "\n\r"
+  "OPTIONS are:\n\r"
+  "-i <header>            Input header file\n\r"
+  "-o <directory>         Output directory\n\r"
+  "--cwd <directory>      Change to the directory passed on this parameter before running the parser.\n\r"
+  "--mock-only <function> Mock only the function specified in this parameter.\n\r"
+  "                       Can be used several times\n\r"
+  "-h, --help             Print usage\n\r";
 
 using ExtraArgsList = std::vector<std::string>;
 using MockOnlyList = std::unordered_set<std::string>;
@@ -49,6 +67,10 @@ struct EasyMockOptions
    */
   std::string m_outputDir;
   /*!
+   * \brief The value given to the `--cwd` parameter.
+   */
+  std::string m_changeWorkingDir;
+  /*!
    * \brief The values given to the `--mock-only` parameter.
    */
   MockOnlyList m_mockOnlyList;
@@ -63,8 +85,9 @@ struct EasyMockOptions
  * parser.
  *
  * The current sent of parameters to be supported is:
- * * `-i`: the input header to  be mocked
+ * * `-i`: the input header to be mocked
  * * `-o`: the directory where to create the mocks
+ * * `--cwd`: change to the directory passed on this parameter before running the parser
  * * `-h`: prints the help string
  * * `--help`: prints the help
  * * `--mock-only`: Can be used several time. Select which function must be mocked.
