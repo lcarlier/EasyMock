@@ -109,7 +109,7 @@ std::tuple<Formats...> as_tuple(std::array<T, N> const& arr) {
 template<typename ...>
 class FunctionFactory;
 
-using ElementToMockList = std::vector<FunctionDeclaration*>;
+using ElementToMockList = AutoCleanVectorPtr<FunctionDeclaration>;
 
 // Specialisation of the template. Out of the n parameters, the first is RV, second is std::tuple<Params...>, and third is std::tuple<Compare ...>
 /*!

@@ -6,6 +6,23 @@
 
 #include <cassert>
 
+namespace
+{
+  Pointer* recurClonePointer(Pointer* p)
+  {
+    p->setRecursivePointer(true);
+    TypeItf *pointedType = p->getPointedType();
+    p->setPointedType(pointedType->clone());
+    if(pointedType->isPointer())
+    {
+      Pointer *ptrToPtr = dynamic_cast<Pointer *>(pointedType);
+      recurClonePointer(ptrToPtr);
+      delete(ptrToPtr);
+    }
+    return p;
+  }
+}
+
 ComposableField::ComposableField(const easyMock_cTypes_t p_ctype, std::string p_name) :
 ComposableField(new CType(p_ctype), p_name, ComposableField::attributes(
 {
@@ -43,9 +60,7 @@ m_arraySize(p_attrib.arraySize)
      */
     Pointer *p = dynamic_cast<Pointer*>(p_type);
     TypeItf *pointedType = p->getPointedType();
-    m_recursiveType = p;
-    m_recursiveType->setRecursivePointer(true);
-    m_recursiveType->setPointedType(pointedType->clone());
+    m_recursiveType = recurClonePointer(p);
     Declarator::setDeclareString(m_recursiveType->getFullDeclarationName());
   }
   else

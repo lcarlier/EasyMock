@@ -872,7 +872,7 @@ extern "C" int cmp_struct_{{STRUCT_NAME}} ( void *currentCall_ptr, void *expecte
 {{END_STRUCT_COMPARE_SECTION}}
  */
 
-void CodeGeneratorCTemplate::generateFieldCmp(std::string& p_condition, const ComposableType *p_composedType, const ComposableField *p_curField, const ComposableField *p_previousField, std::string p_varName)
+void CodeGeneratorCTemplate::generateFieldCmp(std::string& p_condition, const ComposableType *p_parentComposedType, const ComposableField *p_curField, const ComposableField *p_previousField, std::string p_varName)
 {
   if(p_curField->isAnonymous())
   {
@@ -886,7 +886,7 @@ void CodeGeneratorCTemplate::generateFieldCmp(std::string& p_condition, const Co
        * If the parent composable type is an union, we do not need to add sizeof
        * because all of the elements of the union have the same base address
        */
-      if(!p_composedType->isUnion())
+      if(!p_parentComposedType->isUnion())
       {
         p_condition.append(" + sizeof(");
         p_condition.append(p_varName);
@@ -917,27 +917,27 @@ void CodeGeneratorCTemplate::generateFieldCmp(std::string& p_condition, const Co
   }
 }
 
-void CodeGeneratorCTemplate::generateBodyStructCompare(ctemplate::TemplateDictionary *p_rootDictionnary, ctemplate::TemplateDictionary *p_paramSectDict, const ComposableType *p_composedType, const ComposableField *p_curField, const ComposableField *p_previousField, std::string p_uniquePrepend, std::string p_declPrepend)
+void CodeGeneratorCTemplate::generateBodyStructCompare(ctemplate::TemplateDictionary *p_rootDictionnary, ctemplate::TemplateDictionary *p_paramSectDict, const ComposableType *p_parentComposedType, const ComposableField *p_curField, const ComposableField *p_previousField, std::string p_uniquePrepend, std::string p_declPrepend)
 {
   static unsigned int s_nbAnonymousField = 0;
-  const TypeItf* curType = p_curField->getType();
-  if(curType->isPointer())
+  const TypeItf* curFieldType = p_curField->getType();
+  if(curFieldType->isPointer())
   {
-    curType = dynamic_cast<const Pointer *>(curType)->getPointedType();
+    curFieldType = dynamic_cast<const Pointer *>(curFieldType)->getPointedType();
   }
-  if(curType->isComposableType())
+  if(curFieldType->isComposableType())
   {
-    const ComposableType* curComposableType = dynamic_cast<const ComposableType*>(curType);
+    const ComposableType* curFieldComposableType = dynamic_cast<const ComposableType*>(curFieldType);
     if(p_curField->isRecursiveTypeField())
     {
       //Recursive types are pointers, so a simple field generation will do
-      generateBasicTypeField(p_curField, p_paramSectDict, p_composedType, p_declPrepend);
+      generateBasicTypeField(p_curField, p_paramSectDict, p_parentComposedType, p_declPrepend);
     }
     else
     {
       std::string condition;
       ctemplate::TemplateDictionary *ifPreSectionDict = p_paramSectDict->AddSectionDictionary(STRUCT_COMPARE_PRE_IF_SECTION);
-      std::string uniqueName = curComposableType->getUniqueName();
+      std::string uniqueName = curFieldComposableType->getUniqueName();
 
       std::string preFieldVarName("");
       if(p_curField->isAnonymous())
@@ -956,41 +956,49 @@ void CodeGeneratorCTemplate::generateBodyStructCompare(ctemplate::TemplateDictio
       }
       ifPreSectionDict->SetValue(STRUCT_COMPARE_PRE_IF_SECTION_VAR_NAME, preFieldVarName.c_str());
       condition.append("cmp_");
-      condition.append(p_uniquePrepend);
-      condition.push_back('_');
+      if(curFieldComposableType->isDeclarationEmbeddedInOtherType())
+      {
+        condition.append(p_uniquePrepend);
+        condition.push_back('_');
+      }
       condition.append(uniqueName);
       condition.push_back('(');
-      generateFieldCmp(condition, p_composedType, p_curField, p_previousField, "currentCall_val");
+      generateFieldCmp(condition, p_parentComposedType, p_curField, p_previousField, "currentCall_val");
       condition.append(", ");
-      generateFieldCmp(condition, p_composedType, p_curField, p_previousField, "expectedCall_val");
+      generateFieldCmp(condition, p_parentComposedType, p_curField, p_previousField, "expectedCall_val");
       condition.append(", ");
       condition.append(preFieldVarName.c_str());
       condition.append(".c_str(), errorMessage)");
 
       p_uniquePrepend.push_back('_');
       p_declPrepend.append("::");
-      generateComposedTypedCompareSection(p_rootDictionnary, curComposableType, p_uniquePrepend, p_declPrepend);
+      generateComposedTypedCompareSection(p_rootDictionnary, curFieldComposableType, p_uniquePrepend, p_declPrepend);
 
       p_paramSectDict->SetValue(COMPARE_CONDITION, condition);
     }
   }
-  else if (curType->isCType())
+  else if (curFieldType->isCType())
   {
-    generateBasicTypeField(p_curField, p_paramSectDict, p_composedType, p_declPrepend);
+    generateBasicTypeField(p_curField, p_paramSectDict, p_parentComposedType, p_declPrepend);
   }
-  else if (curType->isFunction())
+  else if (curFieldType->isFunction())
   {
     //Function types are pointers, so a simple field generation will do
-    generateBasicTypeField(p_curField, p_paramSectDict, p_composedType, p_declPrepend);
+    generateBasicTypeField(p_curField, p_paramSectDict, p_parentComposedType, p_declPrepend);
   }
-  else if (curType->isEnum())
+  else if (curFieldType->isEnum())
   {
     //Enum types are like CType, so a simple field generation will do
-    generateBasicTypeField(p_curField, p_paramSectDict, p_composedType, p_declPrepend);
+    generateBasicTypeField(p_curField, p_paramSectDict, p_parentComposedType, p_declPrepend);
+  }
+  else if (curFieldType->isPointer())
+  {
+    //Recursive types are pointers, so a simple field generation will do
+    generateBasicTypeField(p_curField, p_paramSectDict, p_parentComposedType, p_declPrepend);
   }
   else
   {
-    std::fprintf(stderr, "%s: Type '%s' unexpected here. Contact owner for bug fixing\n\r", __FUNCTION__, curType->getFullDeclarationName().c_str());
+    std::fprintf(stderr, "%s: Type '%s' unexpected here. Contact owner for bug fixing\n\r", __FUNCTION__, curFieldType->getFullDeclarationName().c_str());
     assert(false);
   }
 }
@@ -1019,7 +1027,7 @@ void CodeGeneratorCTemplate::generateBasicTypeField(const ComposableField *p_cur
   }
   errorDict->SetValue(STRUCT_COMPARE_FIELD, compareField);
   std::string compareType;
-  if(!p_composedType->isEmbeddedInOtherType())
+  if(!p_composedType->isDeclarationEmbeddedInOtherType())
   {
     compareType.append(p_composedType->getMostDefinedName());
   }
@@ -1111,7 +1119,7 @@ void CodeGeneratorCTemplate::generateDeclarationOfAnonymousType(ctemplate::Templ
 
 void CodeGeneratorCTemplate::generateComposedTypedCompareSection(ctemplate::TemplateDictionary *p_rootDictionnary, const ComposableType *p_composedType, std::string p_uniquePrepend, std::string p_declPrepend)
 {
-  const std::string& uniqueName = p_composedType->getUniqueName();
+  std::string uniqueName = p_composedType->getUniqueName();
   const std::string& mostDefinedName = p_composedType->getMostDefinedName();
 
   //Generate each comparator only once.
@@ -1121,7 +1129,10 @@ void CodeGeneratorCTemplate::generateComposedTypedCompareSection(ctemplate::Temp
   }
   m_generatedComparator.insert(mostDefinedName);
 
-  p_uniquePrepend.append(uniqueName);
+  if(p_composedType->isDeclarationEmbeddedInOtherType())
+  {
+    uniqueName = p_uniquePrepend + uniqueName;
+  }
 
   p_declPrepend.append(mostDefinedName);
 
@@ -1154,7 +1165,7 @@ void CodeGeneratorCTemplate::generateComposedTypedCompareSection(ctemplate::Temp
   {
     declarationString.append(p_composedType->getUniqueName());
   }
-  else if(!p_composedType->isEmbeddedInOtherType())
+  else if(!p_composedType->isDeclarationEmbeddedInOtherType())
   {
     declarationString.append(p_composedType->getFullDeclarationName());
   }
@@ -1163,7 +1174,7 @@ void CodeGeneratorCTemplate::generateComposedTypedCompareSection(ctemplate::Temp
     declarationString.append(p_declPrepend);
   }
   compareDict->SetValue(COMPOSED_TYPED_DECL_STRING, declarationString);
-  compareDict->SetValue(COMPOSED_TYPED_UNIQUE_NAME, p_uniquePrepend);
+  compareDict->SetValue(COMPOSED_TYPED_UNIQUE_NAME, uniqueName);
 
   const ComposableField::Vector& vectField = p_composedType->getContainedFields();
   const ComposableField *prevField = nullptr;

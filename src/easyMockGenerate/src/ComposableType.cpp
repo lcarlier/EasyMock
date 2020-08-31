@@ -21,7 +21,7 @@ ComposableType(p_name, "", p_elem, p_is_embedded_in_other_type)
 }
 
 ComposableType::ComposableType(const std::string p_name, const std::string p_typed_def_name, const ComposableField::Vector p_elem, bool p_is_embedded_in_other_type) :
-TypeItf(p_name, p_typed_def_name), m_elem(p_elem), m_is_embedded_in_other_type(p_is_embedded_in_other_type), m_anonymous_number(-1)
+TypeItf(p_name, p_typed_def_name), m_elem(p_elem), m_is_declaration_embedded_in_other_type(p_is_embedded_in_other_type), m_anonymous_number(-1)
 {
   if(this->isAnonymous())
   {
@@ -31,7 +31,7 @@ TypeItf(p_name, p_typed_def_name), m_elem(p_elem), m_is_embedded_in_other_type(p
 }
 
 ComposableType::ComposableType(const ComposableType& other) :
-TypeItf(other), m_elem(other.m_elem), m_is_embedded_in_other_type(other.m_is_embedded_in_other_type), m_anonymous_number(other.m_anonymous_number)
+TypeItf(other), m_elem(other.m_elem), m_is_declaration_embedded_in_other_type(other.m_is_declaration_embedded_in_other_type), m_anonymous_number(other.m_anonymous_number)
 {
   correctRecursiveType(this, &other);
 }
@@ -40,7 +40,7 @@ ComposableType & ComposableType::operator=(const ComposableType& other)
 {
   TypeItf::operator=(other);
   m_elem = other.m_elem;
-  m_is_embedded_in_other_type = other.m_is_embedded_in_other_type;
+  m_is_declaration_embedded_in_other_type = other.m_is_declaration_embedded_in_other_type;
   m_anonymous_number = other.m_anonymous_number;
   correctRecursiveType(this, &other);
 
@@ -51,7 +51,7 @@ ComposableType::ComposableType(ComposableType&& other) :
 TypeItf(static_cast<TypeItf&&>(other))
 {
   m_elem = std::move(other.m_elem);
-  m_is_embedded_in_other_type = std::move(other.m_is_embedded_in_other_type);
+  m_is_declaration_embedded_in_other_type = std::move(other.m_is_declaration_embedded_in_other_type);
   m_anonymous_number = std::move(other.m_anonymous_number);
   correctRecursiveType(this, &other);
 }
@@ -81,9 +81,9 @@ const std::string ComposableType::getUniqueName() const
   return uniqueName;
 }
 
-bool ComposableType::isEmbeddedInOtherType() const
+bool ComposableType::isDeclarationEmbeddedInOtherType() const
 {
-  return m_is_embedded_in_other_type;
+  return m_is_declaration_embedded_in_other_type;
 }
 
 bool ComposableType::operator==(const ComposableType& other) const
@@ -106,7 +106,7 @@ bool ComposableType::isEqual(const TypeItf& p_other) const
   }
   const ComposableType& other = static_cast<const ComposableType&>(p_other);
   bool elemEq = this->m_elem == other.m_elem;
-  bool embedEq = this->m_is_embedded_in_other_type == other.m_is_embedded_in_other_type;
+  bool embedEq = this->m_is_declaration_embedded_in_other_type == other.m_is_declaration_embedded_in_other_type;
   bool anonEq = this->m_anonymous_number == other.m_anonymous_number;
   return parentEq && elemEq && embedEq && anonEq;
 }

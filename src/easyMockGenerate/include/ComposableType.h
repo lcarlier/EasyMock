@@ -46,8 +46,8 @@ public:
   const std::string getUniqueName() const;
 
   /*!
-   * \return true if the type is embedded in another type.
-   * \return false if the type is not embedded in another type.
+   * \return true if the type declaration is embedded in another type.
+   * \return false if the type declaration is not embedded in another type.
    *
    * For example, in the following code
    * \code{.c}
@@ -59,7 +59,7 @@ public:
    *   } b;
    * };
    * \endcode
-   * the type <tt>struct embeddedStruct</tt> is embedded.
+   * the declaration of the type <tt>struct embeddedStruct</tt> is embedded.
    *
    * The above C code can be represented by the following C++ code
    * \code{.cpp}
@@ -70,11 +70,11 @@ public:
    * top->addField(new ComposableField(beingDefined, "b"));
    *
    * //The following asserts will not fail
-   * assert(top->isEmbeddedInOtherType() == false);
-   * assert(beingDefined->isEmbeddedInOtherType() == true);
+   * assert(top->isDeclarationEmbeddedInOtherType() == false);
+   * assert(beingDefined->isDeclarationEmbeddedInOtherType() == true);
    * \endcode
    */
-  bool isEmbeddedInOtherType() const;
+  bool isDeclarationEmbeddedInOtherType() const;
 
   bool operator==(const ComposableType &other) const;
   bool operator!=(const ComposableType &other) const;
@@ -108,7 +108,7 @@ protected:
 private:
   /* Don't make it constant otherwise the object is not copyable anymore */
   ComposableField::Vector m_elem;
-  bool m_is_embedded_in_other_type;
+  bool m_is_declaration_embedded_in_other_type;
   int m_anonymous_number;
 
   void correctRecursiveType(ComposableType *newPtr, const ComposableType* oldPtrToReplace);

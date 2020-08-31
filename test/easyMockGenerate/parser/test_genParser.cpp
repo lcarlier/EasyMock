@@ -27,9 +27,8 @@ TYPED_TEST(GenericParser_testCase, parser)
   ASSERT_EQ(elem.size(), funList.size());
   for(size_t funIdx = 0; funIdx < funList.size(); funIdx++)
   {
-    FunctionDeclaration* funFromFactory = funList[funIdx];
+    FunctionDeclaration& funFromFactory = funList[funIdx];
     FunctionDeclaration& funFromParser = FunctionDeclaration::toFunctionDeclaration(elem[funIdx]);
-    EXPECT_EQ(*funFromFactory, funFromParser) << "funIdx: " << funIdx;
-    delete funFromFactory;
+    ASSERT_EQ(funFromFactory, funFromParser) << "funIdx: " << funIdx;
   }
 }

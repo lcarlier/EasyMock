@@ -17,7 +17,7 @@ public:
    * \brief Creates a new StructType.
    *
    * \param p_name The name of the struct.
-   * \param p_is_embedded_in_other_type Specifies whether the type is embedded in another type or not. See ComposableType::isEmbeddedInOtherType().
+   * \param p_is_embedded_in_other_type Specifies whether the type is embedded in another type or not. See ComposableType::isDeclarationEmbeddedInOtherType().
    */
   StructType(const std::string p_name, bool p_is_embedded_in_other_type);
   /*!

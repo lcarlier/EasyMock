@@ -11,7 +11,7 @@ public:
   {
     for(ElementToMock *f:m_factory.functionFactoryArray())
     {
-      m_elem.push_back(f);
+      m_elem.push_back(f->clone());
     }
   }
 

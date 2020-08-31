@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <StructType.h>
+#include <Pointer.h>
 
 #include <string>
 
@@ -11,7 +12,7 @@ TEST(StructType, StructTypeConstructor)
   ASSERT_FALSE(st1.isCType());
   ASSERT_TRUE(st1.isStruct());
   ASSERT_FALSE(st1.isUnion());
-  ASSERT_FALSE(st1.isEmbeddedInOtherType());
+  ASSERT_FALSE(st1.isDeclarationEmbeddedInOtherType());
   ASSERT_FALSE(st1.isAnonymous());
 }
 
@@ -23,7 +24,7 @@ TEST(StructType, EmbeddedInOtherType)
   ASSERT_FALSE(st1.isCType());
   ASSERT_TRUE(st1.isStruct());
   ASSERT_FALSE(st1.isUnion());
-  ASSERT_TRUE(st1.isEmbeddedInOtherType());
+  ASSERT_TRUE(st1.isDeclarationEmbeddedInOtherType());
 }
 
 TEST(StructType, TestAnonymous)
@@ -51,7 +52,7 @@ TEST(StructType, UniqueNameAnonymous)
     ASSERT_FALSE(st1.isCType());
     ASSERT_TRUE(st1.isStruct());
     ASSERT_FALSE(st1.isUnion());
-    ASSERT_TRUE(st1.isEmbeddedInOtherType());
+    ASSERT_TRUE(st1.isDeclarationEmbeddedInOtherType());
     std::string uniqueName("struct_anonymous_type_in_file_0_number_");
     uniqueName.append(std::to_string(i+1));
     ASSERT_STREQ(uniqueName.c_str(), st1.getUniqueName().c_str());
@@ -66,7 +67,7 @@ TEST(StructType, UniqueNameStruct)
   ASSERT_FALSE(st1.isCType());
   ASSERT_TRUE(st1.isStruct());
   ASSERT_FALSE(st1.isUnion());
-  ASSERT_TRUE(st1.isEmbeddedInOtherType());
+  ASSERT_TRUE(st1.isDeclarationEmbeddedInOtherType());
   std::string uniqueName("struct_inOther");
 
   ASSERT_STREQ(uniqueName.c_str(), st1.getUniqueName().c_str());
@@ -80,8 +81,22 @@ TEST(StructType, UniqueNamTypeDefStruct)
   ASSERT_FALSE(st1.isCType());
   ASSERT_TRUE(st1.isStruct());
   ASSERT_FALSE(st1.isUnion());
-  ASSERT_TRUE(st1.isEmbeddedInOtherType());
+  ASSERT_TRUE(st1.isDeclarationEmbeddedInOtherType());
   std::string uniqueName("typeDefInOther");
 
   ASSERT_STREQ(uniqueName.c_str(), st1.getUniqueName().c_str());
+}
+
+TEST(StructType, PtrToPtrRecur)
+{
+  StructType t("ptrToPtrStructRecur", false);
+  Pointer *p = new Pointer(&t);
+  Pointer *p2p = new Pointer(p);
+  ComposableField::attributes fieldAttr =
+  {
+    .arraySize = -1,
+    .isRecursiveTypeField = true
+  };
+  t.addField(new ComposableField(p2p, "r", fieldAttr));
+  //Nothing to check in particular. The address sanitiser shouldn't return any error
 }

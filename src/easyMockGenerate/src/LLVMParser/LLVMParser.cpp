@@ -526,12 +526,12 @@ private:
     return size;
   }
 
-  std::string getMostDefinedTypeName(TypeItf *p_type)
+  std::string getMostDefinedTypeName(const TypeItf *p_type)
   {
     std::string currentTypeName;
     if(p_type->isPointer())
     {
-      currentTypeName = dynamic_cast<const Pointer *>(p_type)->getPointedType()->getMostDefinedName();
+      currentTypeName = getMostDefinedTypeName(dynamic_cast<const Pointer *>(p_type)->getPointedType());
     }
     else
     {

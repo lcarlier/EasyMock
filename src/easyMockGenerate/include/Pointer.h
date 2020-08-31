@@ -86,7 +86,7 @@ public:
    * \warning If the pointer was already pointing to a TypeItf object. It will be
    * deleted first.
    *
-   * \warning If the pointer is set as recursive pointer (with setRecursivePoiner())
+   * \warning If the pointer is set as recursive pointer (with setRecursivePointer())
    * <b>before</b> calling setPointedType(), the TypeItf object to which this pointer is
    * pointing <b>will not be deleted</b>. This is to be able to support recursive
    * type.
