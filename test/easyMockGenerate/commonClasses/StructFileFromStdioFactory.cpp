@@ -14,7 +14,7 @@ FunctionDeclaration StructFileFromStdioFactory::functionFactory()
   ComposableField::attributes fieldAttr =
   {
     .arraySize = -1,
-    .isRecursiveTypeField = true
+    .isIncompleteTypeField = true
   };
 
   ComposableField* cf = new ComposableField(new Pointer(IO_MARK), "_next", fieldAttr);

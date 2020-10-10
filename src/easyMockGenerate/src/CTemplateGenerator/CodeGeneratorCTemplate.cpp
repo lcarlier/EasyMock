@@ -88,12 +88,12 @@
 #define COMPOSED_TYPE_TEMPLATE_VAR "NON_TYPED_DEF_COMPOSED_TYPE_VAR" //struct or union
 #define COMPOSED_TYPE_VAR TEMPLATE_VAR(COMPOSED_TYPE_TEMPLATE_VAR)
 
-#define RECURSIVE_ANONYMOUS_TYPE_DECLARATION_SECTION "RECURSIVE_ANONYMOUS_TYPE_DECLARATION_SECTION"
-#define RECURSIVE_ANONYMOUS_TYPE_DECLARATION_FIELD_SECTION "RECURSIVE_ANONYMOUS_TYPE_DECLARATION_FIELD_SECTION"
-#define RECURSIVE_ANONYMOUS_TYPE_DECLARATION_TYPE_TEMPLATE_VAR "RECURSIVE_ANONYMOUS_TYPE_DECLARATION_TYPE_TEMPLATE_VAR"
-#define RECURSIVE_ANONYMOUS_TYPE_DECLARATION_TYPE_VAR TEMPLATE_VAR(RECURSIVE_ANONYMOUS_TYPE_DECLARATION_TYPE_TEMPLATE_VAR)
-#define RECURSIVE_ANONYMOUS_TYPE_DECLARATION_NAME_TEMPLATE_VAR "RECURSIVE_ANONYMOUS_TYPE_DECLARATION_NAME_TEMPLATE_VAR"
-#define RECURSIVE_ANONYMOUS_TYPE_DECLARATION_NAME_VAR TEMPLATE_VAR(RECURSIVE_ANONYMOUS_TYPE_DECLARATION_NAME_TEMPLATE_VAR)
+#define INCOMPLETE_ANONYMOUS_TYPE_DECLARATION_SECTION "INCOMPLETE_ANONYMOUS_TYPE_DECLARATION_SECTION"
+#define INCOMPLETE_ANONYMOUS_TYPE_DECLARATION_FIELD_SECTION "INCOMPLETE_ANONYMOUS_TYPE_DECLARATION_FIELD_SECTION"
+#define INCOMPLETE_ANONYMOUS_TYPE_DECLARATION_TYPE_TEMPLATE_VAR "INCOMPLETE_ANONYMOUS_TYPE_DECLARATION_TYPE_TEMPLATE_VAR"
+#define INCOMPLETE_ANONYMOUS_TYPE_DECLARATION_TYPE_VAR TEMPLATE_VAR(INCOMPLETE_ANONYMOUS_TYPE_DECLARATION_TYPE_TEMPLATE_VAR)
+#define INCOMPLETE_ANONYMOUS_TYPE_DECLARATION_NAME_TEMPLATE_VAR "INCOMPLETE_ANONYMOUS_TYPE_DECLARATION_NAME_TEMPLATE_VAR"
+#define INCOMPLETE_ANONYMOUS_TYPE_DECLARATION_NAME_VAR TEMPLATE_VAR(INCOMPLETE_ANONYMOUS_TYPE_DECLARATION_NAME_TEMPLATE_VAR)
 
 #define ANONYMOUS_TYPE_DECLARATION_FIELD_SECTION "ANONYMOUS_TYPE_DECLARATION_FIELD_SECTION"
 #define ANONYMOUS_TYPE_DECLARATION_FIELD_TYPE_TEMPLATE_VAR "ANONYMOUS_TYPE_DECLARATION_FIELD_TYPE_TEMPLATE_VAR"
@@ -320,7 +320,7 @@ static const char templateText[] =
         "extern \"C\" " COMPOSED_TYPED_COMPARE_FUNCTION_SIGNATURE CARRIAGE_RETURN
         "{" CARRIAGE_RETURN
 
-        "    " TEMPLATE_INCL_SECTION(RECURSIVE_ANONYMOUS_TYPE_DECLARATION_SECTION) CARRIAGE_RETURN
+        "    " TEMPLATE_INCL_SECTION(INCOMPLETE_ANONYMOUS_TYPE_DECLARATION_SECTION) CARRIAGE_RETURN
 
         "    " IF_SECTION_EXISTS(NON_TYPED_DEF_COMPOSED_TYPE_SECTION, COMPOSED_TYPE_VAR " ") COMPOSED_TYPED_COMPARE_SECTION_DECL_NAME_VAR " *currentCall_val = static_cast<" IF_SECTION_EXISTS(NON_TYPED_DEF_COMPOSED_TYPE_SECTION, COMPOSED_TYPE_VAR " ") COMPOSED_TYPED_COMPARE_SECTION_DECL_NAME_VAR " *>(currentCall_ptr);" CARRIAGE_RETURN
         "    " IF_SECTION_EXISTS(NON_TYPED_DEF_COMPOSED_TYPE_SECTION, COMPOSED_TYPE_VAR " ") COMPOSED_TYPED_COMPARE_SECTION_DECL_NAME_VAR " *expectedCall_val = static_cast<" IF_SECTION_EXISTS(NON_TYPED_DEF_COMPOSED_TYPE_SECTION, COMPOSED_TYPE_VAR " ") COMPOSED_TYPED_COMPARE_SECTION_DECL_NAME_VAR " *>(expectedCall_ptr);" CARRIAGE_RETURN
@@ -556,16 +556,16 @@ static const char headerFileTemplate[] =
         "#endif" CARRIAGE_RETURN;
 
 static const char declareAnonymousComposableTypeTemplate[] =
-        "typedef " RECURSIVE_ANONYMOUS_TYPE_DECLARATION_TYPE_VAR CARRIAGE_RETURN
+        "typedef " INCOMPLETE_ANONYMOUS_TYPE_DECLARATION_TYPE_VAR CARRIAGE_RETURN
         "{" CARRIAGE_RETURN
-        "    " TEMPLATE_INCL_SECTION(RECURSIVE_ANONYMOUS_TYPE_DECLARATION_FIELD_SECTION) CARRIAGE_RETURN
-        "} " RECURSIVE_ANONYMOUS_TYPE_DECLARATION_NAME_VAR ";";
+        "    " TEMPLATE_INCL_SECTION(INCOMPLETE_ANONYMOUS_TYPE_DECLARATION_FIELD_SECTION) CARRIAGE_RETURN
+        "} " INCOMPLETE_ANONYMOUS_TYPE_DECLARATION_NAME_VAR ";";
 
 static const char declareAnonymousComposableTypeFieldTemplate[] =
         TEMPLATE_BEG_SECTION(ANONYMOUS_TYPE_DECLARATION_FIELD_SECTION)
         ANONYMOUS_TYPE_DECLARATION_FIELD_TYPE_VAR " " ANONYMOUS_TYPE_DECLARATION_FIELD_NAME_VAR TEMPLATE_INCL_SECTION(EXTRA_DECL_SECTION) ";" CARRIAGE_RETURN
         TEMPLATE_END_SECTION(ANONYMOUS_TYPE_DECLARATION_FIELD_SECTION)
-        TEMPLATE_INCL_SECTION(RECURSIVE_ANONYMOUS_TYPE_DECLARATION_SECTION);
+        TEMPLATE_INCL_SECTION(INCOMPLETE_ANONYMOUS_TYPE_DECLARATION_SECTION);
 
 static const char extraDeclTemplate[] =
         ")"
@@ -928,9 +928,9 @@ void CodeGeneratorCTemplate::generateBodyStructCompare(ctemplate::TemplateDictio
   if(curFieldType->isComposableType())
   {
     const ComposableType* curFieldComposableType = dynamic_cast<const ComposableType*>(curFieldType);
-    if(p_curField->isRecursiveTypeField())
+    if(p_curField->isIncompleteTypeField())
     {
-      //Recursive types are pointers, so a simple field generation will do
+      //Incomplete types are pointers, so a simple field generation will do
       generateBasicTypeField(p_curField, p_paramSectDict, p_parentComposedType, p_declPrepend);
     }
     else
@@ -993,7 +993,7 @@ void CodeGeneratorCTemplate::generateBodyStructCompare(ctemplate::TemplateDictio
   }
   else if (curFieldType->isPointer())
   {
-    //Recursive types are pointers, so a simple field generation will do
+    //Pointer types are like CType, so a simple field generation will do
     generateBasicTypeField(p_curField, p_paramSectDict, p_parentComposedType, p_declPrepend);
   }
   else
@@ -1063,7 +1063,7 @@ void CodeGeneratorCTemplate::generateBasicTypeField(const ComposableField *p_cur
 
 void CodeGeneratorCTemplate::generateDeclarationOfAnonymousType(ctemplate::TemplateDictionary* p_rootDictionnary, ctemplate::TemplateDictionary* p_compareDict, const ComposableType* p_composedType)
 {
-  ctemplate::TemplateDictionary *anonymousDeclDict = p_compareDict->AddIncludeDictionary(RECURSIVE_ANONYMOUS_TYPE_DECLARATION_SECTION);
+  ctemplate::TemplateDictionary *anonymousDeclDict = p_compareDict->AddIncludeDictionary(INCOMPLETE_ANONYMOUS_TYPE_DECLARATION_SECTION);
   anonymousDeclDict->SetFilename(RECURSIVE_ANONYMOUS_TYPE_DECLARATION_TEMPLATE_NAME);
 
   std::string typeVar("");
@@ -1080,13 +1080,13 @@ void CodeGeneratorCTemplate::generateDeclarationOfAnonymousType(ctemplate::Templ
     fprintf(stderr, "Declaration string unknown composable type\n\r");
     assert(false);
   }
-  anonymousDeclDict->SetValue(RECURSIVE_ANONYMOUS_TYPE_DECLARATION_TYPE_TEMPLATE_VAR, typeVar);
-  anonymousDeclDict->SetValue(RECURSIVE_ANONYMOUS_TYPE_DECLARATION_NAME_TEMPLATE_VAR, p_composedType->getUniqueName());
+  anonymousDeclDict->SetValue(INCOMPLETE_ANONYMOUS_TYPE_DECLARATION_TYPE_TEMPLATE_VAR, typeVar);
+  anonymousDeclDict->SetValue(INCOMPLETE_ANONYMOUS_TYPE_DECLARATION_NAME_TEMPLATE_VAR, p_composedType->getUniqueName());
 
   const ComposableField::Vector& vectField = p_composedType->getContainedFields();
   for (ComposableField::Vector::const_iterator it = vectField.begin(); it != vectField.end(); ++it)
   {
-    ctemplate::TemplateDictionary *curFieldDict = anonymousDeclDict->AddIncludeDictionary(RECURSIVE_ANONYMOUS_TYPE_DECLARATION_FIELD_SECTION);
+    ctemplate::TemplateDictionary *curFieldDict = anonymousDeclDict->AddIncludeDictionary(INCOMPLETE_ANONYMOUS_TYPE_DECLARATION_FIELD_SECTION);
     curFieldDict->SetFilename(RECURSIVE_ANONYMOUS_TYPE_DECLARATION_TEMPLATE_FIELD_NAME);
     const ComposableField *curField = *it;
     const TypeItf* fieldType = curField->getType();

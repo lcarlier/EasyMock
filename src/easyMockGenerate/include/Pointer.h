@@ -60,6 +60,9 @@ public:
   Pointer(const Pointer &other);
   Pointer& operator=(Pointer other);
 
+  /*!
+   * \brief Compare ::Pointer object
+   */
   bool operator==(const Pointer &other) const;
   bool operator!=(const Pointer &other) const;
 
@@ -68,7 +71,7 @@ public:
 
   /*!
    * \copydoc TypeItf::~TypeItf()
-   * \warning See also setRecursivePointer()
+   * \warning See also ::Pointer::setIncompleteTypePointer()
    */
   virtual ~Pointer();
 
@@ -86,37 +89,38 @@ public:
    * \warning If the pointer was already pointing to a TypeItf object. It will be
    * deleted first.
    *
-   * \warning If the pointer is set as recursive pointer (with setRecursivePointer())
-   * <b>before</b> calling setPointedType(), the TypeItf object to which this pointer is
-   * pointing <b>will not be deleted</b>. This is to be able to support recursive
-   * type.
+   * \warning If the pointer is set as incomplete pointer (with ::Pointer::setIncompleteTypePointer())
+   * <b>before</b> calling ::Pointer::setPointedType(), the TypeItf object to which this pointer is
+   * pointing <b>will not be deleted</b>. This is to be able to support incomplete
+   * or recursive (i.e. type using themselve) type.
    *
    * \see ComposableField::ComposableField(TypeItf*,std::string,attributes)
    */
   bool setPointedType(TypeItf* newPointedType);
 
   /*!
-   * \brief Sets whether the pointed is is a recursive type or not.
+   * \brief Sets whether the pointed is is an incomplete type or not.
    *
-   * An example of pointer pointing to a recursive type is as following
+   * An example of pointer pointing to an incomplete type is as following
    * \code{.c}
    * struct s
    * {
    *    struct s * f;
    * };
    * \endcode
-   * The field @c is of the <tt>struct s</tt> is recursive pointer type.
+   * The field @c is of the <tt>struct s</tt> is a recursive/incomplete pointer type.
    *
-   * Setting a Pointer object to be recursive is important when comparing Pointer
-   * objects. When a Pointer object is set to be recursive, the
-   * operator==(const Pointer&) will compare the name returned by
-   * TypeItf::getMostDefinedName() of the pointed type instead of comparing
+   * Setting a Pointer object to be incomplete is important when comparing Pointer
+   * objects. When a Pointer object is set to be incomplete, the
+   * ::Pointer::operator==(const Pointer&) const will compare the name returned by
+   * ::TypeItf::getMostDefinedName() of the pointed type instead of comparing
    * the full pointed type object via their own operator==. This is to avoid
-   * infinite call loop to operator==(const Pointer&).
+   * infinite call loop to ::Pointer::operator==(const Pointer&) const when the
+   * incomplete type is actually recursive.
    *
-   * \note union can also hold recursive pointer type.
+   * \note union can also hold incomplete pointer type.
    */
-  void setRecursivePointer(bool value);
+  void setIncompleteTypePointer(bool value);
 
   /*! @copydoc TypeItf::clone() */
   Pointer* clone() const override;
@@ -129,7 +133,7 @@ protected:
 private:
   void swap(Pointer &first, Pointer &second);
   TypeItf* m_pointedType;
-  bool m_isRecursivePointer;
+  bool m_isIncompletePointerType;
 };
 
 #endif /* POINTER_H */

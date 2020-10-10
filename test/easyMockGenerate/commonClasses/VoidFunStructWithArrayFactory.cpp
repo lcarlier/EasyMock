@@ -11,7 +11,7 @@ FunctionDeclaration VoidFunStructWithArrayFactory::functionFactory()
   ComposableField::attributes composableFieldAttrib(
   {
     .arraySize = 10,
-    .isRecursiveTypeField = false
+    .isIncompleteTypeField = false
   });
   st->addField(new ComposableField(new CType(CTYPE_INT), "a", composableFieldAttrib));
   st->addField(new ComposableField(CTYPE_FLOAT, "f"));

@@ -12,7 +12,7 @@ FunctionDeclaration StructRecursiveMemberPtrTypeFactory::functionFactory()
   ComposableField::attributes attrib =
   {
     .arraySize = -1,
-    .isRecursiveTypeField = isRecursiveType
+    .isIncompleteTypeField = isRecursiveType
   };
   ComposableField *valField = new ComposableField(new Pointer(recurStruct), "val", attrib);
   recurStruct->addField(valField);

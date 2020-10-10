@@ -14,7 +14,7 @@ ElementToMockList VoidFunPtrToPtrRecurStructFactory::functionFactoryArray()
   ComposableField::attributes fieldAttr =
   {
     .arraySize = -1,
-    .isRecursiveTypeField = true
+    .isIncompleteTypeField = true
   };
   t.addField(new ComposableField(p2pField, "r", fieldAttr));
 

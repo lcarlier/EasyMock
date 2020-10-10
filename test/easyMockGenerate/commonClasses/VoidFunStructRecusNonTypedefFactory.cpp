@@ -11,10 +11,10 @@ FunctionDeclaration VoidFunStructRecusNonTypedefFactory::functionFactory()
   ComposableField::attributes cmpAttr =
   {
     .arraySize = -1,
-    .isRecursiveTypeField = true
+    .isIncompleteTypeField = true
   };
   ComposableField* cf = new ComposableField(new Pointer(t_struct), "recur", cmpAttr);
-  //When the recur field is declared, it is not yet typed def
+  //When the recursive (incomplete) field is declared, it is not yet typed def
   cf->setDeclareString("struct s_s1*");
   t_struct->addField(cf);
 

@@ -39,12 +39,16 @@ class Pointer;
  * If a struct contains another struct, its StructType will be stored
  * inside the ComposableType class.
  *
- * A ComposableField can also have recursive type fields.
- * \see ComposableField(TypeItf*,std::string,attributes)
+ * A ComposableField can also have incomplete type fields.
+ * \see ::ComposableField::ComposableField(TypeItf*,std::string,attributes)
  */
 class ComposableField : public Declarator
 {
 public:
+
+  /*!
+   * \brief The ComposableField's attributes
+   */
   typedef struct
   {
     /*!
@@ -55,12 +59,12 @@ public:
      * - <tt>arraySize == 0</tt>: means that this fields is an unbounded array. I.e isUnboundSpecifiedArray() returns <tt>true</tt>
      * - <tt>arraySize > 0 </tt>: means that this fields is a bounded array. I.e isBoundSpecifiedArray() returns <tt>true</tt>
      */
-    int64_t arraySize; //Only valid if isArray is true
+    int64_t arraySize;
     /*!
-     * \brief Set the field's type as recursive
-     * \see ComposableField(TypeItf *p_type, std::string p_name, attributes p_attrib)
+     * \brief Set the field's type as being incomplete
+     * \see ::ComposableField::ComposableField(TypeItf *p_type, std::string p_name, attributes p_attrib)
      */
-    bool isRecursiveTypeField;
+    bool isIncompleteTypeField;
   } attributes;
   ComposableField(const easyMock_cTypes_t p_ctype, std::string p_name);
   ComposableField(TypeItf *p_type, std::string p_name);
@@ -71,7 +75,7 @@ public:
    *
    * \warning However, there is an exception here. The ownership of the pointer
    * is not given to the ComposableField object whenever the field
-   * <tt>isRecursiveTypeField</tt> is set to <tt>true</tt>. I.e the pointer passed via the
+   * <tt>isIncompleteTypeField</tt> is set to <tt>true</tt>. I.e the pointer passed via the
    * <tt>p_type</tt> parameter <b>will not be deleted</b> by the ComposiableField
    * class. If you pass a pointer allocated via the new operator and do not
    * delete it somewhere else (e.g. by passing it to another class which inherit from TypeItf),
@@ -90,9 +94,9 @@ public:
    * //Create the StructType object;
    * StructType *sStructType = new StructType("s");
    *
-   * //Add the s1 field. Its type is set as recursive
+   * //Add the s1 field. Its type is set as recursive/incomplete
    * ComposableField::attributes fieldAttr;
-   * fieldAttr.isRecursiveTypeField = true;
+   * fieldAttr.isIncompleteTypeField = true;
    * fieldAttr.arraySize = -1;
    * sStructType->addField(new ComposableField(sStructType, "s1", fieldAttr));
    *
@@ -108,7 +112,7 @@ public:
   ComposableField(TypeItf *p_type, std::string p_name, attributes p_attrib);
 
   /*!
-   * \brief Returns if the type of the field is a recursive type
+   * \brief Returns if the type of the field is an incomplete type
    *
    * In the following code
    * \code{.c}
@@ -117,9 +121,19 @@ public:
    *   struct s* s1;
    * };
    * \endcode
-   * The type of the field <tt>s1</tt> is recursive.
+   * The type of the field <tt>s1</tt> is incomplete.
+   *
+   * In the following code
+   * \code{.c}
+   * struct incomplete; //forward declaration
+   * struct s
+   * {
+   *   struct incomplete* i;
+   * };
+   * \endcode
+   * The type of the field <tt>i</tt> is incomplete.
    */
-  bool isRecursiveTypeField() const;
+  bool isIncompleteTypeField() const;
 
   typedef AutoCleanVectorPtr<ComposableField> Vector;
 
@@ -132,7 +146,7 @@ public:
   /*!
    * \brief Compares 2 ComposableField objects.
    *
-   * \copydetails Declarator::operator==()
+   * \copydetails ::Declarator::operator==()
    */
   bool operator==(const ComposableField &other) const;
   bool operator!=(const ComposableField &other) const;
@@ -240,19 +254,19 @@ public:
 private:
   /* Do not make this constant otherwise the object is not copyable anymore */
   std::string m_name;
-  Pointer* m_recursiveType;
+  Pointer* m_incompleteType;
   int64_t m_arraySize;
 
   friend void swap(ComposableField &first, ComposableField &second);
-  void updateRecursiveTypePtr(ComposableType *ptr, const ComposableType* toReplace);
+  void updateIncompleteTypePtr(ComposableType *ptr, const ComposableType* toReplace);
 
   /*
    * I wish I could friend only
-   * ComposableType::correctRecursiveType(ComposableType *newPtr, const ComposableType* toReplace);
+   * ComposableType::correctIncompleteType(ComposableType *newPtr, const ComposableType* toReplace);
    * but ComposableType is not complete here. And we can't make it complete
    * because otherwise it would create circular include dependency
    */
-  friend class ComposableType; //for updateRecursiveTypePtr
+  friend class ComposableType; //for updateIncompleteTypePtr
 };
 
 #endif /* STRUCTFIELD_H */

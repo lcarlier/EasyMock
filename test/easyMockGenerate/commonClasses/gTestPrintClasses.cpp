@@ -132,7 +132,7 @@ std::ostream& operator<<(std::ostream& os, const ComposableField& composableFiel
   os << "ComposableField(";
   os << "declString: '" << composableField.getDeclareString() << "', ";
   os << "name: '" << composableField.getName() << "', ";
-  os << "isRecursive: " << (composableField.isRecursiveTypeField() ? "yes" : " no") << ", ";
+  os << "isIncomplete: " << (composableField.isIncompleteTypeField() ? "yes" : " no") << ", ";
   os << "type: " << std::endl;
   gs_indentation.push_back('\t');
   os << gs_indentation << *composableField.getType();
@@ -150,10 +150,10 @@ std::ostream& operator<<(std::ostream& os, const UnionType& unionType)
 std::ostream& operator<<(std::ostream& os, const Pointer& pointerType)
 {
   os << "Pointer: ";
-  os << "recursivePointer: " << (pointerType.m_isRecursivePointer ? "yes" : "no");
+  os << "isIncompletePointerType: " << (pointerType.m_isIncompletePointerType ? "yes" : "no");
   gs_indentation.push_back('\t');
   os << std::endl << gs_indentation;
-  if(!pointerType.m_isRecursivePointer)
+  if(!pointerType.m_isIncompletePointerType)
   {
     os << *pointerType.getPointedType();
   }

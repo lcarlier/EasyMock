@@ -111,8 +111,8 @@ private:
   bool m_is_declaration_embedded_in_other_type;
   int m_anonymous_number;
 
-  void correctRecursiveType(ComposableType *newPtr, const ComposableType* oldPtrToReplace);
-  friend void ComposableField::updateRecursiveTypePtr(ComposableType* newPtr, const ComposableType* oldPtrToReplace);
+  void correctIncompleteType(ComposableType *newPtr, const ComposableType* oldPtrToReplace);
+  friend void ComposableField::updateIncompleteTypePtr(ComposableType* newPtr, const ComposableType* oldPtrToReplace);
 
   /*
    * The tool is foreseen to generate only 1 header file, no more.

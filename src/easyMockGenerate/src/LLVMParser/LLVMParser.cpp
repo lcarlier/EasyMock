@@ -394,8 +394,23 @@ private:
       const clang::QualType &qualType = FD->getType();
       const clang::Type *typePtr = qualType.getTypePtr();
       TypeItf *type = getEasyMocktype(qualType, structKnownType);
-      std::string currentTypeName = getMostDefinedTypeName(type);
-      bool isRecursiveType = structKnownType.find(currentTypeName) != structKnownType.end();
+
+      bool isIncompleteType = false;
+      const clang::QualType &mostDefineType = getDereferencedQualType(qualType);
+      const clang::Type *mostDefinedTypePtr = mostDefineType.getTypePtr();
+      const clang::RecordDecl* mostDefinedTypeRecDecl= mostDefinedTypePtr->getAsRecordDecl();
+      if(mostDefinedTypeRecDecl)
+      {
+        /*
+         * The assumption is that if the actual end of the definition of the
+         * type is after the field declaration and in the same file, then we
+         * are going through either a type which is forward declared or that
+         * is recursively used. In any case, we mark it as incomplete.
+         */
+        bool fileIdSame = this->m_sourceManager.getFilename(FD->getSourceRange().getBegin()) == this->m_sourceManager.getFilename(mostDefinedTypeRecDecl->getSourceRange().getEnd());
+        bool definedAfter = FD->getSourceRange().getBegin() < mostDefinedTypeRecDecl->getSourceRange().getEnd() && type->isPointer();
+        isIncompleteType = definedAfter && fileIdSame;
+      }
       int64_t arraySize = getArraySize(*typePtr);
       if(!typePtr->isArrayType())
       {
@@ -404,7 +419,7 @@ private:
       ComposableField::attributes attrib =
         {
          .arraySize            = arraySize,
-         .isRecursiveTypeField = isRecursiveType
+         .isIncompleteTypeField = isIncompleteType
         };
       std::string fName = FD->getNameAsString();
       ComposableField *sf = new ComposableField(type, fName, attrib);
@@ -526,12 +541,23 @@ private:
     return size;
   }
 
-  std::string getMostDefinedTypeName(const TypeItf *p_type)
+  const clang::QualType& getDereferencedQualType(const clang::QualType& clangQualType)
+  {
+    const clang::Type &clangType = *clangQualType.getTypePtr();
+    if(clangType.isPointerType())
+    {
+      const clang::QualType &pointedType = clangType.getPointeeType();
+      return getDereferencedQualType(pointedType);
+    }
+    return clangQualType;
+  }
+
+  std::string getDereferencedTypeItf(const TypeItf *p_type)
   {
     std::string currentTypeName;
     if(p_type->isPointer())
     {
-      currentTypeName = getMostDefinedTypeName(dynamic_cast<const Pointer *>(p_type)->getPointedType());
+      currentTypeName = getDereferencedTypeItf(dynamic_cast<const Pointer *>(p_type)->getPointedType());
     }
     else
     {

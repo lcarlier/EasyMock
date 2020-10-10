@@ -95,7 +95,7 @@ TEST(StructType, PtrToPtrRecur)
   ComposableField::attributes fieldAttr =
   {
     .arraySize = -1,
-    .isRecursiveTypeField = true
+    .isIncompleteTypeField = true
   };
   t.addField(new ComposableField(p2p, "r", fieldAttr));
   //Nothing to check in particular. The address sanitiser shouldn't return any error

@@ -81,7 +81,7 @@ TEST(moveCopy, PointerWithRecursField)
   ComposableField::attributes cmpAttr =
   {
     .arraySize = -1,
-    .isRecursiveTypeField = true
+    .isIncompleteTypeField = true
   };
   t_struct->addField(new ComposableField(new Pointer(t_struct), "recur", cmpAttr));
 
@@ -135,7 +135,7 @@ TEST(moveCopy, StructFieldBoundedArray)
   ComposableField::attributes composableFieldParam(
   {
     .arraySize = 10,
-    .isRecursiveTypeField = false
+    .isIncompleteTypeField = false
   }
   );
   ComposableField f1(new CType(CTYPE_INT), "boundedArray", composableFieldParam);
@@ -148,7 +148,7 @@ TEST(moveCopy, StructFieldUnBoundedArray)
   ComposableField::attributes composableFieldParam(
   {
     .arraySize = 0,
-    .isRecursiveTypeField = false
+    .isIncompleteTypeField = false
   }
   );
   ComposableField f1(new CType(CTYPE_INT), "unBoundedArray", composableFieldParam);
@@ -218,7 +218,7 @@ TEST(moveCopy, StructTypeRecursive)
   ComposableField::attributes attrib(
   {
     .arraySize = -1,
-    .isRecursiveTypeField = isRecursiveType
+    .isIncompleteTypeField = isRecursiveType
   }
   );
   st1.addField(new ComposableField(new Pointer(&st1), "rfield", attrib));
@@ -266,7 +266,7 @@ TEST(moveCopy, StructTypeSubFieldRecursive)
   ComposableField::attributes attrib(
   {
     .arraySize = -1,
-    .isRecursiveTypeField = isRecursiveType
+    .isIncompleteTypeField = isRecursiveType
   }
   );
   subSt->addField(new ComposableField(new Pointer(&st1), "rfield", attrib));
@@ -337,7 +337,7 @@ static void runTypeTwoRecursiveTypes(T &s2)
   ComposableField::attributes attrib(
   {
     .arraySize = -1,
-    .isRecursiveTypeField = true
+    .isIncompleteTypeField = true
   }
   );
   s1->addField(new ComposableField(new Pointer(s1), "s1SubS1", attrib));
@@ -425,7 +425,7 @@ TEST(moveCopy, fromSTDIO)
   ComposableField::attributes fieldAttr =
   {
     .arraySize = -1,
-    .isRecursiveTypeField = true
+    .isIncompleteTypeField = true
   };
 
   IO_MARK->addField(new ComposableField(new Pointer(IO_MARK), "_next", fieldAttr));
@@ -523,7 +523,7 @@ TEST(moveCopy, ParameterWithStructSubRecursive)
   ComposableField::attributes composableFieldAttrib(
   {
     .arraySize = -1,
-    .isRecursiveTypeField = true
+    .isIncompleteTypeField = true
   });
   st2->addField(new ComposableField(new Pointer(st1), "st2SubSt1", composableFieldAttrib));
   st2->addField(new ComposableField(new Pointer(st2), "st2SubSt2", composableFieldAttrib));
@@ -542,7 +542,7 @@ TEST(moveCopy, ParameterWithPointerToStructSubRecursive)
   ComposableField::attributes composableFieldAttrib(
   {
     .arraySize = -1,
-    .isRecursiveTypeField = true
+    .isIncompleteTypeField = true
   });
   st2->addField(new ComposableField(new Pointer(st1), "st2SubSt1", composableFieldAttrib));
   st2->addField(new ComposableField(new Pointer(st2), "st2SubSt2", composableFieldAttrib));

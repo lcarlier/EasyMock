@@ -54,13 +54,13 @@ public:
   std::string getFunctionPrototype() const;
 
   /*!
-   * \brief Returns a Parameter::Vector containing the list of all the parameters
-   * that can be given to the function.
+   * \copydoc ::Function::getFunctionsParameters()
    */
   const Parameter::Vector& getFunctionsParameters() const;
 
   /*!
-   * \copydoc getFunctionsParameters()
+   * \brief Returns a Parameter::Vector containing the list of all the parameters
+   * that can be given to the function.
    */
   Parameter::Vector& getFunctionsParameters();
 
@@ -74,7 +74,7 @@ public:
   /*!
    * \brief Set whether a function is variadic or not.
    *
-   * \see isVariadic()
+   * \see ::Function::isVariadic() const
    */
   void setVariadic(bool value);
 
@@ -90,7 +90,7 @@ public:
   /*!
    * \brief Returns whether a function is inlined.
    *
-   * \see isInlined()
+   * \see ::Function::isInlined() const
    */
   void setInlined(bool value);
 

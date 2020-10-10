@@ -6,7 +6,7 @@ Pointer(p_type, "", p_isConst)
 }
 
 Pointer::Pointer(TypeItf *p_type,  const std::string p_type_def_name, bool p_isConst):
-TypeItf("", p_type_def_name), m_pointedType(p_type), m_isRecursivePointer(false)
+TypeItf("", p_type_def_name), m_pointedType(p_type), m_isIncompletePointerType(false)
 {
   this->setConst(p_isConst);
   this->setPointer(true);
@@ -16,11 +16,11 @@ Pointer::Pointer(const Pointer& other):
 TypeItf(other)
 {
   m_pointedType = other.m_pointedType->clone();
-  m_isRecursivePointer = other.m_isRecursivePointer;
+  m_isIncompletePointerType = other.m_isIncompletePointerType;
 }
 
 Pointer::Pointer(Pointer &&other):
-TypeItf(other), m_pointedType(nullptr), m_isRecursivePointer(false)
+TypeItf(other), m_pointedType(nullptr), m_isIncompletePointerType(false)
 {
   swap(*this, other);
 }
@@ -55,7 +55,7 @@ TypeItf* Pointer::getPointedType()
 
 bool Pointer::setPointedType(TypeItf* newPointedType)
 {
-  if(m_pointedType && !m_isRecursivePointer)
+  if(m_pointedType && !m_isIncompletePointerType)
   {
     delete m_pointedType;
     m_pointedType = nullptr;
@@ -64,15 +64,15 @@ bool Pointer::setPointedType(TypeItf* newPointedType)
   return true;
 }
 
-void Pointer::setRecursivePointer(bool value)
+void Pointer::setIncompleteTypePointer(bool value)
 {
-  m_isRecursivePointer = value;
+  m_isIncompletePointerType = value;
 }
 
 void Pointer::swap(Pointer &first, Pointer &second)
 {
   std::swap(first.m_pointedType, second.m_pointedType);
-  std::swap(first.m_isRecursivePointer, second.m_isRecursivePointer);
+  std::swap(first.m_isIncompletePointerType, second.m_isIncompletePointerType);
 }
 
 bool Pointer::isEqual(const TypeItf& p_other) const
@@ -87,13 +87,13 @@ bool Pointer::isEqual(const TypeItf& p_other) const
     return false;
   }
   const Pointer& other = static_cast<const Pointer&>(p_other);
-  bool deletePointedTypeEqual = this->m_isRecursivePointer == other.m_isRecursivePointer;
+  bool deletePointedTypeEqual = this->m_isIncompletePointerType == other.m_isIncompletePointerType;
   if(!deletePointedTypeEqual)
   {
     return false;
   }
   bool typeEqual;
-  if(!this->m_isRecursivePointer)
+  if(!this->m_isIncompletePointerType)
   {
     typeEqual = *this->m_pointedType == *other.m_pointedType;
   }
