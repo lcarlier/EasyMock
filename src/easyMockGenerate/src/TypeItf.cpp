@@ -27,7 +27,8 @@ TypeItf({.name = p_name, .typedDefName = p_typed_def_name,
         .isFunction = false,
         .isEnum = false,
         .isConst = false,
-        .isImplicit = false
+        .isImplicit = false,
+        .isIncompleteType = false
         })
 {
 }
@@ -44,6 +45,7 @@ TypeItf::TypeItf(TypeItf::attributes attrib)
   this->m_isEnum = attrib.isEnum;
   this->m_isConst = attrib.isConst;
   this->m_isImplicit = attrib.isImplicit;
+  this->m_isIncompleteType = attrib.isIncompleteType;
 }
 
 const std::string &TypeItf::getName() const
@@ -143,7 +145,7 @@ void TypeItf::setName(std::string p_name)
 
 bool TypeItf::isStruct() const
 {
-  return m_isStruct;
+  return !m_isIncompleteType && m_isStruct;
 }
 
 //Protected
@@ -154,7 +156,7 @@ void TypeItf::setStruct(bool value)
 
 bool TypeItf::isUnion() const
 {
-  return m_isUnion;
+  return !m_isIncompleteType && m_isUnion;
 }
 
 //Protected
@@ -177,7 +179,7 @@ TypeItf* TypeItf::setConst(bool value)
 
 bool TypeItf::isImplicit() const
 {
-  return m_isImplicit;
+  return !m_isIncompleteType && m_isImplicit;
 }
 
 TypeItf* TypeItf::setImplicit(bool value)
@@ -225,6 +227,11 @@ void TypeItf::setEnum(bool value)
   m_isEnum = value;
 }
 
+void TypeItf::setIncompleteType(bool value)
+{
+  m_isIncompleteType = value;
+}
+
 bool TypeItf::isTypedDef() const
 {
   return m_typedDefName.size() != 0;
@@ -238,22 +245,27 @@ bool TypeItf::isAnonymous() const
 
 bool TypeItf::isComposableType() const
 {
-  return m_isStruct || m_isUnion;
+  return !m_isIncompleteType && (m_isStruct || m_isUnion);
 }
 
 bool TypeItf::isPointer() const
 {
-  return m_isPointer;
+  return !m_isIncompleteType && m_isPointer;
 }
 
 bool TypeItf::isFunction() const
 {
-  return m_isFunction;
+  return !m_isIncompleteType && m_isFunction;
 }
 
 bool TypeItf::isEnum() const
 {
-  return m_isEnum;
+  return !m_isIncompleteType && m_isEnum;
+}
+
+bool TypeItf::isIncompleteType() const
+{
+  return m_isIncompleteType;
 }
 
 easyMock_cTypes_t TypeItf::getCType() const
@@ -277,7 +289,8 @@ bool TypeItf::isEqual(const TypeItf& other) const
           this->m_isFunction == other.m_isFunction &&
           this->m_isEnum == other.m_isEnum &&
           this->m_isConst == other.m_isConst &&
-          this->m_isImplicit == other.m_isImplicit;
+          this->m_isImplicit == other.m_isImplicit &&
+          this->m_isIncompleteType == other.m_isIncompleteType;
 }
 
 bool TypeItf::operator!=(const TypeItf& other) const

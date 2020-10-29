@@ -47,6 +47,10 @@ const TypeItf* Declarator::getType() const
 
 void Declarator::setType(TypeItf* type)
 {
+  if(m_type)
+  {
+    delete m_type;
+  }
   m_type = type;
   m_declaredString.clear();
   if(m_type)

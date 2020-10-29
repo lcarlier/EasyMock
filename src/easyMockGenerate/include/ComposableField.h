@@ -60,54 +60,17 @@ public:
      * - <tt>arraySize > 0 </tt>: means that this fields is a bounded array. I.e isBoundSpecifiedArray() returns <tt>true</tt>
      */
     int64_t arraySize;
-    /*!
-     * \brief Set the field's type as being incomplete
-     * \see ::ComposableField::ComposableField(TypeItf *p_type, std::string p_name, attributes p_attrib)
-     */
-    bool isIncompleteTypeField;
   } attributes;
   ComposableField(const easyMock_cTypes_t p_ctype, std::string p_name);
   ComposableField(TypeItf *p_type, std::string p_name);
   /*!
    * \brief Creates a new ComposableField
    *
+   * It is possible to represent forward declared type or recursively used
+   * type by using the ::IncompleteType class
+   *
    * \heapPointer
    *
-   * \warning However, there is an exception here. The ownership of the pointer
-   * is not given to the ComposableField object whenever the field
-   * <tt>isIncompleteTypeField</tt> is set to <tt>true</tt>. I.e the pointer passed via the
-   * <tt>p_type</tt> parameter <b>will not be deleted</b> by the ComposiableField
-   * class. If you pass a pointer allocated via the new operator and do not
-   * delete it somewhere else (e.g. by passing it to another class which inherit from TypeItf),
-   * there will be a memory leak.
-   *
-   * To represent the following structure
-   * \code{.c}
-   * struct s
-   * {
-   *   struct s* s1;
-   * };
-   * void foo(struct s param);
-   * \endcode
-   * The following code can be used
-   * \code{.cpp}
-   * //Create the StructType object;
-   * StructType *sStructType = new StructType("s");
-   *
-   * //Add the s1 field. Its type is set as recursive/incomplete
-   * ComposableField::attributes fieldAttr;
-   * fieldAttr.isIncompleteTypeField = true;
-   * fieldAttr.arraySize = -1;
-   * sStructType->addField(new ComposableField(sStructType, "s1", fieldAttr));
-   *
-   * //Add the StructType object to a parameter.
-   * //If this was not done, we would need to delete sStructType manually
-   * Parameter *p = new Parameter(sStructType, "param");
-   *
-   * //Create the function on the stack. When the variable goes out of scope,
-   * //all the memory is cleaned up
-   * Function f("foo", new ReturnValue(new CType(CTYPE_VOID)), Parameter::Vector({p}));
-   * \endcode
    */
   ComposableField(TypeItf *p_type, std::string p_name, attributes p_attrib);
 
@@ -152,24 +115,13 @@ public:
   bool operator!=(const ComposableField &other) const;
 
   /*!
-   * \copydoc Declarator::getType()
-   */
-  TypeItf* getType() override;
-  /*!
-   * \copydoc Declarator::getType()
-   */
-  const TypeItf* getType() const override;
-  /*!
    * \brief Returns the name of the field.
    *
    * The string returned is empty if the field is anonymous.
    * \see isAnonymous()
    */
   const std::string& getName() const;
-  /*!
-   * \copydoc Declarator::setType()
-   */
-  void setType(TypeItf* type) override;
+
   /*!
    * \brief Returns if the field is an array.
    *
@@ -247,6 +199,9 @@ public:
    */
   bool isAnonymous() const;
 
+  /*!
+   * \copydoc TypeItf::clone
+   */
   virtual ComposableField* clone() const;
 
   virtual ~ComposableField();
@@ -254,11 +209,9 @@ public:
 private:
   /* Do not make this constant otherwise the object is not copyable anymore */
   std::string m_name;
-  Pointer* m_incompleteType;
   int64_t m_arraySize;
 
   friend void swap(ComposableField &first, ComposableField &second);
-  void updateIncompleteTypePtr(ComposableType *ptr, const ComposableType* toReplace);
 
   /*
    * I wish I could friend only

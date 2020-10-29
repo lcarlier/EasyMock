@@ -11,6 +11,7 @@
 #include <FunctionType.h>
 #include <FunctionDeclaration.h>
 #include <Enum.h>
+#include <IncompleteType.h>
 
 template<class T>
 static void printComposableTypeToOstream(std::ostream& os, const T& composableType, std::string classname);
@@ -78,6 +79,7 @@ std::ostream& operator<<(std::ostream& os, const TypeItf& typeItf)
   os << "isUnion:" << (typeItf.isUnion() ? "yes" : "no") << ", ";
   os << "isImplicit:" << (typeItf.isImplicit() ? "yes" : "no") << ", ";
   os << "isEnum:" << (typeItf.isEnum() ? "yes" : "no") << ", ";
+  os << "isIncomplete:" << (typeItf.isIncompleteType() ? "yes" : "no") << ", ";
   os << std::endl << gs_indentation;
 
   if(typeItf.isCType())
@@ -99,6 +101,10 @@ std::ostream& operator<<(std::ostream& os, const TypeItf& typeItf)
   else if(typeItf.isEnum())
   {
     os << dynamic_cast<const Enum &>(typeItf);
+  }
+  else if(typeItf.isIncompleteType())
+  {
+    os << dynamic_cast<const IncompleteType &>(typeItf);
   }
   return os;
 }
@@ -191,4 +197,9 @@ static void printComposableTypeToOstream(std::ostream& os, const T& composableTy
 std::ostream& operator<<(std::ostream& os, const Enum& etype)
 {
   return os << "Enum: name:'" << etype.getName() << "' typedef:'" << etype.getTypedDefName() << "'" << std::endl;
+}
+
+std::ostream& operator<<(std::ostream& os, const IncompleteType& incType)
+{
+  return os << "Incomplete Type: name:'" << incType.getName() << "' typedef:'" << incType.getTypedDefName() << "'" << std::endl;
 }

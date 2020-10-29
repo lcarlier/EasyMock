@@ -99,11 +99,11 @@ public:
   void setDeclareString(const std::string& newString);
 
   /*!
-   * \brief Compares 2 Declarator objects.
+   * \brief Compares 2 ::Declarator objects.
    *
    * Unlike the TypeItf object, this function doesn't call a virtual
    * protected isEqual() method. This is because the purpose of this object
-   * is not be to used via it's main parent class (i.e. Declarator).
+   * is not be to used via it's main parent class (i.e. ::Declarator).
    */
   bool operator==(const Declarator &other) const;
   bool operator!=(const Declarator &other) const;

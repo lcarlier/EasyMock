@@ -10,6 +10,7 @@
 #include <FunctionDeclaration.h>
 #include <FunctionType.h>
 #include <Enum.h>
+#include <IncompleteType.h>
 
 #include <gtestPrintClasses.h>
 
@@ -78,12 +79,7 @@ TEST(moveCopy, ConstPointer)
 TEST(moveCopy, PointerWithRecursField)
 {
   StructType *t_struct = new StructType("s_s1", "t_s1", false);
-  ComposableField::attributes cmpAttr =
-  {
-    .arraySize = -1,
-    .isIncompleteTypeField = true
-  };
-  t_struct->addField(new ComposableField(new Pointer(t_struct), "recur", cmpAttr));
+  t_struct->addField(new ComposableField(new Pointer(new IncompleteType(*t_struct)), "recur"));
 
   Pointer p1(t_struct);
 
@@ -134,8 +130,7 @@ TEST(moveCopy, StructFieldBoundedArray)
 {
   ComposableField::attributes composableFieldParam(
   {
-    .arraySize = 10,
-    .isIncompleteTypeField = false
+    .arraySize = 10
   }
   );
   ComposableField f1(new CType(CTYPE_INT), "boundedArray", composableFieldParam);
@@ -147,8 +142,7 @@ TEST(moveCopy, StructFieldUnBoundedArray)
 {
   ComposableField::attributes composableFieldParam(
   {
-    .arraySize = 0,
-    .isIncompleteTypeField = false
+    .arraySize = 0
   }
   );
   ComposableField f1(new CType(CTYPE_INT), "unBoundedArray", composableFieldParam);
@@ -212,16 +206,9 @@ TEST(moveCopy, UnionType)
 TEST(moveCopy, StructTypeRecursive)
 {
   const TypeItf *pointedType = nullptr;
-  bool isRecursiveType = true;
   bool isEmbeddedInOtherType = false;
   StructType st1("recurs1", isEmbeddedInOtherType);
-  ComposableField::attributes attrib(
-  {
-    .arraySize = -1,
-    .isIncompleteTypeField = isRecursiveType
-  }
-  );
-  st1.addField(new ComposableField(new Pointer(&st1), "rfield", attrib));
+  st1.addField(new ComposableField(new Pointer(new IncompleteType(st1)), "rfield"));
   st1.addField(new ComposableField(new CType(CTYPE_INT), "intField"));
   StructType st2(st1);
   ASSERT_EQ(st1, st2);
@@ -237,14 +224,14 @@ TEST(moveCopy, StructTypeRecursive)
   const ComposableField::Vector& st3ContaineField = st3.getContainedFields();
   pointedType = dynamic_cast<const Pointer *>(st3ContaineField[0].getType())->getPointedType();
   ASSERT_EQ(st3.getFullDeclarationName(), pointedType->getFullDeclarationName());
-  ASSERT_TRUE(pointedType->isComposableType());
+  ASSERT_TRUE(pointedType->isIncompleteType());
 
   StructType st4 = std::move(st3);
   ASSERT_EQ(st4, st1);
   const ComposableField::Vector& st4ContaineField = st4.getContainedFields();
   pointedType = dynamic_cast<const Pointer *>(st4ContaineField[0].getType())->getPointedType();
   ASSERT_EQ(st4.getFullDeclarationName(), pointedType->getFullDeclarationName());
-  ASSERT_TRUE(pointedType->isComposableType());
+  ASSERT_TRUE(pointedType->isIncompleteType());
 
   StructType st6("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "i")}), isEmbeddedInOtherType);
   ASSERT_NE(st6, st2);
@@ -253,23 +240,16 @@ TEST(moveCopy, StructTypeRecursive)
   const ComposableField::Vector& st6ContaineField = st6.getContainedFields();
   pointedType = dynamic_cast<const Pointer *>(st6ContaineField[0].getType())->getPointedType();
   ASSERT_EQ(st6.getFullDeclarationName(), pointedType->getFullDeclarationName());
-  ASSERT_TRUE(pointedType->isComposableType());
+  ASSERT_TRUE(pointedType->isIncompleteType());
 }
 
 TEST(moveCopy, StructTypeSubFieldRecursive)
 {
   const TypeItf *pointedType = nullptr;
-  bool isRecursiveType = true;
   bool isEmbeddedInOtherType = true;
   StructType st1("recurs1", isEmbeddedInOtherType);
   StructType* subSt = new StructType("subSt", isEmbeddedInOtherType);
-  ComposableField::attributes attrib(
-  {
-    .arraySize = -1,
-    .isIncompleteTypeField = isRecursiveType
-  }
-  );
-  subSt->addField(new ComposableField(new Pointer(&st1), "rfield", attrib));
+  subSt->addField(new ComposableField(new Pointer(new IncompleteType(st1)), "rfield"));
   st1.addField(new ComposableField(subSt, "subField"));
   subSt = nullptr; //Dereference, pointer is not usable here anymore
   StructType st2(st1);
@@ -278,12 +258,12 @@ TEST(moveCopy, StructTypeSubFieldRecursive)
   const ComposableField::Vector& st1SubStContainerField = st1ContaineField[0].getType()->getContainedFields();
   pointedType = dynamic_cast<const Pointer *>(st1SubStContainerField[0].getType())->getPointedType();
   ASSERT_EQ(st1.getFullDeclarationName(), pointedType->getFullDeclarationName());
-  ASSERT_TRUE(pointedType->isComposableType());
+  ASSERT_TRUE(pointedType->isIncompleteType());
   const ComposableField::Vector& st2ContaineField = st2.getContainedFields();
   const ComposableField::Vector& st2SubStContainerField = st2ContaineField[0].getType()->getContainedFields();
   pointedType = dynamic_cast<const Pointer *>(st2SubStContainerField[0].getType())->getPointedType();
   ASSERT_EQ(st2.getFullDeclarationName(), pointedType->getFullDeclarationName());
-  ASSERT_TRUE(pointedType->isComposableType());
+  ASSERT_TRUE(pointedType->isIncompleteType());
 
   StructType st3("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "i")}), isEmbeddedInOtherType);
   ASSERT_NE(st3,st1);
@@ -293,7 +273,7 @@ TEST(moveCopy, StructTypeSubFieldRecursive)
   const ComposableField::Vector& st3SubStContainerField = st3ContaineField[0].getType()->getContainedFields();
   pointedType = dynamic_cast<const Pointer *>(st3SubStContainerField[0].getType())->getPointedType();
   ASSERT_EQ(st3.getFullDeclarationName(), pointedType->getFullDeclarationName());
-  ASSERT_TRUE(pointedType->isComposableType());
+  ASSERT_TRUE(pointedType->isIncompleteType());
 
   StructType st4 = std::move(st3);
   ASSERT_EQ(st4, st1);
@@ -334,14 +314,8 @@ static void runTypeTwoRecursiveTypes(T &s2)
 {
   bool isEmbeddedInOtherType = false;
   T *s1 = new T("s1", isEmbeddedInOtherType);
-  ComposableField::attributes attrib(
-  {
-    .arraySize = -1,
-    .isIncompleteTypeField = true
-  }
-  );
-  s1->addField(new ComposableField(new Pointer(s1), "s1SubS1", attrib));
-  s1->addField(new ComposableField(new Pointer(&s2), "s1SubS2", attrib));
+  s1->addField(new ComposableField(new Pointer(new IncompleteType(*s1)), "s1SubS1"));
+  s1->addField(new ComposableField(new Pointer(new IncompleteType(s2)), "s1SubS2"));
 
   s2.addField(new ComposableField(s1, "s2SubS1"));
 
@@ -422,17 +396,11 @@ TEST(moveCopy, fromSTDIO)
   StructType *FILE_T = new StructType("MY_IO_FILE", "T_MY_IO_FILE", isEmbeddedInOtherType);
   StructType *IO_MARK = new StructType("MY_IO_MARK", isEmbeddedInOtherType);
 
-  ComposableField::attributes fieldAttr =
-  {
-    .arraySize = -1,
-    .isIncompleteTypeField = true
-  };
-
-  IO_MARK->addField(new ComposableField(new Pointer(IO_MARK), "_next", fieldAttr));
-  IO_MARK->addField(new ComposableField(new Pointer(FILE_T), "_sbuf", fieldAttr));
+  IO_MARK->addField(new ComposableField(new Pointer(new IncompleteType(*IO_MARK)), "_next"));
+  IO_MARK->addField(new ComposableField(new Pointer(new IncompleteType(*FILE_T)), "_sbuf"));
 
   FILE_T->addField(new ComposableField(new Pointer(IO_MARK), "_markers"));
-  FILE_T->addField(new ComposableField(new Pointer(FILE_T), "_chain", fieldAttr));
+  FILE_T->addField(new ComposableField(new Pointer(new IncompleteType(*FILE_T)), "_chain"));
 
   Parameter *p = new Parameter(new Pointer(FILE_T), "file");
   FILE_T = nullptr; //We lost the ownership
@@ -520,13 +488,8 @@ TEST(moveCopy, ParameterWithStructSubRecursive)
   StructType *st2 = new StructType("st2", isEmbeddedInOtherType);
   st1->addField(new ComposableField(st2, "st1SubSt2"));
   //st1 is recursive in st2 because it is access via the parameter "st1Val" which is type st2 and has a st1 as field member
-  ComposableField::attributes composableFieldAttrib(
-  {
-    .arraySize = -1,
-    .isIncompleteTypeField = true
-  });
-  st2->addField(new ComposableField(new Pointer(st1), "st2SubSt1", composableFieldAttrib));
-  st2->addField(new ComposableField(new Pointer(st2), "st2SubSt2", composableFieldAttrib));
+  st2->addField(new ComposableField(new Pointer(new IncompleteType(*st1)), "st2SubSt1"));
+  st2->addField(new ComposableField(new Pointer(new IncompleteType(*st2)), "st2SubSt2"));
   Parameter p1(st1, "st1Val");
 
   testMoveCopyParameter(p1);
@@ -539,13 +502,8 @@ TEST(moveCopy, ParameterWithPointerToStructSubRecursive)
   StructType *st2 = new StructType("st2", isEmbeddedInOtherType);
   st1->addField(new ComposableField(st2, "st1SubSt2"));
   //st1 is recursive in st2 because it is access via the parameter "st1Val" which is type st2 and has a st1 as field member
-  ComposableField::attributes composableFieldAttrib(
-  {
-    .arraySize = -1,
-    .isIncompleteTypeField = true
-  });
-  st2->addField(new ComposableField(new Pointer(st1), "st2SubSt1", composableFieldAttrib));
-  st2->addField(new ComposableField(new Pointer(st2), "st2SubSt2", composableFieldAttrib));
+  st2->addField(new ComposableField(new Pointer(new IncompleteType(*st1)), "st2SubSt1"));
+  st2->addField(new ComposableField(new Pointer(new IncompleteType(*st2)), "st2SubSt2"));
   Parameter p1(new Pointer(st1), "st1Val");
 
   testMoveCopyParameter(p1);

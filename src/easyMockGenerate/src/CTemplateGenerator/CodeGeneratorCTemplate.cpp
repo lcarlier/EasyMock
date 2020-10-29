@@ -928,72 +928,55 @@ void CodeGeneratorCTemplate::generateBodyStructCompare(ctemplate::TemplateDictio
   if(curFieldType->isComposableType())
   {
     const ComposableType* curFieldComposableType = dynamic_cast<const ComposableType*>(curFieldType);
-    if(p_curField->isIncompleteTypeField())
+    std::string condition;
+    ctemplate::TemplateDictionary *ifPreSectionDict = p_paramSectDict->AddSectionDictionary(STRUCT_COMPARE_PRE_IF_SECTION);
+    std::string uniqueName = curFieldComposableType->getUniqueName();
+
+    std::string preFieldVarName("");
+    if(p_curField->isAnonymous())
     {
-      //Incomplete types are pointers, so a simple field generation will do
-      generateBasicTypeField(p_curField, p_paramSectDict, p_parentComposedType, p_declPrepend);
+      preFieldVarName.append("parameter_");
+      preFieldVarName.append(std::to_string(s_nbAnonymousField));
+      s_nbAnonymousField++;
     }
     else
     {
-      std::string condition;
-      ctemplate::TemplateDictionary *ifPreSectionDict = p_paramSectDict->AddSectionDictionary(STRUCT_COMPARE_PRE_IF_SECTION);
-      std::string uniqueName = curFieldComposableType->getUniqueName();
-
-      std::string preFieldVarName("");
-      if(p_curField->isAnonymous())
-      {
-        preFieldVarName.append("parameter_");
-        preFieldVarName.append(std::to_string(s_nbAnonymousField));
-        s_nbAnonymousField++;
-      }
-      else
-      {
-        preFieldVarName.append(p_curField->getName());
-        preFieldVarName.append("_parameter");
-        std::string ifSectionFieldName(".");
-        ifSectionFieldName.append(p_curField->getName());
-        ifPreSectionDict->SetValue(STRUCT_COMPARE_PRE_IF_SECTION_FIELD_NAME, ifSectionFieldName);
-      }
-      ifPreSectionDict->SetValue(STRUCT_COMPARE_PRE_IF_SECTION_VAR_NAME, preFieldVarName.c_str());
-      condition.append("cmp_");
-      if(curFieldComposableType->isDeclarationEmbeddedInOtherType())
-      {
-        condition.append(p_uniquePrepend);
-        condition.push_back('_');
-      }
-      condition.append(uniqueName);
-      condition.push_back('(');
-      generateFieldCmp(condition, p_parentComposedType, p_curField, p_previousField, "currentCall_val");
-      condition.append(", ");
-      generateFieldCmp(condition, p_parentComposedType, p_curField, p_previousField, "expectedCall_val");
-      condition.append(", ");
-      condition.append(preFieldVarName.c_str());
-      condition.append(".c_str(), errorMessage)");
-
-      p_uniquePrepend.push_back('_');
-      p_declPrepend.append("::");
-      generateComposedTypedCompareSection(p_rootDictionnary, curFieldComposableType, p_uniquePrepend, p_declPrepend);
-
-      p_paramSectDict->SetValue(COMPARE_CONDITION, condition);
+      preFieldVarName.append(p_curField->getName());
+      preFieldVarName.append("_parameter");
+      std::string ifSectionFieldName(".");
+      ifSectionFieldName.append(p_curField->getName());
+      ifPreSectionDict->SetValue(STRUCT_COMPARE_PRE_IF_SECTION_FIELD_NAME, ifSectionFieldName);
     }
+    ifPreSectionDict->SetValue(STRUCT_COMPARE_PRE_IF_SECTION_VAR_NAME, preFieldVarName.c_str());
+    condition.append("cmp_");
+    if(curFieldComposableType->isDeclarationEmbeddedInOtherType())
+    {
+      condition.append(p_uniquePrepend);
+      condition.push_back('_');
+    }
+    condition.append(uniqueName);
+    condition.push_back('(');
+    generateFieldCmp(condition, p_parentComposedType, p_curField, p_previousField, "currentCall_val");
+    condition.append(", ");
+    generateFieldCmp(condition, p_parentComposedType, p_curField, p_previousField, "expectedCall_val");
+    condition.append(", ");
+    condition.append(preFieldVarName.c_str());
+    condition.append(".c_str(), errorMessage)");
+
+    p_uniquePrepend.push_back('_');
+    p_declPrepend.append("::");
+    generateComposedTypedCompareSection(p_rootDictionnary, curFieldComposableType, p_uniquePrepend, p_declPrepend);
+
+    p_paramSectDict->SetValue(COMPARE_CONDITION, condition);
   }
-  else if (curFieldType->isCType())
+  else if (
+             curFieldType->isCType()
+          || curFieldType->isFunction()
+          || curFieldType->isEnum()
+          || curFieldType->isPointer()
+          || curFieldType->isIncompleteType()
+          )
   {
-    generateBasicTypeField(p_curField, p_paramSectDict, p_parentComposedType, p_declPrepend);
-  }
-  else if (curFieldType->isFunction())
-  {
-    //Function types are pointers, so a simple field generation will do
-    generateBasicTypeField(p_curField, p_paramSectDict, p_parentComposedType, p_declPrepend);
-  }
-  else if (curFieldType->isEnum())
-  {
-    //Enum types are like CType, so a simple field generation will do
-    generateBasicTypeField(p_curField, p_paramSectDict, p_parentComposedType, p_declPrepend);
-  }
-  else if (curFieldType->isPointer())
-  {
-    //Pointer types are like CType, so a simple field generation will do
     generateBasicTypeField(p_curField, p_paramSectDict, p_parentComposedType, p_declPrepend);
   }
   else

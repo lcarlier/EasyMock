@@ -50,7 +50,7 @@ public:
 
   /*!
    * \brief Returns the C type this type defines
-   * \warning The value returned is only valid if TypeItf::isCType() returns true
+   * \warning The value returned is only valid if ::TypeItf::isCType() returns true
    * \return If this type is a C type, the actual type
    * \return If this is not a C type, returns easyMock_cTypes_t::CTYPE_INVALID
    */
@@ -58,10 +58,10 @@ public:
 
   /*!
    * \brief Returns the fields contained by the type
-   * \warning If this function is called when TypeItf::isComposableType() returns false,
+   * \warning If this function is called when ::TypeItf::isComposableType() returns false,
    * the function will abort the execution of the program with an assert.
-   * \warning If isComposableType() is false, an assert will be generated
-   * \return A ComposableField::Vector containing the fields contained by the type
+   * \warning If ::TypeItf::isComposableType() is false, an assert will be generated
+   * \return A ::ComposableField::Vector containing the fields contained by the type
    */
   virtual ComposableField::Vector& getContainedFields();
 
@@ -79,9 +79,9 @@ public:
    * };
    * \endcode
    * When this function returns true, the pointer or reference holding this type
-   * can be safely downcasted to a ComposableType instance of a StructType instance.
+   * can be safely downcasted to a ::ComposableType instance or a ::StructType instance.
    *
-   * The fields definition can be access via the ComposableType::getContainedFields() function.
+   * The fields definition can be access via the ::ComposableType::getContainedFields() function.
    *
    * \return True if the type is a struct.
    * \return False instead.
@@ -99,9 +99,9 @@ public:
    * };
    * \endcode
    * When this function returns true, a pointer or reference holding this type
-   * can be safely downcasted to a ComposableType instance of a UnionType instance.
+   * can be safely downcasted to a ::ComposableType instance or a ::UnionType instance.
    *
-   * The fields definition can be access via the ComposableType::getContainedFields() function.
+   * The fields definition can be access via the ::ComposableType::getContainedFields() function.
    *
    * \return True if the type is an union.
    * \return False instead.
@@ -114,9 +114,9 @@ public:
    * All the basic C types (int, short, float, ...) are considered to be a valid C type
    *
    * When this function returns true, a pointer or reference holding this type
-   * can be safely downcasted to a CType instance.
+   * can be safely downcasted to a ::CType instance.
    *
-   * When this function returns true, the function TypeItf::getCType() returns the actual
+   * When this function returns true, the function ::TypeItf::getCType() returns the actual
    * C type this type defines
    *
    * \return True if the type is an union.
@@ -127,13 +127,13 @@ public:
   /*!
    * \brief Returns if the type has a typedef alias.
    *
-   * A typedef alias can be set with the TypeItf::setTypedDefName() function
+   * A typedef alias can be set with the ::TypeItf::setTypedDefName() function
    *
-   * When this function returns true, the function TypeItf::getTypedDefName() can
+   * When this function returns true, the function ::TypeItf::getTypedDefName() can
    * be used to retrieve it.
    *
-   * When this function returns true, the function TypeItf::getMostDefinedName()
-   * returns the same as TypeItf::getTypedDefName()
+   * When this function returns true, the function ::TypeItf::getMostDefinedName()
+   * returns the same as ::TypeItf::getTypedDefName()
    *
    * \return True if the type has a typedef alias
    * \return False instead.
@@ -206,7 +206,7 @@ public:
    * \brief Returns if the type is composable (i.e. struct or union).
    *
    * When this function return true, a pointer or reference holding this type
-   * can be safely downcasted to a ComposableType instance.
+   * can be safely downcasted to a ::ComposableType instance.
    *
    * \return True if the type is composable
    * \return False instead.
@@ -217,9 +217,9 @@ public:
    * \brief Returns if the type is a Pointer.
    *
    * When this function return true, a pointer or reference holding this type
-   * can be safely downcasted to a Pointer instance.
+   * can be safely downcasted to a ::Pointer instance.
    *
-   * Use the function Pointer::getPointedType() to know the type on which
+   * Use the function ::Pointer::getPointedType() to know the type on which
    * the pointer points
    *
    * \return True if the type is a pointer
@@ -231,7 +231,7 @@ public:
    * \brief Returns if the type is a function.
    *
    * When this function returns true, a pointer or reference holding this
-   * type can safely downcasted to a FunctionType instance.
+   * type can safely downcasted to a ::FunctionType instance.
    *
    * A function type is all the time used in combination with a Pointer
    * object to represent a pointer to a function.
@@ -245,12 +245,23 @@ public:
    * \brief Returns if the type is an enum.
    *
    * When this function returns true, a pointer or reference holding this
-   * type can safely downcasted to an Enum instance.
+   * type can safely downcasted to an ::Enum instance.
    *
    * \return True if the type is an enum.
    * \return False instead.
    */
   bool isEnum() const;
+
+  /*!
+   * \brief Returns if the type is an incomplete type.
+   *
+   * When this function returns true, a pointer or reference holding this
+   * type can safely downcasted to an ::IncompleteType instance.
+   *
+   * \return True if the type is an incomplete type.
+   * \return False instead.
+   */
+  bool isIncompleteType() const;
 
   /*!
    * \brief Returns if the type was declare using the \c const keyword.
@@ -300,11 +311,11 @@ public:
    * \brief Checks if 2 TypeItf instances are equal.
    *
    * In order to support the comparison of 2 objects that inherits from TypeItf
-   * stored into TypeItf pointers, this function calls the isEqual() virtual protected
+   * stored into TypeItf pointers, this function calls the ::TypeItf::isEqual() virtual protected
    * method. This allows the comparison of 2 objects hold in TypeItf pointers to be
    * compared because each class inheriting from TypeItf can reimplement this function.
    *
-   * \see isEqual()
+   * \see ::TypeItf::isEqual()
    */
   bool operator==(const TypeItf &other) const;
   bool operator!=(const TypeItf &other) const;
@@ -335,7 +346,8 @@ public:
   bool prefix ## isFunction; \
   bool prefix ## isEnum; \
   bool prefix ## isConst; \
-  bool prefix ## isImplicit;
+  bool prefix ## isImplicit; \
+  bool prefix ## isIncompleteType;
 
 protected:
   TypeItf();
@@ -345,21 +357,21 @@ protected:
   /*!
    * \brief Specify that the type is a C structure.
    *
-   * It is called by StructType objects
+   * It is called by ::StructType objects
    */
   void setStruct(bool value);
 
   /*!
    * \brief Specify that the type is a C union.
    *
-   * It is called by UnionType objects
+   * It is called by ::UnionType objects
    */
   void setUnion(bool value);
 
   /*!
    * \brief Specify that the type is a C type.
    *
-   * It is called by CType objects
+   * It is called by ::CType objects
    */
   void setCType(bool value);
 
@@ -385,6 +397,13 @@ protected:
   void setEnum(bool value);
 
   /*!
+   * \brief Specify that the type is an incomplete type.
+   *
+   * It is called by ::IncompleteType objects
+   */
+  void setIncompleteType(bool value);
+
+  /*!
    * \brief Function called by the subclasses to set the type name.
    *
    * For C type, it is the string to be used to declare a variable of that C type (e.g. <tt>unsigned int</tt>).
@@ -407,7 +426,7 @@ protected:
    * and is called from the operator==() function.
    *
    * This function is virtual and is meant to be overwritten by the subclass.
-   * Thanks to that, the following example code calls the isEqual implementation of the CType class.
+   * Thanks to that, the following example code calls the ::TypeItf::isEqual implementation of the ::CType class.
    * \code{.cpp}
    * TypeItf *t1 = new CType(CTYPE_INT);
    * TypeItf *t2 = new CType(CTYPE_INT);
@@ -417,7 +436,7 @@ protected:
    *
    * When a subclass implements this method, it is very important to make sure that
    * the function makes sure that the <tt>other</tt> parameter have the same type.
-   * This can typically be achieve by calling the TypeItf::isEqual function.
+   * This can typically be achieve by calling the ::TypeItf::isEqual function.
    * \code{.cpp}
    * bool isEqual(const TypeItf &p_other) const
    * {

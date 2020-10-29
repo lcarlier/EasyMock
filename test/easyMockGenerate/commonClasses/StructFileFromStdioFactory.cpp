@@ -4,6 +4,7 @@
 #include <ComposableField.h>
 #include <CType.h>
 #include <Pointer.h>
+#include <IncompleteType.h>
 
 FunctionDeclaration StructFileFromStdioFactory::functionFactory()
 {
@@ -11,22 +12,16 @@ FunctionDeclaration StructFileFromStdioFactory::functionFactory()
   StructType *FILE_T = new StructType("MY_IO_FILE", "T_MY_IO_FILE", isEmbeddedInOtherType);
   StructType *IO_MARK = new StructType("MY_IO_MARK", isEmbeddedInOtherType);
 
-  ComposableField::attributes fieldAttr =
-  {
-    .arraySize = -1,
-    .isIncompleteTypeField = true
-  };
-
-  ComposableField* cf = new ComposableField(new Pointer(IO_MARK), "_next", fieldAttr);
+  ComposableField* cf = new ComposableField(new Pointer(new IncompleteType(*IO_MARK)), "_next");
   IO_MARK->addField(cf);
-  cf = new ComposableField(new Pointer(FILE_T), "_sbuf", fieldAttr);
+  cf = new ComposableField(new Pointer(new IncompleteType(*FILE_T)), "_sbuf");
   //When the _sbuf field is declared, it is not yet typed def
   cf->setDeclareString("struct MY_IO_FILE*");
   IO_MARK->addField(cf);
 
   cf = new ComposableField(new Pointer(IO_MARK), "_markers");
   FILE_T->addField(cf);
-  cf = new ComposableField(new Pointer(FILE_T), "_chain", fieldAttr);
+  cf = new ComposableField(new Pointer(new IncompleteType(*FILE_T)), "_chain");
   //When the _chain field is declared, it is not yet typed def
   cf->setDeclareString("struct MY_IO_FILE*");
   FILE_T->addField(cf);

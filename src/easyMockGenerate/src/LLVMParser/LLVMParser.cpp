@@ -7,6 +7,7 @@
 #include <CType.h>
 #include <Pointer.h>
 #include <Enum.h>
+#include <IncompleteType.h>
 
 #include <clang/AST/RecursiveASTVisitor.h>
 #include <clang/Frontend/CompilerInstance.h>
@@ -29,7 +30,7 @@
 class FunctionDeclASTVisitor : public clang::RecursiveASTVisitor<FunctionDeclASTVisitor>
 {
 private:
-  typedef std::unordered_map<std::string, ComposableType *> structKnownTypeMap;
+  typedef std::unordered_map<std::string, const IncompleteType> structKnownTypeMap;
 public:
 
   explicit FunctionDeclASTVisitor(clang::SourceManager& sm, ElementToMock::Vector& elem)
@@ -348,11 +349,11 @@ private:
 
     if(structKnownType.find(typedDefName) != structKnownType.end())
     {
-      return structKnownType[typedDefName];
+      return structKnownType.at(typedDefName).clone();
     }
     if(structKnownType.find(typeName) != structKnownType.end())
     {
-      return structKnownType[typeName];
+      return structKnownType.at(typeName).clone();
     }
 
     bool isEmbeddedInOtherType = false;
@@ -383,11 +384,11 @@ private:
     }
     if(!typedDefName.empty())
     {
-      structKnownType[typedDefName] = sType;
+      structKnownType.insert({typedDefName,IncompleteType(*sType)});
     }
     if(!typeName.empty())
     {
-      structKnownType[typeName] = sType;
+      structKnownType.insert({typeName, IncompleteType(*sType)});
     }
     for (clang::FieldDecl *FD :
           RD->fields()) {
@@ -395,32 +396,15 @@ private:
       const clang::Type *typePtr = qualType.getTypePtr();
       TypeItf *type = getEasyMocktype(qualType, structKnownType);
 
-      bool isIncompleteType = false;
-      const clang::QualType &mostDefineType = getDereferencedQualType(qualType);
-      const clang::Type *mostDefinedTypePtr = mostDefineType.getTypePtr();
-      const clang::RecordDecl* mostDefinedTypeRecDecl= mostDefinedTypePtr->getAsRecordDecl();
-      if(mostDefinedTypeRecDecl)
-      {
-        /*
-         * The assumption is that if the actual end of the definition of the
-         * type is after the field declaration and in the same file, then we
-         * are going through either a type which is forward declared or that
-         * is recursively used. In any case, we mark it as incomplete.
-         */
-        bool fileIdSame = this->m_sourceManager.getFilename(FD->getSourceRange().getBegin()) == this->m_sourceManager.getFilename(mostDefinedTypeRecDecl->getSourceRange().getEnd());
-        bool definedAfter = FD->getSourceRange().getBegin() < mostDefinedTypeRecDecl->getSourceRange().getEnd() && type->isPointer();
-        isIncompleteType = definedAfter && fileIdSame;
-      }
       int64_t arraySize = getArraySize(*typePtr);
       if(!typePtr->isArrayType())
       {
           arraySize = -1;
       }
       ComposableField::attributes attrib =
-        {
-         .arraySize            = arraySize,
-         .isIncompleteTypeField = isIncompleteType
-        };
+      {
+       .arraySize            = arraySize
+      };
       std::string fName = FD->getNameAsString();
       ComposableField *sf = new ComposableField(type, fName, attrib);
       setDeclaratorDeclareString(qualType, sf, getDeclareString(FD->getLocStart(), FD->getLocEnd()));
@@ -539,31 +523,6 @@ private:
       size = sizeMod.getSExtValue();
     }
     return size;
-  }
-
-  const clang::QualType& getDereferencedQualType(const clang::QualType& clangQualType)
-  {
-    const clang::Type &clangType = *clangQualType.getTypePtr();
-    if(clangType.isPointerType())
-    {
-      const clang::QualType &pointedType = clangType.getPointeeType();
-      return getDereferencedQualType(pointedType);
-    }
-    return clangQualType;
-  }
-
-  std::string getDereferencedTypeItf(const TypeItf *p_type)
-  {
-    std::string currentTypeName;
-    if(p_type->isPointer())
-    {
-      currentTypeName = getDereferencedTypeItf(dynamic_cast<const Pointer *>(p_type)->getPointedType());
-    }
-    else
-    {
-      currentTypeName = p_type->getMostDefinedName();
-    }
-    return currentTypeName;
   }
 
   void setDeclaratorDeclareString(const clang::QualType &clangQualType, Declarator* decl, const std::string &newString)

@@ -32,9 +32,7 @@ TypeItf(p_name, p_typed_def_name), m_elem(p_elem), m_is_declaration_embedded_in_
 
 ComposableType::ComposableType(const ComposableType& other) :
 TypeItf(other), m_elem(other.m_elem), m_is_declaration_embedded_in_other_type(other.m_is_declaration_embedded_in_other_type), m_anonymous_number(other.m_anonymous_number)
-{
-  correctIncompleteType(this, &other);
-}
+{}
 
 ComposableType & ComposableType::operator=(const ComposableType& other)
 {
@@ -42,7 +40,6 @@ ComposableType & ComposableType::operator=(const ComposableType& other)
   m_elem = other.m_elem;
   m_is_declaration_embedded_in_other_type = other.m_is_declaration_embedded_in_other_type;
   m_anonymous_number = other.m_anonymous_number;
-  correctIncompleteType(this, &other);
 
   return *this;
 }
@@ -53,7 +50,6 @@ TypeItf(static_cast<TypeItf&&>(other))
   m_elem = std::move(other.m_elem);
   m_is_declaration_embedded_in_other_type = std::move(other.m_is_declaration_embedded_in_other_type);
   m_anonymous_number = std::move(other.m_anonymous_number);
-  correctIncompleteType(this, &other);
 }
 
 void ComposableType::setFileHash(std::size_t hash)
@@ -129,15 +125,6 @@ const ComposableField::Vector& ComposableType::getContainedFields() const
 void ComposableType::addField(ComposableField* newField)
 {
   m_elem.push_back(newField);
-}
-
-void ComposableType::correctIncompleteType(ComposableType *newPtr, const ComposableType* toReplace)
-{
-  for (ComposableField::Vector::iterator it = m_elem.begin(); it != m_elem.end(); ++it)
-  {
-    ComposableField *curField = *it;
-    curField->updateIncompleteTypePtr(newPtr, toReplace);
-  }
 }
 
 ComposableType::~ComposableType() { }

@@ -14,6 +14,7 @@ class Pointer;
 class FunctionType;
 class FunctionDeclaration;
 class Enum;
+class IncompleteType;
 
 std::ostream& operator<<(std::ostream& os, const Function& fun);
 std::ostream& operator<<(std::ostream& os, const ReturnValue& rv);
@@ -27,6 +28,7 @@ std::ostream& operator<<(std::ostream& os, const Pointer& pointer);
 std::ostream& operator<<(std::ostream& os, const FunctionType& pointer);
 std::ostream& operator<<(std::ostream& os, const FunctionDeclaration& pointer);
 std::ostream& operator<<(std::ostream& os, const Enum& e);
+std::ostream& operator<<(std::ostream& os, const IncompleteType& incType);
 
 #endif /* GTESTPRINTCLASSES_H */
 

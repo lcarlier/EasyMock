@@ -10,8 +10,7 @@ FunctionDeclaration VoidFunStructWithArrayFactory::functionFactory()
   StructType *st = new StructType("structWithArray", isEmbeddedInOtherType);
   ComposableField::attributes composableFieldAttrib(
   {
-    .arraySize = 10,
-    .isIncompleteTypeField = false
+    .arraySize = 10
   });
   st->addField(new ComposableField(new CType(CTYPE_INT), "a", composableFieldAttrib));
   st->addField(new ComposableField(CTYPE_FLOAT, "f"));

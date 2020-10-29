@@ -4,19 +4,15 @@
 #include <FunctionDeclaration.h>
 #include <Pointer.h>
 #include <CType.h>
+#include <IncompleteType.h>
 
 ElementToMockList VoidFunPtrToPtrRecurStructFactory::functionFactoryArray()
 {
   ElementToMockList returnedList;
   StructType t("ptrToPtrStructRecur", false);
-  Pointer *pField = new Pointer(&t);
+  Pointer *pField = new Pointer(new IncompleteType(t));
   Pointer *p2pField = new Pointer(pField);
-  ComposableField::attributes fieldAttr =
-  {
-    .arraySize = -1,
-    .isIncompleteTypeField = true
-  };
-  t.addField(new ComposableField(p2pField, "r", fieldAttr));
+  t.addField(new ComposableField(p2pField, "r"));
 
   Pointer *pType = new Pointer(t.clone());
   Pointer p2pType(pType);

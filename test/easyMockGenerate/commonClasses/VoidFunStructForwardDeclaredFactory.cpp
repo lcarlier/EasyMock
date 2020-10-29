@@ -3,16 +3,16 @@
 #include <StructType.h>
 #include <Pointer.h>
 #include <FunctionDeclaration.h>
+#include <IncompleteType.h>
 
 ElementToMockList VoidFunStructForwardDeclaredFactory::functionFactoryArray()
 {
     ElementToMockList returnedList;
     StructType *forwardDeclaredParent = new StructType("forwardDeclaredParent", false);
-    Pointer *ptrToForwardDeclaredParent = new Pointer(forwardDeclaredParent);
+    Pointer *ptrToForwardDeclaredParent = new Pointer(new IncompleteType(*forwardDeclaredParent));
 
     StructType *forwardDeclaredChild = new StructType("forwardDeclaredChild", false);
-    ComposableField::attributes fAttr = {.arraySize = -1, .isIncompleteTypeField = true};
-    forwardDeclaredChild->addField(new ComposableField(ptrToForwardDeclaredParent, "p", fAttr));
+    forwardDeclaredChild->addField(new ComposableField(ptrToForwardDeclaredParent, "p"));
 
     forwardDeclaredParent->addField(new ComposableField(forwardDeclaredChild, "c"));
 

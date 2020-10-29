@@ -4,16 +4,12 @@
 #include <ComposableField.h>
 #include <CType.h>
 #include <Pointer.h>
+#include <IncompleteType.h>
 
 FunctionDeclaration VoidFunStructRecusNonTypedefFactory::functionFactory()
 {
   StructType *t_struct = new StructType("s_s1", "t_s1", false);
-  ComposableField::attributes cmpAttr =
-  {
-    .arraySize = -1,
-    .isIncompleteTypeField = true
-  };
-  ComposableField* cf = new ComposableField(new Pointer(t_struct), "recur", cmpAttr);
+  ComposableField* cf = new ComposableField(new Pointer(new IncompleteType(*t_struct)), "recur");
   //When the recursive (incomplete) field is declared, it is not yet typed def
   cf->setDeclareString("struct s_s1*");
   t_struct->addField(cf);

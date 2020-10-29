@@ -3,18 +3,13 @@
 #include <StructType.h>
 #include <ComposableField.h>
 #include <Pointer.h>
+#include <IncompleteType.h>
 
 FunctionDeclaration StructRecursiveMemberPtrTypeFactory::functionFactory()
 {
-  bool isRecursiveType = true;
   bool isEmbeddedInOtherType = false;
   StructType *recurStruct = new StructType("recurs", isEmbeddedInOtherType);
-  ComposableField::attributes attrib =
-  {
-    .arraySize = -1,
-    .isIncompleteTypeField = isRecursiveType
-  };
-  ComposableField *valField = new ComposableField(new Pointer(recurStruct), "val", attrib);
+  ComposableField *valField = new ComposableField(new Pointer(new IncompleteType(*recurStruct)), "val");
   recurStruct->addField(valField);
 
   FunctionDeclaration f(functionGetFunctionName(), VoidReturnValue(), Parameter::Vector({new Parameter(recurStruct, "rec")}));

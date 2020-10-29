@@ -102,6 +102,9 @@ protected:
   ComposableType(ComposableType &&other);
   //No move operator otherwise the object is not movable anymore (UT fails)
 
+  /*!
+   * \copydoc TypeItf::isEqual
+   */
   bool isEqual(const TypeItf& other) const override;
   virtual ~ComposableType() = 0; //pure virtual. ComposableType shouldn't be instantiable
 
@@ -110,9 +113,6 @@ private:
   ComposableField::Vector m_elem;
   bool m_is_declaration_embedded_in_other_type;
   int m_anonymous_number;
-
-  void correctIncompleteType(ComposableType *newPtr, const ComposableType* oldPtrToReplace);
-  friend void ComposableField::updateIncompleteTypePtr(ComposableType* newPtr, const ComposableType* oldPtrToReplace);
 
   /*
    * The tool is foreseen to generate only 1 header file, no more.
