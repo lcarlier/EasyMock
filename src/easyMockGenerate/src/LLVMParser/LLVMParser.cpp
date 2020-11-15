@@ -92,7 +92,7 @@ private:
 
     TypeItf *type = getEasyMocktype(rvQualType, structKnownType);
     ReturnValue rv(type);
-    std::string declString = getDeclareString(func->getLocStart(), func->getLocEnd());
+    std::string declString = getDeclareString(func->getBeginLoc(), func->getEndLoc());
     size_t funNamePos = declString.find(funName);
     if(funNamePos != std::string::npos)
     {
@@ -114,7 +114,7 @@ private:
   {
     Parameter::Vector vectParam;
     unsigned nbParam = func->getNumParams();
-    std::string funcDecl = getDeclareString(func->getLocStart(), func->getLocEnd());
+    std::string funcDecl = getDeclareString(func->getBeginLoc(), func->getEndLoc());
 
     for(unsigned paramIdx = 0; paramIdx < nbParam; paramIdx++)
     {
@@ -127,7 +127,7 @@ private:
 
       Parameter *p = new Parameter(type, paramName);
       type = nullptr; //We lost the ownership
-      setDeclaratorDeclareString(paramQualType, p, getDeclareString(param->getLocStart(), param->getLocEnd()));
+      setDeclaratorDeclareString(paramQualType, p, getDeclareString(param->getBeginLoc(), param->getEndLoc()));
       vectParam.push_back(p);
       p = nullptr; //We lost the ownership
     }
@@ -408,7 +408,7 @@ private:
       };
       std::string fName = FD->getNameAsString();
       ComposableField *sf = new ComposableField(type, fName, attrib);
-      setDeclaratorDeclareString(qualType, sf, getDeclareString(FD->getLocStart(), FD->getLocEnd()));
+      setDeclaratorDeclareString(qualType, sf, getDeclareString(FD->getBeginLoc(), FD->getEndLoc()));
       sType->addField(sf);
     }
     if(!typedDefName.empty())
@@ -603,7 +603,7 @@ std::unique_ptr<clang::tooling::FrontendActionFactory> newFunctionDeclFrontendAc
     clang::tooling::FrontendActionFactory(), m_elem(elem)
     {
     }
-    clang::FrontendAction *create() override { return new FunctionDeclFrontendAction(m_elem); }
+    std::unique_ptr<clang::FrontendAction> create() override { return std::make_unique<FunctionDeclFrontendAction>(m_elem); }
   private:
     ElementToMock::Vector& m_elem;
   };

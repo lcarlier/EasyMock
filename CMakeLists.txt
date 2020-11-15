@@ -35,11 +35,13 @@ pkg_check_modules(LIBNCURSES REQUIRED ncurses>=5)
 
 find_package(Boost 1.65 REQUIRED system filesystem)
 
-set(LLVM_VERSION 7)
+set(LLVM_VERSION 10)
 
 find_program(LLVM NAMES llvm-config-${LLVM_VERSION})
 if (NOT LLVM)
     message (FATAL_ERROR "llvm-config-${LLVM_VERSION} command not found")
+else()
+    message (STATUS "llvm-config-${LLVM_VERSION} found --> ${LLVM}")
 endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL build_debug)
@@ -54,6 +56,10 @@ if(CMAKE_BUILD_TYPE STREQUAL build_debug)
 endif()
 
 set(LLVM_PATH llvm-${LLVM_VERSION}/lib) #relative to /usr/lib
+# In the following list, some of the libraries are repeated on purpose because
+# the linker discards too soon some function used by subsquent libraries and then
+# fails with undefined symbol. By repeating the libraries, the linker is able to
+# find the symbols he has missed the first time.
 set(LINK_LIB
   ${CTEMPLATE_LIBRARIES}
   ${LIBUNWIND_LIBRARIES}
@@ -78,6 +84,11 @@ set(LINK_LIB
   LLVMBinaryFormat
   clangEdit
   LLVMSupport
+  LLVMRemarks
+  LLVMBitstreamReader
+  LLVMFrontendOpenMP
+  LLVMCore
+  LLVMDemangle
   pthread
   clangLex
   z
@@ -86,7 +97,7 @@ set(LINK_LIB
 
 find_library(CLANG_LIBRARIES clang PATH_SUFFIXES ${LLVM_PATH})
 if (NOT CLANG_LIBRARIES)
-    message (FATAL_ERROR "libclang was not found in the system. /usr/lib/${LLVM_PATH} was consulted")
+    message (FATAL_ERROR "libclang-${LLVM_VERSION} was not found in the system. /usr/lib/${LLVM_PATH} was consulted")
 endif()
 
 #execute_process(COMMAND ${LLVM} --cxxflags COMMAND cut -d " " -f 1 COMMAND tr -d "\n" OUTPUT_VARIABLE LLVM_CXXFLAGS)
