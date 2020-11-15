@@ -224,41 +224,42 @@ private:
   {
     CType *returnedType = nullptr;
 
+    const std::string typedefName= getTypedefName(type);
     if(type.isVoidType())
     {
-      returnedType = new CType(CTYPE_VOID);
+      returnedType = new CType(CTYPE_VOID, typedefName);
     }
     else if(type.isCharType())
     {
-      returnedType = new CType(CTYPE_CHAR);
+      returnedType = new CType(CTYPE_CHAR, typedefName);
     }
     else if(isShortType(type))
     {
-      returnedType = new CType(CTYPE_SHORT);
+      returnedType = new CType(CTYPE_SHORT, typedefName);
     }
     else if(isLongType(type))
     {
-      returnedType = new CType(CTYPE_LONG);
+      returnedType = new CType(CTYPE_LONG, typedefName);
     }
     else if(isIntType(type))
     {
-      returnedType = new CType(CTYPE_INT);
+      returnedType = new CType(CTYPE_INT, typedefName);
     }
     else if(isLongLongType(type))
     {
-      returnedType = new CType(CTYPE_LONG_LONG);
+      returnedType = new CType(CTYPE_LONG_LONG, typedefName);
     }
     else if(isDoubleType(type))
     {
-      returnedType = new CType(CTYPE_DOUBLE);
+      returnedType = new CType(CTYPE_DOUBLE, typedefName);
     }
     else if(isLongDoubleType(type))
     {
-      returnedType = new CType(CTYPE_LONG_DOUBLE);
+      returnedType = new CType(CTYPE_LONG_DOUBLE, typedefName);
     }
     else if(isFloatType(type))
     {
-      returnedType = new CType(CTYPE_FLOAT);
+      returnedType = new CType(CTYPE_FLOAT, typedefName);
     }
     else
     {
