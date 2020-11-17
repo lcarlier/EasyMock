@@ -1024,7 +1024,7 @@ void CodeGeneratorCTemplate::generateBasicTypeField(const ComposableField *p_cur
   }
   errorDict->SetValue(STRUCT_COMPARE_TYPE, compareType);
   const TypeItf *curFieldType = p_curField->getType();
-  if(curFieldType->isPointer())
+  if(curFieldType->isPointer() || curFieldType->isIncompleteType())
   {
     errorDict->SetValue(STRUCT_COMPARE_PRINTF_FORMAT, "p");
   }

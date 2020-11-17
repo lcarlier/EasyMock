@@ -151,19 +151,19 @@ private:
     }
     else
     {
-      while(declareString.back() != ' ' &&
+      while(!declareString.empty() && declareString.back() != ' ' &&
               declareString.back() != '*' &&
-              declareString.back() != ')' &&
-              !declareString.empty())
+              declareString.back() != ')')
       {
         declareString.pop_back();
       }
     }
-    while((declareString.back() == ' '  ||
+    while(!declareString.empty() &&
+            (declareString.back() == ' '  ||
            declareString.back() == '\n' ||
            declareString.back() == '\t' ||
-           declareString.back() == '\r') &&
-            !declareString.empty())
+           declareString.back() == '\r')
+            )
     {
       declareString.pop_back();
     }
@@ -260,6 +260,10 @@ private:
     else if(isFloatType(type))
     {
       returnedType = new CType(CTYPE_FLOAT, typedefName);
+    }
+    else if(isBoolType(type))
+    {
+      returnedType = new CType(CTYPE_INT, typedefName);
     }
     else
     {
@@ -514,6 +518,14 @@ private:
     return type.isFunctionProtoType();
   }
 
+  bool isBoolType(const clang::Type &type)
+  {
+    const clang::BuiltinType *bt = type.getAs<clang::BuiltinType>();
+
+    clang::BuiltinType::Kind kind = bt->getKind();
+    return kind == clang::BuiltinType::Bool;
+  }
+
   uint64_t getArraySize(const clang::Type &type)
   {
     const clang::ConstantArrayType *constArrType = m_context->getAsConstantArrayType(type.getCanonicalTypeInternal());
@@ -624,7 +636,8 @@ CodeParser_errCode LLVMParser::getElementToStub(ElementToMock::Vector& elem) con
 {
   std::string dir = ".";
   llvm::Twine twineDir(dir);
-  std::vector<std::string> LLVMExtraArgs({"-I/usr/lib/gcc/x86_64-linux-gnu/7/include", "-I/usr/local/include", "-I/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed", "-I/usr/include/x86_64-linux-gnu", "-I/usr/include"});
+  //Place holder variable to add default hardcoded arguments to the tool if we need to
+  std::vector<std::string> LLVMExtraArgs({});
   for(const std::string extraArg: m_flags)
   {
     LLVMExtraArgs.emplace_back(extraArg);
