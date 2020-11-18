@@ -251,8 +251,14 @@ FUNCTION_EXPECT_RETURN_AND_OUTPUT_PARAM IF_SECTION_EXISTS(FUNCTION_PARAM_PTR_LIS
 #define FUNCTION_EXPECT_RETURN_COMMON_CALL_PARAM \
 FUNCTION_PARAM_CALL(FUNCTION_PARAM_SECTION, "") IF_RETURN_VALUE(IF_SECTION_EXISTS(FUNCTION_PARAM_LIST_SECTION, ", ") "to_return") IF_SECTION_EXISTS(FUNCTION_PARAM_LIST_SECTION, ", ") FUNCTION_MATCHER_CALL
 
+#define INIT_ALL_MOCK_FUNCTION_NAME \
+MOCK_FRAMEWORK_NAME "_initAllMocksInThisHeader"
+
 #define RESET_ALL_MOCK_FUNCTION_NAME \
 MOCK_FRAMEWORK_NAME "_resetAllMocksInThisHeader"
+
+#define FUNCTION_INIT_ALL_MOCK_SIGNATURE \
+"static void " INIT_ALL_MOCK_FUNCTION_NAME "()"
 
 #define FUNCTION_RESET_ALL_MOCK_SIGNATURE \
 "static void " RESET_ALL_MOCK_FUNCTION_NAME "()"
@@ -308,27 +314,29 @@ static const char templateText[] =
         "#include \"" MOCK_FRAMEWORK_NAME "_" TEMPLATE_VAR(MOCKED_HEADER_FILENAME) "\"" CARRIAGE_RETURN
         "#include <easyMock_framework.h>" CARRIAGE_RETURN
         "#include <MockedFunction.h>" CARRIAGE_RETURN
-        "#include <string>" CARRIAGE_RETURN
-        "#include <cstring>" CARRIAGE_RETURN
+        "#include <stdio.h>" CARRIAGE_RETURN
+        "#include <string.h>" CARRIAGE_RETURN
+        "#include <cstring.h>" CARRIAGE_RETURN
         CARRIAGE_RETURN
 
+        FUNCTION_INIT_ALL_MOCK_SIGNATURE ";" CARRIAGE_RETURN
         FUNCTION_RESET_ALL_MOCK_SIGNATURE ";" CARRIAGE_RETURN
         FUNCTION_VERIFY_ALL_MOCK_SIGNATURE ";" CARRIAGE_RETURN
         CARRIAGE_RETURN
 
         TEMPLATE_BEG_SECTION(COMPOSED_TYPE_COMPARE_SECTION)
-        "extern \"C\" " COMPOSED_TYPED_COMPARE_FUNCTION_SIGNATURE CARRIAGE_RETURN
+        COMPOSED_TYPED_COMPARE_FUNCTION_SIGNATURE CARRIAGE_RETURN
         "{" CARRIAGE_RETURN
 
         "    " TEMPLATE_INCL_SECTION(INCOMPLETE_ANONYMOUS_TYPE_DECLARATION_SECTION) CARRIAGE_RETURN
 
-        "    " IF_SECTION_EXISTS(NON_TYPED_DEF_COMPOSED_TYPE_SECTION, COMPOSED_TYPE_VAR " ") COMPOSED_TYPED_COMPARE_SECTION_DECL_NAME_VAR " *currentCall_val = static_cast<" IF_SECTION_EXISTS(NON_TYPED_DEF_COMPOSED_TYPE_SECTION, COMPOSED_TYPE_VAR " ") COMPOSED_TYPED_COMPARE_SECTION_DECL_NAME_VAR " *>(currentCall_ptr);" CARRIAGE_RETURN
-        "    " IF_SECTION_EXISTS(NON_TYPED_DEF_COMPOSED_TYPE_SECTION, COMPOSED_TYPE_VAR " ") COMPOSED_TYPED_COMPARE_SECTION_DECL_NAME_VAR " *expectedCall_val = static_cast<" IF_SECTION_EXISTS(NON_TYPED_DEF_COMPOSED_TYPE_SECTION, COMPOSED_TYPE_VAR " ") COMPOSED_TYPED_COMPARE_SECTION_DECL_NAME_VAR " *>(expectedCall_ptr);" CARRIAGE_RETURN
+        "    " IF_SECTION_EXISTS(NON_TYPED_DEF_COMPOSED_TYPE_SECTION, COMPOSED_TYPE_VAR " ") COMPOSED_TYPED_COMPARE_SECTION_DECL_NAME_VAR " *currentCall_val = (" IF_SECTION_EXISTS(NON_TYPED_DEF_COMPOSED_TYPE_SECTION, COMPOSED_TYPE_VAR " ") COMPOSED_TYPED_COMPARE_SECTION_DECL_NAME_VAR " *)currentCall_ptr;" CARRIAGE_RETURN
+        "    " IF_SECTION_EXISTS(NON_TYPED_DEF_COMPOSED_TYPE_SECTION, COMPOSED_TYPE_VAR " ") COMPOSED_TYPED_COMPARE_SECTION_DECL_NAME_VAR " *expectedCall_val = (" IF_SECTION_EXISTS(NON_TYPED_DEF_COMPOSED_TYPE_SECTION, COMPOSED_TYPE_VAR " ") COMPOSED_TYPED_COMPARE_SECTION_DECL_NAME_VAR " *)expectedCall_ptr;" CARRIAGE_RETURN
 
         TEMPLATE_BEG_SECTION(STRUCT_COMPARE_PARAM_SECTION)
         TEMPLATE_BEG_SECTION(STRUCT_COMPARE_PRE_IF_SECTION)
-        "    std::string " TEMPLATE_VAR(STRUCT_COMPARE_PRE_IF_SECTION_VAR_NAME) "(paramName);" CARRIAGE_RETURN
-        "    " TEMPLATE_VAR(STRUCT_COMPARE_PRE_IF_SECTION_VAR_NAME) ".append(\"" TEMPLATE_VAR(STRUCT_COMPARE_PRE_IF_SECTION_FIELD_NAME) "\");" CARRIAGE_RETURN
+        "    CSTRING_AUTOCLEAN(" TEMPLATE_VAR(STRUCT_COMPARE_PRE_IF_SECTION_VAR_NAME) ") = cstring_new_init(paramName);" CARRIAGE_RETURN
+        "    cstring_append(&" TEMPLATE_VAR(STRUCT_COMPARE_PRE_IF_SECTION_VAR_NAME) ", \"" TEMPLATE_VAR(STRUCT_COMPARE_PRE_IF_SECTION_FIELD_NAME) "\");" CARRIAGE_RETURN
         TEMPLATE_END_SECTION(STRUCT_COMPARE_PRE_IF_SECTION)
         "    if(" STRUCT_COMPARE_PARAM_SECTION_COMPARE_CONDITION_VAR ")" CARRIAGE_RETURN
         "    {" CARRIAGE_RETURN
@@ -343,8 +351,8 @@ static const char templateText[] =
         "    for(unsigned int idx = 0; idx < (sizeof(currentCall_val->" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_FIELD_VAR ")/sizeof(currentCall_val->" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_FIELD_VAR "[0])); idx++)" CARRIAGE_RETURN
         "    {" CARRIAGE_RETURN
         TEMPLATE_BEG_SECTION(STRUCT_COMPARE_PRE_IF_SECTION)
-        "        std::string " TEMPLATE_VAR(STRUCT_COMPARE_PRE_IF_SECTION_VAR_NAME) "(paramName);" CARRIAGE_RETURN
-        "        " TEMPLATE_VAR(STRUCT_COMPARE_PRE_IF_SECTION_VAR_NAME) ".append(\"" TEMPLATE_VAR(STRUCT_COMPARE_PRE_IF_SECTION_FIELD_NAME) "\");" CARRIAGE_RETURN
+        "        CSTRING_AUTOCLEAN(" TEMPLATE_VAR(STRUCT_COMPARE_PRE_IF_SECTION_VAR_NAME) ") = cstring_new_init(paramName);" CARRIAGE_RETURN
+        "        cstring_append(&" TEMPLATE_VAR(STRUCT_COMPARE_PRE_IF_SECTION_VAR_NAME) ", \"" TEMPLATE_VAR(STRUCT_COMPARE_PRE_IF_SECTION_FIELD_NAME) "\");" CARRIAGE_RETURN
         TEMPLATE_END_SECTION(STRUCT_COMPARE_PRE_IF_SECTION)
         "        if(" STRUCT_COMPARE_PARAM_SECTION_COMPARE_CONDITION_VAR ")" CARRIAGE_RETURN
         "        {" CARRIAGE_RETURN
@@ -378,10 +386,10 @@ static const char templateText[] =
         "} " FUNCTION_MOCK_DATA_TYPE";" CARRIAGE_RETURN
         CARRIAGE_RETURN
         "static " FUNCTION_EXPECT_RETURN_AND_OUTPUT_COMMON_SIGNATURE ";" CARRIAGE_RETURN
-        "static MockedFunction<" FUNCTION_MOCK_DATA_TYPE "> " TEMPLATE_MOCKED_FUN_CLASS "(\"" TEMPLATE_FUNCTION_TO_BE_MOCKED "\");" CARRIAGE_RETURN
+        "static MockedFunction " TEMPLATE_MOCKED_FUN_CLASS ";" CARRIAGE_RETURN
         IF_RETURN_VALUE("static " FUNCTION_NON_QUALIFIED_RETURN_VALUE_TYPE " dummyRes_" TEMPLATE_VAR(FUNCTION_NAME) TEMPLATE_INCL_SECTION(EXTRA_DECL_SECTION) ";" CARRIAGE_RETURN)
         CARRIAGE_RETURN
-        "extern \"C\" " TEMPLATE_FUNCTION_TO_BE_MOCKED CARRIAGE_RETURN
+        TEMPLATE_FUNCTION_TO_BE_MOCKED CARRIAGE_RETURN
         "{" CARRIAGE_RETURN
         "    bool printCallStack = easyMock_printCallStack();" CARRIAGE_RETURN
         "    bool checkCallsOrder = easyMock_checkCallsOrder();" CARRIAGE_RETURN
@@ -389,17 +397,17 @@ static const char templateText[] =
         IF_RETURN_VALUE
         (
             "    " FUNCTION_NON_QUALIFIED_RETURN_VALUE_TYPE " default_res" TEMPLATE_INCL_SECTION(EXTRA_TOP_LEVEL_DECL_SECTION) ";" CARRIAGE_RETURN
-            "    std::memcpy(&default_res, &dummyRes_" TEMPLATE_VAR(FUNCTION_NAME) ", sizeof(default_res));" CARRIAGE_RETURN
+            "    memcpy((void*)&default_res, (void*)&dummyRes_" TEMPLATE_VAR(FUNCTION_NAME) ", sizeof(default_res));" CARRIAGE_RETURN
             CARRIAGE_RETURN
         )
-        "    if(!" TEMPLATE_MOCKED_FUN_CLASS ".addActualCall())" CARRIAGE_RETURN
+        "    if(!MockedFunction_addActualCall(&" TEMPLATE_MOCKED_FUN_CLASS "))" CARRIAGE_RETURN
         "    {" CARRIAGE_RETURN
-        "        easyMock_addError(printCallStack, \"Error : unexpected call of '%s'." IF_RETURN_VALUE(" " TEMPLATE_VAR(FUNCTION_NAME) " is returning a random value.") "\", " TEMPLATE_MOCKED_FUN_CLASS ".getName().c_str());" CARRIAGE_RETURN
+        "        easyMock_addError(printCallStack, \"Error : unexpected call of '%s'." IF_RETURN_VALUE(" " TEMPLATE_VAR(FUNCTION_NAME) " is returning a random value.") "\", MockedFunction_getName(&" TEMPLATE_MOCKED_FUN_CLASS "));" CARRIAGE_RETURN
         "        return" IF_RETURN_VALUE(" default_res") ";" CARRIAGE_RETURN
         "    }" CARRIAGE_RETURN
         CARRIAGE_RETURN
         "    " FUNCTION_MOCK_DATA_TYPE " " CURRENT_DATA_CALL ";" CARRIAGE_RETURN
-        "    if (!" TEMPLATE_MOCKED_FUN_CLASS ".getCurrentCallParam(" CURRENT_DATA_CALL "))" CARRIAGE_RETURN
+        "    if (!MockedFunction_getCurrentCallParam(&" TEMPLATE_MOCKED_FUN_CLASS ", &" CURRENT_DATA_CALL "))" CARRIAGE_RETURN
         "    {" CARRIAGE_RETURN
         "        easyMock_addError(printCallStack, \"BUG IN EASYMOCK: CONTACT DEVELOPPER TO FIX THIS\");" CARRIAGE_RETURN
         "        return" IF_RETURN_VALUE(" default_res") ";" CARRIAGE_RETURN
@@ -415,39 +423,39 @@ static const char templateText[] =
         "        int error = matcher(curCallVal, expectedCallVal, \"" PARAMETER_NAME("") "\", errorMessage);" CARRIAGE_RETURN
         "        if(error)" CARRIAGE_RETURN
         "        {" CARRIAGE_RETURN
-        "            easyMock_addError(printCallStack, \"Error : at call %d of '%s': %s\", " TEMPLATE_MOCKED_FUN_CLASS ".getNbActualCall(), " TEMPLATE_MOCKED_FUN_CLASS ".getName().c_str(), errorMessage);" CARRIAGE_RETURN
+        "            easyMock_addError(printCallStack, \"Error : at call %d of '%s': %s\", MockedFunction_getNbActualCall(&" TEMPLATE_MOCKED_FUN_CLASS "), MockedFunction_getName(&" TEMPLATE_MOCKED_FUN_CLASS "), errorMessage);" CARRIAGE_RETURN
         "        }" CARRIAGE_RETURN
         "    }" CARRIAGE_RETURN
         CARRIAGE_RETURN
         TEMPLATE_END_SECTION(FUNCTION_PARAM_SECTION)
         IF_RETURN_VALUE("    default_res = currentDataCall." FUNCTION_MOCK_DATA_RETURN_VALUE_VARIABLE ";" CARRIAGE_RETURN)
         CARRIAGE_RETURN
-        "    const std::string currentCall = easyMock_popCurrentCall();" CARRIAGE_RETURN
+        "    CSTRING_AUTOCLEAN(currentCall) = easyMock_popCurrentCall();" CARRIAGE_RETURN
         "    if(checkCallsOrder)" CARRIAGE_RETURN
         "    {" CARRIAGE_RETURN
-        "        const std::string &curFuncCall = " TEMPLATE_MOCKED_FUN_CLASS ".getName();" CARRIAGE_RETURN
-        "        if(currentCall.compare(curFuncCall) != 0)" CARRIAGE_RETURN
+        "        const char* curFuncCall = MockedFunction_getName(&" TEMPLATE_MOCKED_FUN_CLASS ");" CARRIAGE_RETURN
+        "        if(cstring_compare_const_char(&currentCall, curFuncCall) != 0)" CARRIAGE_RETURN
         "        {" CARRIAGE_RETURN
-        "            easyMock_addError(printCallStack, \"Error : got call to '%s',  but was expecting call to '%s'\", " TEMPLATE_MOCKED_FUN_CLASS ".getName().c_str(), currentCall.c_str());" CARRIAGE_RETURN
+        "            easyMock_addError(printCallStack, \"Error : got call to '%s',  but was expecting call to '%s'\", MockedFunction_getName(&" TEMPLATE_MOCKED_FUN_CLASS "), cstring_c_str(&currentCall));" CARRIAGE_RETURN
         "            return" IF_RETURN_VALUE(" default_res") ";" CARRIAGE_RETURN
         "        }" CARRIAGE_RETURN
         "    }" CARRIAGE_RETURN
         TEMPLATE_BEG_SECTION(FUNCTION_PARAM_PTR_SECTION)
         "    if(" CURRENT_DATA_CALL_MEMBER(PARAMETER_NAME(MOCK_OUT_PREFIX)) ")" CARRIAGE_RETURN
         "    {" CARRIAGE_RETURN
-        "        std::memcpy(" PARAMETER_NAME("") ", " CURRENT_DATA_CALL_MEMBER(PARAMETER_NAME(MOCK_OUT_PREFIX)) ", " IF_SECTION_EXISTS(FUNCTION_VOID_PTR_OUT_SECTION, CURRENT_DATA_CALL_MEMBER(PARAMETER_OUT_SIZE_VAR)) IF_SECTION_EXISTS(FUNCTION_NON_VOID_PTR_OUT_SECTION, "sizeof(*" PARAMETER_NAME("") ")" ) ");" CARRIAGE_RETURN
+        "        memcpy((void*)" PARAMETER_NAME("") ", (void*)" CURRENT_DATA_CALL_MEMBER(PARAMETER_NAME(MOCK_OUT_PREFIX)) ", " IF_SECTION_EXISTS(FUNCTION_VOID_PTR_OUT_SECTION, CURRENT_DATA_CALL_MEMBER(PARAMETER_OUT_SIZE_VAR)) IF_SECTION_EXISTS(FUNCTION_NON_VOID_PTR_OUT_SECTION, "sizeof(*" PARAMETER_NAME("") ")" ) ");" CARRIAGE_RETURN
         "    }" CARRIAGE_RETURN
         TEMPLATE_END_SECTION(FUNCTION_PARAM_PTR_SECTION)
         IF_RETURN_VALUE(CARRIAGE_RETURN "    return default_res;" CARRIAGE_RETURN)
         "}" CARRIAGE_RETURN
         CARRIAGE_RETURN
-        "extern \"C\" " FUNCTION_EXPECT_AND_RETURN_SIGNATURE CARRIAGE_RETURN
+        FUNCTION_EXPECT_AND_RETURN_SIGNATURE CARRIAGE_RETURN
         "{" CARRIAGE_RETURN
-        "    " FUNCTION_EXPECT_RETURN_AND_OUTPUT_COMMON_NAME "(" FUNCTION_EXPECT_RETURN_COMMON_CALL_PARAM IF_SECTION_EXISTS(FUNCTION_PARAM_PTR_LIST_SECTION, ", ") FUNCTION_HARDCODED_PARAM_CALL(FUNCTION_PARAM_PTR_SECTION, "nullptr") ");" CARRIAGE_RETURN
+        "    " FUNCTION_EXPECT_RETURN_AND_OUTPUT_COMMON_NAME "(" FUNCTION_EXPECT_RETURN_COMMON_CALL_PARAM IF_SECTION_EXISTS(FUNCTION_PARAM_PTR_LIST_SECTION, ", ") FUNCTION_HARDCODED_PARAM_CALL(FUNCTION_PARAM_PTR_SECTION, "NULL") ");" CARRIAGE_RETURN
         "}" CARRIAGE_RETURN
         CARRIAGE_RETURN
         IF_SECTION_EXISTS(FUNCTION_PARAM_PTR_LIST_SECTION,
-             "extern\"C\" " FUNCTION_EXPECT_RETURN_AND_OUTPUT_SIGNATURE CARRIAGE_RETURN
+             FUNCTION_EXPECT_RETURN_AND_OUTPUT_SIGNATURE CARRIAGE_RETURN
              "{" CARRIAGE_RETURN
              "    " FUNCTION_EXPECT_RETURN_AND_OUTPUT_COMMON_NAME "(" FUNCTION_EXPECT_RETURN_COMMON_CALL_PARAM IF_SECTION_EXISTS(FUNCTION_PARAM_PTR_LIST_SECTION, ", ") FUNCTION_PARAM_CALL(FUNCTION_PARAM_PTR_SECTION, MOCK_OUT_PREFIX) ");" CARRIAGE_RETURN
              "}" CARRIAGE_RETURN
@@ -457,7 +465,7 @@ static const char templateText[] =
         "    " FUNCTION_MOCK_DATA_TYPE " " MOCKED_DATA ";" CARRIAGE_RETURN
         CARRIAGE_RETURN
         TEMPLATE_BEG_SECTION(FUNCTION_PARAM_SECTION)
-        "    std::memcpy(&" MOCKED_DATA_MEMBER(PARAMETER_NAME("")) ", &" PARAMETER_NAME("") ", sizeof(" MOCKED_DATA_MEMBER(PARAMETER_NAME("")) "));" CARRIAGE_RETURN
+        "    memcpy((void*)&" MOCKED_DATA_MEMBER(PARAMETER_NAME("")) ", (void*)&" PARAMETER_NAME("") ", sizeof(" MOCKED_DATA_MEMBER(PARAMETER_NAME("")) "));" CARRIAGE_RETURN
         "    " MOCKED_DATA_MEMBER(FUNCTION_MOCK_DATA_CUR_MATCH_VAR) " = " FUNCTION_PARAM_MATCH_VAR ";" CARRIAGE_RETURN
         CARRIAGE_RETURN
         TEMPLATE_END_SECTION(FUNCTION_PARAM_SECTION)
@@ -468,14 +476,14 @@ static const char templateText[] =
         "    " MOCKED_DATA_MEMBER(PARAMETER_OUT_SIZE_VAR) " = " PARAMETER_OUT_SIZE_VAR ";" CARRIAGE_RETURN
         TEMPLATE_END_SECTION(FUNCTION_VOID_PTR_OUT_SECTION)
 
-        "    std::memcpy(&" MOCKED_DATA_MEMBER(PARAMETER_NAME(MOCK_OUT_PREFIX)) ", &" PARAMETER_NAME(MOCK_OUT_PREFIX) ", sizeof(" MOCKED_DATA_MEMBER(PARAMETER_NAME(MOCK_OUT_PREFIX)) "));" CARRIAGE_RETURN
+        "    memcpy((void*)&" MOCKED_DATA_MEMBER(PARAMETER_NAME(MOCK_OUT_PREFIX)) ", (void*)&" PARAMETER_NAME(MOCK_OUT_PREFIX) ", sizeof(" MOCKED_DATA_MEMBER(PARAMETER_NAME(MOCK_OUT_PREFIX)) "));" CARRIAGE_RETURN
 
         CARRIAGE_RETURN
         TEMPLATE_END_SECTION(FUNCTION_PARAM_PTR_SECTION)
 
         IF_RETURN_VALUE("    " MOCKED_DATA_MEMBER(FUNCTION_MOCK_DATA_RETURN_VALUE_VARIABLE) " = to_return;" CARRIAGE_RETURN CARRIAGE_RETURN)
-        "    " TEMPLATE_MOCKED_FUN_CLASS ".addExpectedCall(mockedData);" CARRIAGE_RETURN
-        "    easyMock_addCall(" TEMPLATE_MOCKED_FUN_CLASS ".getName());" CARRIAGE_RETURN
+        "    MockedFunction_addExpectedCall(&" TEMPLATE_MOCKED_FUN_CLASS ", &mockedData);" CARRIAGE_RETURN
+        "    easyMock_addCall(MockedFunction_getName(&" TEMPLATE_MOCKED_FUN_CLASS "));" CARRIAGE_RETURN
         "}" CARRIAGE_RETURN
         CARRIAGE_RETURN
         END_GENERATE_COMMENT CARRIAGE_RETURN
@@ -485,15 +493,21 @@ static const char templateText[] =
         FUNCTION_RESET_ALL_MOCK_SIGNATURE CARRIAGE_RETURN
         "{" CARRIAGE_RETURN
         TEMPLATE_BEG_SECTION(FUNCTION_SECTION)
-        "    " TEMPLATE_MOCKED_FUN_CLASS ".reset();" CARRIAGE_RETURN
+        "    MockedFunction_reset(&" TEMPLATE_MOCKED_FUN_CLASS ");" CARRIAGE_RETURN
         TEMPLATE_END_SECTION(FUNCTION_SECTION)
         "}" CARRIAGE_RETURN
+        FUNCTION_INIT_ALL_MOCK_SIGNATURE CARRIAGE_RETURN
+        "{" CARRIAGE_RETURN
+        TEMPLATE_BEG_SECTION(FUNCTION_SECTION)
+        "    MockedFunction_init(&" TEMPLATE_MOCKED_FUN_CLASS ", \"" TEMPLATE_FUNCTION_TO_BE_MOCKED "\", sizeof(" FUNCTION_MOCK_DATA_TYPE ") );" CARRIAGE_RETURN
+        TEMPLATE_END_SECTION(FUNCTION_SECTION)
+        "}"
         CARRIAGE_RETURN
         FUNCTION_VERIFY_ALL_MOCK_SIGNATURE CARRIAGE_RETURN
         "{" CARRIAGE_RETURN
         "    bool rv = true;" CARRIAGE_RETURN
         TEMPLATE_BEG_SECTION(FUNCTION_SECTION)
-        "    if(!" TEMPLATE_MOCKED_FUN_CLASS ".verify())" CARRIAGE_RETURN
+        "    if(!MockedFunction_verify(&" TEMPLATE_MOCKED_FUN_CLASS "))" CARRIAGE_RETURN
         "    {" CARRIAGE_RETURN
         "        rv = false;" CARRIAGE_RETURN
         "    }" CARRIAGE_RETURN
@@ -505,11 +519,13 @@ static const char templateText[] =
         CARRIAGE_RETURN
         "static void __attribute__((constructor(102))) " MOCK_FRAMEWORK_NAME "_register_this_header()" CARRIAGE_RETURN
         "{" CARRIAGE_RETURN
+        "    " INIT_ALL_MOCK_FUNCTION_NAME "();" CARRIAGE_RETURN
         "    " MOCK_FRAMEWORK_NAME "_registerMockedFile(&mockedRegister);" CARRIAGE_RETURN
         "}" CARRIAGE_RETURN
         CARRIAGE_RETURN
         "static void __attribute__((destructor)) " MOCK_FRAMEWORK_NAME "_unregister_this_header()" CARRIAGE_RETURN
         "{" CARRIAGE_RETURN
+        "    " RESET_ALL_MOCK_FUNCTION_NAME "();" CARRIAGE_RETURN
         "    " MOCK_FRAMEWORK_NAME "_unregisterMockedFile(&mockedRegister);" CARRIAGE_RETURN
         "}" CARRIAGE_RETURN;
 
@@ -521,18 +537,7 @@ static const char headerFileTemplate[] =
         "#ifndef _" TEMPLATE_VAR(MOCKED_FILE_NAME_WITHOUT_EXT_UPPER) "_" MOCK_FRAMEWORK_NAME_UPPER "_H" CARRIAGE_RETURN
         "#define _" TEMPLATE_VAR(MOCKED_FILE_NAME_WITHOUT_EXT_UPPER) "_" MOCK_FRAMEWORK_NAME_UPPER "_H" CARRIAGE_RETURN
         CARRIAGE_RETURN
-        "/*" CARRIAGE_RETURN
-        " * This is not the best practice to surround include if such ifdef" CARRIAGE_RETURN
-        " * However, we can't assume that the mocked header file is written to support" CARRIAGE_RETURN
-        " * compilation with g++ so we have to do it." CARRIAGE_RETURN
-        " */" CARRIAGE_RETURN
-        "#ifdef __cplusplus" CARRIAGE_RETURN
-        "extern \"C\" {" CARRIAGE_RETURN
-        "#endif" CARRIAGE_RETURN
         "#include \"" TEMPLATE_VAR(MOCKED_HEADER_FILENAME) "\"" CARRIAGE_RETURN
-        "#ifdef __cplusplus" CARRIAGE_RETURN
-        "}" CARRIAGE_RETURN
-        "#endif"  CARRIAGE_RETURN
         "#include <" MOCK_FRAMEWORK_NAME ".h>" CARRIAGE_RETURN
         "#include <stddef.h>" CARRIAGE_RETURN
         CARRIAGE_RETURN
@@ -603,7 +608,7 @@ bool CodeGeneratorCTemplate::generateCode(const std::string& p_outDir, const std
 
   std::string generatedCode;
   ctemplate::ExpandTemplate(CFILE_TEMPLATE, ctemplate::DO_NOT_STRIP, &dict, &generatedCode);
-  if (!generateCodeToFile(p_outDir, filenameToMock, "cpp", generatedCode))
+  if (!generateCodeToFile(p_outDir, filenameToMock, "c", generatedCode))
   {
     return false;
   }
@@ -837,7 +842,7 @@ void CodeGeneratorCTemplate::generateFunctionParamSection(ctemplate::TemplateDic
 
 /*
  * e.g
-extern "C" int cmp_struct_s ( void *currentCall_ptr, void *expectedCall_ptr, const char *paramName, char *errorMessage ) {
+  int cmp_struct_s ( void *currentCall_ptr, void *expectedCall_ptr, const char *paramName, char *errorMessage ) {
   struct s currentCall_val = *(( struct s *)currentCall_ptr);
   struct s expectedCall_val = *(( struct s *)expectedCall_ptr);
   if(currentCall_val.f1 != expectedCall_val.f1) {
@@ -856,7 +861,7 @@ extern "C" int cmp_struct_s ( void *currentCall_ptr, void *expectedCall_ptr, con
 }
  * TEMPLATED VERSION
 {{BEGIN_STRUCT_COMPARE_SECTION}}
-extern "C" int cmp_struct_{{STRUCT_NAME}} ( void *currentCall_ptr, void *expectedCall_ptr, const char *paramName, char *errorMessage ) {
+  int cmp_struct_{{STRUCT_NAME}} ( void *currentCall_ptr, void *expectedCall_ptr, const char *paramName, char *errorMessage ) {
   struct {{STRUCT_NAME}} currentCall_val = *(( struct {{STRUCT_NAME}} *)currentCall_ptr);
   struct {{STRUCT_NAME}} expectedCall_val = *(( struct {{STRUCT_NAME}} *)expectedCall_ptr);
   {{BEGIN_STRUCT_COMPARE_PARAM_SECTION}}
@@ -959,9 +964,9 @@ void CodeGeneratorCTemplate::generateBodyStructCompare(ctemplate::TemplateDictio
     generateFieldCmp(condition, p_parentComposedType, p_curField, p_previousField, "currentCall_val");
     condition.append(", ");
     generateFieldCmp(condition, p_parentComposedType, p_curField, p_previousField, "expectedCall_val");
-    condition.append(", ");
-    condition.append(preFieldVarName.c_str());
-    condition.append(".c_str(), errorMessage)");
+    condition.append(", cstring_c_str(&");
+    condition.append(preFieldVarName);
+    condition.append("), errorMessage)");
 
     p_uniquePrepend.push_back('_');
     p_declPrepend.append("::");
@@ -1148,13 +1153,9 @@ void CodeGeneratorCTemplate::generateComposedTypedCompareSection(ctemplate::Temp
   {
     declarationString.append(p_composedType->getUniqueName());
   }
-  else if(!p_composedType->isDeclarationEmbeddedInOtherType())
-  {
-    declarationString.append(p_composedType->getFullDeclarationName());
-  }
   else
   {
-    declarationString.append(p_declPrepend);
+    declarationString.append(p_composedType->getFullDeclarationName());
   }
   compareDict->SetValue(COMPOSED_TYPED_DECL_STRING, declarationString);
   compareDict->SetValue(COMPOSED_TYPED_UNIQUE_NAME, uniqueName);

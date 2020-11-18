@@ -6,6 +6,8 @@
 #include <CType.h>
 #include <StructType.h>
 
+#include <assert.h>
+
 FunctionDeclaration* getFunPtrDeclaration(unsigned int n, const char *functionName)
 {
   ReturnValue ftRv(new CType(CTYPE_INT));
@@ -104,5 +106,6 @@ FunctionDeclaration* getFunPtrDeclaration(unsigned int n, const char *functionNa
       return fd;
     }
   }
+  assert(false);
 }
 

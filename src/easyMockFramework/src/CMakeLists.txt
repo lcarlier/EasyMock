@@ -1,9 +1,10 @@
-set(EASYMOCK_FRAMEWORK_LIBRARY EasyMockFramework)
-set(EASYMOCK_FRAMEWORK_LIBRARY_INCLUDE_DIR ${EasyMock_SOURCE_DIR}/src/easyMockFramework/include)
+set(EASYMOCK_FRAMEWORK_LIBRARY_INCLUDE_DIR ${EasyMock_SOURCE_DIR}/src/easyMockFramework/include ${EasyMock_SOURCE_DIR}/src/common/include)
 
 set(EASYMOCK_FRAMEWORK_LIBRARY_SOURCE_FILE
   ${EasyMock_SOURCE_DIR}/src/easyMockFramework/src/easyMock.cpp
   ${EasyMock_SOURCE_DIR}/src/easyMockFramework/src/easyMock_matcher.cpp
+  ${EasyMock_SOURCE_DIR}/src/easyMockFramework/src/cstring.c
+  ${EasyMock_SOURCE_DIR}/src/easyMockFramework/src/MockedFunction.c
 )
 
 add_library(${EASYMOCK_FRAMEWORK_LIBRARY} SHARED

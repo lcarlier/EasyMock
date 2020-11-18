@@ -87,7 +87,7 @@ extern "C"
    *
    * The default is to print the callstack into the error messages.
    */
-  void easyMock_printCallStack(bool val);
+  void easyMock_setPrintCallStack(bool val);
 
   /*!
    * \brief Sets whether the mock should verify if the mocks have been called in the
@@ -96,7 +96,7 @@ extern "C"
    * The default is to check that the mocks have been called in the order they
    * have been expected (via the *_ExpectAndReturn* API)
    */
-  void easyMock_checkCallsOrder(bool val);
+  void easyMock_setCheckCallsOrder(bool val);
 
   /*!
    * \brief Comparator to be used to compare char type.

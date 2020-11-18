@@ -152,8 +152,8 @@ void easyMockGenerate_baseTestCase::prepareTest(const ElementToMock::Vector &ele
   objFile.append(pathAndfileNameToMock);
   std::string fileToCompile(objFile);
   objFile.append(".o");
-  fileToCompile.append(".cpp");
-  const char * const compileMockCmd[] = {"g++", "-Wall", "-Werror", "-g", "-fpic", "-I", mockDir.c_str(), "-I", PROJECT_ROOT_DIR"/src/easyMockFramework/include", "-I", PROJECT_ROOT_DIR"/test/easyMockGenerate/include", "-o", objFile.c_str(), "-c", fileToCompile.c_str(), NULL};
+  fileToCompile.append(".c");
+  const char * const compileMockCmd[] = {"gcc", "-Wall", "-Werror", "-g", "-fpic", "-I", mockDir.c_str(), "-I", PROJECT_ROOT_DIR"/src/easyMockFramework/include", "-I", PROJECT_ROOT_DIR"/test/easyMockGenerate/include", "-o", objFile.c_str(), "-c", fileToCompile.c_str(), NULL};
   executeCmd(compileMockCmd, &stdOut, &stdErr, &status);
   if(status != 0)
   {

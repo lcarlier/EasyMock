@@ -279,27 +279,30 @@ private:
 
 static EasyMock __attribute ((init_priority(101))) easyMock;
 
-void easyMock_registerMockedFile(const easyMock_mockedFileRegister_t *args)
+extern "C" void easyMock_registerMockedFile(const easyMock_mockedFileRegister_t *args)
 {
   easyMock.registerMock(args);
 }
 
-void easyMock_unregisterMockedFile(const easyMock_mockedFileRegister_t *args)
+extern "C" void easyMock_unregisterMockedFile(const easyMock_mockedFileRegister_t *args)
 {
   easyMock.unregisterMock(args);
 }
 
-std::string easyMock_popCurrentCall()
+extern "C" cstring easyMock_popCurrentCall()
 {
-  return easyMock.popCurrentCall();
+  std::string poppedCalled = easyMock.popCurrentCall();
+  cstring rv = cstring_new_init(poppedCalled.c_str());
+  return rv;
 }
 
-void easyMock_addCall(const std::string call)
+extern "C" void easyMock_addCall(const char* call)
 {
-  easyMock.addCall(call);
+  std::string newCall(call);
+  easyMock.addCall(newCall);
 }
 
-void easyMock_addError(bool callstack, const char *fmt, ...)
+extern "C" void easyMock_addError(bool callstack, const char *fmt, ...)
 {
   //https://en.cppreference.com/w/cpp/io/c/vfprintf
   va_list args1;
@@ -315,12 +318,12 @@ void easyMock_addError(bool callstack, const char *fmt, ...)
   easyMock.addError(error, callstack);
 }
 
-bool easyMock_checkCallsOrder()
+extern "C" bool easyMock_checkCallsOrder()
 {
   return easyMock.checkCallsOrder();
 }
 
-bool easyMock_printCallStack()
+extern "C" bool easyMock_printCallStack()
 {
   return easyMock.printCallStack();
 }
@@ -345,12 +348,12 @@ extern "C" const char **easyMock_getErrorArr(unsigned int *size)
   return easyMock.getErrorArr(size);
 }
 
-extern "C" void easyMock_printCallStack(bool val)
+extern "C" void easyMock_setPrintCallStack(bool val)
 {
   easyMock.setPrintCallStack(val);
 }
 
-extern "C" void easyMock_checkCallsOrder(bool val)
+extern "C" void easyMock_setCheckCallsOrder(bool val)
 {
   easyMock.setCheckCallsOrder(val);
 }

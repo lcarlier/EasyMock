@@ -13,7 +13,7 @@ TEST(stdio, testOk)
      * Disable the call stack else it creates an infinite loop when trying to
      * dump it. Dumping the callstack requires the usage of a mocked function.
      */
-    easyMock_printCallStack(false);
+    easyMock_setPrintCallStack(false);
     FILE fr, fw;
     fopen_ExpectAndReturn("fileRead", "r+", &fr, cmp_str, cmp_str);
     fopen_ExpectAndReturn("fileWrite", "w+", &fw, cmp_str, cmp_str);
@@ -48,7 +48,7 @@ TEST(stdio, testNok)
      * Disable the call stack else it creates an infinite loop when trying to
      * dump it. Dumping the callstack requires the usage of a mocked function.
      */
-    easyMock_printCallStack(false);
+    easyMock_setPrintCallStack(false);
     FILE fr, fw;
     fopen_ExpectAndReturn("fileRead", "r+", &fr, cmp_str, cmp_str);
     fopen_ExpectAndReturn("fileWrite", "w+", &fw, cmp_str, cmp_str);

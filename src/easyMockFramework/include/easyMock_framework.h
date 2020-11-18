@@ -5,7 +5,14 @@
 #ifndef EASYMOCK_FRAMEWORK_H
 #define EASYMOCK_FRAMEWORK_H
 
-#include <string>
+#include <cstring.h>
+
+#include <stdbool.h>
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 /*!
  * \brief Type defining the information needed by a header file to register
@@ -58,14 +65,14 @@ void easyMock_unregisterMockedFile(const easyMock_mockedFileRegister_t *args);
  * This function is called by the mocked header code whenever a function from
  * the `*_ExpectAndReturn*` family is called.
  */
-void easyMock_addCall(const std::string call);
+void easyMock_addCall(const char* call);
 /*!
  * \brief Removes an expected call from EasyMock expected call stack.
  *
  * This function is called by the mocked header code whenever a function from
  * the mocked function is called from the code being tested.
  */
-std::string easyMock_popCurrentCall();
+cstring easyMock_popCurrentCall();
 /*!
  * \brief Reports an error to EasyMock.
  *
@@ -84,6 +91,10 @@ bool easyMock_checkCallsOrder();
  * \brief Returns whether the call stack must be part of the error messages.
  */
 bool easyMock_printCallStack();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* EASYMOCK_FRAMEWORK_H */
 

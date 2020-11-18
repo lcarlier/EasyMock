@@ -44,6 +44,7 @@ else()
     message (STATUS "llvm-config-${LLVM_VERSION} found --> ${LLVM}")
 endif()
 
+set(EASYMOCK_DEFAULT_CFLAGS -Wall -Werror)
 if(CMAKE_BUILD_TYPE STREQUAL build_debug)
     set(EASYMOCK_DEFAULT_CFLAGS ${EASYMOCK_DEFAULT_CFLAGS} -fsanitize=address -fno-omit-frame-pointer -g -O0)
     message(STATUS "Setting extra debug flags (${EASYMOCK_DEFAULT_CFLAGS})")
@@ -125,6 +126,9 @@ set(CTEMPLATE_GENERATE_OBJ ctemplateGenerate)
 set(CMD_LINE_PARSER_OBJ cmdLineParser)
 set(EASYMOCK_COMMON_OBJ easyMockCommonObj)
 set(EASYMOCK_FRAMEWORK_LIBRARY EasyMockFramework)
+set(EASYMOCK_GEN_INCLUDE_DIR ${EasyMock_SOURCE_DIR}/src/common/include
+                             ${EasyMock_SOURCE_DIR}/src/easyMockFramework/include
+                             ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/include)
 
 add_subdirectory(src)
 

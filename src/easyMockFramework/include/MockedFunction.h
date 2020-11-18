@@ -1,107 +1,109 @@
 /*!
  * \file
  *
- * \brief This header defines the MockedFunction class which is a templated
- * class used by the mocked header code to help mocking a specific function.
+ * \brief This header defines the MockedFunction struct and the helper function
+ * which is used by the mocked header code to help mocking a specific function.
  */
 #ifndef MOCKEDFUNCTION_H
 #define MOCKEDFUNCTION_H
 
 #include <easyMock_framework.h>
 
-#include <string>
-#include <queue>
+#include <stddef.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#ifndef EASYMOCK_MAX_MOCKED_CALL
+#define EASYMOCK_MAX_MOCKED_CALL 256
+#endif
 
 /*!
- * \brief Templated class used by the mocked header code to help mocking a
- * specific function
+ * \brief Struct encapsulating the data needed by a mocked function.
  */
-template <class T>
-class MockedFunction
+typedef struct
 {
-private:
-  typedef std::queue<T> MockedData_t;
-public:
+  /*!
+   * \brief Name of the function.
+   */
+  const char* name;
+  /*!
+   * \brief Size of the element stored in mockedData.
+   */
+  size_t dataSize;
+  /*!
+   * \brief Store the number of the expected call.
+   */
+  unsigned int expectedCall;
+  /*!
+   * \brief Store the number of the actual call done on the mocked function.
+   */
+  unsigned int actualCall;
+  /*!
+   * \brief Store the data of a mocked function call.
+   *
+   * The data contains:
+   * - The return value
+   * - The value of the expected parameters (if any)
+   * - Pointers to compare the function parameters (if any)
+   */
+  void* mockedData[EASYMOCK_MAX_MOCKED_CALL];
+} MockedFunction;
 
-  MockedFunction(const std::string name) :
-  m_name(name), m_expectedCall(0), m_actualCall(0)
-  {
-    emptyMockedDataQueue();
-  }
+/*!
+ * \brief Initialise a MockedFunction
+ */
+void MockedFunction_init(MockedFunction *mf, const char* name, size_t dataSize);
 
-  void addExpectedCall(T param)
-  {
-    m_mockedData.push(param);
-    m_expectedCall++;
-  }
+/*!
+ * \brief Add an expected call to the MockedFunction data.
+ */
+void MockedFunction_addExpectedCall(MockedFunction *mf, const void* data);
 
-  bool getCurrentCallParam(T& param)
-  {
-    if(m_mockedData.empty())
-    {
-      return false;
-    }
-    param = m_mockedData.front();
-    m_mockedData.pop();
-    return true;
-  }
+/*!
+ * \brief Get the data of the current expected function call.
+ */
+bool MockedFunction_getCurrentCallParam(MockedFunction *mf, void* data);
 
-  bool addActualCall()
-  {
-    /*
-     * Increment the actualCall anyway because verify() will check the equality
-     * of m_actualCall and m_expectedCall
-     */
-    m_actualCall++;
-    if ((m_actualCall - 1) == m_expectedCall)
-    {
-      return false;
-    }
-    return true;
-  }
+/*!
+ * \brief Add an actual call to the MockedFunction data.
+ */
+bool MockedFunction_addActualCall(MockedFunction *mf);
 
-  unsigned int getNbActualCall()
-  {
-    return m_actualCall;
-  }
+/*!
+ * \brief Returns the number of actual call done on the mocked function.
+ *
+ * This function is used to print on the error message on which call number
+ * the error is.
+ */
+unsigned int MockedFunction_getNbActualCall(MockedFunction *mf);
 
-  const std::string &getName()
-  {
-    return m_name;
-  }
+/*!
+ * \brief Returns the signature of the mocked function.
+ */
+const char* MockedFunction_getName(MockedFunction *mf);
 
-  void reset()
-  {
-    m_expectedCall = 0;
-    m_actualCall = 0;
-    emptyMockedDataQueue();
-  }
+/*!
+ * \brief Reset a MockedFunction
+ *
+ * - The number of expected and actual call are reset to 0.
+ * - The potential mocked data currently stored in MockedFunction are cleared.
+ */
+void MockedFunction_reset(MockedFunction *mf);
 
-  bool verify()
-  {
-    if (m_expectedCall != m_actualCall)
-    {
-      easyMock_addError(false, "Error: For function '%s' bad number of call. "
-                               "Expected %d, got %d",
-                               m_name.c_str(), m_expectedCall, m_actualCall);
-      return false;
-    }
-    return true;
-  }
+/*!
+ * \brief Verify the status of a mocked function.
+ *
+ * This function checks that:
+ * - no errors are reported.
+ * - the number of actual call is equal to the number of expected call
+ */
+bool MockedFunction_verify(MockedFunction *mf);
 
-private:
-  void emptyMockedDataQueue()
-  {
-    while(!m_mockedData.empty())
-    {
-      m_mockedData.pop();
-    }
-  }
-  std::string m_name;
-  unsigned int m_expectedCall;
-  unsigned int m_actualCall;
-  MockedData_t m_mockedData;
-};
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* MOCKEDFUNCTION_H */
 
