@@ -1,2 +1,4 @@
 docs/doxygen/html/
 docs/doxygen/latex/
+#This file is generated
+test/easyMockGenerate/includeCommonClasses/TestTypesInclude.h

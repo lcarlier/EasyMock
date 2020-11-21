@@ -179,7 +179,7 @@ class UnsLongLongPtrFunUnsLongLongPtrFactory : public PtrFunPtrGenericFactory<un
 class FloatPtrFunFloatPtrFactory : public PtrFunPtrGenericFactory<int, CTYPE_FLOAT, false>{};
 class DoublePtrFunDoublePtrFactory : public PtrFunPtrGenericFactory<double, CTYPE_DOUBLE, false>{};
 class LongDoublePtrFunLongDoublePtrFactory : public PtrFunPtrGenericFactory<long double, CTYPE_LONG_DOUBLE, false>{};
-class ConstIntPtrFunConstIntPtr : public PtrFunPtrGenericFactory<int, CTYPE_INT, true>{};
+class ConstIntPtrFunConstIntPtrFactory : public PtrFunPtrGenericFactory<int, CTYPE_INT, true>{};
 
 #endif /* PTRFUNPTRGENERICFACTORY_H */
 
