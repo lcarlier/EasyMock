@@ -26,7 +26,7 @@ static void loadSo(const char *pathToSo, const char *functionToLoad, const char 
 static void executeCmd(const char * const aArguments[], std::string *stdOut, std::string *stdErr, int *status);
 static void cleanTest(void **handle, const std::string &mockDir, bool rmDirectory);
 
-easyMockGenerate_baseTestCase::easyMockGenerate_baseTestCase(const std::string functionToMock, const std::string pathToFileToMock, const std::string mockDir, bool rmDir) :
+easyMockGenerate_baseTestCase::easyMockGenerate_baseTestCase(const std::string functionToMock, const std::string pathToFileToMock, const std::string mockDir, bool generateTypes, bool rmDir) :
 ::testing::Test(),
 m_functionToMock(functionToMock),
 m_comparatorToMatch(""),
@@ -37,7 +37,8 @@ handle(NULL),
 m_fptr(NULL),
 m_fptr_expect(NULL),
 m_fptr_matcher(NULL),
-m_fptr_output_ptr(NULL)
+m_fptr_output_ptr(NULL),
+m_generate_types(generateTypes)
 {
   ComposableType::setFileHash(std::hash<std::string>{}(pathToFileToMock));
 }
@@ -118,6 +119,11 @@ void easyMockGenerate_baseTestCase::getFunPtr(void** fPtr, void** fExpectPtr, vo
   }
 }
 
+void easyMockGenerate_baseTestCase::setGenerateTypes(bool p_generateTypes)
+{
+  m_generate_types = p_generateTypes;
+}
+
 void createDir(const std::string &dir)
 {
   boost::system::error_code errCode;
@@ -137,17 +143,27 @@ void easyMockGenerate_baseTestCase::prepareTest(const ElementToMock::Vector &ele
   char cwd[PATH_MAX];
   ASSERT_NE(getcwd(cwd, PATH_MAX), nullptr) << std::endl << "getcwd error. errno: " << errno << "(" << strerror(errno) << ")" << std::endl;
   CodeGeneratorCTemplate generate;
+  generate.setGenerateUsedType(m_generate_types);
 
   std::string pathAndfileNameToMock = boost::filesystem::path(fullPathToFileToMock).stem().string();
   std::string fileNameToMock = boost::filesystem::path(pathAndfileNameToMock).filename().string();
-  createDir(mockDir);
-  bool codeGen = generate.generateCode(mockDir, fullPathToFileToMock, elem);
+  std::string finalMockDir(mockDir);
+  if(m_generate_types)
+  {
+    finalMockDir.append("/typeGenerate");
+  }
+  else
+  {
+    finalMockDir.append("/useHeader");
+  }
+  createDir(finalMockDir);
+  bool codeGen = generate.generateCode(finalMockDir, fullPathToFileToMock, elem);
   ASSERT_TRUE(codeGen) << std::endl << "Generation failed." << std::endl << "cwd: " << cwd << std::endl;
   std::string stdOut;
   std::string stdErr;
   int status;
 
-  std::string objFile(mockDir);
+  std::string objFile(finalMockDir);
   objFile.append("/easyMock_");
   objFile.append(pathAndfileNameToMock);
   std::string fileToCompile(objFile);
@@ -162,7 +178,7 @@ void easyMockGenerate_baseTestCase::prepareTest(const ElementToMock::Vector &ele
 #else
 #error "Compiler not supported"
 #endif
-  const char * const compileMockCmd[] = {cCompiler, "-Wall", "-Werror", "-g", "-O0", "-fpic", "-I", mockDir.c_str(), "-I", PROJECT_ROOT_DIR"/src/easyMockFramework/include", "-I", PROJECT_ROOT_DIR"/test/easyMockGenerate/include", "-o", objFile.c_str(), "-c", fileToCompile.c_str(), NULL};
+  const char * const compileMockCmd[] = {cCompiler, "-Wall", "-Werror", "-g", "-O0", "-fpic", "-I", finalMockDir.c_str(), "-I", PROJECT_ROOT_DIR"/src/easyMockFramework/include", "-I", PROJECT_ROOT_DIR"/test/easyMockGenerate/include", "-o", objFile.c_str(), "-c", fileToCompile.c_str(), NULL};
   executeCmd(compileMockCmd, &stdOut, &stdErr, &status);
   if(status != 0)
   {

@@ -34,7 +34,7 @@ public:
   /*!
    * \brief Creates a new MainCodeGenerator instance.
    */
-  MainCodeGenerator(const std::string filename, CodeParserItf &codeParser, CodeGeneratorItf &codeGenerator);
+  MainCodeGenerator(const std::string p_filename, CodeParserItf &p_codeParser, CodeGeneratorItf &p_codeGenerator);
   /*!
    * \brief Calls the logic to parse and generate the mocks.
    *

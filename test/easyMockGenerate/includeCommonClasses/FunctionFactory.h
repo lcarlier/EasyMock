@@ -229,6 +229,16 @@ public:
     this->setupTestCase(tc);
   }
 
+  bool getGenerateTypes()
+  {
+    return m_generate_types;
+  }
+
+  bool getRmDir()
+  {
+    return m_rm_dir;
+  }
+
   std::string functionGetMockDir()
   {
     std::string mockDir("mock");
@@ -406,12 +416,18 @@ public:
   virtual ~FunctionFactory() {}
 
 protected:
+  FunctionFactory() :
+    m_generate_types(false),
+    m_rm_dir(true)
+    {}
   EasyMock_Matcher m_user_matcher;
 
   RvContext<RV> m_rvContext;
   std::deque<std::tuple<Params...>> m_params;
   std::deque<std::tuple<Params...>> m_expects;
   std::deque<std::tuple<Compare...>> m_compare;
+  bool m_generate_types;
+  bool m_rm_dir;
 
 private:
   template<typename F_RV=RV,

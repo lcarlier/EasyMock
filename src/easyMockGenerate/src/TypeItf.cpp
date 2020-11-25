@@ -54,7 +54,7 @@ const std::string &TypeItf::getName() const
 }
 
 //static
-std::string TypeItf::s_getFullDeclarationName(const TypeItf* type, bool fullyQualified)
+std::string TypeItf::s_getFullDeclarationName(const TypeItf* type, bool fullyQualified, bool naked)
 {
   const Pointer *ptrType = dynamic_cast<const Pointer*>(type);
   const TypeItf *pointedType = ptrType ? ptrType->getPointedType() : nullptr;
@@ -70,9 +70,16 @@ std::string TypeItf::s_getFullDeclarationName(const TypeItf* type, bool fullyQua
     }
     else
     {
-      fullDeclarationName.append(s_getFullDeclarationName(pointedType, fullyQualified));
+      if(ptrType->isTypedDef() && !naked)
+      {
+        fullDeclarationName.append(pointedType->getTypedDefName());
+      }
+      else
+      {
+        fullDeclarationName.append(s_getFullDeclarationName(pointedType, fullyQualified, naked));
+      }
     }
-    if(ptrType->getTypedDefName().empty())
+    if(ptrType->getTypedDefName().empty() || naked)
     {
       fullDeclarationName.append("* ");
       if(pointedFuncType)
@@ -85,7 +92,7 @@ std::string TypeItf::s_getFullDeclarationName(const TypeItf* type, bool fullyQua
   {
     fullDeclarationName.append("const ");
   }
-  if(!type->m_typedDefName.empty())
+  if(!type->m_typedDefName.empty() && !naked)
   {
     fullDeclarationName.append(type->m_typedDefName);
     return fullDeclarationName;
@@ -108,14 +115,14 @@ std::string TypeItf::s_getFullDeclarationName(const TypeItf* type, bool fullyQua
   return fullDeclarationName;
 }
 
-std::string TypeItf::getFullDeclarationName() const
+std::string TypeItf::getFullDeclarationName(bool p_naked) const
 {
-  return s_getFullDeclarationName(this, true);
+  return s_getFullDeclarationName(this, true, p_naked);
 }
 
-std::string TypeItf::getFullNonQualifiedDeclarationName() const
+std::string TypeItf::getFullNonQualifiedDeclarationName(bool p_naked) const
 {
-  return s_getFullDeclarationName(this, false);
+  return s_getFullDeclarationName(this, false, p_naked);
 }
 
 const std::string& TypeItf::getTypedDefName() const

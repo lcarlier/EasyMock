@@ -57,6 +57,8 @@
 #include <VoidFunEnumFactory.h>
 #include <VoidFunPtrToPtrRecurStructFactory.h>
 #include <VoidFunStructForwardDeclaredFactory.h>
+#include <VoidFunTypeDefFactory.h>
+#include <VoidFunTypeDefGenTypeFactory.h>
 
 // TestTypesInclude.h is generated
 #include "TestTypesInclude.h"
@@ -128,7 +130,9 @@
         VoidFunTypedefFunPtrFactory, \
         VoidFunEnumFactory, \
         VoidFunPtrToPtrRecurStructFactory, \
-        VoidFunStructForwardDeclaredFactory
+        VoidFunStructForwardDeclaredFactory, \
+        VoidFunTypeDefFactory, \
+        VoidFunTypeDefGenTypeFactory
 
 typedef ::testing::Types
 <

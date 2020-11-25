@@ -15,6 +15,7 @@ const std::string g_helpParamShort("-h");
 const std::string g_helpParamLong("--help");
 const std::string g_mockOnlyParam("--mock-only");
 const std::string g_changeWorkingDir("--cwd");
+const std::string g_generateTypes("--generate-types");
 
 const std::string g_errorInputMissing("Error: The input header file is not provided");
 const std::string g_errorOutputMissing("Error: The output directory is not provided");
@@ -34,6 +35,7 @@ const std::string g_helpMessage =
   "-o <directory>         Output directory\n\r"
   "--cwd <directory>      Change to the directory passed on this parameter before running the parser.\n\r"
   "--mock-only <function> Mock only the function specified in this parameter.\n\r"
+  "--generate-types       Generate the used type instead of including the original header.\n\r"
   "                       Can be used several times\n\r"
   "-h, --help             Print usage\n\r";
 
@@ -78,6 +80,10 @@ struct EasyMockOptions
    * \brief All the values that are not recognised by the command line parser.
    */
   ExtraArgsList m_extraArgs;
+  /*!
+   * \brief Generate the used type instead of including the original header
+   */
+  bool m_generateTypes;
 };
 
 /*!

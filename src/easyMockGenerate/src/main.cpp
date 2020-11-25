@@ -49,6 +49,7 @@ int main(int argc, char *argv[])
 
   CodeGeneratorCTemplate cg;
   cg.setMockOnlyFunction(opt.m_mockOnlyList);
+  cg.setGenerateUsedType(opt.m_generateTypes);
 
   MainCodeGenerator cp(opt.m_inputHeaderFile, of, cg);
   cp.generateCode(opt.m_outputDir);

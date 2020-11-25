@@ -28,9 +28,11 @@ public:
    * \return false instead.
    */
   virtual bool generateCode(const std::string& p_outDir, const std::string &p_fullPathToHeaderToMock, const ElementToMock::Vector& p_elem) = 0;
-  void setMockOnlyFunction(MockOnlyList list);
+  void setMockOnlyFunction(const MockOnlyList& list);
+  void setGenerateUsedType(bool value);
 protected:
   MockOnlyList m_mockOnlyList;
+  bool m_generateUsedType;
 };
 
 #endif /* CODEGENERATORITF_H */

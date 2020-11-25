@@ -5,6 +5,7 @@
 EasyMockOptions CmdLineParser::getParsedArguments(int argc,const char* argv[]) const
 {
   EasyMockOptions opt;
+  opt.m_generateTypes = false;
 
   int argIdx;
   for(argIdx = 1; argv[argIdx] != nullptr && argIdx < argc; argIdx++)
@@ -80,6 +81,10 @@ EasyMockOptions CmdLineParser::getParsedArguments(int argc,const char* argv[]) c
         opt.m_errorMessage = g_errorCwdMissing;
         return opt;
       }
+    }
+    else if(currentParam == g_generateTypes)
+    {
+      opt.m_generateTypes = true;
     }
     else
     {

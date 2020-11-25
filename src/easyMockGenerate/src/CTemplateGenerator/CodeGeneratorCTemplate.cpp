@@ -88,25 +88,35 @@
 #define COMPOSED_TYPE_TEMPLATE_VAR "NON_TYPED_DEF_COMPOSED_TYPE_VAR" //struct or union
 #define COMPOSED_TYPE_VAR TEMPLATE_VAR(COMPOSED_TYPE_TEMPLATE_VAR)
 
-#define INCOMPLETE_ANONYMOUS_TYPE_DECLARATION_SECTION "INCOMPLETE_ANONYMOUS_TYPE_DECLARATION_SECTION"
-#define INCOMPLETE_ANONYMOUS_TYPE_DECLARATION_FIELD_SECTION "INCOMPLETE_ANONYMOUS_TYPE_DECLARATION_FIELD_SECTION"
-#define INCOMPLETE_ANONYMOUS_TYPE_DECLARATION_TYPE_TEMPLATE_VAR "INCOMPLETE_ANONYMOUS_TYPE_DECLARATION_TYPE_TEMPLATE_VAR"
-#define INCOMPLETE_ANONYMOUS_TYPE_DECLARATION_TYPE_VAR TEMPLATE_VAR(INCOMPLETE_ANONYMOUS_TYPE_DECLARATION_TYPE_TEMPLATE_VAR)
-#define INCOMPLETE_ANONYMOUS_TYPE_DECLARATION_NAME_TEMPLATE_VAR "INCOMPLETE_ANONYMOUS_TYPE_DECLARATION_NAME_TEMPLATE_VAR"
-#define INCOMPLETE_ANONYMOUS_TYPE_DECLARATION_NAME_VAR TEMPLATE_VAR(INCOMPLETE_ANONYMOUS_TYPE_DECLARATION_NAME_TEMPLATE_VAR)
+#define COMPOSABLE_TYPE_DECLARE_TYPE_FIELD_OR_COMPOSABLE_TYPE_FIELD_SECTION "COMPOSABLE_TYPE_DECLARE_TYPE_FIELD_OR_COMPOSABLE_TYPE_FIELD_SECTION"
+#define COMPOSABLE_TYPE_DECLARE_COMPOSABLE_TYPE_SECTION "COMPOSABLE_TYPE_DECLARE_COMPOSABLE_TYPE_SECTION"
+#define COMPOSABLE_TYPE_TYPEDEF_SECTION "COMPOSABLE_TYPE_TYPEDEF_SECTION"
 
-#define ANONYMOUS_TYPE_DECLARATION_FIELD_SECTION "ANONYMOUS_TYPE_DECLARATION_FIELD_SECTION"
-#define ANONYMOUS_TYPE_DECLARATION_FIELD_TYPE_TEMPLATE_VAR "ANONYMOUS_TYPE_DECLARATION_FIELD_TYPE_TEMPLATE_VAR"
-#define ANONYMOUS_TYPE_DECLARATION_FIELD_TYPE_VAR TEMPLATE_VAR(ANONYMOUS_TYPE_DECLARATION_FIELD_TYPE_TEMPLATE_VAR)
-#define ANONYMOUS_TYPE_DECLARATION_FIELD_NAME_TEMPLATE_VAR "ANONYMOUS_TYPE_DECLARATION_FIELD_NAME_TEMPLATE_VAR"
-#define ANONYMOUS_TYPE_DECLARATION_FIELD_NAME_VAR TEMPLATE_VAR(ANONYMOUS_TYPE_DECLARATION_FIELD_NAME_TEMPLATE_VAR)
+#define COMPOSABLE_TYPE_DECLARATION_TYPE_TEMPLATE_VAR "COMPOSABLE_TYPE_DECLARATION_TYPE_TEMPLATE_VAR"
+#define COMPOSABLE_TYPE_DECLARATION_TYPE_VAR TEMPLATE_VAR(COMPOSABLE_TYPE_DECLARATION_TYPE_TEMPLATE_VAR)
+#define COMPOSABLE_TYPE_TYPE_NAME_TEMPLATE_VAR "COMPOSABLE_TYPE_TYPE_NAME_TEMPLATE_VAR"
+#define COMPOSABLE_TYPE_TYPE_NAME_VAR TEMPLATE_VAR(COMPOSABLE_TYPE_TYPE_NAME_TEMPLATE_VAR)
+#define COMPOSABLE_TYPE_TYPEDEF_NAME_TEMPLATE_VAR "COMPOSABLE_TYPE_TYPEDEF_NAME_TEMPLATE_VAR"
+#define COMPOSABLE_TYPE_TYPEDEF_NAME_VAR TEMPLATE_VAR(COMPOSABLE_TYPE_TYPEDEF_NAME_TEMPLATE_VAR)
 
-#define CFILE_TEMPLATE "cfile_template"
-#define HFILE_TEMPLATE "hfile_template"
-#define RECURSIVE_ANONYMOUS_TYPE_DECLARATION_TEMPLATE_NAME "include_anonymous_decl_template"
-#define RECURSIVE_ANONYMOUS_TYPE_DECLARATION_TEMPLATE_FIELD_NAME "include_anonymous_decl_template_field"
-#define EXTRA_DECL_TEMPLATE_NAME "extra_decl_template_name"
-#define EXTRA_TOP_DECL_TEMPLATE_NAME "extra_top_decl_template_name"
+#define GENERATED_TYPE_SECTION "GENERATED_TYPE_SECTION"
+#define GENERATED_TYPE_DECLARE_TYPE_SECTION "GENERATED_TYPE_DECLARE_TYPE_SECTION"
+#define GENERATED_TYPE_DECLARE_TYPE_TEMPLATE_VAR "GENERATED_TYPE_DECLARE_TYPE_TEMPLATE_VAR"
+#define GENERATED_TYPE_DECLARE_TYPE_VAR TEMPLATE_VAR(GENERATED_TYPE_DECLARE_TYPE_TEMPLATE_VAR)
+
+#define COMPOSABLE_TYPE_DECLARE_TYPE_SECTION "COMPOSABLE_TYPE_DECLARE_TYPE_SECTION"
+#define TYPE_DECLARATION_TEMPLATE_VAR "TYPE_DECLARATION_TEMPLATE_VAR"
+#define TYPE_DECLARATION_VAR TEMPLATE_VAR(TYPE_DECLARATION_TEMPLATE_VAR)
+#define TYPE_NAME_TEMPLATE_VAR "TYPE_NAME_TEMPLATE_VAR"
+#define TYPE_NAME_VAR TEMPLATE_VAR(TYPE_NAME_TEMPLATE_VAR)
+
+#define CFILE_TEMPLATE "CFILE_TEMPLATE"
+#define HFILE_TEMPLATE "HFILE_TEMPLATE"
+#define GENERATED_TYPE_DECLARE_TYPE_OR_COMPOSABLE_TYPE_TEMPLATE_NAME "GENERATED_TYPE_DECLARE_TYPE_OR_COMPOSABLE_TYPE_TEMPLATE_NAME"
+#define COMPOSABLE_TYPE_DECLARE_COMPOSABLE_TYPE_TEMPLATE_NAME "COMPOSABLE_TYPE_DECLARE_COMPOSABLE_TYPE_TEMPLATE_NAME"
+#define COMPOSABLE_TYPE_DECLARE_TYPE_FIELD_OR_COMPOSABLE_TYPE_FIELD_TEMPLATE_NAME "COMPOSABLE_TYPE_DECLARE_TYPE_FIELD_OR_COMPOSABLE_TYPE_FIELD_TEMPLATE_NAME"
+#define EXTRA_DECL_TEMPLATE_NAME "EXTRA_DECL_TEMPLATE_NAME"
+#define EXTRA_TOP_DECL_TEMPLATE_NAME "EXTRA_TOP_DECL_TEMPLATE_NAME"
 
 #define VARIADIC_SECTION "VARIADIC_SECTION"
 #define VARIADIC_VAR "VARIADIC_VAR"
@@ -116,6 +126,9 @@
 #define EXTRA_TOP_LEVEL_DECL_SECTION "EXTRA_TOP_LEVEL_DECL_SECTION"
 
 #define VOID_FUNCTION_RETURN_VALUE "void"
+
+#define INCLUDE_MOCKED_HEADER_SECTION "INCLUDE_MOCKED_HEADER_SECTION"
+#define GENERATE_MOCKED_TYPE_SECTION "GENERATE_MOCKED_TYPE_SECTION"
 
 /*!
  * \brief Add STR_TO_PRINT into the code if the function being mocked
@@ -328,7 +341,7 @@ static const char templateText[] =
         COMPOSED_TYPED_COMPARE_FUNCTION_SIGNATURE CARRIAGE_RETURN
         "{" CARRIAGE_RETURN
 
-        "    " TEMPLATE_INCL_SECTION(INCOMPLETE_ANONYMOUS_TYPE_DECLARATION_SECTION) CARRIAGE_RETURN
+        "    " TEMPLATE_INCL_SECTION(COMPOSABLE_TYPE_DECLARE_COMPOSABLE_TYPE_SECTION) CARRIAGE_RETURN
 
         "    " IF_SECTION_EXISTS(NON_TYPED_DEF_COMPOSED_TYPE_SECTION, COMPOSED_TYPE_VAR " ") COMPOSED_TYPED_COMPARE_SECTION_DECL_NAME_VAR " *currentCall_val = (" IF_SECTION_EXISTS(NON_TYPED_DEF_COMPOSED_TYPE_SECTION, COMPOSED_TYPE_VAR " ") COMPOSED_TYPED_COMPARE_SECTION_DECL_NAME_VAR " *)currentCall_ptr;" CARRIAGE_RETURN
         "    " IF_SECTION_EXISTS(NON_TYPED_DEF_COMPOSED_TYPE_SECTION, COMPOSED_TYPE_VAR " ") COMPOSED_TYPED_COMPARE_SECTION_DECL_NAME_VAR " *expectedCall_val = (" IF_SECTION_EXISTS(NON_TYPED_DEF_COMPOSED_TYPE_SECTION, COMPOSED_TYPE_VAR " ") COMPOSED_TYPED_COMPARE_SECTION_DECL_NAME_VAR " *)expectedCall_ptr;" CARRIAGE_RETURN
@@ -537,19 +550,34 @@ static const char headerFileTemplate[] =
         "#ifndef _" TEMPLATE_VAR(MOCKED_FILE_NAME_WITHOUT_EXT_UPPER) "_" MOCK_FRAMEWORK_NAME_UPPER "_H" CARRIAGE_RETURN
         "#define _" TEMPLATE_VAR(MOCKED_FILE_NAME_WITHOUT_EXT_UPPER) "_" MOCK_FRAMEWORK_NAME_UPPER "_H" CARRIAGE_RETURN
         CARRIAGE_RETURN
-        "#include \"" TEMPLATE_VAR(MOCKED_HEADER_FILENAME) "\"" CARRIAGE_RETURN
+        IF_SECTION_EXISTS(INCLUDE_MOCKED_HEADER_SECTION,
+          "#include \"" TEMPLATE_VAR(MOCKED_HEADER_FILENAME) "\"" CARRIAGE_RETURN
+        )
         "#include <" MOCK_FRAMEWORK_NAME ".h>" CARRIAGE_RETURN
         "#include <stddef.h>" CARRIAGE_RETURN
         CARRIAGE_RETURN
         "#ifdef __cplusplus" CARRIAGE_RETURN
         "extern \"C\" {" CARRIAGE_RETURN
         "#endif" CARRIAGE_RETURN
+        IF_SECTION_EXISTS(GENERATE_MOCKED_TYPE_SECTION,
+          "//------------------ GENERATING USED TYPE -------------------"  CARRIAGE_RETURN
+          TEMPLATE_BEG_SECTION(GENERATED_TYPE_SECTION)
+          IF_SECTION_EXISTS(GENERATED_TYPE_DECLARE_TYPE_SECTION,
+            GENERATED_TYPE_DECLARE_TYPE_VAR ";" CARRIAGE_RETURN
+          )
+          TEMPLATE_INCL_SECTION(COMPOSABLE_TYPE_DECLARE_COMPOSABLE_TYPE_SECTION)
+          TEMPLATE_END_SECTION(GENERATED_TYPE_SECTION)
+          "//---------------- END GENERATING USED TYPE -----------------"  CARRIAGE_RETURN
+        ) //IF_SECTION_EXISTS(GENERATE_MOCKED_TYPE_SECTION,
         CARRIAGE_RETURN
         TEMPLATE_BEG_SECTION(COMPOSED_TYPE_COMPARE_SECTION)
         COMPOSED_TYPED_COMPARE_FUNCTION_SIGNATURE ";" CARRIAGE_RETURN
         TEMPLATE_END_SECTION(COMPOSED_TYPE_COMPARE_SECTION)
         TEMPLATE_BEG_SECTION(FUNCTION_SECTION)
         "//------------------- GENERATING '" TEMPLATE_FUNCTION_TO_BE_MOCKED "' -------------------" CARRIAGE_RETURN
+        IF_SECTION_EXISTS(GENERATE_MOCKED_TYPE_SECTION,
+          TEMPLATE_FUNCTION_TO_BE_MOCKED ";" CARRIAGE_RETURN
+        )
         FUNCTION_EXPECT_AND_RETURN_SIGNATURE ";" CARRIAGE_RETURN
         IF_SECTION_EXISTS(FUNCTION_PARAM_PTR_LIST_SECTION, FUNCTION_EXPECT_RETURN_AND_OUTPUT_SIGNATURE ";" CARRIAGE_RETURN)
         "//----------------- END GENERATION '" TEMPLATE_FUNCTION_TO_BE_MOCKED "' -----------------" CARRIAGE_RETURN
@@ -560,17 +588,17 @@ static const char headerFileTemplate[] =
         "#endif" CARRIAGE_RETURN
         "#endif" CARRIAGE_RETURN;
 
-static const char declareAnonymousComposableTypeTemplate[] =
-        "typedef " INCOMPLETE_ANONYMOUS_TYPE_DECLARATION_TYPE_VAR CARRIAGE_RETURN
+static const char composableType_DeclareComposableType_template[] =
+        IF_SECTION_EXISTS(COMPOSABLE_TYPE_TYPEDEF_SECTION, "typedef ") COMPOSABLE_TYPE_DECLARATION_TYPE_VAR " " COMPOSABLE_TYPE_TYPE_NAME_VAR CARRIAGE_RETURN
         "{" CARRIAGE_RETURN
-        "    " TEMPLATE_INCL_SECTION(INCOMPLETE_ANONYMOUS_TYPE_DECLARATION_FIELD_SECTION) CARRIAGE_RETURN
-        "} " INCOMPLETE_ANONYMOUS_TYPE_DECLARATION_NAME_VAR ";";
+        "    " TEMPLATE_INCL_SECTION(COMPOSABLE_TYPE_DECLARE_TYPE_FIELD_OR_COMPOSABLE_TYPE_FIELD_SECTION) CARRIAGE_RETURN
+        "}" IF_SECTION_EXISTS(COMPOSABLE_TYPE_TYPEDEF_SECTION, " " COMPOSABLE_TYPE_TYPEDEF_NAME_VAR) ";";
 
-static const char declareAnonymousComposableTypeFieldTemplate[] =
-        TEMPLATE_BEG_SECTION(ANONYMOUS_TYPE_DECLARATION_FIELD_SECTION)
-        ANONYMOUS_TYPE_DECLARATION_FIELD_TYPE_VAR " " ANONYMOUS_TYPE_DECLARATION_FIELD_NAME_VAR TEMPLATE_INCL_SECTION(EXTRA_DECL_SECTION) ";" CARRIAGE_RETURN
-        TEMPLATE_END_SECTION(ANONYMOUS_TYPE_DECLARATION_FIELD_SECTION)
-        TEMPLATE_INCL_SECTION(INCOMPLETE_ANONYMOUS_TYPE_DECLARATION_SECTION);
+static const char composableType_DeclareTypeFieldOrComposableTypeField_template[] =
+        IF_SECTION_EXISTS(COMPOSABLE_TYPE_DECLARE_TYPE_SECTION,
+          TYPE_DECLARATION_VAR " " TYPE_NAME_VAR TEMPLATE_INCL_SECTION(EXTRA_DECL_SECTION) ";" CARRIAGE_RETURN
+        )
+        TEMPLATE_INCL_SECTION(COMPOSABLE_TYPE_DECLARE_COMPOSABLE_TYPE_SECTION);
 
 static const char extraDeclTemplate[] =
         ")"
@@ -601,8 +629,8 @@ bool CodeGeneratorCTemplate::generateCode(const std::string& p_outDir, const std
 
   ctemplate::StringToTemplateCache(CFILE_TEMPLATE, templateText, ctemplate::DO_NOT_STRIP);
   ctemplate::StringToTemplateCache(HFILE_TEMPLATE, headerFileTemplate, ctemplate::DO_NOT_STRIP);
-  ctemplate::StringToTemplateCache(RECURSIVE_ANONYMOUS_TYPE_DECLARATION_TEMPLATE_NAME, declareAnonymousComposableTypeTemplate, ctemplate::DO_NOT_STRIP);
-  ctemplate::StringToTemplateCache(RECURSIVE_ANONYMOUS_TYPE_DECLARATION_TEMPLATE_FIELD_NAME, declareAnonymousComposableTypeFieldTemplate, ctemplate::DO_NOT_STRIP);
+  ctemplate::StringToTemplateCache(COMPOSABLE_TYPE_DECLARE_TYPE_FIELD_OR_COMPOSABLE_TYPE_FIELD_TEMPLATE_NAME, composableType_DeclareTypeFieldOrComposableTypeField_template, ctemplate::DO_NOT_STRIP);
+  ctemplate::StringToTemplateCache(COMPOSABLE_TYPE_DECLARE_COMPOSABLE_TYPE_TEMPLATE_NAME, composableType_DeclareComposableType_template, ctemplate::DO_NOT_STRIP);
   ctemplate::StringToTemplateCache(EXTRA_DECL_TEMPLATE_NAME, extraDeclTemplate, ctemplate::DO_NOT_STRIP);
   ctemplate::StringToTemplateCache(EXTRA_TOP_DECL_TEMPLATE_NAME, extraTopDeclTemplate, ctemplate::DO_NOT_STRIP);
 
@@ -625,7 +653,17 @@ bool CodeGeneratorCTemplate::generateCode(const std::string& p_outDir, const std
 
 void CodeGeneratorCTemplate::fillInTemplateVariables(ctemplate::TemplateDictionary *p_rootDictionnary, const std::string &p_mockedHeader, const ElementToMock::Vector &p_fList)
 {
+  m_generateMockedTypeSection = nullptr;
+  m_generateTypes.clear();
   p_rootDictionnary->SetValue(MOCKED_HEADER_FILENAME, p_mockedHeader);
+  if(m_generateUsedType)
+  {
+    m_generateMockedTypeSection = p_rootDictionnary->AddSectionDictionary(GENERATE_MOCKED_TYPE_SECTION);
+  }
+  else
+  {
+    p_rootDictionnary->AddSectionDictionary(INCLUDE_MOCKED_HEADER_SECTION);
+  }
   std::string fileNameWithoutExtUpper = p_mockedHeader.substr(0, p_mockedHeader.find_last_of("."));
   std::transform(fileNameWithoutExtUpper.begin(), fileNameWithoutExtUpper.end(), fileNameWithoutExtUpper.begin(), ::toupper);
   p_rootDictionnary->SetValue(MOCKED_FILE_NAME_WITHOUT_EXT_UPPER, fileNameWithoutExtUpper);
@@ -664,6 +702,14 @@ void CodeGeneratorCTemplate::fillInTemplateVariables(ctemplate::TemplateDictiona
 void CodeGeneratorCTemplate::generateFunctionSection(ctemplate::TemplateDictionary *p_rootDictionnary, const FunctionDeclaration *p_elemToMock)
 {
   ctemplate::TemplateDictionary *functionSectionDict = p_rootDictionnary->AddSectionDictionary(FUNCTION_SECTION);
+  if(m_generateUsedType)
+  {
+    /*
+     * We do not need to fill in any value in this section because the variable in in are the same
+     * as for the parent and the value is propagated automatically over there
+     */
+    functionSectionDict->AddSectionDictionary(GENERATE_MOCKED_TYPE_SECTION);
+  }
   functionSectionDict->SetValue(FUNCTION_NAME, *p_elemToMock->getName());
   std::string upperString(*p_elemToMock->getName());
   std::transform(upperString.begin(), upperString.end(), upperString.begin(), ::toupper);
@@ -675,6 +721,7 @@ void CodeGeneratorCTemplate::generateFunctionSection(ctemplate::TemplateDictiona
   functionSectionDict->SetValue(FUNCTION_RETURN_VALUE, returnTypeStr);
   functionSectionDict->SetValue(FUNCTION_TO_RETURN_VALUE, returnTypeStr);
   const TypeItf* rvType = returnValue->getType();
+  generateDeclarationOfUsedType(p_rootDictionnary, rvType);
   if(!rvType->isPointer())
   {
     functionSectionDict->SetValue(FUNCTION_NON_QUALIFIED_RETURN_VALUE, nonQualRetTypeStr);
@@ -761,6 +808,7 @@ void CodeGeneratorCTemplate::generateFunctionParamSection(ctemplate::TemplateDic
     ctemplate::TemplateDictionary* newTypedefParamSection = p_functionSectionDict->AddSectionDictionary(FUNCTION_PARAM_SECTION);
     const Parameter *fParam = *it;
     const TypeItf *paramType = fParam->getType();
+    generateDeclarationOfUsedType(p_rootDictionnary, paramType);
     //For the rest of this function paramPtrType tells whether we are dealing with a pointer parameter or not
     const Pointer *paramPtrType = dynamic_cast<const Pointer *>(paramType);
     const std::string& argType = getDeclaratorString(fParam);
@@ -1049,11 +1097,51 @@ void CodeGeneratorCTemplate::generateBasicTypeField(const ComposableField *p_cur
   p_paramSectDict->SetValue(COMPARE_CONDITION, condition);
 }
 
-void CodeGeneratorCTemplate::generateDeclarationOfAnonymousType(ctemplate::TemplateDictionary* p_rootDictionnary, ctemplate::TemplateDictionary* p_compareDict, const ComposableType* p_composedType)
+void CodeGeneratorCTemplate::generateDeclarationOfUsedType(ctemplate::TemplateDictionary *p_rootDictionnary, const TypeItf* p_type)
 {
-  ctemplate::TemplateDictionary *anonymousDeclDict = p_compareDict->AddIncludeDictionary(INCOMPLETE_ANONYMOUS_TYPE_DECLARATION_SECTION);
-  anonymousDeclDict->SetFilename(RECURSIVE_ANONYMOUS_TYPE_DECLARATION_TEMPLATE_NAME);
+  if(!m_generateUsedType)
+  {
+    return;
+  }
+  if(!m_generateMockedTypeSection)
+  {
+    std::fprintf(stderr, "%s: m_generateMockedTypeSection is nullptr. Contact owner for bug fixing\n\r", __FUNCTION__);
+    assert(m_generateMockedTypeSection);
+  }
+  const std::string fullDeclarationName = p_type->getFullDeclarationName();
+  if(m_generateTypes.find(fullDeclarationName) != m_generateTypes.end())
+  {
+    return;
+  }
 
+  if(p_type->isComposableType())
+  {
+    //TODO
+  }
+  else if(p_type->isTypedDef())
+  {
+    ctemplate::TemplateDictionary *generatedType_section = m_generateMockedTypeSection->AddSectionDictionary(GENERATED_TYPE_SECTION);
+    ctemplate::TemplateDictionary* generatedType_typeSection = generatedType_section->AddSectionDictionary(GENERATED_TYPE_DECLARE_TYPE_SECTION);
+    std::string declaredType("typedef ");
+    declaredType.append(p_type->getFullDeclarationName(true));
+    declaredType.push_back(' ');
+    declaredType.append(p_type->getTypedDefName());
+    generatedType_typeSection->SetValue(GENERATED_TYPE_DECLARE_TYPE_TEMPLATE_VAR, declaredType);
+  }
+  else
+  {
+    return;
+  }
+  m_generateTypes.insert(fullDeclarationName);
+}
+
+void CodeGeneratorCTemplate::generateDeclarationOfAnonymousType(ctemplate::TemplateDictionary* p_rootDictionnary, ctemplate::TemplateDictionary* p_curFieldDict, const ComposableType* p_composedType)
+{
+  ctemplate::TemplateDictionary *anonymousDeclDict = p_curFieldDict->AddIncludeDictionary(COMPOSABLE_TYPE_DECLARE_COMPOSABLE_TYPE_SECTION);
+  anonymousDeclDict->SetFilename(COMPOSABLE_TYPE_DECLARE_COMPOSABLE_TYPE_TEMPLATE_NAME);
+
+  //Anonymous type are all the time typed def
+  anonymousDeclDict->AddSectionDictionary(COMPOSABLE_TYPE_TYPEDEF_SECTION);
   std::string typeVar("");
   if(p_composedType->isStruct())
   {
@@ -1068,14 +1156,14 @@ void CodeGeneratorCTemplate::generateDeclarationOfAnonymousType(ctemplate::Templ
     fprintf(stderr, "Declaration string unknown composable type\n\r");
     assert(false);
   }
-  anonymousDeclDict->SetValue(INCOMPLETE_ANONYMOUS_TYPE_DECLARATION_TYPE_TEMPLATE_VAR, typeVar);
-  anonymousDeclDict->SetValue(INCOMPLETE_ANONYMOUS_TYPE_DECLARATION_NAME_TEMPLATE_VAR, p_composedType->getUniqueName());
+  anonymousDeclDict->SetValue(COMPOSABLE_TYPE_DECLARATION_TYPE_TEMPLATE_VAR, typeVar);
+  anonymousDeclDict->SetValue(COMPOSABLE_TYPE_TYPEDEF_NAME_TEMPLATE_VAR, p_composedType->getUniqueName());
 
   const ComposableField::Vector& vectField = p_composedType->getContainedFields();
   for (ComposableField::Vector::const_iterator it = vectField.begin(); it != vectField.end(); ++it)
   {
-    ctemplate::TemplateDictionary *curFieldDict = anonymousDeclDict->AddIncludeDictionary(INCOMPLETE_ANONYMOUS_TYPE_DECLARATION_FIELD_SECTION);
-    curFieldDict->SetFilename(RECURSIVE_ANONYMOUS_TYPE_DECLARATION_TEMPLATE_FIELD_NAME);
+    ctemplate::TemplateDictionary *curFieldDict = anonymousDeclDict->AddIncludeDictionary(COMPOSABLE_TYPE_DECLARE_TYPE_FIELD_OR_COMPOSABLE_TYPE_FIELD_SECTION);
+    curFieldDict->SetFilename(COMPOSABLE_TYPE_DECLARE_TYPE_FIELD_OR_COMPOSABLE_TYPE_FIELD_TEMPLATE_NAME);
     const ComposableField *curField = *it;
     const TypeItf* fieldType = curField->getType();
 
@@ -1085,8 +1173,8 @@ void CodeGeneratorCTemplate::generateDeclarationOfAnonymousType(ctemplate::Templ
     }
     else
     {
-      ctemplate::TemplateDictionary *curFieldValDict = curFieldDict->AddSectionDictionary(ANONYMOUS_TYPE_DECLARATION_FIELD_SECTION);
-      curFieldValDict->SetValue(ANONYMOUS_TYPE_DECLARATION_FIELD_TYPE_TEMPLATE_VAR, curField->getDeclareString());
+      ctemplate::TemplateDictionary *curFieldValDict = curFieldDict->AddSectionDictionary(COMPOSABLE_TYPE_DECLARE_TYPE_SECTION);
+      curFieldValDict->SetValue(TYPE_DECLARATION_TEMPLATE_VAR, curField->getDeclareString());
       std::string fieldName = curField->getName();
       if(curField->isBoundSpecifiedArray())
       {
@@ -1094,7 +1182,7 @@ void CodeGeneratorCTemplate::generateDeclarationOfAnonymousType(ctemplate::Templ
         fieldName.append(std::to_string(curField->getArraySize()));
         fieldName.push_back(']');
       }
-      curFieldValDict->SetValue(ANONYMOUS_TYPE_DECLARATION_FIELD_NAME_TEMPLATE_VAR, fieldName);
+      curFieldValDict->SetValue(TYPE_NAME_TEMPLATE_VAR, fieldName);
       const Pointer* fieldPtrType = dynamic_cast<const Pointer *>(fieldType);
       if(fieldPtrType && fieldPtrType->getPointedType()->isFunction()  && !fieldPtrType->isTypedDef())
       {
@@ -1195,7 +1283,23 @@ bool CodeGeneratorCTemplate::generateCodeToFile(const std::string &p_outDir, con
   outFilename.append(".");
   outFilename.append(p_extension);
 
-  std::fprintf(stdout, "Generating %s\n\r", outFilename.c_str());
+  std::fprintf(stdout, "Generating %s", p_filename.c_str());
+  if(p_extension.compare("h") == 0)
+  {
+    if(m_generateUsedType)
+    {
+      std::fprintf(stdout, " with using generated types ");
+    }
+    else
+    {
+      std::fprintf(stdout, " with using original headers ");
+    }
+  }
+  else
+  {
+    std::fprintf(stdout, " ");
+  }
+  std::fprintf(stdout, "in %s\n\r", p_outDir.c_str());
   f = std::fopen(outFilename.c_str(), "w+");
   if (f == NULL)
   {

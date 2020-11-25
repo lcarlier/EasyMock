@@ -16,7 +16,7 @@ class intFunVoid_testCase : public easyMockGenerate_baseTestCase
 {
 public:
 
-  intFunVoid_testCase() : easyMockGenerate_baseTestCase("intFunVoid", "include/intFunVoid.h", "mockIntFunVoid")
+  intFunVoid_testCase() : easyMockGenerate_baseTestCase("intFunVoid", "include/intFunVoid.h", "mockIntFunVoid", false)
   {
     IntFunVoidFactory factory;
     ElementToMock  *f = factory.newFunctionFactory();

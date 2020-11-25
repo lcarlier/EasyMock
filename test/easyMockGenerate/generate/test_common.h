@@ -37,7 +37,7 @@ public:
 class easyMockGenerate_baseTestCase : public ::testing::Test
 {
 public:
-  easyMockGenerate_baseTestCase(const std::string functionToMock, const std::string pathToFileToMock, const std::string mockDir, bool rmDir = true);
+  easyMockGenerate_baseTestCase(const std::string functionToMock, const std::string pathToFileToMock, const std::string mockDir, bool generateTypes, bool rmDir = true);
   //Only 1 matcher can be supported at a time!! this means that we cannot test union matcher and struct matcher in the same UT
   //No problem since 1 UT only tests 1 functionality
   void setComparatorToMatch(const std::string structTypeToMatch);
@@ -59,6 +59,7 @@ protected:
   void getFunPtr(void **fPtr, void **fExpectPtr);
   void getFunPtr(void **fPtr, void **fExpectPtr, void **fMatcherPtr);
   void getFunPtr(void **fPtr, void **fExpectPtr, void **fMatcherPtr, void **fOutputPtr);
+  void setGenerateTypes(bool p_generateTypes);
 private:
   void prepareTest(const ElementToMock::Vector &elem, const std::string &functionToMock, std::string &comparatorToMatch, const std::string &fullPathToFileToMock, const std::string &mockDir, void **funcPtr, void **functExpectPtr, void **functMatcherPtr, void **functOutputPtr, void **handle);
   void *handle;
@@ -66,6 +67,7 @@ private:
   void *m_fptr_expect;
   void *m_fptr_matcher;
   void *m_fptr_output_ptr;
+  bool m_generate_types;
 };
 
 #endif /* TEST_COMMON_H */

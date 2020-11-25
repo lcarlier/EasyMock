@@ -58,6 +58,7 @@ private:
   void generateBodyStructCompare(ctemplate::TemplateDictionary *rootDictionnary, ctemplate::TemplateDictionary *paramSectDict, const ComposableType *p_structType, const ComposableField *p_curField, const ComposableField *p_previousField, std::string p_uniquePrepend, std::string p_declPrepend);
   void generateComposedTypedCompareSection(ctemplate::TemplateDictionary *p_rootDictionnary, const ComposableType *p_composedType, std::string p_uniquePrepend, std::string p_declPrepend);
   void generateDeclarationOfAnonymousType(ctemplate::TemplateDictionary *p_rootDictionnary, ctemplate::TemplateDictionary *compareDir, const ComposableType *p_composedType);
+  void generateDeclarationOfUsedType(ctemplate::TemplateDictionary *p_rootDictionnary, const TypeItf* p_type);
   bool generateCodeToFile(const std::string &outDir, const std::string &filename, const std::string &extension, const std::string &generatedCode);
   std::string getDeclaratorString(const Declarator* p_decl);
   std::string getNonQualifiedDeclaratorString(const Declarator* p_decl);
@@ -68,6 +69,8 @@ private:
 
   std::unordered_set<std::string> m_generatedComparator;
   unsigned int m_nbUnamedParam;
+  ctemplate::TemplateDictionary *m_generateMockedTypeSection;
+  std::unordered_set<std::string> m_generateTypes;
 };
 
 #endif /* CODEGENERATORCTEMPLATE_H */

@@ -75,6 +75,7 @@ std::ostream& operator<<(std::ostream& os, const TypeItf& typeItf)
   os << "isAnonymous:" << (typeItf.isAnonymous() ? "yes" : "no") << ", ";
   os << "isPointer:" << (typeItf.isPointer() ? "yes" : "no") << ", ";
   os << "isConst:" << (typeItf.isConst() ? "yes" : "no") << ", ";
+  os << "isCType:" << (typeItf.isCType() ? "yes" : "no") << ", ";
   os << "isStruct:" << (typeItf.isStruct() ? "yes" : "no") << ", ";
   os << "isUnion:" << (typeItf.isUnion() ? "yes" : "no") << ", ";
   os << "isImplicit:" << (typeItf.isImplicit() ? "yes" : "no") << ", ";

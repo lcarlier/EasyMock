@@ -39,14 +39,23 @@ public:
   const std::string &getMostDefinedName() const;
 
   /*!
+   *
+   * \brief The string that should be used to declare a variable of the type
+   *
+   * \param p_naked Return the string removing any typedef if any
+   *
    * \return The string that should be used to declare a variable of the type
    */
-  std::string getFullDeclarationName() const;
+  std::string getFullDeclarationName(bool p_naked = false) const;
 
   /*!
+   * \brief The same as getFullDeclarationName but without the const qualifier
+   *
+   * \param p_naked Return the string removing any typedef if any
+   *
    * \return The same as getFullDeclarationName but without the const qualifier
    */
-  std::string getFullNonQualifiedDeclarationName() const;
+  std::string getFullNonQualifiedDeclarationName(bool p_naked = false) const;
 
   /*!
    * \brief Returns the C type this type defines
@@ -453,7 +462,7 @@ protected:
   virtual bool isEqual(const TypeItf &p_other) const;
 
 private:
-  static std::string s_getFullDeclarationName(const TypeItf* type, bool fullyQualified);
+  static std::string s_getFullDeclarationName(const TypeItf* type, bool fullyQualified, bool naked);
   typedef struct
   {
     TYPEITF_COMMON_CLASS_MEMBERS()

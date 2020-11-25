@@ -4,8 +4,7 @@
 #include <Enum.h>
 #include <StructType.h>
 #include <Pointer.h>
-
-#include "EasyMock_CType.h"
+#include <EasyMock_CType.h>
 
 ElementToMockList VoidFunEnumFactory::functionFactoryArray()
 {
