@@ -49,9 +49,10 @@ class CodeGeneratorCTemplate : public CodeGeneratorItf
 {
 public:
   CodeGeneratorCTemplate();
-  bool generateCode(const std::string& p_outDir, const std::string &p_fullPathToHeaderToMock, const ElementToMock::Vector& p_elem) override;
+  bool generateCode(const std::string& p_outDir, const std::string &p_fullPathToHeaderToMock, const ElementToMockContext& p_elem) override;
 private:
   void fillInTemplateVariables(ctemplate::TemplateDictionary *dict, const std::string &mockedHeader, const ElementToMock::Vector &fList);
+  void fillInMacroDefinition(const ElementToMockContext& p_elem);
   void generateFunctionSection(ctemplate::TemplateDictionary *rootDictionnary, const FunctionDeclaration *f);
   void generateFunctionParamSection(ctemplate::TemplateDictionary *rootDictionnary, ctemplate::TemplateDictionary *dict, const Parameter::Vector& functionParam);
   //p_uniquePrepend and p_declPrepend must never become a reference because the string appended in recursive calls must reverted when the recursive call returns

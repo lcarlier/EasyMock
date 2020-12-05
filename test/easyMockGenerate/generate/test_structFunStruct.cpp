@@ -25,7 +25,7 @@ public:
     StructFunStructFactory factory;
     ElementToMock *f = factory.newFunctionFactory();
     setComparatorToMatch("cmp_struct_s2");
-    m_elem.push_back(f);
+    m_ctxt.addElementToMock(f);
   }
 };
 

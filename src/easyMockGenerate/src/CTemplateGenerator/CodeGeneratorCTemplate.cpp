@@ -85,30 +85,37 @@
 #define FUNCTION_PARAM_PTR_LIST_SECTION "FUNCTION_PARAM_PTR_LIST_SECTION"
 #define NON_TYPED_DEF_COMPOSED_TYPE_SECTION "NON_TYPED_DEF_COMPOSED_TYPE_SECTION"
 
-#define COMPOSED_TYPE_TEMPLATE_VAR "NON_TYPED_DEF_COMPOSED_TYPE_VAR" //struct or union
-#define COMPOSED_TYPE_VAR TEMPLATE_VAR(COMPOSED_TYPE_TEMPLATE_VAR)
+#define COMPOSED_TYPE_VAR "COMPOSED_TYPE_VAR" //struct or union
+#define COMPOSED_TYPE_TEMPLATE_VAR TEMPLATE_VAR(COMPOSED_TYPE_VAR)
 
 #define COMPOSABLE_TYPE_DECLARE_TYPE_FIELD_OR_COMPOSABLE_TYPE_FIELD_SECTION "COMPOSABLE_TYPE_DECLARE_TYPE_FIELD_OR_COMPOSABLE_TYPE_FIELD_SECTION"
 #define COMPOSABLE_TYPE_DECLARE_COMPOSABLE_TYPE_SECTION "COMPOSABLE_TYPE_DECLARE_COMPOSABLE_TYPE_SECTION"
 #define COMPOSABLE_TYPE_TYPEDEF_SECTION "COMPOSABLE_TYPE_TYPEDEF_SECTION"
 
-#define COMPOSABLE_TYPE_DECLARATION_TYPE_TEMPLATE_VAR "COMPOSABLE_TYPE_DECLARATION_TYPE_TEMPLATE_VAR"
-#define COMPOSABLE_TYPE_DECLARATION_TYPE_VAR TEMPLATE_VAR(COMPOSABLE_TYPE_DECLARATION_TYPE_TEMPLATE_VAR)
-#define COMPOSABLE_TYPE_TYPE_NAME_TEMPLATE_VAR "COMPOSABLE_TYPE_TYPE_NAME_TEMPLATE_VAR"
-#define COMPOSABLE_TYPE_TYPE_NAME_VAR TEMPLATE_VAR(COMPOSABLE_TYPE_TYPE_NAME_TEMPLATE_VAR)
-#define COMPOSABLE_TYPE_TYPEDEF_NAME_TEMPLATE_VAR "COMPOSABLE_TYPE_TYPEDEF_NAME_TEMPLATE_VAR"
-#define COMPOSABLE_TYPE_TYPEDEF_NAME_VAR TEMPLATE_VAR(COMPOSABLE_TYPE_TYPEDEF_NAME_TEMPLATE_VAR)
+#define COMPOSABLE_TYPE_DECLARATION_TYPE_VAR "COMPOSABLE_TYPE_DECLARATION_TYPE_VAR"
+#define COMPOSABLE_TYPE_DECLARATION_TYPE_TEMPLATE_VAR TEMPLATE_VAR(COMPOSABLE_TYPE_DECLARATION_TYPE_VAR)
+#define COMPOSABLE_TYPE_TYPE_NAME_VAR "COMPOSABLE_TYPE_TYPE_NAME_VAR"
+#define COMPOSABLE_TYPE_TYPE_NAME_TEMPLATE_VAR TEMPLATE_VAR(COMPOSABLE_TYPE_TYPE_NAME_VAR)
+#define COMPOSABLE_TYPE_TYPEDEF_NAME_VAR "COMPOSABLE_TYPE_TYPEDEF_NAME_VAR"
+#define COMPOSABLE_TYPE_TYPEDEF_NAME_TEMPLATE_VAR TEMPLATE_VAR(COMPOSABLE_TYPE_TYPEDEF_NAME_VAR)
 
 #define GENERATED_TYPE_SECTION "GENERATED_TYPE_SECTION"
 #define GENERATED_TYPE_DECLARE_TYPE_SECTION "GENERATED_TYPE_DECLARE_TYPE_SECTION"
-#define GENERATED_TYPE_DECLARE_TYPE_TEMPLATE_VAR "GENERATED_TYPE_DECLARE_TYPE_TEMPLATE_VAR"
-#define GENERATED_TYPE_DECLARE_TYPE_VAR TEMPLATE_VAR(GENERATED_TYPE_DECLARE_TYPE_TEMPLATE_VAR)
+#define GENERATED_TYPE_DECLARE_TYPE_VAR "GENERATED_TYPE_DECLARE_TYPE_VAR"
+#define GENERATED_TYPE_DECLARE_TYPE_TEMPLATE_VAR TEMPLATE_VAR(GENERATED_TYPE_DECLARE_TYPE_VAR)
+
+#define GENERATED_MACRO_SECTION "GENERATED_MACRO_SECTION"
+#define GENERATED_MACRO_ID_VAR "GENERATED_MACRO_ID_VAR"
+#define GENERATED_MACRO_ID_TEMPLATE_VAR TEMPLATE_VAR(GENERATED_MACRO_ID_VAR)
+#define GENERATED_MACRO_DEFINITION_VAR "GENERATED_MACRO_DEFINITION_VAR"
+#define GENERATED_MACRO_DEFINITION_SECTION "GENERATED_MACRO_DEFINITION_SECTION"
+#define GENERATED_MACRO_DEFINITION_TEMPLATE_VAR TEMPLATE_VAR(GENERATED_MACRO_DEFINITION_VAR)
 
 #define COMPOSABLE_TYPE_DECLARE_TYPE_SECTION "COMPOSABLE_TYPE_DECLARE_TYPE_SECTION"
-#define TYPE_DECLARATION_TEMPLATE_VAR "TYPE_DECLARATION_TEMPLATE_VAR"
-#define TYPE_DECLARATION_VAR TEMPLATE_VAR(TYPE_DECLARATION_TEMPLATE_VAR)
-#define TYPE_NAME_TEMPLATE_VAR "TYPE_NAME_TEMPLATE_VAR"
-#define TYPE_NAME_VAR TEMPLATE_VAR(TYPE_NAME_TEMPLATE_VAR)
+#define TYPE_DECLARATION_VAR "TYPE_DECLARATION_VAR"
+#define TYPE_DECLARATION_TEMPLATE_VAR TEMPLATE_VAR(TYPE_DECLARATION_VAR)
+#define TYPE_NAME_VAR "TYPE_NAME_VAR"
+#define TYPE_NAME_TEMPLATE_VAR TEMPLATE_VAR(TYPE_NAME_VAR)
 
 #define CFILE_TEMPLATE "CFILE_TEMPLATE"
 #define HFILE_TEMPLATE "HFILE_TEMPLATE"
@@ -343,8 +350,8 @@ static const char templateText[] =
 
         "    " TEMPLATE_INCL_SECTION(COMPOSABLE_TYPE_DECLARE_COMPOSABLE_TYPE_SECTION) CARRIAGE_RETURN
 
-        "    " IF_SECTION_EXISTS(NON_TYPED_DEF_COMPOSED_TYPE_SECTION, COMPOSED_TYPE_VAR " ") COMPOSED_TYPED_COMPARE_SECTION_DECL_NAME_VAR " *currentCall_val = (" IF_SECTION_EXISTS(NON_TYPED_DEF_COMPOSED_TYPE_SECTION, COMPOSED_TYPE_VAR " ") COMPOSED_TYPED_COMPARE_SECTION_DECL_NAME_VAR " *)currentCall_ptr;" CARRIAGE_RETURN
-        "    " IF_SECTION_EXISTS(NON_TYPED_DEF_COMPOSED_TYPE_SECTION, COMPOSED_TYPE_VAR " ") COMPOSED_TYPED_COMPARE_SECTION_DECL_NAME_VAR " *expectedCall_val = (" IF_SECTION_EXISTS(NON_TYPED_DEF_COMPOSED_TYPE_SECTION, COMPOSED_TYPE_VAR " ") COMPOSED_TYPED_COMPARE_SECTION_DECL_NAME_VAR " *)expectedCall_ptr;" CARRIAGE_RETURN
+        "    " IF_SECTION_EXISTS(NON_TYPED_DEF_COMPOSED_TYPE_SECTION, COMPOSED_TYPE_TEMPLATE_VAR " ") COMPOSED_TYPED_COMPARE_SECTION_DECL_NAME_VAR " *currentCall_val = (" IF_SECTION_EXISTS(NON_TYPED_DEF_COMPOSED_TYPE_SECTION, COMPOSED_TYPE_TEMPLATE_VAR " ") COMPOSED_TYPED_COMPARE_SECTION_DECL_NAME_VAR " *)currentCall_ptr;" CARRIAGE_RETURN
+        "    " IF_SECTION_EXISTS(NON_TYPED_DEF_COMPOSED_TYPE_SECTION, COMPOSED_TYPE_TEMPLATE_VAR " ") COMPOSED_TYPED_COMPARE_SECTION_DECL_NAME_VAR " *expectedCall_val = (" IF_SECTION_EXISTS(NON_TYPED_DEF_COMPOSED_TYPE_SECTION, COMPOSED_TYPE_TEMPLATE_VAR " ") COMPOSED_TYPED_COMPARE_SECTION_DECL_NAME_VAR " *)expectedCall_ptr;" CARRIAGE_RETURN
 
         TEMPLATE_BEG_SECTION(STRUCT_COMPARE_PARAM_SECTION)
         TEMPLATE_BEG_SECTION(STRUCT_COMPARE_PRE_IF_SECTION)
@@ -354,7 +361,7 @@ static const char templateText[] =
         "    if(" STRUCT_COMPARE_PARAM_SECTION_COMPARE_CONDITION_VAR ")" CARRIAGE_RETURN
         "    {" CARRIAGE_RETURN
         TEMPLATE_BEG_SECTION(STRUCT_COMPARE_ERROR)
-        "        snprintf(errorMessage, 256 , \"Parameter '%s' which is a" COMPOSED_TYPE_VAR " of type '" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_STRUCT_TYPE_VAR "' has field '" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_FIELD_VAR "' with value '%" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_PRINTF_FORMAT_VAR "', was expecting '%" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_PRINTF_FORMAT_VAR "'\", paramName, currentCall_val->" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_FIELD_VAR ", expectedCall_val->" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_FIELD_VAR ");" CARRIAGE_RETURN
+        "        snprintf(errorMessage, 256 , \"Parameter '%s' which is a" COMPOSED_TYPE_TEMPLATE_VAR " of type '" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_STRUCT_TYPE_VAR "' has field '" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_FIELD_VAR "' with value '%" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_PRINTF_FORMAT_VAR "', was expecting '%" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_PRINTF_FORMAT_VAR "'\", paramName, currentCall_val->" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_FIELD_VAR ", expectedCall_val->" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_FIELD_VAR ");" CARRIAGE_RETURN
         TEMPLATE_END_SECTION(STRUCT_COMPARE_ERROR)
         "        return -1;" CARRIAGE_RETURN
         "    }" CARRIAGE_RETURN
@@ -370,7 +377,7 @@ static const char templateText[] =
         "        if(" STRUCT_COMPARE_PARAM_SECTION_COMPARE_CONDITION_VAR ")" CARRIAGE_RETURN
         "        {" CARRIAGE_RETURN
         TEMPLATE_BEG_SECTION(STRUCT_COMPARE_ERROR)
-        "            snprintf(errorMessage, 256 , \"Parameter '%s' which is a" COMPOSED_TYPE_VAR " of type '" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_STRUCT_TYPE_VAR "' has field array '" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_FIELD_VAR "' " PRINT_CMP_ARRAY_IDX " with value '%" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_PRINTF_FORMAT_VAR "', was expecting '%" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_PRINTF_FORMAT_VAR "'\", paramName" PRINT_CMP_ARRAY_IDX_value ",  currentCall_val->" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_FIELD_VAR ", expectedCall_val->" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_FIELD_VAR ");" CARRIAGE_RETURN
+        "            snprintf(errorMessage, 256 , \"Parameter '%s' which is a" COMPOSED_TYPE_TEMPLATE_VAR " of type '" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_STRUCT_TYPE_VAR "' has field array '" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_FIELD_VAR "' " PRINT_CMP_ARRAY_IDX " with value '%" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_PRINTF_FORMAT_VAR "', was expecting '%" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_PRINTF_FORMAT_VAR "'\", paramName" PRINT_CMP_ARRAY_IDX_value ",  currentCall_val->" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_FIELD_VAR ", expectedCall_val->" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_FIELD_VAR ");" CARRIAGE_RETURN
         TEMPLATE_END_SECTION(STRUCT_COMPARE_ERROR)
         "            return -1;" CARRIAGE_RETURN
         "        }" CARRIAGE_RETURN
@@ -561,9 +568,14 @@ static const char headerFileTemplate[] =
         "#endif" CARRIAGE_RETURN
         IF_SECTION_EXISTS(GENERATE_MOCKED_TYPE_SECTION,
           "//------------------ GENERATING USED TYPE -------------------"  CARRIAGE_RETURN
+          TEMPLATE_BEG_SECTION(GENERATED_MACRO_SECTION)
+          "#ifndef " GENERATED_MACRO_ID_TEMPLATE_VAR CARRIAGE_RETURN
+          "#define " GENERATED_MACRO_ID_TEMPLATE_VAR IF_SECTION_EXISTS(GENERATED_MACRO_DEFINITION_SECTION, " " GENERATED_MACRO_DEFINITION_TEMPLATE_VAR) CARRIAGE_RETURN
+          "#endif" CARRIAGE_RETURN
+          TEMPLATE_END_SECTION(GENERATED_MACRO_SECTION)
           TEMPLATE_BEG_SECTION(GENERATED_TYPE_SECTION)
           IF_SECTION_EXISTS(GENERATED_TYPE_DECLARE_TYPE_SECTION,
-            GENERATED_TYPE_DECLARE_TYPE_VAR ";" CARRIAGE_RETURN
+            GENERATED_TYPE_DECLARE_TYPE_TEMPLATE_VAR ";" CARRIAGE_RETURN
           )
           TEMPLATE_INCL_SECTION(COMPOSABLE_TYPE_DECLARE_COMPOSABLE_TYPE_SECTION)
           TEMPLATE_END_SECTION(GENERATED_TYPE_SECTION)
@@ -589,14 +601,14 @@ static const char headerFileTemplate[] =
         "#endif" CARRIAGE_RETURN;
 
 static const char composableType_DeclareComposableType_template[] =
-        IF_SECTION_EXISTS(COMPOSABLE_TYPE_TYPEDEF_SECTION, "typedef ") COMPOSABLE_TYPE_DECLARATION_TYPE_VAR " " COMPOSABLE_TYPE_TYPE_NAME_VAR CARRIAGE_RETURN
+        IF_SECTION_EXISTS(COMPOSABLE_TYPE_TYPEDEF_SECTION, "typedef ") COMPOSABLE_TYPE_DECLARATION_TYPE_TEMPLATE_VAR " " COMPOSABLE_TYPE_TYPE_NAME_TEMPLATE_VAR CARRIAGE_RETURN
         "{" CARRIAGE_RETURN
         "    " TEMPLATE_INCL_SECTION(COMPOSABLE_TYPE_DECLARE_TYPE_FIELD_OR_COMPOSABLE_TYPE_FIELD_SECTION) CARRIAGE_RETURN
-        "}" IF_SECTION_EXISTS(COMPOSABLE_TYPE_TYPEDEF_SECTION, " " COMPOSABLE_TYPE_TYPEDEF_NAME_VAR) ";";
+        "}" IF_SECTION_EXISTS(COMPOSABLE_TYPE_TYPEDEF_SECTION, " " COMPOSABLE_TYPE_TYPEDEF_NAME_TEMPLATE_VAR) ";";
 
 static const char composableType_DeclareTypeFieldOrComposableTypeField_template[] =
         IF_SECTION_EXISTS(COMPOSABLE_TYPE_DECLARE_TYPE_SECTION,
-          TYPE_DECLARATION_VAR " " TYPE_NAME_VAR TEMPLATE_INCL_SECTION(EXTRA_DECL_SECTION) ";" CARRIAGE_RETURN
+          TYPE_DECLARATION_TEMPLATE_VAR " " TYPE_NAME_TEMPLATE_VAR TEMPLATE_INCL_SECTION(EXTRA_DECL_SECTION) ";" CARRIAGE_RETURN
         )
         TEMPLATE_INCL_SECTION(COMPOSABLE_TYPE_DECLARE_COMPOSABLE_TYPE_SECTION);
 
@@ -620,12 +632,22 @@ m_nbUnamedParam(0)
 }
 
 
-bool CodeGeneratorCTemplate::generateCode(const std::string& p_outDir, const std::string &p_fullPathToHeaderToMock, const ElementToMock::Vector& p_elem)
+bool CodeGeneratorCTemplate::generateCode(const std::string& p_outDir, const std::string &p_fullPathToHeaderToMock, const ElementToMockContext& p_ctxt)
 {
   ctemplate::TemplateDictionary dict("generateCode");
+  m_generateMockedTypeSection = nullptr;
+  if(m_generateUsedType)
+  {
+    m_generateMockedTypeSection = dict.AddSectionDictionary(GENERATE_MOCKED_TYPE_SECTION);
+  }
+  else
+  {
+    dict.AddSectionDictionary(INCLUDE_MOCKED_HEADER_SECTION);
+  }
 
   std::string filenameToMock = boost::filesystem::path(p_fullPathToHeaderToMock).filename().string();
-  fillInTemplateVariables(&dict, filenameToMock, p_elem);
+  fillInMacroDefinition(p_ctxt);
+  fillInTemplateVariables(&dict, filenameToMock, p_ctxt.getElementToMock());
 
   ctemplate::StringToTemplateCache(CFILE_TEMPLATE, templateText, ctemplate::DO_NOT_STRIP);
   ctemplate::StringToTemplateCache(HFILE_TEMPLATE, headerFileTemplate, ctemplate::DO_NOT_STRIP);
@@ -651,19 +673,31 @@ bool CodeGeneratorCTemplate::generateCode(const std::string& p_outDir, const std
   return true;
 }
 
+void CodeGeneratorCTemplate::fillInMacroDefinition(const ElementToMockContext& p_elem)
+{
+  if(!m_generateUsedType)
+  {
+    return;
+  }
+  for(const std::pair<std::string, std::string>& p : p_elem.getCrossDefinedMap())
+  {
+    const std::string& id = p.first;
+    const std::string& definition = p.second;
+    ctemplate::TemplateDictionary *macroSection = m_generateMockedTypeSection->AddSectionDictionary(GENERATED_MACRO_SECTION);
+    macroSection->SetValue(GENERATED_MACRO_ID_VAR, id);
+    if(!definition.empty())
+    {
+      ctemplate::TemplateDictionary* definitionSection = macroSection->AddSectionDictionary(GENERATED_MACRO_DEFINITION_SECTION);
+      definitionSection->SetValue(GENERATED_MACRO_DEFINITION_VAR, definition);
+    }
+  }
+}
+
 void CodeGeneratorCTemplate::fillInTemplateVariables(ctemplate::TemplateDictionary *p_rootDictionnary, const std::string &p_mockedHeader, const ElementToMock::Vector &p_fList)
 {
-  m_generateMockedTypeSection = nullptr;
   m_generateTypes.clear();
   p_rootDictionnary->SetValue(MOCKED_HEADER_FILENAME, p_mockedHeader);
-  if(m_generateUsedType)
-  {
-    m_generateMockedTypeSection = p_rootDictionnary->AddSectionDictionary(GENERATE_MOCKED_TYPE_SECTION);
-  }
-  else
-  {
-    p_rootDictionnary->AddSectionDictionary(INCLUDE_MOCKED_HEADER_SECTION);
-  }
+
   std::string fileNameWithoutExtUpper = p_mockedHeader.substr(0, p_mockedHeader.find_last_of("."));
   std::transform(fileNameWithoutExtUpper.begin(), fileNameWithoutExtUpper.end(), fileNameWithoutExtUpper.begin(), ::toupper);
   p_rootDictionnary->SetValue(MOCKED_FILE_NAME_WITHOUT_EXT_UPPER, fileNameWithoutExtUpper);
@@ -1126,7 +1160,7 @@ void CodeGeneratorCTemplate::generateDeclarationOfUsedType(ctemplate::TemplateDi
     declaredType.append(p_type->getFullDeclarationName(true));
     declaredType.push_back(' ');
     declaredType.append(p_type->getTypedDefName());
-    generatedType_typeSection->SetValue(GENERATED_TYPE_DECLARE_TYPE_TEMPLATE_VAR, declaredType);
+    generatedType_typeSection->SetValue(GENERATED_TYPE_DECLARE_TYPE_VAR, declaredType);
   }
   else
   {
@@ -1156,8 +1190,8 @@ void CodeGeneratorCTemplate::generateDeclarationOfAnonymousType(ctemplate::Templ
     fprintf(stderr, "Declaration string unknown composable type\n\r");
     assert(false);
   }
-  anonymousDeclDict->SetValue(COMPOSABLE_TYPE_DECLARATION_TYPE_TEMPLATE_VAR, typeVar);
-  anonymousDeclDict->SetValue(COMPOSABLE_TYPE_TYPEDEF_NAME_TEMPLATE_VAR, p_composedType->getUniqueName());
+  anonymousDeclDict->SetValue(COMPOSABLE_TYPE_DECLARATION_TYPE_VAR, typeVar);
+  anonymousDeclDict->SetValue(COMPOSABLE_TYPE_TYPEDEF_NAME_VAR, p_composedType->getUniqueName());
 
   const ComposableField::Vector& vectField = p_composedType->getContainedFields();
   for (ComposableField::Vector::const_iterator it = vectField.begin(); it != vectField.end(); ++it)
@@ -1174,7 +1208,7 @@ void CodeGeneratorCTemplate::generateDeclarationOfAnonymousType(ctemplate::Templ
     else
     {
       ctemplate::TemplateDictionary *curFieldValDict = curFieldDict->AddSectionDictionary(COMPOSABLE_TYPE_DECLARE_TYPE_SECTION);
-      curFieldValDict->SetValue(TYPE_DECLARATION_TEMPLATE_VAR, curField->getDeclareString());
+      curFieldValDict->SetValue(TYPE_DECLARATION_VAR, curField->getDeclareString());
       std::string fieldName = curField->getName();
       if(curField->isBoundSpecifiedArray())
       {
@@ -1182,7 +1216,7 @@ void CodeGeneratorCTemplate::generateDeclarationOfAnonymousType(ctemplate::Templ
         fieldName.append(std::to_string(curField->getArraySize()));
         fieldName.push_back(']');
       }
-      curFieldValDict->SetValue(TYPE_NAME_TEMPLATE_VAR, fieldName);
+      curFieldValDict->SetValue(TYPE_NAME_VAR, fieldName);
       const Pointer* fieldPtrType = dynamic_cast<const Pointer *>(fieldType);
       if(fieldPtrType && fieldPtrType->getPointedType()->isFunction()  && !fieldPtrType->isTypedDef())
       {
@@ -1223,12 +1257,12 @@ void CodeGeneratorCTemplate::generateComposedTypedCompareSection(ctemplate::Temp
   if(p_composedType->isStruct())
   {
     //The space before struct is needed
-    compareDict->SetValue(COMPOSED_TYPE_TEMPLATE_VAR, " struct");
+    compareDict->SetValue(COMPOSED_TYPE_VAR, " struct");
   }
   else if(p_composedType->isUnion())
   {
     //Weird value but we want 'an union' iso 'a union'
-    compareDict->SetValue(COMPOSED_TYPE_TEMPLATE_VAR, "n union");
+    compareDict->SetValue(COMPOSED_TYPE_VAR, "n union");
   }
   else
   {

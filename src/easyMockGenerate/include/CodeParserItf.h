@@ -8,8 +8,9 @@
 #include <vector>
 #include <functional>
 
-#include "ElementToMock.h"
 #include "ComposableType.h"
+
+struct ElementToMockContext;
 
 enum CodeParser_errCode
 {
@@ -50,12 +51,14 @@ public:
   /*!
    * \brief Parses the header file.
    *
-   * \param p_elem Output parameter which contains the element to be mocked.
+   * \param p_ctxt Output parameter which contains the context of the elment to be mocked.
    * If an error happens, the list is not valid and can't be used.
+   *
+   * \see ::ElementToMockContext
    *
    * \return cp_OK if no error occurred.
    */
-  virtual CodeParser_errCode getElementToStub(ElementToMock::Vector &p_elem) const = 0;
+  virtual CodeParser_errCode getElementToMockContext(ElementToMockContext& p_ctxt) const = 0;
 protected:
   std::string m_filename;
   ParserExtraArgs m_flags;

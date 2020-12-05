@@ -18,7 +18,7 @@ class ComposableType;
 class Pointer;
 
 /*!
- * This class is used to represent fields of composed type such as struct and union
+ * \brief Represents a field of composed type such as struct and union.
  *
  * For instance, in the following code
  * \code{.c}

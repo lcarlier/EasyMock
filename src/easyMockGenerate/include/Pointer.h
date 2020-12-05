@@ -8,7 +8,7 @@
 #define POINTER_H
 
 /*!
- * \brief This class represent pointers.
+ * \brief Represents a pointer.
  *
  * For instance, the following declaration are to be represented by a Pointer
  * object

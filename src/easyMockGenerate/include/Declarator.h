@@ -9,6 +9,9 @@
 class TypeItf;
 
 /*!
+ *
+ * \brief Represents any declarator.
+ *
  * This class represents a declaration of:
  * - a type parameter
  * - a return value

@@ -12,7 +12,7 @@
 #include "Declarator.h"
 
 /*!
- * This class represents a function parameter.
+ * \brief Represents a function parameter.
  *
  * For instance, in the following code
  * \code{.c}

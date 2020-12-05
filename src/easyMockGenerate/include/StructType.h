@@ -8,7 +8,7 @@
 #include "ComposableType.h"
 
 /*!
- * This class represents a struct type.
+ * \brief Represents a struct type.
  */
 class StructType : public ComposableType
 {

@@ -17,7 +17,7 @@ class LLVMParser : public CodeParserItf
 public:
   LLVMParser();
   LLVMParser(std::string &filename, ParserExtraArgs& flags);
-  CodeParser_errCode getElementToStub(ElementToMock::Vector& elem) const override;
+  CodeParser_errCode getElementToMockContext(ElementToMockContext& p_ctxt) const override;
   virtual ~LLVMParser();
 private:
 };

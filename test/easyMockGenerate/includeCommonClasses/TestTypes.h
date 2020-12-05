@@ -59,6 +59,7 @@
 #include <VoidFunStructForwardDeclaredFactory.h>
 #include <VoidFunTypeDefFactory.h>
 #include <VoidFunTypeDefGenTypeFactory.h>
+#include <CrossDefinedFunCrossDefinedFactory.h>
 
 // TestTypesInclude.h is generated
 #include "TestTypesInclude.h"
@@ -132,7 +133,9 @@
         VoidFunPtrToPtrRecurStructFactory, \
         VoidFunStructForwardDeclaredFactory, \
         VoidFunTypeDefFactory, \
-        VoidFunTypeDefGenTypeFactory
+        VoidFunTypeDefGenTypeFactory, \
+        CrossDefinedFunCrossDefinedFactory, \
+        CrossDefinedFunCrossDefinedGenTypeFactory
 
 typedef ::testing::Types
 <

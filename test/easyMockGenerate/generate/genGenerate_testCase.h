@@ -11,7 +11,11 @@ public:
   {
     for(ElementToMock *f:m_factory.functionFactoryArray())
     {
-      m_elem.push_back(f->clone());
+      m_ctxt.addElementToMock(f->clone());
+    }
+    for(const std::pair<std::string, std::string>& p : m_factory.getDefinedMacroList())
+    {
+      m_ctxt.addMacroDefine(p.first, p.second);
     }
   }
 

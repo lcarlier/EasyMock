@@ -1,4 +1,6 @@
 #include <LLVMParser.h>
+
+#include <ElementToMockContext.h>
 #include <StructType.h>
 #include <UnionType.h>
 #include <FunctionDeclaration.h>
@@ -34,8 +36,8 @@ private:
   typedef std::unordered_map<std::string, const IncompleteType> structKnownTypeMap;
 public:
 
-  explicit FunctionDeclASTVisitor(clang::SourceManager& sm, ElementToMock::Vector& elem)
-  : m_sourceManager(sm), m_elem(elem), m_context(nullptr) { }
+  explicit FunctionDeclASTVisitor(clang::SourceManager& sm, ElementToMockContext& ctxt)
+  : m_sourceManager(sm), m_ctxt(ctxt), m_context(nullptr) { }
 
   /*!
    * \brief Parses a single function.
@@ -45,11 +47,9 @@ public:
    */
   bool VisitFunctionDecl(clang::FunctionDecl* func)
   {
-    if (m_sourceManager.isWrittenInMainFile(func->getSourceRange().getBegin()))
-    {
-      FunctionDeclaration* f = getFunctionDeclaration(func);
-      m_elem.push_back(f);
-    }
+    FunctionDeclaration* f = getFunctionDeclaration(func);
+    m_ctxt.addElementToMock(f);
+
     return true;
   }
 
@@ -75,7 +75,7 @@ public:
   }
 private:
   clang::SourceManager& m_sourceManager;
-  ElementToMock::Vector& m_elem;
+  ElementToMockContext& m_ctxt;
   const clang::ASTContext *m_context;
   const clang::SourceManager *m_SM;
   const clang::LangOptions *m_LO;
@@ -591,8 +591,8 @@ class FunctionDeclASTConsumer : public clang::ASTConsumer
 public:
   // override the constructor in order to pass CI
 
-  explicit FunctionDeclASTConsumer(clang::CompilerInstance& ci, ElementToMock::Vector& elem)
-  : clang::ASTConsumer(), m_visitor(ci.getSourceManager(), elem) { }
+  explicit FunctionDeclASTConsumer(clang::CompilerInstance& ci, ElementToMockContext& ctxt)
+  : clang::ASTConsumer(), m_visitor(ci.getSourceManager(), ctxt) { }
 
   virtual void HandleTranslationUnit(clang::ASTContext& astContext) override
   {
@@ -603,36 +603,110 @@ private:
   FunctionDeclASTVisitor m_visitor; // doesn't have to be private
 };
 
+/*!
+ * \brief Implements the logic to add the macro to the ::ElementToMockContext
+ * when parsing the header file.
+ *
+ * This function overrides MacroDefined and MacroUndefined. Those function are called
+ * by the LLVM library when a macro is defined and undefined.
+ */
+class MacroBrowser : public clang::PPCallbacks
+{
+public:
+  MacroBrowser(ElementToMockContext& p_ctxt, clang::SourceManager& p_sm) : m_ctxt(p_ctxt), m_sm(p_sm)
+  {
+  }
+
+  void MacroDefined (const clang::Token &p_macroIdentifierTok, const clang::MacroDirective *p_macroDirective) override
+  {
+    std::string id;
+    std::string definition("");
+    id = getTokenString(p_macroIdentifierTok);
+    if(id.empty())
+    {
+      return;
+    }
+    unsigned numToken = p_macroDirective->getMacroInfo()->getNumTokens();
+    for(unsigned i = 0; i < numToken; i++)
+    {
+      std::string strToAdd;
+      const clang::Token& tok = p_macroDirective->getMacroInfo()->getReplacementToken(i);
+      strToAdd = getTokenString(tok);
+      if(strToAdd.empty())
+      {
+        return;
+      }
+      if(!definition.empty())
+      {
+        definition.push_back(' ');
+      }
+      definition.append(strToAdd);
+    }
+    if(m_ctxt.hasMacroDefine(id))
+    {
+      fprintf(stderr, "Warning: Redifining %s\n", id.c_str());
+    }
+    m_ctxt.addMacroDefine(id, definition);
+  }
+
+  virtual void MacroUndefined(const clang::Token &p_macroIdentifierTok, const clang::MacroDefinition &p_macroDefinition, const clang::MacroDirective *p_macroDirective) override
+  {
+    std::string id = getTokenString(p_macroIdentifierTok);
+    if(!m_ctxt.hasMacroDefine(id))
+    {
+      fprintf(stderr, "Warning: Undefining %s while it was not defined\n", id.c_str());
+      return;
+    }
+    m_ctxt.deleteMacroDefine(id);
+  }
+private:
+  ElementToMockContext& m_ctxt;
+  clang::SourceManager& m_sm;
+
+  std::string getTokenString(const clang::Token &tok)
+  {
+    clang::IdentifierInfo* identifierInfo;
+    if((identifierInfo = tok.getIdentifierInfo()) != nullptr && identifierInfo->getBuiltinID() == 0)
+    {
+      return identifierInfo->getName().str();
+    }
+    return std::string("");
+  }
+};
+
 class FunctionDeclFrontendAction : public clang::ASTFrontendAction
 {
 public:
-  FunctionDeclFrontendAction(ElementToMock::Vector& elem) :
-  clang::ASTFrontendAction(), m_elem(elem)
+  FunctionDeclFrontendAction(ElementToMockContext& ctxt) :
+  clang::ASTFrontendAction(), m_ctxt(ctxt)
   {
   }
 
   virtual std::unique_ptr<clang::ASTConsumer> CreateASTConsumer(clang::CompilerInstance& CI, clang::StringRef file) override
   {
-    return std::make_unique<FunctionDeclASTConsumer>(CI, m_elem); // pass CI pointer to ASTConsumer
+    clang::Preprocessor& PP = CI.getPreprocessor();
+    clang::SourceManager& sm = CI.getSourceManager();
+    PP.addPPCallbacks(std::make_unique<MacroBrowser>(m_ctxt, sm));
+    return std::make_unique<FunctionDeclASTConsumer>(CI, m_ctxt);
   }
 private:
-  ElementToMock::Vector& m_elem;
+  ElementToMockContext& m_ctxt;
 };
 
-std::unique_ptr<clang::tooling::FrontendActionFactory> newFunctionDeclFrontendAction(ElementToMock::Vector& elem) {
+std::unique_ptr<clang::tooling::FrontendActionFactory> newFunctionDeclFrontendAction(ElementToMockContext& ctxt) {
   class FunctionDeclFrontendActionFactory : public clang::tooling::FrontendActionFactory {
   public:
-    FunctionDeclFrontendActionFactory(ElementToMock::Vector& elem) :
-    clang::tooling::FrontendActionFactory(), m_elem(elem)
+    FunctionDeclFrontendActionFactory(ElementToMockContext& ctxt) :
+    clang::tooling::FrontendActionFactory(), m_ctxt(ctxt)
     {
     }
-    std::unique_ptr<clang::FrontendAction> create() override { return std::make_unique<FunctionDeclFrontendAction>(m_elem); }
+    std::unique_ptr<clang::FrontendAction> create() override { return std::make_unique<FunctionDeclFrontendAction>(m_ctxt); }
   private:
-    ElementToMock::Vector& m_elem;
+    ElementToMockContext& m_ctxt;
   };
 
   return std::unique_ptr<clang::tooling::FrontendActionFactory>(
-      new FunctionDeclFrontendActionFactory(elem));
+      new FunctionDeclFrontendActionFactory(ctxt));
 }
 
 LLVMParser::LLVMParser() : CodeParserItf()
@@ -643,7 +717,7 @@ LLVMParser::LLVMParser(std::string& filename, ParserExtraArgs& flags)  : CodePar
 {
 }
 
-CodeParser_errCode LLVMParser::getElementToStub(ElementToMock::Vector& elem) const
+CodeParser_errCode LLVMParser::getElementToMockContext(ElementToMockContext& p_ctxt) const
 {
   std::string dir = ".";
   llvm::Twine twineDir(dir);
@@ -669,7 +743,7 @@ CodeParser_errCode LLVMParser::getElementToStub(ElementToMock::Vector& elem) con
   clang::tooling::FixedCompilationDatabase db(twineDir, LLVMExtraArgs);
   std::vector<std::string> arRef({m_filename});
   clang::tooling::ClangTool tool(db, arRef);
-  tool.run(newFunctionDeclFrontendAction(elem).get());
+  tool.run(newFunctionDeclFrontendAction(p_ctxt).get());
   return cp_OK;
 }
 

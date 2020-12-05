@@ -8,9 +8,12 @@ MainCodeGenerator::MainCodeGenerator(const std::string p_filename, CodeParserItf
 
 bool MainCodeGenerator::generateCode(const std::string &outDir)
 {
-  ElementToMock::Vector elem;
+  ElementToMockContext ctxt;
   m_codeParserItf.setFilename(m_filename);
-  m_codeParserItf.getElementToStub(elem);
-  m_codeGeneratorItf.generateCode(outDir, m_filename, elem);
+  if(m_codeParserItf.getElementToMockContext(ctxt) != cp_OK)
+  {
+    return false;
+  }
+  m_codeGeneratorItf.generateCode(outDir, m_filename, ctxt);
   return true;
 }

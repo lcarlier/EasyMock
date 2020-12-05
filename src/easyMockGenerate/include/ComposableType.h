@@ -9,7 +9,7 @@
 #include "TypeItf.h"
 
 /*!
- * This class is used to represent any types which are composed by other types such as
+ * \brief Represents any types which are composed by other types such as
  * struct and union.
  *
  * A new field can be added using the addField() function.
@@ -25,7 +25,7 @@ public:
   ComposableField::Vector& getContainedFields() override;
 
   /*!
-   * \copydoc TypeItf::getContainedFields()
+   * \copydoc ::TypeItf::getContainedFields()
    */
   const ComposableField::Vector& getContainedFields() const override;
 

@@ -135,6 +135,7 @@ template<typename ...>
 class FunctionFactory;
 
 using ElementToMockList = AutoCleanVectorPtr<FunctionDeclaration>;
+using DefinedMacroList = std::unordered_map<std::string, std::string>;
 
 // Specialisation of the template. Out of the n parameters, the first is RV, second is std::tuple<Params...>, and third is std::tuple<Compare ...>
 /*!
@@ -161,7 +162,7 @@ public:
    */
   virtual ElementToMockList functionFactoryArray() {ElementToMockList rv; rv.push_back(functionFactory().clone()); return rv;}
   /*!
-   * \brief Returns the function to be mocked allocated on the heap.
+   * \brief Returns the function to be mocked.
    *
    * The caller of this function is responsible of freeing this object or
    * loose the ownership.
@@ -169,6 +170,10 @@ public:
    * \heapPointer
    */
   virtual FunctionDeclaration* newFunctionFactory() { return functionFactory().clone(); }
+  /*!
+   * \brief Returns the list of macro to be generated
+   */
+  virtual DefinedMacroList getDefinedMacroList() {DefinedMacroList ml; return ml;}
   /*!
    * \brief Returns the name of the function to be tested.
    */

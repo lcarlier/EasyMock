@@ -20,7 +20,7 @@ public:
   {
     IntFunVoidFactory factory;
     ElementToMock  *f = factory.newFunctionFactory();
-    m_elem.push_back(f);
+    m_ctxt.addElementToMock(f);
   }
 };
 

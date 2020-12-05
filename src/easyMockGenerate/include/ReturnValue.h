@@ -14,7 +14,7 @@ class TypeItf;
 class StructType;
 
 /*!
- * This class represents a function's return value.
+ * \brief Represents a function's return value.
  *
  * For instance, in the following code
  * \code{.c}

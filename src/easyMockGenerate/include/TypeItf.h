@@ -324,8 +324,8 @@ public:
    *
    * \see ::TypeItf::isEqual()
    */
-  bool operator==(const TypeItf &other) const;
-  bool operator!=(const TypeItf &other) const;
+  bool operator==(const TypeItf &p_other) const;
+  bool operator!=(const TypeItf &p_other) const;
 
   /*!
    * \brief Creates a deep clone of the object.

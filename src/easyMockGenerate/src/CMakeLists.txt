@@ -18,6 +18,7 @@ add_library(${EASYMOCK_COMMON_OBJ}
   ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/FunctionType.cpp
   ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/Enum.cpp
   ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/IncompleteType.cpp
+  ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/ElementToMockContext.cpp
 )
 
 set(EASYMOCK_GEN_SOURCE_FILE

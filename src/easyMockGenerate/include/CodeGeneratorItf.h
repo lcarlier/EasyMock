@@ -7,7 +7,7 @@
 
 #include <string>
 #include <unordered_set>
-#include "ElementToMock.h"
+#include "ElementToMockContext.h"
 
 using MockOnlyList = std::unordered_set<std::string>;
 
@@ -27,7 +27,7 @@ public:
    * \return true if the generation of the mocks is successful
    * \return false instead.
    */
-  virtual bool generateCode(const std::string& p_outDir, const std::string &p_fullPathToHeaderToMock, const ElementToMock::Vector& p_elem) = 0;
+  virtual bool generateCode(const std::string& p_outDir, const std::string &p_fullPathToHeaderToMock, const ElementToMockContext& p_elem) = 0;
   void setMockOnlyFunction(const MockOnlyList& list);
   void setGenerateUsedType(bool value);
 protected:

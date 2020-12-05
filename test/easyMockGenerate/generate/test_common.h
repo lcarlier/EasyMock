@@ -3,9 +3,12 @@
 
 #include <gtest/gtest.h>
 
-#include <string>
-#include <CodeParserItf.h>
 #include <easyMock.h>
+
+#include <CodeParserItf.h>
+#include <ElementToMockContext.h>
+
+#include <string>
 
 void createDir(const std::string &dir);
 void rmDir(const std::string &dir);
@@ -47,7 +50,7 @@ protected:
   std::string m_ptrOutputTypeToMatch;
   const std::string m_pathToFileToMock;
   const std::string m_mockDir;
-  ElementToMock::Vector m_elem;
+  ElementToMockContext m_ctxt;
   bool m_rmDir;
 
   void SetUp() override;
@@ -61,7 +64,7 @@ protected:
   void getFunPtr(void **fPtr, void **fExpectPtr, void **fMatcherPtr, void **fOutputPtr);
   void setGenerateTypes(bool p_generateTypes);
 private:
-  void prepareTest(const ElementToMock::Vector &elem, const std::string &functionToMock, std::string &comparatorToMatch, const std::string &fullPathToFileToMock, const std::string &mockDir, void **funcPtr, void **functExpectPtr, void **functMatcherPtr, void **functOutputPtr, void **handle);
+  void prepareTest(const ElementToMockContext &ctxt, const std::string &functionToMock, std::string &comparatorToMatch, const std::string &fullPathToFileToMock, const std::string &mockDir, void **funcPtr, void **functExpectPtr, void **functMatcherPtr, void **functOutputPtr, void **handle);
   void *handle;
   void *m_fptr;
   void *m_fptr_expect;

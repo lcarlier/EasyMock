@@ -6,7 +6,6 @@
 
 ElementToMockList VoidFunTypeDefFactory::functionFactoryArray()
 {
-  m_rm_dir = false;
   ElementToMockList returnedList;
   CType intType(CTYPE_INT, "MyType1", false);
   CType cIntType(CTYPE_INT, true);

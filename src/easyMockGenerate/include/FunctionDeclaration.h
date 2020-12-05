@@ -38,9 +38,9 @@ public:
 
   virtual FunctionDeclaration* clone() const override;
   virtual ~FunctionDeclaration();
-  static FunctionDeclaration& toFunctionDeclaration(ElementToMock& elem)
+  static const FunctionDeclaration& toFunctionDeclaration(const ElementToMock& elem)
   {
-    return dynamic_cast<FunctionDeclaration&>(elem);
+    return dynamic_cast<const FunctionDeclaration&>(elem);
   }
 private:
 

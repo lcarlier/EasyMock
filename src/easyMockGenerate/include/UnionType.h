@@ -8,7 +8,7 @@
 #include "ComposableType.h"
 
 /*!
- * This class represents an union type.
+ * \brief Represents an union type.
  */
 class UnionType : public ComposableType {
 public:
