@@ -81,7 +81,10 @@ TEST_F(voidFunStrucWithArray_testCase, OneCallArrayNOk)
   ASSERT_EQ(check, 0);
 
   const char *err = easyMock_getErrorStr();
-  std::string errorMessageToExpect("Error : at call 1 of 'void voidFunStructWithArray(struct structWithArray param)': Parameter 'param' which is a struct of type 'structWithArray' has field array 'a[idx]' at idx == 2 with value '42', was expecting '2'\n\r\tat ");
+  std::string errorMessageToExpect = ("Error : at call 1 of 'void voidFunStructWithArray(struct structWithArray param)': Parameter 'param' which is a struct of type 'structWithArray' has field array 'a[idx]' at idx == 2 with value '42', was expecting '2'");
+#if defined(BACKTRACE_SUPPORT)
+  errorMessageToExpect.append("\n\r\tat ");
+#endif
   ASSERT_TRUE(boost::algorithm::starts_with(err, errorMessageToExpect)) << "err: " << err << std::endl << "errorMessageToExpect: " << errorMessageToExpect;
 }
 
@@ -115,6 +118,9 @@ TEST_F(voidFunStrucWithArray_testCase, OneCallFieldNOk)
   ASSERT_EQ(check, 0);
 
   const char *err = easyMock_getErrorStr();
-  std::string errorMessageToExpect("Error : at call 1 of 'void voidFunStructWithArray(struct structWithArray param)': Parameter 'param' which is a struct of type 'structWithArray' has field 'f' with value '7.000000', was expecting '6.000000'\n\r\tat ");
+  std::string errorMessageToExpect("Error : at call 1 of 'void voidFunStructWithArray(struct structWithArray param)': Parameter 'param' which is a struct of type 'structWithArray' has field 'f' with value '7.000000', was expecting '6.000000'");
+#if defined(BACKTRACE_SUPPORT)
+  errorMessageToExpect.append("\n\r\tat ");
+#endif
   ASSERT_TRUE(boost::algorithm::starts_with(err, errorMessageToExpect)) << "err: " << err << std::endl << "errorMessageToExpect: " << errorMessageToExpect;
 }

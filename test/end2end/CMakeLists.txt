@@ -1,8 +1,8 @@
 #TEST INTFUNINTINT
 
 add_custom_command(OUTPUT ${EasyMock_BINARY_DIR}/test/end2end/easyMock_intFunIntInt.c
-                   COMMAND ${EasyMock_BINARY_DIR}/src/easyMockGenerate/src/EasyMockGenerate ARGS -i ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/include/intFunIntInt.h -o ${EasyMock_BINARY_DIR}/test/end2end/
-                   DEPENDS ${EasyMock_BINARY_DIR}/src/easyMockGenerate/src/EasyMockGenerate ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/include/intFunIntInt.h)
+                   COMMAND ${EASYMOCK_GEN} ARGS -i ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/include/intFunIntInt.h -o ${EasyMock_BINARY_DIR}/test/end2end/
+                   DEPENDS ${EASYMOCK_GEN} ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/include/intFunIntInt.h)
 
 set(TEST_E2E_INTFUNINTINT test_end2endIntFunIntInt)
 
@@ -23,8 +23,8 @@ add_test(NAME ${TEST_E2E_INTFUNINTINT} COMMAND ${TEST_E2E_INTFUNINTINT})
 #TEST STDIO
 
 add_custom_command(OUTPUT ${EasyMock_BINARY_DIR}/test/end2end/easyMock_stdio.c
-                   COMMAND ${EasyMock_BINARY_DIR}/src/easyMockGenerate/src/EasyMockGenerate ARGS -i /usr/include/stdio.h -o ${EasyMock_BINARY_DIR}/test/end2end/ --mock-only fopen --mock-only fread --mock-only fwrite
-                   DEPENDS ${EasyMock_BINARY_DIR}/src/easyMockGenerate/src/EasyMockGenerate /usr/include/stdio.h)
+                   COMMAND ${EASYMOCK_GEN} ARGS -i ${SDKROOT}/usr/include/stdio.h -o ${EasyMock_BINARY_DIR}/test/end2end/ --mock-only fopen --mock-only fread --mock-only fwrite
+                   DEPENDS ${EASYMOCK_GEN} ${SDKROOT}/usr/include/stdio.h)
 
 set(TEST_E2E_STDIO test_end2endStdio)
 

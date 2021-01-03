@@ -10,7 +10,7 @@ extern "C"
   {
     int a[10];
     float f;
-    int b[];
+    int b[0];
   };
 
   void voidFunStructWithArray(struct structWithArray param);

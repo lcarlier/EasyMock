@@ -1,7 +1,7 @@
 #include <VoidFunStructWithArrayFactory.h>
 
 #include <EasyMockStructHelper.h>
-#include <CType.h>
+#include <EasyMock_CType.h>
 #include <voidFunStructWithArray.h>
 
 FunctionDeclaration VoidFunStructWithArrayFactory::functionFactory()

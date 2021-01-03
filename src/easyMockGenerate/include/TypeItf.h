@@ -127,8 +127,6 @@ public:
   /*!
    * \brief Returns if the type has a typedef alias.
    *
-   * A typedef alias can be set with the ::TypeItf::setTypedDefName() function
-   *
    * When this function returns true, the function ::TypeItf::getTypedDefName() can
    * be used to retrieve it.
    *

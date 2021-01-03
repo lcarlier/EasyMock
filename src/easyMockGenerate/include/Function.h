@@ -19,7 +19,7 @@
 class Function
 {
 public:
-  typedef AutoCleanVectorPtr<ElementToMock> Vector;
+  typedef AutoCleanVectorPtr<Function> Vector;
 
   /*!
    * \brief Creates a new Function object

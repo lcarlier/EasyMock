@@ -3,7 +3,7 @@
 #include <TypeItf.h>
 #include <Function.h>
 #include <ReturnValue.h>
-#include <CType.h>
+#include <EasyMock_CType.h>
 #include <ComposableField.h>
 #include <StructType.h>
 #include <UnionType.h>

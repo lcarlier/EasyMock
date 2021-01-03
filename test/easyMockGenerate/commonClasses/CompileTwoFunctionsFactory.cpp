@@ -1,7 +1,7 @@
 #include <CompileTwoFunctionsFactory.h>
 
 #include <ReturnValue.h>
-#include <CType.h>
+#include <EasyMock_CType.h>
 #include <StructType.h>
 
 ElementToMockList CompileTwoFunctionsFactory::functionFactoryArray()

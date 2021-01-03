@@ -1,7 +1,7 @@
 #include "ComposableField.h"
 #include "ComposableType.h"
 #include "TypeItf.h"
-#include "CType.h"
+#include "EasyMock_CType.h"
 #include "Pointer.h"
 
 #include <cassert>

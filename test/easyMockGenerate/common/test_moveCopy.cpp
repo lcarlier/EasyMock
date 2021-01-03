@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <CType.h>
+#include <EasyMock_CType.h>
 #include <Function.h>
 #include <Parameter.h>
 #include <ComposableField.h>

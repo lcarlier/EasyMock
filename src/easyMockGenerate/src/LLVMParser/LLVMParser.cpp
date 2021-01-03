@@ -4,7 +4,7 @@
 #include <FunctionDeclaration.h>
 #include <FunctionType.h>
 #include <TypeItf.h>
-#include <CType.h>
+#include <EasyMock_CType.h>
 #include <Pointer.h>
 #include <Enum.h>
 #include <IncompleteType.h>
@@ -23,6 +23,7 @@
 #include <boost/filesystem/path.hpp>
 #include <unordered_map>
 #include <string>
+#include <sstream>
 
 /*!
  * \brief An implementation of a LLVM clang::RecursiveASTVisitor<FunctionDeclASTVisitor>
@@ -174,10 +175,11 @@ private:
   TypeItf* getEasyMocktype(const clang::QualType &clangQualType, structKnownTypeMap &structKnownType)
   {
     const clang::Type &clangType = *clangQualType.getTypePtr();
+    const std::string& nakedDeclString = clangQualType.getAsString();
     TypeItf *type = nullptr;
     if(clangType.isBuiltinType())
     {
-      type = getFromBuiltinType(clangType);
+      type = getFromBuiltinType(clangType, nakedDeclString);
     }
     else if(clangType.isStructureType())
     {
@@ -220,7 +222,7 @@ private:
     return type;
   }
 
-  CType* getFromBuiltinType(const clang::Type &type)
+  CType* getFromBuiltinType(const clang::Type &type, const std::string& nakedDeclString)
   {
     CType *returnedType = nullptr;
 
@@ -231,7 +233,16 @@ private:
     }
     else if(type.isCharType())
     {
-      returnedType = new CType(CTYPE_CHAR, typedefName);
+#if IS_CHAR_DEFAULT_UNSIGNED
+      if(type.isUnsignedIntegerType() && nakedDeclString.compare("unsigned char") == 0)
+      {
+        returnedType = new CType(CTYPE_UCHAR, typedefName);
+      }
+      else
+#endif
+      {
+        returnedType = new CType(CTYPE_CHAR, typedefName);
+      }
     }
     else if(isShortType(type))
     {
@@ -638,9 +649,22 @@ CodeParser_errCode LLVMParser::getElementToStub(ElementToMock::Vector& elem) con
   llvm::Twine twineDir(dir);
   //Place holder variable to add default hardcoded arguments to the tool if we need to
   std::vector<std::string> LLVMExtraArgs({});
-  for(const std::string extraArg: m_flags)
+  for(const std::string& extraArg: m_flags)
   {
     LLVMExtraArgs.emplace_back(extraArg);
+  }
+  /*
+   * C_IMPLICIT_INCLUDE_DIRECTORY is passed at the compile command line
+   * and contains the default include path of the compiler
+   */
+  const std::string cImplicitIncludeDirectories = C_IMPLICIT_INCLUDE_DIRECTORIES;
+  std::string token;
+  std::istringstream cImplicitIncludeDirectoriesStream(cImplicitIncludeDirectories);
+  while (std::getline(cImplicitIncludeDirectoriesStream, token, ':'))
+  {
+    std::string toAdd("-I");
+    toAdd.append(token);
+    LLVMExtraArgs.emplace_back(toAdd);
   }
   clang::tooling::FixedCompilationDatabase db(twineDir, LLVMExtraArgs);
   std::vector<std::string> arRef({m_filename});

@@ -3,7 +3,7 @@
 #include <StructType.h>
 #include <FunctionDeclaration.h>
 #include <Pointer.h>
-#include <CType.h>
+#include <EasyMock_CType.h>
 #include <IncompleteType.h>
 
 ElementToMockList VoidFunPtrToPtrRecurStructFactory::functionFactoryArray()

@@ -6,7 +6,7 @@
 
 #include <voidFunStructForwardDeclared.h>
 
-class VoidFunStructForwardDeclaredFactory : public FunctionFactory<int, std::tuple<struct forwardDeclaredChild>, std::tuple<EasyMock_Matcher>>
+class VoidFunStructForwardDeclaredFactory : public FunctionFactory<void, std::tuple<struct forwardDeclaredChild>, std::tuple<EasyMock_Matcher>>
 {
 public:
   ElementToMockList functionFactoryArray() override;

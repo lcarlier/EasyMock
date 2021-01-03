@@ -1,7 +1,7 @@
 #include <StructSubStructRecursiveTypeFactory.h>
 
 #include <StructType.h>
-#include <CType.h>
+#include <EasyMock_CType.h>
 #include <Pointer.h>
 #include <IncompleteType.h>
 
@@ -71,7 +71,7 @@ void StructSubStructRecursiveTypeFactory::setupTestCase(EasyMockTestCase::TestCa
 {
   struct st1 aToExpect;
   aToExpect.st1SubSt2.st2SubSt1 = (struct st1*)0xf00;
-  aToExpect.st1SubSt2.st2SubSt1 = (struct st1*)0xba3;
+  aToExpect.st1SubSt2.st2SubSt2 = (struct st2*)0xba3;
 
   switch(tc)
   {

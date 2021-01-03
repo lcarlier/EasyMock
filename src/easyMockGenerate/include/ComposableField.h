@@ -47,6 +47,13 @@ class ComposableField : public Declarator
 public:
 
   /*!
+   * \brief A ::AutoCleanVectorPtr containing ::ComposableField objects.
+   *
+   * \heapPointer
+   */
+  typedef AutoCleanVectorPtr<ComposableField> Vector;
+
+  /*!
    * \brief The ComposableField's attributes
    */
   typedef struct
@@ -97,8 +104,6 @@ public:
    * The type of the field <tt>i</tt> is incomplete.
    */
   bool isIncompleteTypeField() const;
-
-  typedef AutoCleanVectorPtr<ComposableField> Vector;
 
   ComposableField(const ComposableField &other);
   ComposableField &operator=(ComposableField other);

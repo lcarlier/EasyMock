@@ -37,12 +37,15 @@ set(TEST_INCLUDE_DIR ${EasyMock_SOURCE_DIR}/src/common/include
                      ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/includeCommonClasses
                      ${CMAKE_CURRENT_BINARY_DIR}
                      ${CMAKE_CURRENT_BINARY_DIR}/test
-                     ${gtest_SOURCE_DIR}/include)
+                     ${gtest_SOURCE_DIR}/include
+                     ${CTEMPLATE_INCLUDEDIR}
+)
 
-set(TEST_LINK_LIB ${EASYMOCK_DEFAULT_FULL_LD_PARAM} gtest_main dl)
+set(TEST_LINK_LIB ${EASYMOCK_DEFAULT_FULL_LD_PARAM} gtest_main dl -rdynamic)
 
 #We use the -fno-access-control ONLY to compile UT because sometime we want to check internal states of objects
-set(TEST_COMPILE_FLAGS ${EASYMOCK_DEFAULT_FULL_CC_PARAM} -DPROJECT_ROOT_DIR="${PROJECT_SOURCE_DIR}" -fno-access-control)
+set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -fno-access-control)
+set(TEST_COMPILE_FLAGS ${EASYMOCK_DEFAULT_FULL_CC_PARAM} -DPROJECT_ROOT_DIR="${PROJECT_SOURCE_DIR}")
 
 set(TEST_FACTORIES_COMMON_OBJ testFactoriesCommonObj)
 
@@ -108,10 +111,10 @@ add_library(${TEST_FACTORIES_COMMON_OBJ}
 )
 
 set(EASYMOCK_TEST_LIBRARY easyMockTestLibrary)
-add_library(easyMockTestLibrary
+add_library(${EASYMOCK_TEST_LIBRARY}
     ${EasyMock_SOURCE_DIR}/src/easyMockFramework/src/easyMock_matcher.cpp
 )
-target_link_libraries(easyMockTestLibrary ${EASYMOCK_FRAMEWORK_LIBRARY})
+target_link_libraries(${EASYMOCK_TEST_LIBRARY} ${EASYMOCK_FRAMEWORK_LIBRARY})
 
 target_compile_options(${EASYMOCK_TEST_LIBRARY} PRIVATE ${TEST_COMPILE_FLAGS})
 target_include_directories(${EASYMOCK_TEST_LIBRARY} PRIVATE ${TEST_INCLUDE_DIR})

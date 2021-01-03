@@ -4,7 +4,7 @@
 #include <FunctionFactory.h>
 #include <voidOut.h>
 
-class VoidOutFactory : public FunctionFactory<int, std::tuple<void *>, std::tuple<EasyMock_Matcher>>
+class VoidOutFactory : public FunctionFactory<void, std::tuple<void *>, std::tuple<EasyMock_Matcher>>
 {
 public:
   ElementToMockList functionFactoryArray() override;

@@ -2,7 +2,7 @@
 
 #include <StructType.h>
 #include <ComposableField.h>
-#include <CType.h>
+#include <EasyMock_CType.h>
 #include <Pointer.h>
 #include <IncompleteType.h>
 

@@ -4,7 +4,7 @@
 #include <FunctionFactory.h>
 #include <voidFunUnionWithEmbeddedAnonymousUnion.h>
 
-class VoidFunUnionWithEmbeddedAnonymousUnionFactory : public FunctionFactory<int, std::tuple<union topEmbeddedAnonymousUnion>, std::tuple<EasyMock_Matcher>>
+class VoidFunUnionWithEmbeddedAnonymousUnionFactory : public FunctionFactory<void, std::tuple<union topEmbeddedAnonymousUnion>, std::tuple<EasyMock_Matcher>>
 {
 public:
   FunctionDeclaration functionFactory() override;

@@ -20,7 +20,11 @@ flexibility of configuring the mocks.
 * [What is EasyMock ?][whatIsEasymock]
 * [How to compile EasyMock ?][compileEasymock]
     * [Release vs Debug build][relVsDeb]
-* [libEasyMockFramework.so's API][libEasyAPI]
+    * [Dependencies][dependencies]
+        * [Linux][linux]
+        * [MacOS][macos]
+    * [Compilation steps][compilationSteps]
+* [libEasyMockFramework's API][libEasyAPI]
 * [Create a mock][createAMock]
 * [Generated functions][genFun]
 * [Using the mocks][usingMock]
@@ -33,19 +37,86 @@ flexibility of configuring the mocks.
 
 ## <a name="user-content-htce"></a> How to compile EasyMock ?
 
-First of all make sure that the following libraries are installed on you system.
+EasyMock can be compiled on Linux or MacOS x86_64/arm.
+
+### <a name="user-content-dependencies"></a> Dependencies
+
+EasyMock depends uses the following mandatory libraries:
+* libclang/llvm
+* libctemplate
+* libncurse
+* liboost (system, filesystem)
+
+Additionnally, the following optional libraries can be installed to enable printing the
+backtrace in the error messages:
+* libunwind
+* libdw
+
+The following mandatory tools must be installed:
+* gcc/g++ or clang/clang++
+* cmake
+* pkg-config
+
+For generating the documentation, the following tools must be installed:
+* doxygen
+* graphviz
+
+#### <a name="user-content-linux"></a> Linux
+
+The dependencies can be installed on Ubuntu by using the following command:
 ```sh
 sudo apt install \
+    gcc \
+    g++ \
+    cmake \
     pkg-config \
-    libctemplate-dev \
     libunwind-dev \
-    libdw-dev \
-    libncurses5-dev \
-    libclang-7-dev \
-    llvm-7 \
+    llvm-10-dev \
+    libclang-10-dev \
+    libncurses-dev \
     libboost-system-dev \
-    libboost-filesystem-dev
+    libboost-filesystem-dev \
+    libctemplate-dev \
+    libdw-dev \
+    doxygen \
+    graphviz
 ```
+
+#### <a name="user-content-macos"></a> MacOS
+
+libunwind and libdw are not available in MacOS, as such the backtrace support
+is not supported in MacOS.
+
+libclang/llvm and libncurse libraries as well as pkg-config and cmake tool can
+be installed via brew.
+```sh
+brew install llvm
+brew install ncurses
+brew install pkg-config
+brew install cmake
+brew install doxygen
+brew install graphviz
+```
+
+Note: At the time of writing, brew is not officially supported on the Apple silicon (M1)
+but the brew command can be executed with the `-s` option to compile and install from source.
+
+libctemplate must be compiled and installed from [source](https://github.com/OlafvdSpek/ctemplate).
+For instance by executing the following commands:
+```sh
+git clone https://github.com/OlafvdSpek/ctemplate.git
+cd ctemplate
+./autogen.sh
+mkdir build
+export LIBCTEMPLATE_INSTALL=$(pwd)/install
+mkdir ${LIBCTEMPLATE_INSTALL}
+cd build
+../configure --prefix=${LIBCTEMPLATE_INSTALL}
+make
+make install
+```
+
+### <a name="user-content-compilation-steps"></a> Compilation steps
 
 EasyMock uses CMake as software build management. The commands below can be
 used to compile the tool. Before copy pasting those lines in your terminal,
@@ -59,12 +130,29 @@ cmake ..
 make -j $(nproc)
 ```
 
+On MacOS, the path to `llvm-config` and `libctemplate` must be given to cmake by using the
+`LLVM_CONFIG` and `CTEMPLATE_LIB_INSTALL` cache entries. For instance:
+```sh
+cmake ../ -DLLVM_CONFIG=/opt/homebrew/Cellar/llvm/11.0.0/bin/llvm-config -DDCTEMPLATE_LIB_INSTALL=${LIBCTEMPLATE_INSTALL}
+```
+
+Note: On MacOS, the following command `cmake ../ -GXcode <rest of parameters>` can be used to generate the
+Xcode project to be opened with [Xcode IDE](https://developer.apple.com/xcode/), but the Makefiles
+work just fine.
+
 When the compilation is finished
-* the binary to generate the mock called [EasyMockGenerate][createAMock] is
+* on Linux:
+    * the binary to generate the mock called [EasyMockGenerate][createAMock] is
 under `$EASYMOCK_BUILDDIR/src/easyMockGenerate/src/EasyMockGenerate`
-* the shared library to be linked to the unit test called
-[libEasyMockFramework.so](#libeasymockframeworkso-api)
+    * the shared library to be linked to the unit test called
+[libEasyMockFramework.so][libEasyAPI]
 is under `$EASYMOCK_BUILDDIR/src/easyMockFramework/src/libEasyMockFramework.so`
+* on MacOS:
+    * the binary to generate the mock called [EasyMockGenerate][createAMock] is
+under `$EASYMOCK_BUILDDIR/src/easyMockGenerate/src/<buildType>/EasyMockGenerate`
+    * the shared library to be linked to the unit test called
+[libEasyMockFramework.dylib][libEasyAPI]
+is under `$EASYMOCK_BUILDDIR/src/easyMockFramework/src/<buildType>/libEasyMockFramework.dylib`
 
 ### <a name="user-content-rvdb"></a> Release vs Debug build
 
@@ -85,7 +173,7 @@ The debug build passes extra debug compilation flags and takes longer because it
 also compiles all the [tests](#unit-tested). After the debug build has been
 built, use the command `make check` to run all the tests.
 
-## <a name="user-content-libeasyapi"></a> libEasyMockFramework.so's API
+## <a name="user-content-libeasyapi"></a> libEasyMockFramework's API
 
 The unit test which is using libEasyMockFramework.so should include
 `easyMock.h` which is in `$EASYMOCK_SOURCE/src/easyMockFramework/include/`.
@@ -299,7 +387,7 @@ That's great! A good place to start is by reading the [architecture][arch] of Ea
 
 ## <a name="user-content-restriction"></a> Restriction
 Currently EasyMock only supports mocking of C functions.
-Mocking of C++ function and classes is planned.
+Mocking of C++ functions and classes is planned.
 
 ## <a name="user-content-br"></a> Bug report
 If you find a bug, it is very appreciated to create a [bug report](issues).
@@ -319,6 +407,10 @@ implemented it from scratch without looking at the source code of opmock.
 
 [whatIsEasymock]: #user-content-wie
 [compileEasymock]: #user-content-htce
+[dependencies]: #user-content-dependencies
+[linux]: #user-content-linux
+[macos]: #user-content-macos
+[compilationSteps]: #user-content-compilation-steps
 [relVsDeb]: #user-content-rvdb
 [libEasyAPI]: #user-content-libeasyapi
 [createAMock]: #user-content-cam

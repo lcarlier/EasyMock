@@ -15,9 +15,14 @@
 
 #include "genGenerate_testCase.h"
 
-static std::string getElementOfTupleInsideQueue(const unsigned int idx, const auto &theQueue);
-static void printElIntoStream(std::ostringstream &s1, auto* elem);
-static void printElIntoStream(std::ostringstream &s1, auto elem);
+template<class T>
+static std::string getElementOfTupleInsideQueue(const unsigned int idx, const T &theQueue);
+
+template<class T>
+static void printElIntoStream(std::ostringstream &s1, T* elem);
+
+template<class T>
+static void printElIntoStream(std::ostringstream &s1, T elem);
 
 template <typename... Args,
 typename std::enable_if<(sizeof...(Args) > 0), int>::type = 0>
@@ -75,7 +80,9 @@ TYPED_TEST(genGenerate_testCase, NoExpect)
     errorMessage1.append(*f.getName());
     errorMessage1.append(" is returning a random value");
   }
+#if defined(BACKTRACE_SUPPORT)
   errorMessage1.append(".\n\r\tat ");
+#endif
   ASSERT_TRUE(boost::algorithm::starts_with(errorArr[0], errorMessage1)) << "errorArr[0]: " << errorArr[0] << std::endl << "errorMessage1: " << errorMessage1;
 
   //E.g: "Error: For function 'void voidFunVoid()' bad number of call. Expected 0, got 1"
@@ -207,7 +214,9 @@ TYPED_TEST(genGenerate_testCase, OneExpectArgIsBad)
   errorMessageToExpect.append(givenParemeter);
   errorMessageToExpect.append("', was expecting '");
   errorMessageToExpect.append(expectedParemeter);
+#if defined(BACKTRACE_SUPPORT)
   errorMessageToExpect.append("'\n\r\tat ");
+#endif
 
   const char *error = easyMock_getErrorStr();
   ASSERT_NE(error, nullptr);
@@ -277,7 +286,9 @@ TYPED_TEST(genGenerate_testCase, SecondExpectArgIsBad)
   errorMessageToExpect.append(givenParemeter);
   errorMessageToExpect.append("', was expecting '");
   errorMessageToExpect.append(expectedParemeter);
+#if defined(BACKTRACE_SUPPORT)
   errorMessageToExpect.append("'\n\r\tat ");
+#endif
 
   const char *error = easyMock_getErrorStr();
   ASSERT_NE(error, nullptr);
@@ -293,7 +304,8 @@ TYPED_TEST(genGenerate_testCase, SecondExpectArgIsBad)
   ASSERT_TRUE(isFifoCallEmpty());
 }
 
-static std::string getElementOfTupleInsideQueue(const unsigned int idx, const auto &theQueue)
+template<class T>
+static std::string getElementOfTupleInsideQueue(const unsigned int idx, const T &theQueue)
 {
   auto firstElem = theQueue[idx];
   auto elem = getFirstTupleElem(firstElem);
@@ -303,33 +315,35 @@ static std::string getElementOfTupleInsideQueue(const unsigned int idx, const au
 }
 
 template <typename... Args,
-typename std::enable_if<(sizeof...(Args) > 0), int>::type = 0>
+typename std::enable_if<(sizeof...(Args) > 0), int>::type>
 static auto getFirstTupleElem(std::tuple<Args...>& t)
 {
   return std::get<0>(t);
 }
 
 template <typename... Args,
-typename std::enable_if<(sizeof...(Args) == 0), int>::type = 0>
+typename std::enable_if<(sizeof...(Args) == 0), int>::type>
 static auto getFirstTupleElem(std::tuple<Args...>& t)
 {
   return 0;
 }
 
 /*
- * When auto is char* or unsigned char*, the ostringstream class
+ * When T is char* or unsigned char*, the ostringstream class
  * is (too) smart and try to dereference the pointer. In the UT in general
  * I provide dummy pointers with dummy addresses.
  * Since I'm only interested in the value of the pointer (not to what it
  * points), I have a redefinition of printElIntoStream which cast the pointer
  * to void* and is selected whenever elem is a pointer of any type.
  */
-static void printElIntoStream(std::ostringstream &s1, auto* elem)
+template<class T>
+static void printElIntoStream(std::ostringstream &s1, T* elem)
 {
     s1 << (void*)elem;
 }
 
-static void printElIntoStream(std::ostringstream &s1, auto elem)
+template<class T>
+static void printElIntoStream(std::ostringstream &s1, T elem)
 {
   s1 << std::fixed << std::setprecision(6) << elem;
 }

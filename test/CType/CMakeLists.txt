@@ -1,8 +1,10 @@
-add_executable(test_ctype
+set(TEST_CTYPE test_ctype)
+add_executable(${TEST_CTYPE}
     ${EasyMock_SOURCE_DIR}/test/CType/test_CType.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/gTestPrintClasses.cpp
 )
-target_compile_options(test_ctype PRIVATE ${TEST_COMPILE_FLAGS})
-target_include_directories(test_ctype PRIVATE ${TEST_INCLUDE_DIR})
-target_link_libraries(test_ctype ${TEST_LINK_LIB} ${EASYMOCK_COMMON_OBJ})
-add_test(NAME test_ctype COMMAND test_ctype)
+target_compile_options(${TEST_CTYPE} PRIVATE ${TEST_COMPILE_FLAGS})
+target_include_directories(${TEST_CTYPE} PRIVATE ${TEST_INCLUDE_DIR})
+target_link_libraries(${TEST_CTYPE} ${TEST_LINK_LIB} ${EASYMOCK_COMMON_OBJ})
+add_test(NAME ${TEST_CTYPE} COMMAND ${TEST_CTYPE})
 

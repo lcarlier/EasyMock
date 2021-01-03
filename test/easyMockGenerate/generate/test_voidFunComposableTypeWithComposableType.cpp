@@ -8,7 +8,7 @@
 #include "test_common.h"
 
 #include "genGenerate_testCase.h"
-#include "CType.h"
+#include "EasyMock_CType.h"
 #include "Function.h"
 #include "ComposableType.h"
 #include "StructCommonHelper.h"

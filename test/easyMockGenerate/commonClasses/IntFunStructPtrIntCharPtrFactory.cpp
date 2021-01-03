@@ -2,7 +2,7 @@
 
 #include <EasyMockStructHelper.h>
 
-#include <CType.h>
+#include <EasyMock_CType.h>
 #include <Pointer.h>
 
 FunctionDeclaration IntFunStructPtrIntCharPtrFactory::functionFactory()

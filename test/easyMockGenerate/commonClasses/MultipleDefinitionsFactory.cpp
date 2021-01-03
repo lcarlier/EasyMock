@@ -1,6 +1,6 @@
 #include "MultipleDefinitionsFactory.h"
 
-#include <CType.h>
+#include <EasyMock_CType.h>
 
 ElementToMockList MultipleDefinitionsFactory::functionFactoryArray()
 {

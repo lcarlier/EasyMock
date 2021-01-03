@@ -22,7 +22,7 @@
 
 static void readStdoutStderrUntilEnd(int fdStdOut, int fdStdErr, std::string *stdOut, std::string *stdErr);
 static void appendReadIntoString(int fd, std::string *str, const char *strName, bool *noMoreToRead);
-static void loadSo(const char *pathToSo, const char *functionToLoad, const char *comparatorToMatch, void **funcPtr, void **functExpectPtr, void **functMatcherPtr, void **functOutputPtr, void **handle);
+static void loadSo(const char *pathToSo, const char *functionToLoad, const char *comparatorToMatch, void **funcPtr, void **functExpectPtr, void **functMatcherPtr, void **functOutputPtr, void **handle, bool & m_rmDir);
 static void executeCmd(const char * const aArguments[], std::string *stdOut, std::string *stdErr, int *status);
 static void cleanTest(void **handle, const std::string &mockDir, bool rmDirectory);
 
@@ -153,7 +153,16 @@ void easyMockGenerate_baseTestCase::prepareTest(const ElementToMock::Vector &ele
   std::string fileToCompile(objFile);
   objFile.append(".o");
   fileToCompile.append(".c");
-  const char * const compileMockCmd[] = {"gcc", "-Wall", "-Werror", "-g", "-fpic", "-I", mockDir.c_str(), "-I", PROJECT_ROOT_DIR"/src/easyMockFramework/include", "-I", PROJECT_ROOT_DIR"/test/easyMockGenerate/include", "-o", objFile.c_str(), "-c", fileToCompile.c_str(), NULL};
+#if defined(__clang__)
+  const char *cCompiler = "clang";
+  const char *cppCompiler = "clang++";
+#elif defined(__GNUC__) || defined(__GNUG__)
+  const char *cCompiler = "gcc";
+  const char *cppCompiler = "g++";
+#else
+#error "Compiler not supported"
+#endif
+  const char * const compileMockCmd[] = {cCompiler, "-Wall", "-Werror", "-g", "-O0", "-fpic", "-I", mockDir.c_str(), "-I", PROJECT_ROOT_DIR"/src/easyMockFramework/include", "-I", PROJECT_ROOT_DIR"/test/easyMockGenerate/include", "-o", objFile.c_str(), "-c", fileToCompile.c_str(), NULL};
   executeCmd(compileMockCmd, &stdOut, &stdErr, &status);
   if(status != 0)
   {
@@ -168,7 +177,18 @@ void easyMockGenerate_baseTestCase::prepareTest(const ElementToMock::Vector &ele
   pathToLib.append("/lib");
   pathToLib.append(fileNameToMock);
   pathToLib.append(".so");
-  const char * const compileLibCmd[] = {"g++", "-shared", "-o", pathToLib.c_str(), objFile.c_str(), NULL};
+  const char * const compileLibCmd[] =
+  {
+    cppCompiler,
+    "-shared",
+#if defined(__clang__)
+    "-undefined", "dynamic_lookup",
+#endif
+    "-o",
+    pathToLib.c_str(),
+    objFile.c_str(),
+    NULL
+  };
   executeCmd(compileLibCmd, &stdOut, &stdErr, &status);
   if(status != 0)
   {
@@ -179,7 +199,7 @@ void easyMockGenerate_baseTestCase::prepareTest(const ElementToMock::Vector &ele
   }
   ASSERT_EQ(status, 0) << std::endl << "Compilation lib failed " << std::endl << "cwd: " << cwd << std::endl << "stdout: " << std::endl << stdOut << std::endl << "stderr:" << std::endl << stdErr << std::endl;
 
-  loadSo(pathToLib.c_str(), functionToMock.c_str(), comparatorToMatch.c_str(), fptr, fptr_expect, fptr_matcher, fptr_output_ptr, handle);
+  loadSo(pathToLib.c_str(), functionToMock.c_str(), comparatorToMatch.c_str(), fptr, fptr_expect, fptr_matcher, fptr_output_ptr, handle, m_rmDir);
 }
 
 static void cleanTest(void **handle, const std::string &mockDir, bool rmDirectory)
@@ -224,19 +244,28 @@ static void readStdoutStderrUntilEnd(int fdStdOut, int fdStdErr, std::string *st
       nfds = std::max(fdStdErr, nfds) + 1;
     }
     retval = select(nfds, &rfds, NULL, NULL, NULL);
-    ASSERT_NE(retval, -1) << "pselect error %s" << strerror(errno);
-    if (retval == 0)
+    if (retval == -1)
+    {
+      if(!(errno == EAGAIN || errno == EINTR))
+      {
+        ASSERT_NE(retval, -1) << "pselect error: " << errno << ": " << strerror(errno);
+      }
+    }
+    else if (retval == 0)
     {
       stdErrDone = true;
       stdOutDone = true;
     }
-    if (FD_ISSET(fdStdOut, &rfds))
+    else
     {
-      appendReadIntoString(fdStdOut, stdOut, "stdOut", &stdOutDone);
-    }
-    if (FD_ISSET(fdStdErr, &rfds))
-    {
-      appendReadIntoString(fdStdErr, stdErr, "stdErr", &stdErrDone);
+      if (FD_ISSET(fdStdOut, &rfds))
+      {
+        appendReadIntoString(fdStdOut, stdOut, "stdOut", &stdOutDone);
+      }
+      if (FD_ISSET(fdStdErr, &rfds))
+      {
+        appendReadIntoString(fdStdErr, stdErr, "stdErr", &stdErrDone);
+      }
     }
   }
 }
@@ -337,23 +366,31 @@ static void executeCmd(const char * const aArguments[], std::string *stdOut, std
     do
     {
       pid_t w = waitpid(cpid, &wstatus, WUNTRACED | WCONTINUED);
-      ASSERT_NE(w, -1) << "Waitpid failed: " << strerror(errno);
-
-      if (WIFEXITED(wstatus))
+      if(w == -1)
       {
-        //printf("exited, status=%d\n", WEXITSTATUS(wstatus));
+        if(!(errno == EINTR || errno == EAGAIN))
+        {
+          ASSERT_NE(w, -1) << "Waitpid failed: " << strerror(errno);
+        }
       }
-      else if (WIFSIGNALED(wstatus))
+      else
       {
-        //printf("killed by signal %d\n", WTERMSIG(wstatus));
-      }
-      else if (WIFSTOPPED(wstatus))
-      {
-        //printf("stopped by signal %d\n", WSTOPSIG(wstatus));
-      }
-      else if (WIFCONTINUED(wstatus))
-      {
-        //printf("continued\n");
+        if (WIFEXITED(wstatus))
+        {
+          //printf("exited, status=%d\n", WEXITSTATUS(wstatus));
+        }
+        else if (WIFSIGNALED(wstatus))
+        {
+          //printf("killed by signal %d\n", WTERMSIG(wstatus));
+        }
+        else if (WIFSTOPPED(wstatus))
+        {
+          //printf("stopped by signal %d\n", WSTOPSIG(wstatus));
+        }
+        else if (WIFCONTINUED(wstatus))
+        {
+          //printf("continued\n");
+        }
       }
     }
     while (!WIFEXITED(wstatus) && !WIFSIGNALED(wstatus));
@@ -361,13 +398,17 @@ static void executeCmd(const char * const aArguments[], std::string *stdOut, std
   }
 }
 
-static void loadSo(const char *pathToSo, const char *functionToLoad, const char *comparatorToMatch, void **funcPtr, void **funcPtr_expect, void **funcPtr_matcher, void **funcPtr_output_ptr, void **handle)
+static void loadSo(const char *pathToSo, const char *functionToLoad, const char *comparatorToMatch, void **funcPtr, void **funcPtr_expect, void **funcPtr_matcher, void **funcPtr_output_ptr, void **handle, bool& m_rmDir)
 {
   char *error;
 
   dlerror(); /* Clear any existing error */
   *handle = dlopen(pathToSo, RTLD_NOW | RTLD_LOCAL);
   error = dlerror();
+  if(*handle == nullptr)
+  {
+    m_rmDir = false;
+  }
   ASSERT_NE(*handle, nullptr) << "couldn't open shared library " << pathToSo << ": " << error;
 
   dlerror(); /* Clear any existing error */

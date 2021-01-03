@@ -31,7 +31,7 @@ void IntFunIntIntFactory::setupTestCase(EasyMockTestCase::TestCase tc)
   switch(tc)
   {
     case EasyMockTestCase::OneExpect:
-      m_rv.push_back(5);
+      m_rvContext.m_rv.push_back(5);
       m_expects.push_back(std::make_tuple(6, 7));
       m_params.push_back(std::make_tuple(6, 7));
       m_compare.push_back(std::make_tuple(&cmp_int, &cmp_int));
@@ -43,7 +43,7 @@ void IntFunIntIntFactory::setupTestCase(EasyMockTestCase::TestCase tc)
       int rvToExpect = 7;
       for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::ThreeExpects_NbExpects; expectIdx++)
       {
-        m_rv.push_back(rvToExpect + expectIdx);
+        m_rvContext.m_rv.push_back(rvToExpect + expectIdx);
         m_expects.push_back(std::make_tuple(aOneToExpect + expectIdx, aTwoToExpect + expectIdx));
         m_params.push_back(std::make_tuple(aOneToExpect + expectIdx, aTwoToExpect + expectIdx));
         m_compare.push_back(std::make_tuple(&cmp_int, &cmp_int));
@@ -51,18 +51,18 @@ void IntFunIntIntFactory::setupTestCase(EasyMockTestCase::TestCase tc)
       break;
     }
     case EasyMockTestCase::OneExpectArgIsBad:
-      m_rv.push_back(5);
+      m_rvContext.m_rv.push_back(5);
       m_expects.push_back(std::make_tuple(6, 7));
       m_params.push_back(std::make_tuple(7, 7));
       m_compare.push_back(std::make_tuple(&cmp_int, &cmp_int));
       break;
     case EasyMockTestCase::SecondExpectArgIsBad:
-      m_rv.push_back(5);
+      m_rvContext.m_rv.push_back(5);
       m_expects.push_back(std::make_tuple(6, 7));
       m_params.push_back(std::make_tuple(6, 7));
       m_compare.push_back(std::make_tuple(&cmp_int, &cmp_int));
 
-      m_rv.push_back(6);
+      m_rvContext.m_rv.push_back(6);
       m_expects.push_back(std::make_tuple(7, 8));
       m_params.push_back(std::make_tuple(8, 8)); //Second call fails
       m_compare.push_back(std::make_tuple(&cmp_int, &cmp_int));
@@ -70,7 +70,7 @@ void IntFunIntIntFactory::setupTestCase(EasyMockTestCase::TestCase tc)
     case EasyMockTestCase::NotEnoughCall:
       for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::NotEnoughCall_NbExpects; expectIdx++)
       {
-        m_rv.push_back(5);
+        m_rvContext.m_rv.push_back(5);
         m_expects.push_back(std::make_tuple(6, 7));
         m_params.push_back(std::make_tuple(6, 7));
         m_compare.push_back(std::make_tuple(&cmp_int, &cmp_int));

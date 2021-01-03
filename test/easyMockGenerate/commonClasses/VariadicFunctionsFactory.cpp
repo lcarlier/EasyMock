@@ -1,6 +1,6 @@
 #include "VariadicFunctionsFactory.h"
 
-#include <CType.h>
+#include <EasyMock_CType.h>
 #include <Pointer.h>
 
 ElementToMockList VariadicFunctionsFactory::functionFactoryArray()

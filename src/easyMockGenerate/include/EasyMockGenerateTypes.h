@@ -18,6 +18,10 @@ typedef enum
    */
   CTYPE_UCHAR,
   /*!
+   * \brief <tt> signed char </tt> type
+   */
+  CTYPE_SCHAR,
+  /*!
    * \brief @c short type
    */
   CTYPE_SHORT,

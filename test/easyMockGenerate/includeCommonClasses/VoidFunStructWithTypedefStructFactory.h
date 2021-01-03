@@ -4,7 +4,7 @@
 #include <FunctionFactory.h>
 #include <voidFunStructWithTypedefStruct.h>
 
-class VoidFunStructWithTypedefStructFactory : public FunctionFactory<int, std::tuple<t_struct>, std::tuple<EasyMock_Matcher>>
+class VoidFunStructWithTypedefStructFactory : public FunctionFactory<void, std::tuple<t_struct>, std::tuple<EasyMock_Matcher>>
 {
 public:
   FunctionDeclaration functionFactory() override;

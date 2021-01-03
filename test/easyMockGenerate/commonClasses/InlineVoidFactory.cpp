@@ -1,7 +1,7 @@
 #include <InlineVoidFactory.h>
 
 #include <FunctionDeclaration.h>
-#include <CType.h>
+#include <EasyMock_CType.h>
 
 ElementToMockList InlineVoidFactory::functionFactoryArray()
 {

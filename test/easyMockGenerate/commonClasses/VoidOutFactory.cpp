@@ -3,7 +3,7 @@
 #include <ReturnValue.h>
 #include <Function.h>
 #include <Parameter.h>
-#include <CType.h>
+#include <EasyMock_CType.h>
 #include <Pointer.h>
 
 ElementToMockList VoidOutFactory::functionFactoryArray()

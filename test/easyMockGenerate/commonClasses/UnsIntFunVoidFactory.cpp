@@ -27,21 +27,21 @@ void UnsIntFunVoidFactory::setupTestCase(EasyMockTestCase::TestCase tc)
   switch(tc)
   {
     case EasyMockTestCase::OneExpect:
-      m_rv.push_back(5);
+      m_rvContext.m_rv.push_back(5);
       break;
     case EasyMockTestCase::ThreeExpects:
     {
       int rvToExpect = 7;
       for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::ThreeExpects_NbExpects; expectIdx++)
       {
-        m_rv.push_back(rvToExpect + expectIdx);
+        m_rvContext.m_rv.push_back(rvToExpect + expectIdx);
       }
       break;
     }
     case EasyMockTestCase::NotEnoughCall:
       for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::NotEnoughCall_NbExpects; expectIdx++)
       {
-        m_rv.push_back(5);
+        m_rvContext.m_rv.push_back(5);
       }
       break;
     case EasyMockTestCase::OneExpectArgIsBad: //Not tested

@@ -3,7 +3,7 @@
 #include <FunctionDeclaration.h>
 #include <FunctionType.h>
 #include <Pointer.h>
-#include <CType.h>
+#include <EasyMock_CType.h>
 #include <StructType.h>
 
 #include <assert.h>

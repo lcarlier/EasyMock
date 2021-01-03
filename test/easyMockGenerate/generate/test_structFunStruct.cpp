@@ -8,7 +8,7 @@
 #include "test_common.h"
 
 #include "structFunStruct.h"
-#include "CType.h"
+#include "EasyMock_CType.h"
 #include "Function.h"
 #include "ComposableType.h"
 #include <StructFunStructFactory.h>
@@ -101,18 +101,20 @@ TEST_F(structFunStruct_testCase, OneExpectFirstElemtOfStructWrong)
   int check = easyMock_check();
   EXPECT_EQ(check, 0);
 
-  #define ERROR_EXPECT "Error : at call 1 of 'struct s1 structFunStruct(struct s2 s)': Parameter 's' which is a struct of type 's2' has field 'c' with value '8', was expecting '9'\n\r\tat "
+  std::string ERROR_EXPECT = "Error : at call 1 of 'struct s1 structFunStruct(struct s2 s)': Parameter 's' which is a struct of type 's2' has field 'c' with value '8', was expecting '9'";
+#if defined(BACKTRACE_SUPPORT)
+  ERROR_EXPECT.append("\n\r\tat ");
+#endif
   const char *error = easyMock_getErrorStr();
   ASSERT_NE(error, nullptr);
-  ASSERT_TRUE(boost::algorithm::starts_with(error, ERROR_EXPECT)) << "error: " << error << std::endl << "Expect: " ERROR_EXPECT;
+  ASSERT_TRUE(boost::algorithm::starts_with(error, ERROR_EXPECT.c_str())) << "error: " << error << std::endl << "Expect: " << ERROR_EXPECT;
 
   unsigned int size;
   const char **errorArr = easyMock_getErrorArr(&size);
   ASSERT_NE(errorArr, nullptr);
   ASSERT_EQ(size, 1) << EasyMock_ErrorArrayPrinter(errorArr);
-  ASSERT_TRUE(boost::algorithm::starts_with(errorArr[0], ERROR_EXPECT)) << "errorArr[0]: " << errorArr[0] << std::endl << "Expect: " ERROR_EXPECT;
+  ASSERT_TRUE(boost::algorithm::starts_with(errorArr[0], ERROR_EXPECT.c_str())) << "errorArr[0]: " << errorArr[0] << std::endl << "Expect: " << ERROR_EXPECT;
   ASSERT_EQ(errorArr[1], nullptr) << "errorArr[1]: " << errorArr[1];
-  #undef ERROR_EXPECT
 
   ASSERT_TRUE(isFifoCallEmpty());
 }
@@ -162,7 +164,11 @@ TEST_F(structFunStruct_testCase, OneExpectSecondElemtOfStructWrong)
   errorToExpect.append(ssToExpectWrongParam.str());
   errorToExpect.append("', was expecting '");
   errorToExpect.append(ssToExpect.str());
+#if defined(BACKTRACE_SUPPORT)
   errorToExpect.append("'\n\r\tat ");
+#else
+  errorToExpect.append("'");
+#endif
   const char *error = easyMock_getErrorStr();
   ASSERT_NE(error, nullptr);
   ASSERT_TRUE(boost::algorithm::starts_with(error, errorToExpect.c_str())) << "error: " << error << std::endl << "errorToExpect: " << errorToExpect;
@@ -173,7 +179,6 @@ TEST_F(structFunStruct_testCase, OneExpectSecondElemtOfStructWrong)
   ASSERT_EQ(size, 1) << EasyMock_ErrorArrayPrinter(errorArr);
   ASSERT_TRUE(boost::algorithm::starts_with(errorArr[0], errorToExpect.c_str())) << "errorArr[0]: " << errorArr[0] << std::endl << "errorToExpect: " << errorToExpect;
   ASSERT_EQ(errorArr[1], nullptr) << "errorArr[1]: " << errorArr[1];
-  #undef ERROR_EXPECT
 
   ASSERT_TRUE(isFifoCallEmpty());
 }
@@ -213,18 +218,20 @@ TEST_F(structFunStruct_testCase, OneExpectSubStructWrong)
   int check = easyMock_check();
   EXPECT_EQ(check, 0);
 
-  #define ERROR_EXPECT "Error : at call 1 of 'struct s1 structFunStruct(struct s2 s)': Parameter 's.s' which is a struct of type 's1' has field 'b' with value '2.500000', was expecting '3.500000'\n\r\tat "
+  std::string ERROR_EXPECT = "Error : at call 1 of 'struct s1 structFunStruct(struct s2 s)': Parameter 's.s' which is a struct of type 's1' has field 'b' with value '2.500000', was expecting '3.500000'";
+#if defined(BACKTRACE_SUPPORT)
+  ERROR_EXPECT.append("\n\r\tat ");
+#endif
   const char *error = easyMock_getErrorStr();
   ASSERT_NE(error, nullptr);
-  ASSERT_TRUE(boost::algorithm::starts_with(error, ERROR_EXPECT)) << "error: " << error << std::endl << "Expect: " ERROR_EXPECT;
+  ASSERT_TRUE(boost::algorithm::starts_with(error, ERROR_EXPECT.c_str())) << "error: " << error << std::endl << "Expect: " << ERROR_EXPECT;
 
   unsigned int size;
   const char **errorArr = easyMock_getErrorArr(&size);
   ASSERT_NE(errorArr, nullptr);
   ASSERT_EQ(size, 1) << EasyMock_ErrorArrayPrinter(errorArr);
-  ASSERT_TRUE(boost::algorithm::starts_with(errorArr[0], ERROR_EXPECT)) << "errorArr[0]: " << errorArr[0] << std::endl << "Expect: " ERROR_EXPECT;
+  ASSERT_TRUE(boost::algorithm::starts_with(errorArr[0], ERROR_EXPECT.c_str())) << "errorArr[0]: " << errorArr[0] << std::endl << "Expect: " << ERROR_EXPECT;
   ASSERT_EQ(errorArr[1], nullptr) << "errorArr[1]: " << errorArr[1];
-  #undef ERROR_EXPECT
 
   ASSERT_TRUE(isFifoCallEmpty());
 }
@@ -274,18 +281,20 @@ TEST_F(structFunStruct_testCase, TwoExpectSecondCallArgBad)
   int check = easyMock_check();
   EXPECT_EQ(check, 0);
 
-#define ERROR_EXPECT "Error : at call 2 of 'struct s1 structFunStruct(struct s2 s)': Parameter 's' which is a struct of type 's2' has field 'c' with value '8', was expecting '10'\n\r\tat "
+  std::string ERROR_EXPECT = "Error : at call 2 of 'struct s1 structFunStruct(struct s2 s)': Parameter 's' which is a struct of type 's2' has field 'c' with value '8', was expecting '10'";
+#if defined(BACKTRACE_SUPPORT)
+  ERROR_EXPECT.append("\n\r\tat ");
+#endif    
   const char *error = easyMock_getErrorStr();
   ASSERT_NE(error, nullptr);
-  ASSERT_TRUE(boost::algorithm::starts_with(error, ERROR_EXPECT)) << error << std::endl << "Expect: " ERROR_EXPECT;
+  ASSERT_TRUE(boost::algorithm::starts_with(error, ERROR_EXPECT.c_str())) << error << std::endl << "Expect: " << ERROR_EXPECT;
 
   unsigned int size;
   const char **errorArr = easyMock_getErrorArr(&size);
   ASSERT_NE(errorArr, nullptr);
   ASSERT_EQ(size, 1) << EasyMock_ErrorArrayPrinter(errorArr);
-  ASSERT_TRUE(boost::algorithm::starts_with(errorArr[0], ERROR_EXPECT)) << "errorArr[0]: " << errorArr[0] << std::endl << "Expect: " ERROR_EXPECT;
+  ASSERT_TRUE(boost::algorithm::starts_with(errorArr[0], ERROR_EXPECT.c_str())) << "errorArr[0]: " << errorArr[0] << std::endl << "Expect: " << ERROR_EXPECT;
   ASSERT_EQ(errorArr[1], nullptr) << "errorArr[1]: " << errorArr[1];
-#undef ERROR_EXPECT
 
   ASSERT_TRUE(isFifoCallEmpty());
 }

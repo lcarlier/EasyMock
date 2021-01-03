@@ -4,7 +4,7 @@
 #include <FunctionFactory.h>
 #include <voidFunStructWithAnonymousStructField.h>
 
-class VoidFunStructWithAnonymousStructFieldFactory : public FunctionFactory<int, std::tuple<struct topAnonymousStructField>, std::tuple<EasyMock_Matcher>>
+class VoidFunStructWithAnonymousStructFieldFactory : public FunctionFactory<void, std::tuple<struct topAnonymousStructField>, std::tuple<EasyMock_Matcher>>
 {
 public:
   FunctionDeclaration functionFactory() override;

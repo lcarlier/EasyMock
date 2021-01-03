@@ -80,7 +80,7 @@ TEST_F(intFunStructPtrIntCharPtr_testCase, TwoPtrOut)
   s2ExpectOut[0].s.a = 3;
   s2ExpectOut[0].s.b = 4;
   s2ExpectOut[1].c = 5;
-  s2ExpectOut[1].d = &fToExpect[6];
+  s2ExpectOut[1].d = &fToExpect[1];
   s2ExpectOut[1].s.a = 7;
   s2ExpectOut[1].s.b = 8;
 

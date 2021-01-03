@@ -6,7 +6,7 @@
 
 #include <voidFunEnum.h>
 
-class VoidFunEnumFactory : public FunctionFactory<int, std::tuple<void*>, std::tuple<EasyMock_Matcher>>
+class VoidFunEnumFactory : public FunctionFactory<void, std::tuple<void*>, std::tuple<EasyMock_Matcher>>
 {
 public:
   ElementToMockList functionFactoryArray() override;

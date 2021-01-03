@@ -1,4 +1,4 @@
-#include "CType.h"
+#include "EasyMock_CType.h"
 
 CType::CType() : CType(CTYPE_INVALID)
 {
@@ -10,7 +10,7 @@ CType(p_cType, "", isConst)
 }
 
 CType::CType(const easyMock_cTypes_t p_cType, std::string p_typeDefName, bool isConst) :
-TypeItf(easyMock_arrayCTypeStr[p_cType], p_typeDefName), m_cType(p_cType)
+TypeItf(easyMock_arrayCTypeStr[p_cType], p_typeDefName), m_cType(p_cType), m_initAsNakedChar(p_cType == CTYPE_CHAR)
 {
   this->setConst(isConst);
   this->setCType(true);
@@ -27,10 +27,20 @@ bool CType::setUnsigned(bool val)
 
   if(val)
   {
+    //signed to unsigned
     switch(m_cType)
     {
+#if IS_CHAR_DEFAULT_SIGNED
       case CTYPE_CHAR:
+#endif
+      case CTYPE_SCHAR:
         newCtype = CTYPE_UCHAR;
+#if IS_CHAR_DEFAULT_UNSIGNED
+        if(m_initAsNakedChar)
+        {
+          newCtype = CTYPE_CHAR;
+        }
+#endif
         break;
       case CTYPE_SHORT:
         newCtype = CTYPE_USHORT;
@@ -50,10 +60,20 @@ bool CType::setUnsigned(bool val)
   }
   else
   {
+    //unsigned to signed
     switch(m_cType)
     {
+#if IS_CHAR_DEFAULT_UNSIGNED
+      case CTYPE_CHAR:
+#endif
       case CTYPE_UCHAR:
-        newCtype = CTYPE_CHAR;
+        newCtype = CTYPE_SCHAR;
+#if IS_CHAR_DEFAULT_SIGNED
+        if(m_initAsNakedChar)
+        {
+          newCtype = CTYPE_CHAR;
+        }
+#endif
         break;
       case CTYPE_USHORT:
         newCtype = CTYPE_SHORT;

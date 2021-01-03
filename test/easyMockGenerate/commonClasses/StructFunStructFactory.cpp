@@ -57,7 +57,7 @@ void StructFunStructFactory::setupTestCase(EasyMockTestCase::TestCase tc)
   switch(tc)
   {
     case EasyMockTestCase::OneExpect:
-      m_rv.push_back(returnValues[0]);
+      m_rvContext.m_rv.push_back(returnValues[0]);
       m_expects.push_back(std::make_tuple(toExpect[0]));
       m_params.push_back(std::make_tuple(toExpect[0]));
       m_compare.push_back(std::make_tuple(nullptr)); //Seperate dedicated UT are writen to test the generation and function of the comparators for structs
@@ -65,7 +65,7 @@ void StructFunStructFactory::setupTestCase(EasyMockTestCase::TestCase tc)
     case EasyMockTestCase::ThreeExpects:
       for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::ThreeExpects_NbExpects; expectIdx++)
       {
-        m_rv.push_back(returnValues[expectIdx]);
+        m_rvContext.m_rv.push_back(returnValues[expectIdx]);
         m_expects.push_back(std::make_tuple(toExpect[expectIdx]));
         m_params.push_back(std::make_tuple(toExpect[expectIdx]));
         m_compare.push_back(std::make_tuple(nullptr)); //Seperate dedicated UT are writen to test the generation and function of the comparators for structs
@@ -74,7 +74,7 @@ void StructFunStructFactory::setupTestCase(EasyMockTestCase::TestCase tc)
     case EasyMockTestCase::NotEnoughCall:
       for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::NotEnoughCall_NbExpects; expectIdx++)
       {
-        m_rv.push_back(returnValues[expectIdx]);
+        m_rvContext.m_rv.push_back(returnValues[expectIdx]);
         m_expects.push_back(std::make_tuple(toExpect[expectIdx]));
         m_params.push_back(std::make_tuple(toExpect[expectIdx]));
         m_compare.push_back(std::make_tuple(nullptr)); //Seperate dedicated UT are writen to test the generation and function of the comparators for structs

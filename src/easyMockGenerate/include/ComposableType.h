@@ -103,9 +103,9 @@ protected:
   //No move operator otherwise the object is not movable anymore (UT fails)
 
   /*!
-   * \copydoc TypeItf::isEqual
+   * \copydoc ::TypeItf::isEqual
    */
-  bool isEqual(const TypeItf& other) const override;
+  bool isEqual(const TypeItf& p_other) const override;
   virtual ~ComposableType() = 0; //pure virtual. ComposableType shouldn't be instantiable
 
 private:

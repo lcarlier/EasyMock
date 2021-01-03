@@ -1,6 +1,6 @@
 #include <VoidFunIntArrayFactory.h>
 
-#include <CType.h>
+#include <EasyMock_CType.h>
 #include <EasyMockStructHelper.h>
 #include <Pointer.h>
 

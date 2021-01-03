@@ -2,9 +2,10 @@
 #define VOIDFUNSTRUCTWITHARRAYFACTORY_H
 
 #include <FunctionFactory.h>
+#include <easyMock.h>
 #include <voidFunStructWithArray.h>
 
-class VoidFunStructWithArrayFactory : public FunctionFactory<int, std::tuple<struct structWithArray>, std::tuple<EasyMock_Matcher>>
+class VoidFunStructWithArrayFactory : public FunctionFactory<void, std::tuple<struct structWithArray>, std::tuple<EasyMock_Matcher>>
 {
 public:
   FunctionDeclaration functionFactory() override;

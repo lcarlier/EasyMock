@@ -5,7 +5,7 @@
 #include <easyMock.h>
 #include <structSubStructRecursiveType.h>
 
-class StructSubStructRecursiveTypeFactory : public FunctionFactory<unsigned short, std::tuple<struct st1>, std::tuple<EasyMock_Matcher>>
+class StructSubStructRecursiveTypeFactory : public FunctionFactory<void, std::tuple<struct st1>, std::tuple<EasyMock_Matcher>>
 {
 public:
   FunctionDeclaration functionFactory() override;

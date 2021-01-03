@@ -1,6 +1,6 @@
 #include <EasyMockStructHelper.h>
 
-#include <CType.h>
+#include <EasyMock_CType.h>
 #include <StructType.h>
 #include <Pointer.h>
 

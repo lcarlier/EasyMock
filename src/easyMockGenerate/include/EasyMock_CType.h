@@ -7,6 +7,11 @@
 #include "TypeItf.h"
 
 #include <string>
+#include <limits.h>
+
+
+#define IS_CHAR_DEFAULT_SIGNED (CHAR_MIN != 0)
+#define IS_CHAR_DEFAULT_UNSIGNED (!(IS_CHAR_DEFAULT_SIGNED))
 
 /*!
  * \brief This class represents any of the C basic types
@@ -95,6 +100,7 @@ protected:
 private:
   void updateCType(easyMock_cTypes_t p_cType);
   easyMock_cTypes_t m_cType;
+  bool m_initAsNakedChar;
 };
 
 #endif /* CTYPE_H */

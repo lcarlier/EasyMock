@@ -4,7 +4,7 @@
 #include <FunctionFactory.h>
 #include <voidFunParamNoName.h>
 
-class VoidFunParamNoNameFactory : public FunctionFactory<int, std::tuple<int, float>, std::tuple<EasyMock_Matcher, EasyMock_Matcher>>
+class VoidFunParamNoNameFactory : public FunctionFactory<void, std::tuple<int, float>, std::tuple<EasyMock_Matcher, EasyMock_Matcher>>
 {
 public:
   FunctionDeclaration functionFactory() override;

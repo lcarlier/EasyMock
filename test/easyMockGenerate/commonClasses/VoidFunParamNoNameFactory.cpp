@@ -1,7 +1,7 @@
 #include "VoidFunParamNoNameFactory.h"
 
 #include <Parameter.h>
-#include <CType.h>
+#include <EasyMock_CType.h>
 
 FunctionDeclaration VoidFunParamNoNameFactory::functionFactory()
 {

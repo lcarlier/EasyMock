@@ -112,7 +112,7 @@ bool Declarator::operator==(const Declarator& other) const
 
 bool Declarator::operator!=(const Declarator& other) const
 {
-  return (*this != other);
+  return !(*this == other);
 }
 
 void swap(Declarator &first, Declarator &second)

@@ -30,8 +30,10 @@ TEST_F(StructSubStructRecursiveType_testCase, OneCallOk)
   ASSERT_TRUE(funExpect);
   ASSERT_TRUE(cmpStruct);
 
-  //No need to initialise anything since we give the same as what we expect
+  //Initialise with dummy pointer value because this is what we are checking
   struct st1 s;
+  s.st1SubSt2.st2SubSt1 = (struct st1 *)0xcafebabe;
+  s.st1SubSt2.st2SubSt2 = (struct st2 *)0xdeadbeef;
 
   funExpect(s, cmpStruct);
 
@@ -68,7 +70,10 @@ TEST_F(StructSubStructRecursiveType_testCase, FirstRecursBad)
   int check = easyMock_check();
   EXPECT_EQ(check, 0);
 
-  std::string errorToExpect("Error : at call 1 of 'void structSubStructRecursiveType(struct st1 st1Val)': Parameter 'st1Val.st1SubSt2' which is a struct of type 'st2' has field 'st2SubSt1' with value '0xfff', was expecting '0xf00'\n\r\tat");
+  std::string errorToExpect("Error : at call 1 of 'void structSubStructRecursiveType(struct st1 st1Val)': Parameter 'st1Val.st1SubSt2' which is a struct of type 'st2' has field 'st2SubSt1' with value '0xfff', was expecting '0xf00'");
+#if defined(BACKTRACE_SUPPORT)
+  errorToExpect.append("\n\r\tat");
+#endif
   const char *err = easyMock_getErrorStr();
   ASSERT_TRUE(err);
   ASSERT_TRUE(boost::algorithm::starts_with(err, errorToExpect)) << "err: " << err << std::endl << "errorMessageToExpect: " << errorToExpect;
@@ -99,7 +104,10 @@ TEST_F(StructSubStructRecursiveType_testCase, SecondRecursBad)
   int check = easyMock_check();
   EXPECT_EQ(check, 0);
 
-  std::string errorToExpect("Error : at call 1 of 'void structSubStructRecursiveType(struct st1 st1Val)': Parameter 'st1Val.st1SubSt2' which is a struct of type 'st2' has field 'st2SubSt2' with value '0xba2', was expecting '0xba3'\n\r\tat");
+  std::string errorToExpect("Error : at call 1 of 'void structSubStructRecursiveType(struct st1 st1Val)': Parameter 'st1Val.st1SubSt2' which is a struct of type 'st2' has field 'st2SubSt2' with value '0xba2', was expecting '0xba3'");
+#if defined(BACKTRACE_SUPPORT)
+  errorToExpect.append("\n\r\tat");
+#endif
   const char *err = easyMock_getErrorStr();
   ASSERT_TRUE(err);
   ASSERT_TRUE(boost::algorithm::starts_with(err, errorToExpect)) << "err: " << err << std::endl << "errorMessageToExpect: " << errorToExpect;

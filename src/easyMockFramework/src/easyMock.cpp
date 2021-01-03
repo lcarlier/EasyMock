@@ -8,12 +8,8 @@
 #include <map>
 #include <queue>
 #include <vector>
-#include <bits/stl_queue.h>
 #include <stdarg.h>
-#define UNW_LOCAL_ONLY
-#include <libunwind.h>
-#include <cxxabi.h>
-#include <elfutils/libdwfl.h>
+
 #include <string.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -22,8 +18,16 @@
 #undef NDEBUG
 #include <assert.h>
 
-static void append_string(std::string &str, const char *fmt, ...);
+#ifdef BACKTRACE_SUPPORT
+#define UNW_LOCAL_ONLY
+#include <libunwind.h>
+#include <cxxabi.h>
+#include <elfutils/libdwfl.h>
+#endif
 
+#ifdef BACKTRACE_SUPPORT
+static void append_string(std::string &str, const char *fmt, ...);
+#endif
 typedef std::map<const easyMock_mockedFileRegister_t *, const easyMock_mockedFileRegister_t *> MockMap_t;
 typedef std::queue<std::string> FifoCall_t;
 typedef std::vector<std::string> FifoError_t;
@@ -36,7 +40,9 @@ class EasyMock
 public:
 
   EasyMock() :
-  m_checkCallsOrder(false), m_printCallStack(true) { };
+  m_checkCallsOrder(false), m_printCallStack(true)
+  {
+  }
 
   void registerMock(const easyMock_mockedFileRegister_t *args)
   {
@@ -142,7 +148,11 @@ public:
 
   bool printCallStack()
   {
+#if defined(BACKTRACE_SUPPORT)
     return m_printCallStack;
+#else
+    return false;
+#endif
   }
 
   void setPrintCallStack(bool val)
@@ -198,7 +208,7 @@ private:
    */
   void debugInfo(std::string &error, const void* ip)
   {
-
+#ifdef BACKTRACE_SUPPORT
     char *debuginfo_path = NULL;
 
     Dwfl_Callbacks callbacks = {};
@@ -234,10 +244,12 @@ private:
       append_string(error, "in %s", module_name);
     }
     dwfl_end(dwfl);
+#endif
   }
 
   void append_backtrace(std::string &error)
   {
+#ifdef BACKTRACE_SUPPORT
     int skip = 0;
     unw_context_t uc;
     unw_getcontext(&uc);
@@ -252,7 +264,7 @@ private:
       unw_get_reg(&cursor, UNW_REG_IP, &ip);
 
       //unw_word_t offset;
-      char name[32];
+      //char name[32];
       //assert(unw_get_proc_name(&cursor, name,sizeof(name), &offset)==0);
 
       if (skip <= 0)
@@ -262,12 +274,13 @@ private:
         append_string(error, ")\n");
       }
 
-      if (strcmp(name, "main") == 0)
-        break;
+      /*if (strcmp(name, "main") == 0)
+        break;*/
 
       skip--;
 
     }
+#endif
   }
 
   bool m_checkCallsOrder;
@@ -358,6 +371,7 @@ extern "C" void easyMock_setCheckCallsOrder(bool val)
   easyMock.setCheckCallsOrder(val);
 }
 
+#ifdef BACKTRACE_SUPPORT
 static void append_string(std::string &str, const char *fmt, ...)
 {
   //https://en.cppreference.com/w/cpp/io/c/vfprintf
@@ -372,3 +386,4 @@ static void append_string(std::string &str, const char *fmt, ...)
   std::string strToCopy(buf.begin(), buf.end() - 1); //-1 to remove the \0 added by vsnprintf. The std::string takes to terminate the string correctly
   str.append(strToCopy);
 }
+#endif

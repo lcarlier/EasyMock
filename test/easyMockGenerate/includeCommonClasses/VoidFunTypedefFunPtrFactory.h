@@ -4,7 +4,7 @@
 #include <FunctionFactory.h>
 #include <voidFunTypedefFunPtr.h>
 
-class VoidFunTypedefFunPtrFactory : public FunctionFactory<int, std::tuple<struct s2*>, std::tuple<EasyMock_Matcher>>
+class VoidFunTypedefFunPtrFactory : public FunctionFactory<void, std::tuple<struct s2*>, std::tuple<EasyMock_Matcher>>
 {
 public:
   ElementToMockList functionFactoryArray() override;

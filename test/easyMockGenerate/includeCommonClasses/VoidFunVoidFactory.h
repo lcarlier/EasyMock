@@ -3,7 +3,7 @@
 
 #include <FunctionFactory.h>
 
-class VoidFunVoidFactory : public FunctionFactory<int, std::tuple<>, std::tuple<>> //return value is void but do not care since we do not use it
+class VoidFunVoidFactory : public FunctionFactory<void, std::tuple<>, std::tuple<>>
 {
 public:
   FunctionDeclaration functionFactory() override;

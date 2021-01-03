@@ -15,6 +15,7 @@
 #include <cstring>
 #include <iostream>
 #include <easyMock.h>
+#include <type_traits>
 
 #undef NDEBUG
 #include <cassert>
@@ -22,7 +23,8 @@
 /*!
  * \brief Namespace containing data type useful for testing.
  */
-namespace EasyMockTestCase {
+namespace EasyMockTestCase
+{
   /*!
    * \brief Represents each test case that the generic generate tests has.
    *
@@ -64,6 +66,29 @@ namespace EasyMockTestCase {
   const unsigned int ThreeExpects_NbExpects = 3;
   const unsigned int NotEnoughCall_NbExpects = 3;
 }
+
+/*
+ * GCC doesn't like the anonymous namespace here but we set it for clang
+ * to catch any misuse over there
+ */
+#if defined(__clang__)
+namespace
+{
+#endif
+  template<typename RV>
+  struct RvContext
+  {
+    std::deque<RV> m_rv;
+    std::deque<RV> m_expect_rv_cur_call;
+  };
+
+  template<>
+  struct RvContext<void>
+  {
+  };
+#if defined(__clang__)
+};
+#endif
 
 /*
  * Helper from: https://stackoverflow.com/questions/48504762/combine-tuples-in-a-loop
@@ -243,9 +268,12 @@ public:
   }
 #endif
 
-  RV call_fptr(void *fPtr)
+  template<typename F_RV=RV,
+           std::enable_if_t<!std::is_void<F_RV>::value, bool> = true
+  >
+  F_RV call_fptr(void *fPtr)
   {
-    std::function<RV(Params...)> f = cast<RV(Params...)>(fPtr);
+    std::function<F_RV(Params...)> f = cast<F_RV(Params...)>(fPtr);
     std::tuple<Params...> p;
     if(!m_params.empty())
     {
@@ -255,35 +283,99 @@ public:
     return std::apply(f, p);
   }
 
-  RV get_expected_rv()
+  template<typename F_RV=RV,
+           std::enable_if_t<std::is_void<F_RV>::value, bool> = true
+  >
+  int call_fptr(void *fPtr)
   {
-    RV expected_rv;
-    std::memset(&expected_rv, 0, sizeof(expected_rv));
-    if(!m_expect_rv_cur_call.empty())
+    std::function<F_RV(Params...)> f = cast<F_RV(Params...)>(fPtr);
+    std::tuple<Params...> p;
+    if(!m_params.empty())
     {
-      expected_rv = m_expect_rv_cur_call.front();
-      m_expect_rv_cur_call.pop_front();
+      p = m_params.front();
+      m_params.pop_front();
+    }
+    std::apply(f, p);
+    return 0;
+  }
+
+  template<typename F_RV=RV,
+           std::enable_if_t<!std::is_void<F_RV>::value, bool> = true
+  >
+  F_RV get_expected_rv()
+  {
+    F_RV expected_rv;
+    std::memset(&expected_rv, 0, sizeof(expected_rv));
+    if(!m_rvContext.m_expect_rv_cur_call.empty())
+    {
+      expected_rv = m_rvContext.m_expect_rv_cur_call.front();
+      m_rvContext.m_expect_rv_cur_call.pop_front();
     }
     return expected_rv;
   }
 
+  template<typename F_RV=RV,
+           std::enable_if_t<std::is_void<F_RV>::value, bool> = true
+  >
+  int get_expected_rv()
+  {
+    return 0;
+  }
+
+  template<typename F_RV=RV,
+           std::enable_if_t<!std::is_void<F_RV>::value, bool> = true
+  >
+  void clear_rv_queues()
+  {
+    m_rvContext.m_rv.clear();
+    m_rvContext.m_expect_rv_cur_call.clear();
+  }
+
+  template<typename F_RV=RV,
+           std::enable_if_t<std::is_void<F_RV>::value, bool> = true
+  >
+  void clear_rv_queues()
+  {
+  }
+
   void clear_all_queues()
   {
-    m_rv.clear();
-    m_expect_rv_cur_call.clear();
+    clear_rv_queues();
     m_params.clear();
     m_expects.clear();
     m_compare.clear();
   }
 
+  template<typename F_RV=RV,
+           std::enable_if_t<!std::is_void<F_RV>::value, bool> = true
+  >
   bool is_rv_queue_empty()
   {
-    return m_rv.empty();
+    return m_rvContext.m_rv.empty();
   }
 
+  template<typename F_RV=RV,
+           std::enable_if_t<std::is_void<F_RV>::value, bool> = true
+  >
+  bool is_rv_queue_empty()
+  {
+    return true;
+  }
+
+  template<typename F_RV=RV,
+           std::enable_if_t<!std::is_void<F_RV>::value, bool> = true
+  >
   bool is_expect_rv_cur_call_queue_empty()
   {
-    return m_expect_rv_cur_call.empty();
+    return m_rvContext.m_expect_rv_cur_call.empty();
+  }
+
+  template<typename F_RV=RV,
+           std::enable_if_t<std::is_void<F_RV>::value, bool> = true
+  >
+  bool is_expect_rv_cur_call_queue_empty()
+  {
+    return true;
   }
 
   bool is_params_queue_empty()
@@ -315,31 +407,34 @@ public:
 
 protected:
   EasyMock_Matcher m_user_matcher;
-  std::deque<RV> m_rv;
-  std::deque<RV> m_expect_rv_cur_call;
+
+  RvContext<RV> m_rvContext;
   std::deque<std::tuple<Params...>> m_params;
   std::deque<std::tuple<Params...>> m_expects;
   std::deque<std::tuple<Compare...>> m_compare;
 
 private:
+  template<typename F_RV=RV,
+           std::enable_if_t<!std::is_void<F_RV>::value, bool> = true
+  >
   void p_call_fptr_expect(void* fptr_expect, std::tuple<Compare ...> &comparator_fptr_tuple)
   {
-    std::function<RV(Params..., RV, Compare ...)> fWithReturn = cast<RV(Params..., RV, Compare ...)>(fptr_expect);
-    std::function<RV(Params..., Compare ...)> fWithoutReturn = cast<RV(Params..., Compare ...)>(fptr_expect);
+    std::function<F_RV(Params..., F_RV, Compare ...)> fWithReturn = cast<F_RV(Params..., F_RV, Compare ...)>(fptr_expect);
+    std::function<F_RV(Params..., Compare ...)> fWithoutReturn = cast<F_RV(Params..., Compare ...)>(fptr_expect);
     std::tuple<Params...> p;
     if(!m_expects.empty())
     {
       p = m_expects.front();
     }
-    if(!m_rv.empty())
+    if(!m_rvContext.m_rv.empty())
     {
-      m_expect_rv_cur_call.push_back(m_rv.front());
+      m_rvContext.m_expect_rv_cur_call.push_back(m_rvContext.m_rv.front());
     }
-    RV rv;
+    F_RV rv;
     std::memset(&rv, 0, sizeof(rv));
-    if(!m_rv.empty())
+    if(!m_rvContext.m_rv.empty())
     {
-      rv = m_rv.front();
+      rv = m_rvContext.m_rv.front();
       auto allParam = std::tuple_cat(p, std::make_tuple(rv), comparator_fptr_tuple);
       std::apply(fWithReturn, allParam);
     }
@@ -348,10 +443,30 @@ private:
       auto allParam = std::tuple_cat(p, comparator_fptr_tuple);
       std::apply(fWithoutReturn, allParam);
     }
-    if(!m_rv.empty())
+    if(!m_rvContext.m_rv.empty())
     {
-      m_rv.pop_front();
+      m_rvContext.m_rv.pop_front();
     }
+    if(!m_expects.empty())
+    {
+      m_expects.pop_front();
+    }
+  }
+
+  template<typename F_RV=RV,
+           std::enable_if_t<std::is_void<F_RV>::value, bool> = true
+  >
+  void p_call_fptr_expect(void* fptr_expect, std::tuple<Compare ...> &comparator_fptr_tuple)
+  {
+    std::function<F_RV(Params..., Compare ...)> fWithoutReturn = cast<F_RV(Params..., Compare ...)>(fptr_expect);
+    std::tuple<Params...> p;
+    if(!m_expects.empty())
+    {
+      p = m_expects.front();
+    }
+
+    auto allParam = std::tuple_cat(p, comparator_fptr_tuple);
+    std::apply(fWithoutReturn, allParam);
     if(!m_expects.empty())
     {
       m_expects.pop_front();

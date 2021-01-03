@@ -30,7 +30,7 @@ void StructAnonymousTypedDefFunStructAnonymousTypedDefFactory::setupTestCase(Eas
   switch(tc)
   {
     case EasyMockTestCase::OneExpect:
-      m_rv.push_back(t);
+      m_rvContext.m_rv.push_back(t);
       m_expects.push_back(std::make_tuple(t));
       m_params.push_back(std::make_tuple(t));
       m_compare.push_back(std::make_tuple(nullptr)); //Seperate dedicated UT are writen to test the generation and function of the comparators for structs
@@ -38,7 +38,7 @@ void StructAnonymousTypedDefFunStructAnonymousTypedDefFactory::setupTestCase(Eas
     case EasyMockTestCase::ThreeExpects:
       for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::ThreeExpects_NbExpects; expectIdx++)
       {
-        m_rv.push_back(t);
+        m_rvContext.m_rv.push_back(t);
         m_expects.push_back(std::make_tuple(t));
         m_params.push_back(std::make_tuple(t));
         m_compare.push_back(std::make_tuple(nullptr)); //Seperate dedicated UT are writen to test the generation and function of the comparators for structs
@@ -47,7 +47,7 @@ void StructAnonymousTypedDefFunStructAnonymousTypedDefFactory::setupTestCase(Eas
     case EasyMockTestCase::NotEnoughCall:
       for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::NotEnoughCall_NbExpects; expectIdx++)
       {
-        m_rv.push_back(t);
+        m_rvContext.m_rv.push_back(t);
         m_expects.push_back(std::make_tuple(t));
         m_params.push_back(std::make_tuple(t));
         m_compare.push_back(std::make_tuple(nullptr)); //Seperate dedicated UT are writen to test the generation and function of the comparators for structs

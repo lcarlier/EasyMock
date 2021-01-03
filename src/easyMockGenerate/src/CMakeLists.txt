@@ -1,9 +1,7 @@
-set(EASYMOCK_GEN EasyMockGenerate)
-
 add_library(${EASYMOCK_COMMON_OBJ}
   ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/CodeParserItf.cpp
   ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/TypeItf.cpp
-  ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/CType.cpp
+  ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/EasyMock_CType.cpp
   ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/StructType.cpp
   ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/ComposableField.cpp
   ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/ReturnValue.cpp

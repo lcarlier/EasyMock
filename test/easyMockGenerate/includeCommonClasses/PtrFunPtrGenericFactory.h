@@ -2,7 +2,7 @@
 #define PTRFUNPTRGENERICFACTORY_H
 
 #include <FunctionFactory.h>
-#include <CType.h>
+#include <EasyMock_CType.h>
 #include <vector>
 #include <Pointer.h>
 
@@ -83,7 +83,7 @@ class PtrFunPtrGenericFactory : public FunctionFactory<PTR_TYPE *, std::tuple<PT
     switch (tc)
     {
       case EasyMockTestCase::OneExpect:
-        this->m_rv.push_back((PTR_TYPE *) rvToExpect);
+        this->m_rvContext.m_rv.push_back((PTR_TYPE *) rvToExpect);
         this->m_expects.push_back(std::make_tuple((PTR_TYPE *) aToExpect));
         this->m_params.push_back(std::make_tuple((PTR_TYPE *) aToExpect));
         this->m_compare.push_back(std::make_tuple(&cmp_pointer));
@@ -93,7 +93,7 @@ class PtrFunPtrGenericFactory : public FunctionFactory<PTR_TYPE *, std::tuple<PT
         for (unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::ThreeExpects_NbExpects; expectIdx++)
         {
           unsigned char* ptrToExpect = aToExpect + expectIdx;
-          this->m_rv.push_back((PTR_TYPE *) ptrToExpect);
+          this->m_rvContext.m_rv.push_back((PTR_TYPE *) ptrToExpect);
           this->m_expects.push_back(std::make_tuple((PTR_TYPE *) ptrToExpect));
           this->m_params.push_back(std::make_tuple((PTR_TYPE *) ptrToExpect));
           this->m_compare.push_back(std::make_tuple(&cmp_pointer));
@@ -103,7 +103,7 @@ class PtrFunPtrGenericFactory : public FunctionFactory<PTR_TYPE *, std::tuple<PT
       case EasyMockTestCase::OneExpectArgIsBad:
       {
         unsigned char *wrongPointer = aToExpect + 1;
-        this->m_rv.push_back((PTR_TYPE *) rvToExpect);
+        this->m_rvContext.m_rv.push_back((PTR_TYPE *) rvToExpect);
         this->m_expects.push_back(std::make_tuple((PTR_TYPE *) aToExpect));
         this->m_params.push_back(std::make_tuple((PTR_TYPE *) wrongPointer));
         this->m_compare.push_back(std::make_tuple(&cmp_pointer));
@@ -112,12 +112,12 @@ class PtrFunPtrGenericFactory : public FunctionFactory<PTR_TYPE *, std::tuple<PT
       case EasyMockTestCase::SecondExpectArgIsBad:
       {
         unsigned char *wrongPointer = aToExpect + 1;
-        this->m_rv.push_back((PTR_TYPE *) rvToExpect);
+        this->m_rvContext.m_rv.push_back((PTR_TYPE *) rvToExpect);
         this->m_expects.push_back(std::make_tuple((PTR_TYPE *) aToExpect));
         this->m_params.push_back(std::make_tuple((PTR_TYPE *) aToExpect));
         this->m_compare.push_back(std::make_tuple(&cmp_pointer));
 
-        this->m_rv.push_back((PTR_TYPE *) rvToExpect);
+        this->m_rvContext.m_rv.push_back((PTR_TYPE *) rvToExpect);
         this->m_expects.push_back(std::make_tuple((PTR_TYPE *) aToExpect));
         this->m_params.push_back(std::make_tuple((PTR_TYPE *) wrongPointer)); //second call fails
         this->m_compare.push_back(std::make_tuple(&cmp_pointer));
@@ -127,7 +127,7 @@ class PtrFunPtrGenericFactory : public FunctionFactory<PTR_TYPE *, std::tuple<PT
         for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::NotEnoughCall_NbExpects; expectIdx++)
         {
           unsigned char* ptrToExpect = aToExpect + expectIdx;
-          this->m_rv.push_back((PTR_TYPE *) ptrToExpect);
+          this->m_rvContext.m_rv.push_back((PTR_TYPE *) ptrToExpect);
           this->m_expects.push_back(std::make_tuple((PTR_TYPE *) ptrToExpect));
           this->m_params.push_back(std::make_tuple((PTR_TYPE *) ptrToExpect));
           this->m_compare.push_back(std::make_tuple(&cmp_pointer));
