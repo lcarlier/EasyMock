@@ -13,5 +13,14 @@ public:
 
 };
 
+class VoidFunTypedefFunPtrGenerateTypeFactory : public VoidFunTypedefFunPtrFactory
+{
+public:
+  VoidFunTypedefFunPtrGenerateTypeFactory()
+  {
+    m_generate_types=true;
+  }
+};
+
 #endif /* VOIDFUNTYPEDEFFUNPTRFACTORY_H */
 

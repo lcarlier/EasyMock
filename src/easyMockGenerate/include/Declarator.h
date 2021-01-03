@@ -68,7 +68,7 @@ public:
    *
    * \sa setDeclareString
    */
-  std::string getDeclareString() const;
+  std::string getDeclareString(bool p_naked = false) const;
 
   /*!
    * \brief Sets the string which is used to declare the Declarator

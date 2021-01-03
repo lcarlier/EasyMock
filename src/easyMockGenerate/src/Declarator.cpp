@@ -74,15 +74,15 @@ void Declarator::setDeclareString(const std::string& newString)
   }
 }
 
-std::string Declarator::getDeclareString() const
+std::string Declarator::getDeclareString(bool p_naked) const
 {
-  if (!m_declaredString.empty())
+  if (!m_declaredString.empty() && !p_naked)
   {
     return m_declaredString;
   }
   if (m_type)
   {
-    return m_type->getFullDeclarationName();
+    return m_type->getFullDeclarationName(p_naked);
   }
   return "";
 }

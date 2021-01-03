@@ -135,7 +135,8 @@
         VoidFunTypeDefFactory, \
         VoidFunTypeDefGenTypeFactory, \
         CrossDefinedFunCrossDefinedFactory, \
-        CrossDefinedFunCrossDefinedGenTypeFactory
+        CrossDefinedFunCrossDefinedGenTypeFactory, \
+        VoidFunTypedefFunPtrGenerateTypeFactory
 
 typedef ::testing::Types
 <

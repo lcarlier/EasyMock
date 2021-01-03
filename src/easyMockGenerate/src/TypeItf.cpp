@@ -65,8 +65,24 @@ std::string TypeItf::s_getFullDeclarationName(const TypeItf* type, bool fullyQua
     if(pointedFuncType)
     {
       const FunctionType* funcType = dynamic_cast<const FunctionType*>(pointedType);
-      fullDeclarationName.append(funcType->getReturnType()->getDeclareString());
-      fullDeclarationName.push_back('(');
+      fullDeclarationName.append(funcType->getReturnType()->getDeclareString(naked));
+      fullDeclarationName.append("(*");
+      if(!type->m_typedDefName.empty())
+      {
+        fullDeclarationName.append(type->m_typedDefName);
+        fullDeclarationName.append(")(");
+        bool firstParam = true;
+        for(const Parameter *p : funcType->getFunctionsParameters())
+        {
+          if(!firstParam)
+          {
+            fullDeclarationName.append(", ");
+          }
+          fullDeclarationName.append(p->getDeclareString(naked));
+          firstParam = false;
+        }
+        fullDeclarationName.push_back(')');
+      }
     }
     else
     {
@@ -78,13 +94,13 @@ std::string TypeItf::s_getFullDeclarationName(const TypeItf* type, bool fullyQua
       {
         fullDeclarationName.append(s_getFullDeclarationName(pointedType, fullyQualified, naked));
       }
-    }
-    if(ptrType->getTypedDefName().empty() || naked)
-    {
-      fullDeclarationName.append("* ");
-      if(pointedFuncType)
+      if(ptrType->getTypedDefName().empty() || naked)
       {
-        fullDeclarationName.pop_back(); //Pop the trailing space
+        fullDeclarationName.append("* ");
+        if(pointedFuncType)
+        {
+          fullDeclarationName.pop_back(); //Pop the trailing space
+        }
       }
     }
   }
@@ -92,7 +108,7 @@ std::string TypeItf::s_getFullDeclarationName(const TypeItf* type, bool fullyQua
   {
     fullDeclarationName.append("const ");
   }
-  if(!type->m_typedDefName.empty() && !naked)
+  if(!type->m_typedDefName.empty() && !naked && !pointedFuncType)
   {
     fullDeclarationName.append(type->m_typedDefName);
     return fullDeclarationName;

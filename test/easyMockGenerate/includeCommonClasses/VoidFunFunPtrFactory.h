@@ -9,6 +9,7 @@
 class VoidFunFunPtrFactory : public FunctionFactory<void, std::tuple<void*>, std::tuple<EasyMock_Matcher>>
 {
 public:
+    VoidFunFunPtrFactory() {m_rm_dir = false;}
   ElementToMockList functionFactoryArray() override;
   std::string functionGetFunctionName() override;
   std::string getFilename() override;
