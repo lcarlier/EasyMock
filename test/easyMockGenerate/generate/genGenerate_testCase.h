@@ -13,7 +13,7 @@ public:
     {
       m_ctxt.addElementToMock(f->clone());
     }
-    for(const std::pair<std::string, std::string>& p : m_factory.getDefinedMacroList())
+    for(const std::pair<const std::string, std::string>& p : m_factory.getDefinedMacroList())
     {
       m_ctxt.addMacroDefine(p.first, p.second);
     }

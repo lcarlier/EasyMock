@@ -16,6 +16,7 @@
 #include <iostream>
 #include <easyMock.h>
 #include <type_traits>
+#include <unordered_map>
 
 #undef NDEBUG
 #include <cassert>

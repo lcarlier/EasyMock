@@ -34,7 +34,7 @@ TYPED_TEST(GenericParser_testCase, parser)
     ASSERT_EQ(funFromFactory, funFromParser) << "funIdx: " << funIdx;
   }
   DefinedMacroList ml = funFactory.getDefinedMacroList();
-  for(const std::pair<std::string, std::string>& elem : ml)
+  for(const std::pair<const std::string, std::string>& elem : ml)
   {
     const std::string& id = elem.first;
     const std::string& definition = elem.second;

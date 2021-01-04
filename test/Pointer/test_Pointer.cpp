@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <CType.h>
+#include <EasyMock_CType.h>
 #include <Pointer.h>
 #include <IncompleteType.h>
 

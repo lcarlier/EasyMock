@@ -15,6 +15,5 @@ TEST(ReturnValue, CheckNakedPointerToFunction)
   FunctionType *ft = new FunctionType("", TypedReturnValue(CTYPE_INT), Parameter::Vector({NamedParameter(CTYPE_FLOAT, "f")}));
   Pointer ptf(ft, "foo", false);
   ft = nullptr;
-  FunctionDeclaration fd();
   EXPECT_STRCASEEQ(ptf.getFullDeclarationName().c_str(), "int(*foo)(float)");
 }

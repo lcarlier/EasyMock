@@ -1,4 +1,4 @@
-#include <LLVMParser.h>
+  #include <LLVMParser.h>
 
 #include <ElementToMockContext.h>
 #include <StructType.h>
@@ -37,7 +37,10 @@ private:
 public:
 
   explicit FunctionDeclASTVisitor(clang::SourceManager& sm, ElementToMockContext& ctxt)
-  : m_sourceManager(sm), m_ctxt(ctxt), m_context(nullptr) { }
+  : m_sourceManager(sm), m_ctxt(ctxt), m_context(nullptr)
+  {
+    (void)m_sourceManager;
+  }
 
   /*!
    * \brief Parses a single function.
@@ -615,6 +618,7 @@ class MacroBrowser : public clang::PPCallbacks
 public:
   MacroBrowser(ElementToMockContext& p_ctxt, clang::SourceManager& p_sm) : m_ctxt(p_ctxt), m_sm(p_sm)
   {
+    (void)m_sm;
   }
 
   void MacroDefined (const clang::Token &p_macroIdentifierTok, const clang::MacroDirective *p_macroDirective) override

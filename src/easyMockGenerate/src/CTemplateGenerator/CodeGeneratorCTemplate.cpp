@@ -681,7 +681,7 @@ void CodeGeneratorCTemplate::fillInMacroDefinition(const ElementToMockContext& p
   {
     return;
   }
-  for(const std::pair<std::string, std::string>& p : p_elem.getCrossDefinedMap())
+  for(const std::pair<const std::string, std::string>& p : p_elem.getCrossDefinedMap())
   {
     const std::string& id = p.first;
     const std::string& definition = p.second;

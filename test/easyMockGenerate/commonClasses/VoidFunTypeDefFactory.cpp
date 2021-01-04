@@ -1,6 +1,6 @@
 #include <VoidFunTypeDefFactory.h>
 
-#include <CType.h>
+#include <EasyMock_CType.h>
 #include <FunctionDeclaration.h>
 #include <Pointer.h>
 

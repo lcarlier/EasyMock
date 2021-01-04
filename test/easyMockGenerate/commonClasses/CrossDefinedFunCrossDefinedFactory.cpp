@@ -1,7 +1,7 @@
 #include "CrossDefinedFunCrossDefinedFactory.h"
 
 #include <Declarator.h>
-#include <CType.h>
+#include <EasyMock_CType.h>
 #include <Parameter.h>
 #include <FunctionDeclaration.h>
 

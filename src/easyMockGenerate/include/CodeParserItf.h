@@ -10,7 +10,7 @@
 
 #include "ComposableType.h"
 
-struct ElementToMockContext;
+class ElementToMockContext;
 
 enum CodeParser_errCode
 {
