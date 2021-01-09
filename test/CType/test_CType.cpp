@@ -9,6 +9,12 @@ typedef struct
   easyMock_cTypes_t unsignedType;
 } ctype_params;
 
+std::ostream& operator<<(std::ostream& os, const ctype_params& param)
+{
+  return os << "signedType: " << easyMock_arrayCTypeStr[param.signedType] <<
+          " unsignedTyped: " << easyMock_arrayCTypeStr[param.unsignedType];
+}
+
 class ctype_unsigned_testcase : public ::testing::TestWithParam<ctype_params>
 {
 };
@@ -50,7 +56,8 @@ static ctype_params test_unsigned_params[]
   {CTYPE_SHORT, CTYPE_USHORT},
   {CTYPE_INT, CTYPE_UINT},
   {CTYPE_LONG, CTYPE_ULONG},
-  {CTYPE_LONG_LONG, CTYPE_ULONG_LONG}
+  {CTYPE_LONG_LONG, CTYPE_ULONG_LONG},
+  {CTYPE_INT128, CTYPE_UINT128}
 };
 
 INSTANTIATE_TEST_CASE_P(CtypeUnsignedTypes, ctype_unsigned_testcase, ::testing::ValuesIn(test_unsigned_params));
@@ -67,11 +74,11 @@ TEST_P(ctype_signed_only_testcase, ctypeSetUnsigned)
 
   CType t = CType(e_ctype);
 
-  ASSERT_FALSE(t.setUnsigned(true));
-  ASSERT_FALSE(t.setUnsigned(false));
+  ASSERT_FALSE(t.setUnsigned(true)) << " type: " << easyMock_arrayCTypeStr[e_ctype];
+  ASSERT_FALSE(t.setUnsigned(false)) << " type: " << easyMock_arrayCTypeStr[e_ctype];
 
-  ASSERT_EQ(t.getCType(), e_ctype);
-  ASSERT_EQ(t.getName(), easyMock_arrayCTypeStr[e_ctype]);
+  ASSERT_EQ(t.getCType(), e_ctype) << " type: " << easyMock_arrayCTypeStr[e_ctype];
+  ASSERT_EQ(t.getName(), easyMock_arrayCTypeStr[e_ctype]) << " type: " << easyMock_arrayCTypeStr[e_ctype];
 }
 
 static easyMock_cTypes_t test_signed_only_params[]

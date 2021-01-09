@@ -1,5 +1,6 @@
 #include <gtest/gtest.h> // googletest header file
 
+#include <gtestPrintClasses.h>
 #include <easyMock.h>
 #include <CodeGeneratorCTemplate.h>
 
@@ -155,7 +156,7 @@ TYPED_TEST(genGenerate_testCase, ThreeExpects)
   {
     auto expectedRv = genGenerate_testCase<TypeParam>::m_factory.get_expected_rv();
     auto rv = genGenerate_testCase<TypeParam>::m_factory.call_fptr(fptr);
-    EXPECT_EQ(rv, expectedRv) << "with expect_nr == " << expect_nr << " " << rv << " " << expectedRv;
+    EXPECT_EQ(rv, expectedRv) << "with expect_nr == " << ::testing::PrintToString(expect_nr) << " " << ::testing::PrintToString(rv) << " " << ::testing::PrintToString(expectedRv);
   }
 
   int check = easyMock_check();

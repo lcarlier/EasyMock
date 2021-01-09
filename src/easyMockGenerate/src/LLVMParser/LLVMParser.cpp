@@ -279,6 +279,10 @@ private:
     {
       returnedType = new CType(CTYPE_INT, typedefName);
     }
+    else if(isInt128Type(type))
+    {
+      returnedType = new CType(CTYPE_INT128, typedefName);
+    }
     else
     {
       std::fprintf(stderr, "Clang type unexpected here for CTYPE. Contact the owner for bug fixing\n\r");
@@ -538,6 +542,15 @@ private:
 
     clang::BuiltinType::Kind kind = bt->getKind();
     return kind == clang::BuiltinType::Bool;
+  }
+
+  bool isInt128Type(const clang::Type &type)
+  {
+    const clang::BuiltinType *bt = type.getAs<clang::BuiltinType>();
+
+    clang::BuiltinType::Kind kind = bt->getKind();
+    return kind == clang::BuiltinType::UInt128 ||
+            kind == clang::BuiltinType::Int128;
   }
 
   uint64_t getArraySize(const clang::Type &type)

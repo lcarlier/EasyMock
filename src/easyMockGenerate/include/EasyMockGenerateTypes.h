@@ -66,6 +66,14 @@ typedef enum
    */
   CTYPE_LONG_DOUBLE,
   /*!
+   * \brief <tt> __int128 </tt> type
+   */
+  CTYPE_INT128,
+  /*!
+   * \brief <tt> unsigned __int128 </tt> type
+   */
+  CTYPE_UINT128,
+  /*!
    * \brief @c void type
    */
   CTYPE_VOID,

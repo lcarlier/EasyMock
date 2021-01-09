@@ -102,68 +102,88 @@ extern "C"
    * \brief Comparator to be used to compare char type.
    */
   DECLARE_MATCHER(char);
+
   /*!
    * \brief Comparator to be used to compare unsigned char type.
    */
   DECLARE_MATCHER(u_char);
+
   /*!
    * \brief Comparator to be used to compare short type.
    */
   DECLARE_MATCHER(short);
+
   /*!
    * \brief Comparator to be used to compare unsigned char type.
    */
   DECLARE_MATCHER(u_short);
+
   /*!
    * \brief Comparator to be used to compare int type.
    */
   DECLARE_MATCHER(int);
+
   /*!
    * \brief Comparator to be used to compare unsigned int type.
    */
   DECLARE_MATCHER(u_int);
-  /*!
-   * \brief Comparator to be used to compare char type.
-   */
-  DECLARE_MATCHER(long);
+
   /*!
    * \brief Comparator to be used to compare long type.
    */
-  DECLARE_MATCHER(u_long);
+  DECLARE_MATCHER(long);
+
   /*!
    * \brief Comparator to be used to compare unsigned long type.
    */
-  DECLARE_MATCHER(long_long);
+  DECLARE_MATCHER(u_long);
+
   /*!
    * \brief Comparator to be used to compare long long type.
    */
-  DECLARE_MATCHER(u_long_long);
+  DECLARE_MATCHER(long_long);
+
   /*!
    * \brief Comparator to be used to compare unsigned long long type.
    */
-  DECLARE_MATCHER(float);
+  DECLARE_MATCHER(u_long_long);
+
   /*!
    * \brief Comparator to be used to compare float type.
    */
-  DECLARE_MATCHER(double);
+  DECLARE_MATCHER(float);
+
   /*!
    * \brief Comparator to be used to compare double type.
    */
-  DECLARE_MATCHER(long_double);
+  DECLARE_MATCHER(double);
+
   /*!
    * \brief Comparator to be used to compare long double type.
    */
-  DECLARE_MATCHER(pointer);
+  DECLARE_MATCHER(long_double);
+
   /*!
    * \brief Comparator to be used to compare pointer type.
    *
    * This will compare the value of the pointer, not the pointed value.
    */
+  DECLARE_MATCHER(pointer);
 
   /*!
    * \brief Comparator to be used to compare C string/
    */
   int cmp_str( void *currentCall_ptr, void *expectedCall_ptr, const char *paramName, char *errorMessage );
+
+  /*!
+   * \brief Comparator to be used to compare __int128 type.
+   */
+  int cmp_int128(void *currentCall_ptr, void *expectedCall_ptr, const char *paramName, char *errorMessage );
+
+  /*!
+   * \brief Comparator to be used to compare unsigned  __int128 type.
+   */
+  int cmp_uint128(void *currentCall_ptr, void *expectedCall_ptr, const char *paramName, char *errorMessage );
 
 #ifdef __cplusplus
 }

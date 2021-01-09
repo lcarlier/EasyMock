@@ -1,6 +1,8 @@
 #include <easyMock.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdint.h>
+#include <inttypes.h>
 
 #define IMPLEMENT_MATCHER(typeName, cType, printFormat) \
   extern "C" DECLARE_MATCHER(typeName) \
@@ -42,5 +44,40 @@ extern "C" int cmp_str(void *currentCall_ptr, void *expectedCall_ptr, const char
   snprintf(errorMessage, EASYMOCK_MAX_CMP_ERR,
   "Parameter '%s' has value '%s', was expecting '%s'",
         paramName, currentCall_val, expectedCall_val);
+  return -1;
+}
+
+extern "C" int cmp_int128(void *currentCall_ptr, void *expectedCall_ptr, const char *paramName, char *errorMessage )
+{
+  __int128_t currentCall_val = *((__int128_t *)currentCall_ptr);
+  __int128_t expectedCall_val = *((__int128_t *)expectedCall_ptr);
+  if(currentCall_val == expectedCall_val)
+  {
+    return 0;
+  }
+  uint64_t lowDigitCurrent = currentCall_val & 0xffffffffffffffff;
+  uint64_t lowDigitExpected = expectedCall_val & 0xffffffffffffffff;
+  uint64_t highDigitCurrent = currentCall_val >> 64;
+  uint64_t highDigitExpected = expectedCall_val >> 64;
+  snprintf(errorMessage, EASYMOCK_MAX_CMP_ERR,
+  "Parameter '%s' has value '%#" PRIx64 "%" PRIx64 "', was expecting '%#" PRIx64 "%" PRIx64 "'",
+        paramName, highDigitCurrent, lowDigitCurrent, highDigitExpected, lowDigitExpected);
+  return -1;
+}
+extern "C" int cmp_uint128(void *currentCall_ptr, void *expectedCall_ptr, const char *paramName, char *errorMessage )
+{
+  __uint128_t currentCall_val = *((__uint128_t *)currentCall_ptr);
+  __uint128_t expectedCall_val = *((__uint128_t *)expectedCall_ptr);
+  if(currentCall_val == expectedCall_val)
+  {
+    return 0;
+  }
+  uint64_t lowDigitCurrent = currentCall_val & 0xffffffffffffffff;
+  uint64_t lowDigitExpected = expectedCall_val & 0xffffffffffffffff;
+  uint64_t highDigitCurrent = currentCall_val >> 64;
+  uint64_t highDigitExpected = expectedCall_val >> 64;
+  snprintf(errorMessage, EASYMOCK_MAX_CMP_ERR,
+  "Parameter '%s' has value '%#" PRIx64 "%" PRIx64 "', was expecting '%#" PRIx64 "%" PRIx64 "'",
+        paramName, highDigitCurrent, lowDigitCurrent, highDigitExpected, lowDigitExpected);
   return -1;
 }

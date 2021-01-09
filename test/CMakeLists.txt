@@ -84,7 +84,7 @@ add_library(${TEST_FACTORIES_COMMON_OBJ}
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/StructWithUnionFunStructWithUnionFactory.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/VoidFunStructWithEmbeddedStructFactory.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/VoidFunStructWithEmbeddedAnonymousStructFactory.cpp
-    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/gTestPrintClasses.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/gtestPrintClasses.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/VoidFunUnionWithEmbeddedUnionFactory.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/VoidFunUnionWithEmbeddedAnonymousUnionFactory.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/VoidFunStructWithAnonymousStructFieldFactory.cpp
@@ -111,6 +111,7 @@ add_library(${TEST_FACTORIES_COMMON_OBJ}
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/VoidFunTypeDefFactory.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/VoidFunTypeDefGenTypeFactory.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/CrossDefinedFunCrossDefinedFactory.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/Int128FunUint128Factory.cpp
 )
 
 set(EASYMOCK_TEST_LIBRARY easyMockTestLibrary)

@@ -204,3 +204,29 @@ std::ostream& operator<<(std::ostream& os, const IncompleteType& incType)
 {
   return os << "Incomplete Type: name:'" << incType.getName() << "' typedef:'" << incType.getTypedDefName() << "'" << std::endl;
 }
+
+void PrintTo(const __int128& int128Type, std::ostream* os)
+{
+  uint64_t lowDigit = int128Type & 0xffffffffffffffff;
+  uint64_t highDigit = int128Type >> 64;
+  *os << "0x" << std::hex << highDigit << lowDigit;
+}
+
+std::ostream& operator<<(std::ostream& os, const __int128& int128Type)
+{
+  PrintTo(int128Type, &os);
+  return os;
+}
+
+void PrintTo(const unsigned __int128& uint128Type, std::ostream* os)
+{
+  uint64_t lowDigit = uint128Type & 0xffffffffffffffff;
+  uint64_t highDigit = uint128Type >> 64;
+  *os << "0x" << std::hex << highDigit << lowDigit;
+}
+
+std::ostream& operator<<(std::ostream& os, const unsigned __int128& uint128Type)
+{
+  PrintTo(uint128Type, &os);
+  return os;
+}

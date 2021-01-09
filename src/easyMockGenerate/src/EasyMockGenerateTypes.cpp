@@ -18,6 +18,8 @@ const char *easyMock_arrayCTypeStr[] =
   "float",
   "double",
   "long double",
+  "__int128",
+  "unsigned __int128",
   "void",
   "invalid"
 };
@@ -39,6 +41,8 @@ const char *easyMock_printfFormat[] =
   "f",
   "lf",
   "Lf",
+  "lf%lf",
+  "Lf%Lf",
   "voidInvalidPrintfFormat",
   "invalidPrintfFormat"
 };

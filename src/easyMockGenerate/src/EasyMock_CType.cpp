@@ -54,6 +54,9 @@ bool CType::setUnsigned(bool val)
       case CTYPE_LONG_LONG:
         newCtype = CTYPE_ULONG_LONG;
         break;
+      case CTYPE_INT128:
+        newCtype = CTYPE_UINT128;
+        break;
       default:
         newCtype = CTYPE_INVALID;
     }
@@ -86,6 +89,9 @@ bool CType::setUnsigned(bool val)
         break;
       case CTYPE_ULONG_LONG:
         newCtype = CTYPE_LONG_LONG;
+        break;
+      case CTYPE_UINT128:
+        newCtype = CTYPE_INT128;
         break;
       default:
         newCtype = CTYPE_INVALID;

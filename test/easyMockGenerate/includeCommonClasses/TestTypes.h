@@ -60,6 +60,7 @@
 #include <VoidFunTypeDefFactory.h>
 #include <VoidFunTypeDefGenTypeFactory.h>
 #include <CrossDefinedFunCrossDefinedFactory.h>
+#include <Int128FunUint128Factory.h>
 
 // TestTypesInclude.h is generated
 #include "TestTypesInclude.h"
@@ -105,7 +106,9 @@
         UnionTypedDefFunUnionTypedDefFactory, \
         UnionAnonymousTypedDefFunUnionAnonymousTypedDefFactory, \
         StructWithUnionFunStructWithUnionFactory, \
-        ConstIntFunConstIntFactory
+        ConstIntFunConstIntFactory, \
+        Int128FunUint128Factory, \
+        Int128FunUint128FactoryGenTypeFactory
 
 #define VOID_FUN_COMPOSABLE_TYPE_WITH_COMPOSABLE_TYPE_TYPES \
         VoidFunStructWithEmbeddedStructFactory, \
