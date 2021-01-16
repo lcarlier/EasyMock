@@ -4,6 +4,7 @@
 #include <Pointer.h>
 #include <FunctionDeclaration.h>
 #include <IncompleteType.h>
+#include <ComposableField.h>
 
 ElementToMockList VoidFunStructForwardDeclaredFactory::functionFactoryArray()
 {

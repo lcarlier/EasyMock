@@ -10,6 +10,8 @@
 #include <Pointer.h>
 #include <Enum.h>
 #include <IncompleteType.h>
+#include <ComposableField.h>
+#include <ComposableBitfield.h>
 
 #include <clang/AST/RecursiveASTVisitor.h>
 #include <clang/Frontend/CompilerInstance.h>
@@ -102,7 +104,7 @@ private:
     {
       declString.erase(declString.begin() + funNamePos, declString.end());
     }
-    while(declString.back() == ' ')
+    while(!declString.empty() && declString.back() == ' ')
     {
       declString.pop_back();
     }
@@ -419,18 +421,35 @@ private:
       const clang::Type *typePtr = qualType.getTypePtr();
       TypeItf *type = getEasyMocktype(qualType, structKnownType);
 
-      int64_t arraySize = getArraySize(*typePtr);
-      if(!typePtr->isArrayType())
-      {
-          arraySize = -1;
-      }
-      ComposableField::attributes attrib =
-      {
-       .arraySize            = arraySize
-      };
+      ComposableFieldItf *sf = nullptr;
       std::string fName = FD->getNameAsString();
-      ComposableField *sf = new ComposableField(type, fName, attrib);
-      setDeclaratorDeclareString(qualType, sf, getDeclareString(FD->getBeginLoc(), FD->getEndLoc()));
+      if(FD->isBitField())
+      {
+        if(!type->isCType())
+        {
+          fprintf(stderr, "Type must be CType for fields");
+          typePtr->dump();
+          assert(false);
+        }
+        CType *cTypePtr = dynamic_cast<CType*>(type);
+        unsigned bitWidth = FD->getBitWidthValue(*m_context);
+        assert(bitWidth < 256);
+        sf = new ComposableBitfield(cTypePtr, fName, static_cast<uint8_t>(bitWidth));
+      }
+      else
+      {
+        int64_t arraySize = getArraySize(*typePtr);
+        if(!typePtr->isArrayType())
+        {
+            arraySize = -1;
+        }
+        ComposableField::attributes attrib =
+        {
+         .arraySize            = arraySize
+        };
+        sf = new ComposableField(type, fName, attrib);
+        setDeclaratorDeclareString(qualType, sf, getDeclareString(FD->getBeginLoc(), FD->getEndLoc()));
+      }
       sType->addField(sf);
     }
     if(!typedDefName.empty())

@@ -1,6 +1,7 @@
 #include <UnionAnonymousTypedDefFunUnionAnonymousTypedDefFactory.h>
 
 #include <UnionType.h>
+#include <ComposableField.h>
 
 FunctionDeclaration UnionAnonymousTypedDefFunUnionAnonymousTypedDefFactory::functionFactory()
 {

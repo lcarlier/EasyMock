@@ -1,6 +1,7 @@
 #include "StructTypedDefFunStructTypedDefFactory.h"
 
 #include <StructType.h>
+#include <ComposableField.h>
 
 FunctionDeclaration StructTypedDefFunStructTypedDefFactory::functionFactory()
 {

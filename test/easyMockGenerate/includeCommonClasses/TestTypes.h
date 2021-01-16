@@ -61,6 +61,7 @@
 #include <VoidFunTypeDefGenTypeFactory.h>
 #include <CrossDefinedFunCrossDefinedFactory.h>
 #include <Int128FunUint128Factory.h>
+#include <VoidFunStructBitfieldFactory.h>
 
 // TestTypesInclude.h is generated
 #include "TestTypesInclude.h"
@@ -120,7 +121,8 @@
         VoidFunStructWithFirstAnonymousStructFieldFactory, \
         VoidFunUnionWithFirstAnonymousUnionFieldFactory, \
         VoidFunStructWithTypedefStructFactory, \
-        StructSubStructRecursiveTypeFactory
+        StructSubStructRecursiveTypeFactory, \
+        VoidFunStructBitfieldFactory
 
 #define COMPILE_ONLY_TYPES \
         CompileTwoFunctionsFactory, \
@@ -139,7 +141,8 @@
         VoidFunTypeDefGenTypeFactory, \
         CrossDefinedFunCrossDefinedFactory, \
         CrossDefinedFunCrossDefinedGenTypeFactory, \
-        VoidFunTypedefFunPtrGenerateTypeFactory
+        VoidFunTypedefFunPtrGenerateTypeFactory, \
+        VoidFunStructBitfieldGenerateTypeFactory
 
 typedef ::testing::Types
 <

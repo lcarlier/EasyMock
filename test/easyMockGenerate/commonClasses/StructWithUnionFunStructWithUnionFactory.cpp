@@ -2,6 +2,7 @@
 
 #include <StructType.h>
 #include <UnionType.h>
+#include <ComposableField.h>
 
 FunctionDeclaration StructWithUnionFunStructWithUnionFactory::functionFactory()
 {

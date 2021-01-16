@@ -69,7 +69,12 @@ ReturnValue StructReturnValue(StructType *type, bool p_isPointer)
 
 bool ReturnValue::operator==(const ReturnValue& other) const
 {
-  return Declarator::operator==(other);
+  return this->isEqual(other);
+}
+
+bool ReturnValue::isEqual(const Declarator& other) const
+{
+  return Declarator::isEqual(other);
 }
 
 bool ReturnValue::operator!=(const ReturnValue& other) const

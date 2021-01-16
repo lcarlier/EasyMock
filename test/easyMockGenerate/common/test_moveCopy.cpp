@@ -11,6 +11,7 @@
 #include <FunctionType.h>
 #include <Enum.h>
 #include <IncompleteType.h>
+#include <ComposableBitfield.h>
 
 #include <gtestPrintClasses.h>
 
@@ -98,7 +99,7 @@ static void testMoveComposableField(ComposableField &f1)
   ComposableField f2(f1);
   ASSERT_EQ(f1, f2);
 
-  ComposableField f3(new StructType("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "c"), new ComposableField(CTYPE_INT, "d")}), isEmbeddedInOtherType), "e");
+  ComposableField f3(new StructType("s", ComposableFieldItf::Vector({new ComposableField(CTYPE_INT, "c"), new ComposableField(CTYPE_INT, "d")}), isEmbeddedInOtherType), "e");
   ASSERT_NE(f3,f1);
   f3 = f1;
   ASSERT_EQ(f3,f1);
@@ -106,7 +107,7 @@ static void testMoveComposableField(ComposableField &f1)
   ComposableField f4 = std::move(f3);
   ASSERT_EQ(f4, f1);
 
-  ComposableField f6(new StructType("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "c"), new ComposableField(CTYPE_INT, "d")}), isEmbeddedInOtherType), "e");
+  ComposableField f6(new StructType("s", ComposableFieldItf::Vector({new ComposableField(CTYPE_INT, "c"), new ComposableField(CTYPE_INT, "d")}), isEmbeddedInOtherType), "e");
   ASSERT_NE(f6, f2);
   f6 = std::move(f2);
   ASSERT_EQ(f6, f1);
@@ -173,7 +174,7 @@ static void testComposableType(T &st1)
   T st2(st1);
   ASSERT_EQ(st1, st2);
 
-  T st3("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "i")}), isEmbeddedInOtherType);
+  T st3("s", ComposableFieldItf::Vector({new ComposableField(CTYPE_INT, "i")}), isEmbeddedInOtherType);
   ASSERT_NE(st3,st1);
   st3 = st1;
   ASSERT_EQ(st3,st1);
@@ -181,7 +182,7 @@ static void testComposableType(T &st1)
   T st4 = std::move(st3);
   ASSERT_EQ(st4, st1);
 
-  T st6("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "i")}), isEmbeddedInOtherType);
+  T st6("s", ComposableFieldItf::Vector({new ComposableField(CTYPE_INT, "i")}), isEmbeddedInOtherType);
   ASSERT_NE(st6, st2);
   st6 = std::move(st2);
   ASSERT_EQ(st6, st1);
@@ -190,7 +191,7 @@ static void testComposableType(T &st1)
 TEST(moveCopy, StructType)
 {
   bool isEmbeddedInOtherType = false;
-  StructType st1("s", ComposableField::Vector({new ComposableField(CTYPE_CHAR, "f")}), isEmbeddedInOtherType);
+  StructType st1("s", ComposableFieldItf::Vector({new ComposableField(CTYPE_CHAR, "f")}), isEmbeddedInOtherType);
 
   testComposableType(st1);
 }
@@ -198,7 +199,7 @@ TEST(moveCopy, StructType)
 TEST(moveCopy, UnionType)
 {
   bool isEmbeddedInOtherType = false;
-  UnionType st1("s", ComposableField::Vector({new ComposableField(CTYPE_CHAR, "f")}), isEmbeddedInOtherType);
+  UnionType st1("s", ComposableFieldItf::Vector({new ComposableField(CTYPE_CHAR, "f")}), isEmbeddedInOtherType);
 
   testComposableType(st1);
 }
@@ -212,32 +213,32 @@ TEST(moveCopy, StructTypeRecursive)
   st1.addField(new ComposableField(new CType(CTYPE_INT), "intField"));
   StructType st2(st1);
   ASSERT_EQ(st1, st2);
-  const ComposableField::Vector& st1ContaineField = st1.getContainedFields();
-  const ComposableField::Vector& st2ContaineField = st2.getContainedFields();
+  const ComposableFieldItf::Vector& st1ContaineField = st1.getContainedFields();
+  const ComposableFieldItf::Vector& st2ContaineField = st2.getContainedFields();
   ASSERT_EQ(st1.getFullDeclarationName(), dynamic_cast<const Pointer *>(st1ContaineField[0].getType())->getPointedType()->getFullDeclarationName());
   ASSERT_EQ(st2.getFullDeclarationName(), dynamic_cast<const Pointer *>(st2ContaineField[0].getType())->getPointedType()->getFullDeclarationName());
 
-  StructType st3("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "i")}), isEmbeddedInOtherType);
+  StructType st3("s", ComposableFieldItf::Vector({new ComposableField(CTYPE_INT, "i")}), isEmbeddedInOtherType);
   ASSERT_NE(st3,st1);
   st3 = st1;
   ASSERT_EQ(st3,st1);
-  const ComposableField::Vector& st3ContaineField = st3.getContainedFields();
+  const ComposableFieldItf::Vector& st3ContaineField = st3.getContainedFields();
   pointedType = dynamic_cast<const Pointer *>(st3ContaineField[0].getType())->getPointedType();
   ASSERT_EQ(st3.getFullDeclarationName(), pointedType->getFullDeclarationName());
   ASSERT_TRUE(pointedType->isIncompleteType());
 
   StructType st4 = std::move(st3);
   ASSERT_EQ(st4, st1);
-  const ComposableField::Vector& st4ContaineField = st4.getContainedFields();
+  const ComposableFieldItf::Vector& st4ContaineField = st4.getContainedFields();
   pointedType = dynamic_cast<const Pointer *>(st4ContaineField[0].getType())->getPointedType();
   ASSERT_EQ(st4.getFullDeclarationName(), pointedType->getFullDeclarationName());
   ASSERT_TRUE(pointedType->isIncompleteType());
 
-  StructType st6("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "i")}), isEmbeddedInOtherType);
+  StructType st6("s", ComposableFieldItf::Vector({new ComposableField(CTYPE_INT, "i")}), isEmbeddedInOtherType);
   ASSERT_NE(st6, st2);
   st6 = std::move(st2);
   ASSERT_EQ(st6, st1);
-  const ComposableField::Vector& st6ContaineField = st6.getContainedFields();
+  const ComposableFieldItf::Vector& st6ContaineField = st6.getContainedFields();
   pointedType = dynamic_cast<const Pointer *>(st6ContaineField[0].getType())->getPointedType();
   ASSERT_EQ(st6.getFullDeclarationName(), pointedType->getFullDeclarationName());
   ASSERT_TRUE(pointedType->isIncompleteType());
@@ -254,41 +255,41 @@ TEST(moveCopy, StructTypeSubFieldRecursive)
   subSt = nullptr; //Dereference, pointer is not usable here anymore
   StructType st2(st1);
   ASSERT_EQ(st1, st2);
-  const ComposableField::Vector& st1ContaineField = st1.getContainedFields();
-  const ComposableField::Vector& st1SubStContainerField = st1ContaineField[0].getType()->getContainedFields();
+  const ComposableFieldItf::Vector& st1ContaineField = st1.getContainedFields();
+  const ComposableFieldItf::Vector& st1SubStContainerField = st1ContaineField[0].getType()->getContainedFields();
   pointedType = dynamic_cast<const Pointer *>(st1SubStContainerField[0].getType())->getPointedType();
   ASSERT_EQ(st1.getFullDeclarationName(), pointedType->getFullDeclarationName());
   ASSERT_TRUE(pointedType->isIncompleteType());
-  const ComposableField::Vector& st2ContaineField = st2.getContainedFields();
-  const ComposableField::Vector& st2SubStContainerField = st2ContaineField[0].getType()->getContainedFields();
+  const ComposableFieldItf::Vector& st2ContaineField = st2.getContainedFields();
+  const ComposableFieldItf::Vector& st2SubStContainerField = st2ContaineField[0].getType()->getContainedFields();
   pointedType = dynamic_cast<const Pointer *>(st2SubStContainerField[0].getType())->getPointedType();
   ASSERT_EQ(st2.getFullDeclarationName(), pointedType->getFullDeclarationName());
   ASSERT_TRUE(pointedType->isIncompleteType());
 
-  StructType st3("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "i")}), isEmbeddedInOtherType);
+  StructType st3("s", ComposableFieldItf::Vector({new ComposableField(CTYPE_INT, "i")}), isEmbeddedInOtherType);
   ASSERT_NE(st3,st1);
   st3 = st1;
   ASSERT_EQ(st3,st1);
-  const ComposableField::Vector& st3ContaineField = st3.getContainedFields();
-  const ComposableField::Vector& st3SubStContainerField = st3ContaineField[0].getType()->getContainedFields();
+  const ComposableFieldItf::Vector& st3ContaineField = st3.getContainedFields();
+  const ComposableFieldItf::Vector& st3SubStContainerField = st3ContaineField[0].getType()->getContainedFields();
   pointedType = dynamic_cast<const Pointer *>(st3SubStContainerField[0].getType())->getPointedType();
   ASSERT_EQ(st3.getFullDeclarationName(), pointedType->getFullDeclarationName());
   ASSERT_TRUE(pointedType->isIncompleteType());
 
   StructType st4 = std::move(st3);
   ASSERT_EQ(st4, st1);
-  const ComposableField::Vector& st4ContaineField = st4.getContainedFields();
-  const ComposableField::Vector& st4SubStContainerField = st4ContaineField[0].getType()->getContainedFields();
+  const ComposableFieldItf::Vector& st4ContaineField = st4.getContainedFields();
+  const ComposableFieldItf::Vector& st4SubStContainerField = st4ContaineField[0].getType()->getContainedFields();
   pointedType = dynamic_cast<const Pointer *>(st4SubStContainerField[0].getType())->getPointedType();
   ASSERT_EQ(st4.getFullDeclarationName(), pointedType->getFullDeclarationName());
   ASSERT_TRUE(pointedType);
 
-  StructType st6("s", ComposableField::Vector({new ComposableField(CTYPE_INT, "i")}), isEmbeddedInOtherType);
+  StructType st6("s", ComposableFieldItf::Vector({new ComposableField(CTYPE_INT, "i")}), isEmbeddedInOtherType);
   ASSERT_NE(st6, st2);
   st6 = std::move(st2);
   ASSERT_EQ(st6, st1);
-  const ComposableField::Vector& st6ContaineField = st6.getContainedFields();
-  const ComposableField::Vector& st6SubStContainerField = st6ContaineField[0].getType()->getContainedFields();
+  const ComposableFieldItf::Vector& st6ContaineField = st6.getContainedFields();
+  const ComposableFieldItf::Vector& st6SubStContainerField = st6ContaineField[0].getType()->getContainedFields();
   pointedType = dynamic_cast<const Pointer *>(st6SubStContainerField[0].getType())->getPointedType();
   ASSERT_EQ(st6.getFullDeclarationName(), pointedType->getFullDeclarationName());
   ASSERT_TRUE(pointedType);
@@ -515,7 +516,7 @@ static void testMoveCopyReturnValue(ReturnValue& rv1)
   ReturnValue rv2(rv1);
   ASSERT_EQ(rv1, rv2);
 
-  ReturnValue rv3 = StructReturnValue(new StructType("s1", ComposableField::Vector({new ComposableField(CTYPE_INT, "a")}), isEmbeddedInOtherType));
+  ReturnValue rv3 = StructReturnValue(new StructType("s1", ComposableFieldItf::Vector({new ComposableField(CTYPE_INT, "a")}), isEmbeddedInOtherType));
   ASSERT_NE(rv3,rv1);
   rv3 = rv1;
   ASSERT_EQ(rv3,rv1);
@@ -523,7 +524,7 @@ static void testMoveCopyReturnValue(ReturnValue& rv1)
   ReturnValue rv4 = std::move(rv3);
   ASSERT_EQ(rv4, rv1);
 
-  ReturnValue rv6 = StructReturnValue(new StructType("s1", ComposableField::Vector({new ComposableField(CTYPE_INT, "a")}), isEmbeddedInOtherType));
+  ReturnValue rv6 = StructReturnValue(new StructType("s1", ComposableFieldItf::Vector({new ComposableField(CTYPE_INT, "a")}), isEmbeddedInOtherType));
   ASSERT_NE(rv6, rv2);
   rv6 = std::move(rv2);
   ASSERT_EQ(rv6, rv1);
@@ -614,4 +615,24 @@ TEST(moveCopy, Enum)
   ASSERT_NE(etype6, etype2);
   etype6 = std::move(etype2);
   ASSERT_EQ(etype6, etype1);
+}
+
+TEST(moveCopy, ComposableBitfield)
+{
+  ComposableBitfield bf1(CTYPE_UCHAR, "foo", 3);
+  ComposableBitfield bf2(bf1);
+  ASSERT_EQ(bf1, bf2);
+
+  ComposableBitfield bf3(CTYPE_CHAR, "foo", 3);
+  ASSERT_NE(bf3,bf1);
+  bf3 = bf1;
+  ASSERT_EQ(bf3,bf1);
+
+  ComposableBitfield bf4 = std::move(bf3);
+  ASSERT_EQ(bf4, bf1);
+
+  ComposableBitfield bf5(CTYPE_CHAR, "bar", 3);
+  ASSERT_NE(bf5, bf2);
+  bf5 = std::move(bf2);
+  ASSERT_EQ(bf5, bf1);
 }

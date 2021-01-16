@@ -1,6 +1,7 @@
 #include <UnionFunUnionFactory.h>
 
 #include <UnionType.h>
+#include <ComposableField.h>
 
 FunctionDeclaration UnionFunUnionFactory::functionFactory()
 {

@@ -18,7 +18,8 @@ m_type(other.m_type ? other.m_type->clone(): nullptr), m_declaredString(other.m_
 {
 }
 
-Declarator::Declarator(Declarator&& other)
+Declarator::Declarator(Declarator&& other) :
+m_type { nullptr }, m_declaredString {}
 {
   swap(*this, other);
 }
@@ -87,7 +88,17 @@ std::string Declarator::getDeclareString(bool p_naked) const
   return "";
 }
 
+Declarator* Declarator::clone() const
+{
+  return new Declarator(*this);
+}
+
 bool Declarator::operator==(const Declarator& other) const
+{
+  return this->isEqual(other);
+}
+
+bool Declarator::isEqual(const Declarator& other) const
 {
   bool typeMatch = false;
   if(this->m_type == nullptr && other.m_type == nullptr)

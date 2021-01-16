@@ -1,6 +1,7 @@
 #include "VoidFunTypedefFunPtrFactory.h"
 #include "ComposableType.h"
 #include "StructType.h"
+#include "ComposableField.h"
 
 #include <FunPtrCommonHelper.h>
 
@@ -32,7 +33,7 @@ ElementToMockList VoidFunTypedefFunPtrFactory::functionFactoryArray()
     p.setDeclareString("struct typeDefPtrFunField");
     StructType *st = reinterpret_cast<StructType *>(p.getType());
     st->m_name = "typeDefPtrFunField";
-    ComposableField &f = st->getContainedFields()[0];
+    ComposableField &f = dynamic_cast<ComposableField&>(st->getContainedFields()[0]);
     f.setDeclareString("funPtrType");
     f.getType()->m_typedDefName = "funPtrType";
   }
@@ -44,9 +45,9 @@ ElementToMockList VoidFunTypedefFunPtrFactory::functionFactoryArray()
     p.setDeclareString("struct topAnonymousStructTypeDefPtrFunField");
     StructType *st = reinterpret_cast<StructType *>(p.getType());
     st->m_name = "topAnonymousStructTypeDefPtrFunField";
-    ComposableField &f = st->getContainedFields()[1];
+    ComposableField &f = dynamic_cast<ComposableField&>(st->getContainedFields()[1]);
     StructType *sst = reinterpret_cast<StructType *>(f.getType());
-    ComposableField &sf = sst->getContainedFields()[0];
+    ComposableField &sf = dynamic_cast<ComposableField&>(sst->getContainedFields()[0]);
     sf.setDeclareString("funPtrType");
     sf.getType()->m_typedDefName = "funPtrType";
   }

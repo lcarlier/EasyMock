@@ -1,6 +1,7 @@
 #include "StructAnonymousTypedDefFunStructAnonymousTypedDefFactory.hpp"
 
 #include <StructType.h>
+#include <ComposableField.h>
 
 FunctionDeclaration StructAnonymousTypedDefFunStructAnonymousTypedDefFactory::functionFactory()
 {

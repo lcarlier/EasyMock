@@ -13,6 +13,8 @@
 #include <Enum.h>
 #include <IncompleteType.h>
 
+#include "ComposableBitfield.h"
+
 template<class T>
 static void printComposableTypeToOstream(std::ostream& os, const T& composableType, std::string classname);
 
@@ -183,12 +185,12 @@ static void printComposableTypeToOstream(std::ostream& os, const T& composableTy
   os << "DeclEmbedded: " << (composableType.isDeclarationEmbeddedInOtherType() ? "yes" : " no");
   os << ")" << std::endl;
 
-  const ComposableField::Vector& structFields = composableType.getContainedFields();
-  const ComposableField::Vector::size_type nbFields = structFields.size();
-  ComposableField::Vector::size_type fieldIdx;
+  const ComposableFieldItf::Vector& structFields = composableType.getContainedFields();
+  const ComposableFieldItf::Vector::size_type nbFields = structFields.size();
+  ComposableFieldItf::Vector::size_type fieldIdx;
   for(fieldIdx = 0; fieldIdx < nbFields; fieldIdx++)
   {
-    const ComposableField& curField = structFields[fieldIdx];
+    const ComposableFieldItf& curField = structFields[fieldIdx];
     gs_indentation.push_back('\t');
     os << gs_indentation << "Field: " << fieldIdx << ": " << curField << std::endl;
     gs_indentation.pop_back();
@@ -228,5 +230,32 @@ void PrintTo(const unsigned __int128& uint128Type, std::ostream* os)
 std::ostream& operator<<(std::ostream& os, const unsigned __int128& uint128Type)
 {
   PrintTo(uint128Type, &os);
+  return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const ComposableFieldItf& composableFieldItf)
+{
+  if(composableFieldItf.isComposableField())
+  {
+    return operator<<(os, dynamic_cast<const ComposableField&>(composableFieldItf));
+  }
+  if(composableFieldItf.isComposableBitfield())
+  {
+    return operator<<(os, dynamic_cast<const ComposableBitfield&>(composableFieldItf));
+  }
+  return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const ComposableBitfield& composableBitfield)
+{
+  os << "ComposableBitfield(";
+  os << "declString: '" << composableBitfield.getDeclareString() << "', ";
+  os << "name: '" << composableBitfield.getName() << "', ";
+  os << "size: '" << static_cast<unsigned>(composableBitfield.getSize()) << "', ";
+  os << "type: " << std::endl;
+  gs_indentation.push_back('\t');
+  os << gs_indentation << *composableBitfield.getType();
+  gs_indentation.pop_back();
+  os << gs_indentation << ")END ComposableBitfield '" << composableBitfield.getName() << "'";
   return os;
 }

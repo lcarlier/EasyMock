@@ -22,21 +22,21 @@ public:
   /*!
    * \copydoc TypeItf::getContainedFields()
    */
-  ComposableField::Vector& getContainedFields() override;
+  ComposableFieldItf::Vector& getContainedFields() override;
 
   /*!
    * \copydoc ::TypeItf::getContainedFields()
    */
-  const ComposableField::Vector& getContainedFields() const override;
+  const ComposableFieldItf::Vector& getContainedFields() const override;
 
   /*!
    * \brief Add a new field to the composable type.
    *
-   * A field is implement by the ComposableField class.
+   * A field is implement by a class inheriting from ::ComposableFieldItf interface.
    *
    * \heapPointer
    */
-  void addField(ComposableField *newField);
+  void addField(ComposableFieldItf *newField);
 
   /*!
    * \return A string which uniquely identify the type. This can be based on
@@ -90,8 +90,8 @@ public:
 protected:
   ComposableType(const std::string p_name, bool p_is_embedded_in_other_type);
   ComposableType(const std::string p_name, const std::string p_type_def_name, bool p_is_embedded_in_other_type);
-  ComposableType(const std::string p_name, const ComposableField::Vector p_elem, bool p_is_embedded_in_other_type);
-  ComposableType(const std::string p_name, const std::string p_type_def_name, const ComposableField::Vector p_elem, bool p_is_embedded_in_other_type);
+  ComposableType(const std::string p_name, const ComposableFieldItf::Vector p_elem, bool p_is_embedded_in_other_type);
+  ComposableType(const std::string p_name, const std::string p_type_def_name, const ComposableFieldItf::Vector p_elem, bool p_is_embedded_in_other_type);
 
   /*
    * There is no pointer to move so I decided not to use the
@@ -110,7 +110,7 @@ protected:
 
 private:
   /* Don't make it constant otherwise the object is not copyable anymore */
-  ComposableField::Vector m_elem;
+  ComposableFieldItf::Vector m_elem;
   bool m_is_declaration_embedded_in_other_type;
   int m_anonymous_number;
 

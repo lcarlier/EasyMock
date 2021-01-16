@@ -1,6 +1,7 @@
 #include <UnionTypedDefFunUnionTypedDefFactory.hpp>
 
 #include <UnionType.h>
+#include <ComposableField.h>
 
 FunctionDeclaration UnionTypedDefFunUnionTypedDefFactory::functionFactory()
 {

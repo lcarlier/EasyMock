@@ -1,6 +1,7 @@
 #include <VoidFunUnionWithAnonymousUnionFieldFactory.h>
 
 #include <UnionType.h>
+#include <ComposableField.h>
 
 FunctionDeclaration VoidFunUnionWithAnonymousUnionFieldFactory::functionFactory()
 {

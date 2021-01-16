@@ -61,7 +61,7 @@ Parameter* NamedParameter(easyMock_cTypes_t p_type, std::string p_name, bool p_i
   return p;
 }
 
-Parameter* StructParameter(std::string p_type, std::string p_name, const ComposableField::Vector elem, bool p_is_embedded_in_other_type)
+Parameter* StructParameter(std::string p_type, std::string p_name, const ComposableFieldItf::Vector elem, bool p_is_embedded_in_other_type)
 {
   Parameter *p = new Parameter(new StructType(p_type, elem, p_is_embedded_in_other_type), p_name);
 
@@ -75,14 +75,13 @@ const std::string& Parameter::getName() const
 
 bool Parameter::operator==(const Parameter& other) const
 {
-  if(Declarator::operator==(other))
-  {
-    return true; //Parameters are equals only if type matches, name is not important
-  }
-  else
-  {
-    return false;
-  }
+  return this->isEqual(other);
+}
+
+bool Parameter::isEqual(const Declarator& other) const
+{
+  //Parameters are equals only if type matches, name is not important
+  return Declarator::isEqual(other);
 }
 
 bool Parameter::operator!=(const Parameter& other) const

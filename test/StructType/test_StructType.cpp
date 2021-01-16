@@ -3,13 +3,14 @@
 #include <StructType.h>
 #include <Pointer.h>
 #include <IncompleteType.h>
+#include <ComposableField.h>
 
 #include <string>
 
 TEST(StructType, StructTypeConstructor)
 {
   bool isEmbeddedInOtherType = false;
-  StructType st1("s", ComposableField::Vector({new ComposableField(CTYPE_CHAR, "f")}), isEmbeddedInOtherType);
+  StructType st1("s", ComposableFieldItf::Vector({new ComposableField(CTYPE_CHAR, "f")}), isEmbeddedInOtherType);
   ASSERT_FALSE(st1.isCType());
   ASSERT_TRUE(st1.isStruct());
   ASSERT_FALSE(st1.isUnion());
@@ -21,7 +22,7 @@ TEST(StructType, EmbeddedInOtherType)
 {
   bool isEmbeddedInOtherType = true;
 
-  StructType st1("s", ComposableField::Vector({new ComposableField(CTYPE_CHAR, "f")}), isEmbeddedInOtherType);
+  StructType st1("s", ComposableFieldItf::Vector({new ComposableField(CTYPE_CHAR, "f")}), isEmbeddedInOtherType);
   ASSERT_FALSE(st1.isCType());
   ASSERT_TRUE(st1.isStruct());
   ASSERT_FALSE(st1.isUnion());
@@ -32,7 +33,7 @@ TEST(StructType, TestAnonymous)
 {
   for(unsigned int i = 0; i < 3; i++)
   {
-    StructType st("", ComposableField::Vector({new ComposableField(CTYPE_CHAR, "f")}), false);
+    StructType st("", ComposableFieldItf::Vector({new ComposableField(CTYPE_CHAR, "f")}), false);
     ASSERT_TRUE(st.isAnonymous());
     ASSERT_EQ(st.m_anonymous_number, i) << "i: " << i;
 
@@ -49,7 +50,7 @@ TEST(StructType, UniqueNameAnonymous)
   ComposableType::m_number_of_anonymous_composable_type = 0;
   for(int i = 0; i < 3; i++)
   {
-    StructType st1("", ComposableField::Vector({new ComposableField(CTYPE_CHAR, "f")}), isEmbeddedInOtherType);
+    StructType st1("", ComposableFieldItf::Vector({new ComposableField(CTYPE_CHAR, "f")}), isEmbeddedInOtherType);
     ASSERT_FALSE(st1.isCType());
     ASSERT_TRUE(st1.isStruct());
     ASSERT_FALSE(st1.isUnion());
@@ -64,7 +65,7 @@ TEST(StructType, UniqueNameStruct)
 {
   bool isEmbeddedInOtherType = true;
 
-  StructType st1("inOther", ComposableField::Vector({new ComposableField(CTYPE_CHAR, "f")}), isEmbeddedInOtherType);
+  StructType st1("inOther", ComposableFieldItf::Vector({new ComposableField(CTYPE_CHAR, "f")}), isEmbeddedInOtherType);
   ASSERT_FALSE(st1.isCType());
   ASSERT_TRUE(st1.isStruct());
   ASSERT_FALSE(st1.isUnion());
@@ -78,7 +79,7 @@ TEST(StructType, UniqueNamTypeDefStruct)
 {
   bool isEmbeddedInOtherType = true;
 
-  StructType st1("", "typeDefInOther", ComposableField::Vector({new ComposableField(CTYPE_CHAR, "f")}), isEmbeddedInOtherType);
+  StructType st1("", "typeDefInOther", ComposableFieldItf::Vector({new ComposableField(CTYPE_CHAR, "f")}), isEmbeddedInOtherType);
   ASSERT_FALSE(st1.isCType());
   ASSERT_TRUE(st1.isStruct());
   ASSERT_FALSE(st1.isUnion());

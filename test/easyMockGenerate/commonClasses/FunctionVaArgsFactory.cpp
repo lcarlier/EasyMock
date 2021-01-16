@@ -4,6 +4,7 @@
 #include <ComposableType.h>
 #include <Pointer.h>
 #include <StructType.h>
+#include <ComposableField.h>
 
 ElementToMockList FunctionVaArgsFactory::functionFactoryArray()
 {

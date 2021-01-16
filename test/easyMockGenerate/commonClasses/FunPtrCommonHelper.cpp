@@ -5,6 +5,7 @@
 #include <Pointer.h>
 #include <EasyMock_CType.h>
 #include <StructType.h>
+#include <ComposableField.h>
 
 #include <assert.h>
 

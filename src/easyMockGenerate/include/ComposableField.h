@@ -8,7 +8,7 @@
 #include "AutoCleanVectorPtr.h"
 #include "EasyMockGenerateTypes.h"
 
-#include "Declarator.h"
+#include "ComposableFieldItf.h"
 
 #include <string>
 
@@ -42,7 +42,7 @@ class Pointer;
  * A ComposableField can also have incomplete type fields.
  * \see ::ComposableField::ComposableField(TypeItf*,std::string,attributes)
  */
-class ComposableField : public Declarator
+class ComposableField : public ComposableFieldItf
 {
 public:
 
@@ -105,10 +105,10 @@ public:
    */
   bool isIncompleteTypeField() const;
 
-  ComposableField(const ComposableField &other);
-  ComposableField &operator=(ComposableField other);
+  ComposableField(const ComposableField &other) = default;
+  ComposableField &operator=(const ComposableField& other) = default;
 
-  ComposableField(ComposableField &&other);
+  ComposableField(ComposableField &&other) = default;
   // No move assignment operator whenever using the copy-and-swap idiom.
 
   /*!
@@ -119,13 +119,7 @@ public:
   bool operator==(const ComposableField &other) const;
   bool operator!=(const ComposableField &other) const;
 
-  /*!
-   * \brief Returns the name of the field.
-   *
-   * The string returned is empty if the field is anonymous.
-   * \see isAnonymous()
-   */
-  const std::string& getName() const;
+  bool isComposableField() const override;
 
   /*!
    * \brief Returns if the field is an array.
@@ -181,50 +175,23 @@ public:
    * \see isUnboundSpecifiedArray()
    */
   int64_t getArraySize() const;
-  /*!
-   * \brief Returns if the field is anonymous.
-   *
-   * A field is said to be anonymous whenever it has no name.
-   *
-   * For instance in the following code
-   * \code{.c}
-   * union u
-   * {
-   *   uint32_t val;
-   *   struct
-   *   {
-   *     uint8_t b1;
-   *     uint8_t b2;
-   *     uint8_t b3;
-   *     uint8_t b4;
-   *   };
-   * };
-   * \endcode
-   * the anonymously typed struct is an anonymous field of union u
-   */
-  bool isAnonymous() const;
 
   /*!
    * \copydoc TypeItf::clone
    */
-  virtual ComposableField* clone() const;
+  ComposableField* clone() const override;
 
-  virtual ~ComposableField();
+  virtual ~ComposableField() override;
 
 private:
-  /* Do not make this constant otherwise the object is not copyable anymore */
-  std::string m_name;
+  /*!
+   * \copydoc ::Declarator::isEqual
+   */
+  bool isEqual(const Declarator& p_other) const override;
+
   int64_t m_arraySize;
 
   friend void swap(ComposableField &first, ComposableField &second);
-
-  /*
-   * I wish I could friend only
-   * ComposableType::correctIncompleteType(ComposableType *newPtr, const ComposableType* toReplace);
-   * but ComposableType is not complete here. And we can't make it complete
-   * because otherwise it would create circular include dependency
-   */
-  friend class ComposableType; //for updateIncompleteTypePtr
 };
 
 #endif /* STRUCTFIELD_H */

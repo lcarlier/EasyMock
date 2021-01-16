@@ -1,6 +1,7 @@
 #include <VoidFunStructWithEmbeddedStructFactory.h>
 
 #include <StructType.h>
+#include <ComposableField.h>
 
 FunctionDeclaration VoidFunStructWithEmbeddedStructFactory::functionFactory()
 {

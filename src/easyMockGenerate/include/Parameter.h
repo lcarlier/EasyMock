@@ -8,7 +8,7 @@
 #include <string>
 
 #include "EasyMockGenerateTypes.h"
-#include "ComposableField.h"
+#include "ComposableFieldItf.h"
 #include "Declarator.h"
 
 /*!
@@ -64,9 +64,13 @@ public:
   /*!
    * \copydoc TypeItf::clone()
    */
-  virtual Parameter* clone() const;
+  virtual Parameter* clone() const override;
 
 private:
+  /*!
+   * \copydoc ::Declarator::isEqual
+   */
+  bool isEqual(const Declarator& p_other) const override;
   /* Do not make the member const otherwise they are not copyable anymore */
   std::string m_name;
 
@@ -75,7 +79,7 @@ private:
 
 Parameter *VoidParameter(std::string p_name);
 Parameter *NamedParameter(easyMock_cTypes_t p_type, std::string p_name, bool p_isPointer = false);
-Parameter *StructParameter(std::string type, std::string name, const ComposableField::Vector elem, bool p_is_embedded_in_other_type);
+Parameter *StructParameter(std::string type, std::string name, const ComposableFieldItf::Vector elem, bool p_is_embedded_in_other_type);
 
 
 #endif /* PARAMETER_H */

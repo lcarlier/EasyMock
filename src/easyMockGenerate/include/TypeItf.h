@@ -7,7 +7,8 @@
 
 #include <string>
 #include "AutoCleanVectorPtr.h"
-#include "ComposableField.h"
+#include "ComposableFieldItf.h"
+#include "EasyMockGenerateTypes.h"
 
 /*!
  * \brief Base class of all types related classes
@@ -70,12 +71,12 @@ public:
    * \warning If this function is called when ::TypeItf::isComposableType() returns false,
    * the function will abort the execution of the program with an assert.
    * \warning If ::TypeItf::isComposableType() is false, an assert will be generated
-   * \return A ::ComposableField::Vector containing the fields contained by the type
+   * \return A ::ComposableFieldItf::Vector containing the fields contained by the type
    */
-  virtual ComposableField::Vector& getContainedFields();
+  virtual ComposableFieldItf::Vector& getContainedFields();
 
   /*! \copydoc getContainedFields() */
-  virtual const ComposableField::Vector& getContainedFields() const;
+  virtual const ComposableFieldItf::Vector& getContainedFields() const;
 
   /*!
    * \brief Returns if the type is a struct.

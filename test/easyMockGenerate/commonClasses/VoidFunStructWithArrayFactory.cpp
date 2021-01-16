@@ -3,6 +3,7 @@
 #include <EasyMockStructHelper.h>
 #include <EasyMock_CType.h>
 #include <voidFunStructWithArray.h>
+#include <ComposableField.h>
 
 FunctionDeclaration VoidFunStructWithArrayFactory::functionFactory()
 {

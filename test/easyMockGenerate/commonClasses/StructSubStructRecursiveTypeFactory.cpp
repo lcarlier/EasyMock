@@ -4,6 +4,7 @@
 #include <EasyMock_CType.h>
 #include <Pointer.h>
 #include <IncompleteType.h>
+#include <ComposableField.h>
 
 /*
  * struct s2;

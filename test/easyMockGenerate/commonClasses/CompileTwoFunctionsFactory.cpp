@@ -3,6 +3,7 @@
 #include <ReturnValue.h>
 #include <EasyMock_CType.h>
 #include <StructType.h>
+#include <ComposableField.h>
 
 ElementToMockList CompileTwoFunctionsFactory::functionFactoryArray()
 {

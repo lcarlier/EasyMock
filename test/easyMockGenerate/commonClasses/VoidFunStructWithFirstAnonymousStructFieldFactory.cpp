@@ -1,6 +1,7 @@
 #include <VoidFunStructWithFirstAnonymousStructFieldFactory.h>
 
 #include <StructType.h>
+#include <ComposableField.h>
 
 FunctionDeclaration VoidFunStructWithFirstAnonymousStructFieldFactory::functionFactory()
 {

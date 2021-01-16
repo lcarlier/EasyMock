@@ -212,12 +212,12 @@ TypeItf* TypeItf::setImplicit(bool value)
   return this;
 }
 
-ComposableField::Vector& TypeItf::getContainedFields()
+ComposableFieldItf::Vector& TypeItf::getContainedFields()
 {
-  return const_cast<ComposableField::Vector &>(static_cast<const TypeItf &>(*this).getContainedFields());
+  return const_cast<ComposableFieldItf::Vector &>(static_cast<const TypeItf &>(*this).getContainedFields());
 }
 
-const ComposableField::Vector& TypeItf::getContainedFields() const
+const ComposableFieldItf::Vector& TypeItf::getContainedFields() const
 {
   fprintf(stderr, "THIS FUNCTION SHOULDN'T BE CALLED");
   assert(false);

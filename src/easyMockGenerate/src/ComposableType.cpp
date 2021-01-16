@@ -6,21 +6,21 @@ size_t ComposableType::m_unique_hash = 0;
 unsigned int ComposableType::m_number_of_anonymous_composable_type = 0;
 
 ComposableType::ComposableType(const std::string p_name, bool p_is_embedded_in_other_type) :
-ComposableType(p_name, ComposableField::Vector({}), p_is_embedded_in_other_type)
+ComposableType(p_name, ComposableFieldItf::Vector({}), p_is_embedded_in_other_type)
 {
 }
 
 ComposableType::ComposableType(const std::string p_name, const std::string p_type_def_name, bool p_is_embedded_in_other_type) :
-ComposableType(p_name, p_type_def_name, ComposableField::Vector({}), p_is_embedded_in_other_type)
+ComposableType(p_name, p_type_def_name, ComposableFieldItf::Vector({}), p_is_embedded_in_other_type)
 {
 }
 
-ComposableType::ComposableType(const std::string p_name, const ComposableField::Vector p_elem, bool p_is_embedded_in_other_type) :
+ComposableType::ComposableType(const std::string p_name, const ComposableFieldItf::Vector p_elem, bool p_is_embedded_in_other_type) :
 ComposableType(p_name, "", p_elem, p_is_embedded_in_other_type)
 {
 }
 
-ComposableType::ComposableType(const std::string p_name, const std::string p_typed_def_name, const ComposableField::Vector p_elem, bool p_is_embedded_in_other_type) :
+ComposableType::ComposableType(const std::string p_name, const std::string p_typed_def_name, const ComposableFieldItf::Vector p_elem, bool p_is_embedded_in_other_type) :
 TypeItf(p_name, p_typed_def_name), m_elem(p_elem), m_is_declaration_embedded_in_other_type(p_is_embedded_in_other_type), m_anonymous_number(-1)
 {
   if(this->isAnonymous())
@@ -112,17 +112,17 @@ bool ComposableType::operator!=(const ComposableType& other) const
   return (*this == other) == false;
 }
 
-ComposableField::Vector& ComposableType::getContainedFields()
+ComposableFieldItf::Vector& ComposableType::getContainedFields()
 {
-  return const_cast<ComposableField::Vector &>(static_cast<const ComposableType &>(*this).getContainedFields());
+  return const_cast<ComposableFieldItf::Vector &>(static_cast<const ComposableType &>(*this).getContainedFields());
 }
 
-const ComposableField::Vector& ComposableType::getContainedFields() const
+const ComposableFieldItf::Vector& ComposableType::getContainedFields() const
 {
   return m_elem;
 }
 
-void ComposableType::addField(ComposableField* newField)
+void ComposableType::addField(ComposableFieldItf* newField)
 {
   m_elem.push_back(newField);
 }

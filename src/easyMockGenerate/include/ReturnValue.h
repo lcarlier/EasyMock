@@ -55,6 +55,10 @@ public:
 
   virtual ~ReturnValue();
 private:
+  /*!
+   * \copydoc ::Declarator::isEqual
+   */
+  bool isEqual(const Declarator& p_other) const override;
   friend void swap(ReturnValue &first, ReturnValue &second);
 };
 

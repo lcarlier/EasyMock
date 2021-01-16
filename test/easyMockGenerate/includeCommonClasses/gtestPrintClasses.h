@@ -15,6 +15,8 @@ class FunctionType;
 class FunctionDeclaration;
 class Enum;
 class IncompleteType;
+class ComposableFieldItf;
+class ComposableBitfield;
 
 std::ostream& operator<<(std::ostream& os, const Function& fun);
 std::ostream& operator<<(std::ostream& os, const ReturnValue& rv);
@@ -30,6 +32,8 @@ std::ostream& operator<<(std::ostream& os, const FunctionDeclaration& pointer);
 std::ostream& operator<<(std::ostream& os, const Enum& e);
 std::ostream& operator<<(std::ostream& os, const IncompleteType& incType);
 std::ostream& operator<<(std::ostream& os, const __int128& int128Type);
+std::ostream& operator<<(std::ostream& os, const ComposableFieldItf& composableFieldItf);
+std::ostream& operator<<(std::ostream& os, const ComposableBitfield& composableBitfield);
 void PrintTo(const __int128& bar, std::ostream* os);
 std::ostream& operator<<(std::ostream& os, const unsigned __int128& uint128Type);
 void PrintTo(const unsigned __int128& bar, std::ostream* os);

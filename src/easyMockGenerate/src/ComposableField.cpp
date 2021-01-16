@@ -17,51 +17,31 @@ ComposableField(p_type, p_name, {.arraySize = -1})
 }
 
 ComposableField::ComposableField(TypeItf* p_type, std::string p_name, ComposableField::attributes p_attrib) :
-Declarator(p_type),
-m_name(p_name),
+ComposableFieldItf(p_type, p_name),
 m_arraySize(p_attrib.arraySize)
 {}
-
-ComposableField::ComposableField(const ComposableField& other) :
-Declarator(other)
-{
-  m_name = other.m_name;
-  m_arraySize = other.m_arraySize;
-}
-
-ComposableField::ComposableField(ComposableField&& other):
-Declarator(other)
-{
-  swap(*this, other);
-}
 
 bool ComposableField::isIncompleteTypeField() const
 {
   return m_type->isIncompleteType();
 }
 
-
-ComposableField& ComposableField::operator=(ComposableField other)
-{
-  swap(*this, other);
-
-  return *this;
-}
-
-void swap(ComposableField &first, ComposableField &second)
-{
-  swap(static_cast<Declarator&>(first), static_cast<Declarator&>(second));
-  std::swap(first.m_name, second.m_name);
-  std::swap(first.m_arraySize, second.m_arraySize);
-}
-
 bool ComposableField::operator==(const ComposableField& other) const
 {
-  const bool declaratorEqual = Declarator::operator ==(other);
-  const bool nameEqual = this->m_name == other.m_name;
-  const bool arraySizeEqual = this->m_arraySize == other.m_arraySize;
+  return this->isEqual(other);
+}
 
-  return declaratorEqual && nameEqual && arraySizeEqual;
+bool ComposableField::isEqual(const Declarator& p_other) const
+{
+  const bool parentEq = ComposableFieldItf::isEqual(p_other);
+  const ComposableField* otherField = dynamic_cast<const ComposableField*>(&p_other);
+  if(!otherField)
+  {
+    return false;
+  }
+  const bool arraySizeEqual = this->m_arraySize == otherField->m_arraySize;
+
+  return parentEq && arraySizeEqual;
 }
 
 bool ComposableField::operator!=(const ComposableField& other) const
@@ -69,9 +49,9 @@ bool ComposableField::operator!=(const ComposableField& other) const
   return (*this == other) == false;
 }
 
-const std::string& ComposableField::getName() const
+bool ComposableField::isComposableField() const
 {
-  return m_name;
+  return true;
 }
 
 bool ComposableField::isArray() const
@@ -87,11 +67,6 @@ bool ComposableField::isBoundSpecifiedArray() const
 bool ComposableField::isUnboundSpecifiedArray() const
 {
   return isArray() && m_arraySize == 0;
-}
-
-bool ComposableField::isAnonymous() const
-{
-  return m_name.empty();
 }
 
 bool ComposableField::setArraySize(uint64_t size)

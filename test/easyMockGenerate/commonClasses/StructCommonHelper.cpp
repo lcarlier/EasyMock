@@ -19,9 +19,22 @@ bool operator==(const TypedDefAnonymousStruct &lhs, const TypedDefAnonymousStruc
 {
   return lhs.a == rhs.a;
 }
+
 bool operator==(const sWithUnion &lhs, const sWithUnion &rhs)
 {
   return lhs.u.a == rhs.u.a || lhs.u.b == rhs.u.b;
+}
+
+
+bool operator==(const struct BoxPropsContainer& lhs, const struct BoxPropsContainer& rhs)
+{
+  return lhs.b.opaque == rhs.b.opaque ||
+          lhs.b.fill_color == rhs.b.fill_color ||
+          lhs.b.show_border == rhs.b.show_border ||
+          lhs.b.border_color == rhs.b.border_color ||
+          lhs.b.border_style == rhs.b.border_style ||
+          lhs.b.width == rhs.b.width ||
+          lhs.b.height == rhs.b.height;
 }
 
 std::ostream& operator<<(std::ostream& os, const struct s1& c)

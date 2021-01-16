@@ -110,7 +110,33 @@ public:
    */
   bool operator==(const Declarator &other) const;
   bool operator!=(const Declarator &other) const;
+
+  /*!
+   * \copydoc ::TypeItf::clone
+   */
+  virtual Declarator* clone() const;
 protected:
+
+  /*!
+   * \brief Returns if this instance is equal to another.
+   *
+   * \param p_other A reference to the other object to be compared with
+   *
+   * For the objects having pointers members, the pointer is dereferenced
+   * and the operator==() function is called.
+   *
+   * This function is not intended to be called directly by the users of the class
+   * and is called from the operator==() function.
+   *
+   * This function is virtual and is meant to be overwritten by the subclasses.
+   * The purpose of this is to compare the full object when base pointers are
+   * used.
+   *
+   * \return True if the objects are equal.
+   * \return False if the objects are not equal.
+   */
+  virtual bool isEqual(const Declarator& p_other) const;
+
   /*!
    * \brief Creates a new declarator.
    *
