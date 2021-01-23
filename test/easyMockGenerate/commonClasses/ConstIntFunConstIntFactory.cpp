@@ -2,15 +2,19 @@
 
 #include <ReturnValue.h>
 #include <EasyMock_CType.h>
+#include <ConstQualifiedType.h>
 
 FunctionDeclaration ConstIntFunConstIntFactory::functionFactory()
 {
-  ReturnValue rv((new CType(CTYPE_INT))->setConst(true));
+  ReturnValue rv { new ConstQualifiedType(new CType(CTYPE_INT)) };
+  rv.setDeclareString("const int");
 
   TypeItf* curType = new CType(CTYPE_INT);
-  curType->setConst(true);
-  Parameter *param = new Parameter(curType, "i");
+  ConstQualifiedType* constCurType = new ConstQualifiedType(curType);
   curType = nullptr; //We lost the ownership
+  Parameter *param = new Parameter(constCurType, "i");
+  param->setDeclareString("const int");
+  constCurType = nullptr; //We lost the ownership
 
   FunctionDeclaration f(functionGetFunctionName(), rv, Parameter::Vector({param}));
   param = nullptr;

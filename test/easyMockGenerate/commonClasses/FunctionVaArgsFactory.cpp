@@ -16,7 +16,7 @@ ElementToMockList FunctionVaArgsFactory::functionFactoryArray()
   param1->setDeclareString(param1->getType()->getFullDeclarationName());
 
 #if defined(__APPLE__)
-  Pointer *va_list_pointer = new Pointer(new CType(CTYPE_CHAR), "va_list", false);
+  Pointer *va_list_pointer = new Pointer(new CType(CTYPE_CHAR), "va_list");
   Parameter* param2 = new Parameter(va_list_pointer, "args");
   param2->setDeclareString("va_list");
 #elif defined(__linux__)

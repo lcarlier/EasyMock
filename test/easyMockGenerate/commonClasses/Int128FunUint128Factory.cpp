@@ -13,11 +13,11 @@ FunctionDeclaration Int128FunUint128Factory::functionFactory()
 ElementToMockList Int128FunUint128Factory::functionFactoryArray()
 {
   ElementToMockList returnedList;
-  CType* int128Type = new CType(CTYPE_INT128, "", false);
+  CType* int128Type = new CType(CTYPE_INT128);
   ReturnValue rv(int128Type);
-  CType* uint128Type = new CType(CTYPE_UINT128, "", false);
-  CType* uint128Type_t = new CType(CTYPE_UINT128, "__uint128_t", false);
-  CType* int128Type_t = new CType(CTYPE_INT128, "__int128_t", false);
+  CType* uint128Type = new CType(CTYPE_UINT128);
+  CType* uint128Type_t = new CType(CTYPE_UINT128, "__uint128_t");
+  CType* int128Type_t = new CType(CTYPE_INT128, "__int128_t");
   Parameter* uint128Parameter = new Parameter(uint128Type, "u");
   Parameter* uint128Parameter_t = new Parameter(uint128Type_t, "ut");
   Parameter* int128Parameter_t = new Parameter(int128Type_t, "it");

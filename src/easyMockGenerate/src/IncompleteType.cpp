@@ -5,7 +5,6 @@ IncompleteType::IncompleteType(const TypeItf& p_type)
 {
   setIncompleteType(true);
   setCType(p_type.isCType());
-  setConst(p_type.isConst());
   setEnum(p_type.isEnum());
   setFunction(p_type.isFunction());
   setImplicit(p_type.isImplicit());

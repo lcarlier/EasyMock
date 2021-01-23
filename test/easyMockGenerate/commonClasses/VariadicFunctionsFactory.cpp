@@ -2,6 +2,7 @@
 
 #include <EasyMock_CType.h>
 #include <Pointer.h>
+#include <ConstQualifiedType.h>
 
 ElementToMockList VariadicFunctionsFactory::functionFactoryArray()
 {
@@ -15,9 +16,9 @@ ElementToMockList VariadicFunctionsFactory::functionFactoryArray()
   f1->setVariadic(true);
   returnedList.push_back(f1);
 
-  Pointer *constCtype = new Pointer(new CType(CTYPE_CHAR));
-  constCtype->getPointedType()->setConst(true);
+  Pointer *constCtype = new Pointer(new ConstQualifiedType(new CType(CTYPE_CHAR)));
   param = new Parameter(constCtype, "fmt");
+  param->setDeclareString("const char*");
   FunctionDeclaration* f2 = new FunctionDeclaration("variadicFunctions2", rv, Parameter::Vector({param}));
   param = nullptr;
   f2->setVariadic(true);

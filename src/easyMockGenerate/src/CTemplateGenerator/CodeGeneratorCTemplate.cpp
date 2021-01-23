@@ -23,6 +23,7 @@
 #include "ComposableFieldItf.h"
 #include "ComposableField.h"
 #include "ComposableBitfield.h"
+#include "QualifiedType.h"
 
 #undef NDEBUG
 #include <cassert>
@@ -1074,6 +1075,7 @@ void CodeGeneratorCTemplate::generateBodyStructCompare(ctemplate::TemplateDictio
           || curFieldType->isEnum()
           || curFieldType->isPointer()
           || curFieldType->isIncompleteType()
+          || curFieldType->isConst()
           )
   {
     generateBasicTypeField(p_curField, p_paramSectDict, p_parentComposedType, p_declPrepend);
@@ -1081,6 +1083,35 @@ void CodeGeneratorCTemplate::generateBodyStructCompare(ctemplate::TemplateDictio
   else
   {
     std::fprintf(stderr, "%s: Type '%s' unexpected here. Contact owner for bug fixing\n\r", __FUNCTION__, curFieldType->getFullDeclarationName().c_str());
+    assert(false);
+  }
+}
+
+void CodeGeneratorCTemplate::setStructCompareStringFormat(ctemplate::TemplateDictionary *p_errorDict, const TypeItf* p_curFieldType)
+{
+  const QualifiedType* qualifiedType = dynamic_cast<const QualifiedType*>(p_curFieldType);
+  if(qualifiedType)
+  {
+    const TypeItf* constType = qualifiedType->getType();
+    setStructCompareStringFormat(p_errorDict, constType);
+    return;
+  }
+
+  if(p_curFieldType->isPointer() || p_curFieldType->isIncompleteType() || p_curFieldType->isFunction())
+  {
+    p_errorDict->SetValue(STRUCT_COMPARE_PRINTF_FORMAT, "p");
+  }
+  else if(p_curFieldType->isEnum())
+  {
+    p_errorDict->SetValue(STRUCT_COMPARE_PRINTF_FORMAT, "d");
+  }
+  else if(p_curFieldType->isCType())
+  {
+    p_errorDict->SetValue(STRUCT_COMPARE_PRINTF_FORMAT, easyMock_printfFormat[p_curFieldType->getCType()]);
+  }
+  else
+  {
+    std::fprintf(stderr, "%s: Type '%s' unexpected here. Contact owner for bug fixing\n\r", __FUNCTION__, p_curFieldType->getFullDeclarationName().c_str());
     assert(false);
   }
 }
@@ -1124,28 +1155,13 @@ void CodeGeneratorCTemplate::generateBasicTypeField(const ComposableFieldItf *p_
   }
   errorDict->SetValue(STRUCT_COMPARE_TYPE, compareType);
   const TypeItf *curFieldType = p_curField->getType();
-  if(curFieldType->isPointer() || curFieldType->isIncompleteType() || curFieldType->isFunction())
-  {
-    errorDict->SetValue(STRUCT_COMPARE_PRINTF_FORMAT, "p");
-  }
-  else if(curFieldType->isEnum())
-  {
-    errorDict->SetValue(STRUCT_COMPARE_PRINTF_FORMAT, "d");
-  }
-  else if(curFieldType->isCType())
-  {
-    errorDict->SetValue(STRUCT_COMPARE_PRINTF_FORMAT, easyMock_printfFormat[curFieldType->getCType()]);
-  }
-  else
-  {
-    std::fprintf(stderr, "%s: Type '%s' unexpected here. Contact owner for bug fixing\n\r", __FUNCTION__, curFieldType->getFullDeclarationName().c_str());
-    assert(false);
-  }
+  setStructCompareStringFormat(errorDict, curFieldType);
   p_paramSectDict->SetValue(COMPARE_CONDITION, condition);
 }
 
 void CodeGeneratorCTemplate::generateDeclarationOfUsedType(ctemplate::TemplateDictionary *p_rootDictionnary, const TypeItf* p_type)
 {
+  const QualifiedType* qualType = dynamic_cast<const QualifiedType*>(p_type);
   if(!m_generateUsedType)
   {
     return;
@@ -1160,6 +1176,7 @@ void CodeGeneratorCTemplate::generateDeclarationOfUsedType(ctemplate::TemplateDi
   {
     return;
   }
+  m_generateTypes.insert(fullDeclarationName);
 
   if(p_type->isComposableType())
   {
@@ -1179,11 +1196,19 @@ void CodeGeneratorCTemplate::generateDeclarationOfUsedType(ctemplate::TemplateDi
     }
     generatedType_typeSection->SetValue(GENERATED_TYPE_DECLARE_TYPE_VAR, declaredType);
   }
+  else if(qualType)
+  {
+    generateDeclarationOfUsedType(p_rootDictionnary, qualType->getType());
+  }
+  else if(p_type->isPointer())
+  {
+    const Pointer* pointer = dynamic_cast<const Pointer*>(p_type);
+    generateDeclarationOfUsedType(p_rootDictionnary, pointer->getPointedType());
+  }
   else
   {
     return;
   }
-  m_generateTypes.insert(fullDeclarationName);
 }
 
 ctemplate::TemplateDictionary* CodeGeneratorCTemplate::generateDeclarationOfAnonymousType(ctemplate::TemplateDictionary* p_rootDictionnary, ctemplate::TemplateDictionary* p_curFieldDict, const ComposableType* p_composedType, bool p_forceAnonymousName)

@@ -58,10 +58,10 @@
 #include <VoidFunPtrToPtrRecurStructFactory.h>
 #include <VoidFunStructForwardDeclaredFactory.h>
 #include <VoidFunTypeDefFactory.h>
-#include <VoidFunTypeDefGenTypeFactory.h>
 #include <CrossDefinedFunCrossDefinedFactory.h>
 #include <Int128FunUint128Factory.h>
 #include <VoidFunStructBitfieldFactory.h>
+#include <VoidFunStructWithConstMemberFactory.h>
 
 // TestTypesInclude.h is generated
 #include "TestTypesInclude.h"
@@ -133,16 +133,19 @@
         VoidOutFactory, \
         InlineVoidFactory, \
         VoidFunFunPtrFactory, \
+        VoidFunFunPtrGenerateTypeFactory, \
         VoidFunTypedefFunPtrFactory, \
         VoidFunEnumFactory, \
         VoidFunPtrToPtrRecurStructFactory, \
         VoidFunStructForwardDeclaredFactory, \
         VoidFunTypeDefFactory, \
-        VoidFunTypeDefGenTypeFactory, \
+        VoidFunTypeDefGenerateTypeFactory, \
         CrossDefinedFunCrossDefinedFactory, \
         CrossDefinedFunCrossDefinedGenTypeFactory, \
         VoidFunTypedefFunPtrGenerateTypeFactory, \
-        VoidFunStructBitfieldGenerateTypeFactory
+        VoidFunStructBitfieldGenerateTypeFactory, \
+        VoidFunStructWithConstMemberFactory, \
+        VoidFunStructWithConstMemberGenerateTypeFactory
 
 typedef ::testing::Types
 <

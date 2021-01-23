@@ -30,17 +30,15 @@ public:
    * \brief Creates a new CType.
    *
    * \param p_cType The C basic data type.
-   * \param p_isConst Specifies whether the value of the CType is constant.
    */
-  CType(const easyMock_cTypes_t p_cType, bool p_isConst = false);
+  CType(const easyMock_cTypes_t p_cType);
   /*!
    * \brief Creates a new CType.
    *
    * \param p_cType See CType(const easyMock_cTypes_t,bool).
    * \param p_typeDefName The typedef that aliases this CType type.
-   * \param p_isConst See CType(const easyMock_cTypes_t,bool).
    */
-  CType(const easyMock_cTypes_t p_cType, std::string p_typeDefName, bool p_isConst = false);
+  CType(const easyMock_cTypes_t p_cType, std::string p_typeDefName);
 
   /*!
    * \brief returns the type represented by this instance.

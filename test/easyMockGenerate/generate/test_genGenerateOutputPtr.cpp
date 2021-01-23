@@ -9,6 +9,7 @@
 #include <TestTypes.h>
 
 #include <Pointer.h>
+#include <ConstQualifiedType.h>
 
 template<class T>
 class genGenerateOutputPtr_testCase : public genGenerate_testCase<T>
@@ -32,10 +33,10 @@ TYPED_TEST(genGenerateOutputPtr_testCase, TestOutputPtrGenerated)
   Function f = this->m_factory.functionFactory();
   const Parameter::Vector &parameters = f.getFunctionsParameters();
   const Parameter &firstParam = parameters[0];
-  const TypeItf &firstParamType = *firstParam.getType();
-  const TypeItf& pointedType = *dynamic_cast<const Pointer &>(firstParamType).getPointedType();
+  const TypeItf* firstParamType = firstParam.getType();
+  const TypeItf* pointedType = dynamic_cast<const Pointer *>(firstParamType)->getPointedType();
 
-  if(firstParamType.isPointer() && pointedType.isConst())
+  if(firstParamType->isPointer() && pointedType->isConst())
   {
     ASSERT_EQ(fptr_output_ptr, nullptr);
   }

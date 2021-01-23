@@ -8,8 +8,8 @@
 ElementToMockList CrossDefinedFunCrossDefinedFactory::functionFactoryArray()
 {
   ElementToMockList returnedList;
-  CType intType(CTYPE_INT, false);
-  CType floatType(CTYPE_FLOAT, false);
+  CType intType(CTYPE_INT);
+  CType floatType(CTYPE_FLOAT);
   ReturnValue rv(floatType.clone());
   rv.setDeclareString("DEF2");
 

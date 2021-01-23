@@ -12,6 +12,7 @@
 #include <Enum.h>
 #include <IncompleteType.h>
 #include <ComposableBitfield.h>
+#include <ConstQualifiedType.h>
 
 #include <gtestPrintClasses.h>
 
@@ -63,18 +64,35 @@ TEST(moveCopy, Pointer)
 
 TEST(moveCopy, PointerToConst)
 {
-  bool isConst = true;
-  Pointer p1(new CType(CTYPE_INT, isConst));
+  Pointer p1 { new ConstQualifiedType(new CType(CTYPE_INT)) };
 
   testMovePointer(p1);
 }
 
+static void testMoveConstPointer(ConstQualifiedType &p1)
+{
+  ConstQualifiedType p2 { p1 };
+  ASSERT_EQ(p1, p2);
+
+  ConstQualifiedType p3 { new Pointer(new CType(CTYPE_DOUBLE)) };
+  ASSERT_NE(p3, p1);
+  p3 = p1;
+  ASSERT_EQ(p3, p1);
+
+  ConstQualifiedType p4 = std::move(p3);
+  ASSERT_EQ(p4, p1);
+
+  ConstQualifiedType p6 { new Pointer(new CType(CTYPE_DOUBLE)) };
+  ASSERT_NE(p6, p2);
+  p6 = std::move(p2);
+  ASSERT_EQ(p6, p1);
+}
+
 TEST(moveCopy, ConstPointer)
 {
-  bool isConst = true;
-  Pointer p1(new CType(CTYPE_INT), isConst);
+  ConstQualifiedType ctp { new Pointer(new CType(CTYPE_INT)) };
 
-  testMovePointer(p1);
+  testMoveConstPointer(ctp);
 }
 
 TEST(moveCopy, PointerWithRecursField)
@@ -153,8 +171,7 @@ TEST(moveCopy, StructFieldUnBoundedArray)
 
 TEST(moveCopy, ComposableFieldConst)
 {
-  bool isConst = true;
-  ComposableField f1(new CType(CTYPE_INT, isConst), "a");
+  ComposableField f1 { new ConstQualifiedType(new CType(CTYPE_INT)), "a" };
 
   testMoveComposableField(f1);
 }
@@ -468,8 +485,7 @@ TEST(moveCopy, ParameterPointer)
 
 TEST(moveCopy, ParameterPointerConst)
 {
-  bool isConst = true;
-  Parameter p1(new Pointer(new CType(CTYPE_INT, isConst)), "v");
+  Parameter p1 { new Pointer(new ConstQualifiedType(new CType(CTYPE_INT))), "v" };
 
   testMoveCopyParameter(p1);
 }
@@ -547,8 +563,7 @@ TEST(moveCopy, ReturnValuePointer)
 
 TEST(moveCopy, ReturnValueConst)
 {
-  bool isConst = true;
-  ReturnValue rv1(new CType(CTYPE_INT, isConst));
+  ReturnValue rv1 { new ConstQualifiedType(new CType(CTYPE_INT)) };
 
   testMoveCopyReturnValue(rv1);
 }
@@ -632,6 +647,29 @@ TEST(moveCopy, ComposableBitfield)
   ASSERT_EQ(bf4, bf1);
 
   ComposableBitfield bf5(CTYPE_CHAR, "bar", 3);
+  ASSERT_NE(bf5, bf2);
+  bf5 = std::move(bf2);
+  ASSERT_EQ(bf5, bf1);
+}
+
+TEST(moveCopy, ConstQualifiedType)
+{
+  CType *uChar = new CType(CTYPE_UCHAR, "foo");
+  ConstQualifiedType bf1 { uChar };
+  ConstQualifiedType bf2 { bf1 };
+  ASSERT_EQ(bf1, bf2);
+
+  CType cChar { CTYPE_CHAR, "foo"};
+  ConstQualifiedType bf3{ cChar.clone() };
+  ASSERT_NE(bf3,bf1);
+  bf3 = bf1;
+  ASSERT_EQ(bf3,bf1);
+
+  ConstQualifiedType bf4 = std::move(bf3);
+  ASSERT_EQ(bf4, bf1);
+
+  CType* cChar2 = new CType(CTYPE_CHAR, "bar");
+  ConstQualifiedType bf5 { cChar2 };
   ASSERT_NE(bf5, bf2);
   bf5 = std::move(bf2);
   ASSERT_EQ(bf5, bf1);

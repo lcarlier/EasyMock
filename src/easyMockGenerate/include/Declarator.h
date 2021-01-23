@@ -99,7 +99,7 @@ public:
    * considered as a string of code which is exactly the purpose of
    * setDeclareString
    */
-  void setDeclareString(const std::string& newString);
+  Declarator& setDeclareString(const std::string& newString);
 
   /*!
    * \brief Compares 2 ::Declarator objects.

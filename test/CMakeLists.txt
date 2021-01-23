@@ -109,10 +109,10 @@ add_library(${TEST_FACTORIES_COMMON_OBJ}
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/VoidFunPtrToPtrRecurStructFactory.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/VoidFunStructForwardDeclaredFactory.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/VoidFunTypeDefFactory.cpp
-    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/VoidFunTypeDefGenTypeFactory.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/CrossDefinedFunCrossDefinedFactory.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/Int128FunUint128Factory.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/VoidFunStructBitfieldFactory.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/VoidFunStructWithConstMemberFactory.cpp
 )
 
 set(EASYMOCK_TEST_LIBRARY easyMockTestLibrary)
@@ -133,5 +133,6 @@ add_subdirectory(StructType)
 add_subdirectory(ReturnValue)
 add_subdirectory(Pointer)
 add_subdirectory(FunctionPointer)
+add_subdirectory(ConstQualifiedType)
 add_subdirectory(easyMockGenerate)
 add_subdirectory(end2end)

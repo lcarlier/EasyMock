@@ -4,15 +4,14 @@ CType::CType() : CType(CTYPE_INVALID)
 {
 }
 
-CType::CType(const easyMock_cTypes_t p_cType, bool isConst) :
-CType(p_cType, "", isConst)
+CType::CType(const easyMock_cTypes_t p_cType) :
+CType(p_cType, "")
 {
 }
 
-CType::CType(const easyMock_cTypes_t p_cType, std::string p_typeDefName, bool isConst) :
+CType::CType(const easyMock_cTypes_t p_cType, std::string p_typeDefName) :
 TypeItf(easyMock_arrayCTypeStr[p_cType], p_typeDefName), m_cType(p_cType), m_initAsNakedChar(p_cType == CTYPE_CHAR)
 {
-  this->setConst(isConst);
   this->setCType(true);
 }
 

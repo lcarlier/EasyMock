@@ -12,8 +12,8 @@
 #include <FunctionDeclaration.h>
 #include <Enum.h>
 #include <IncompleteType.h>
-
-#include "ComposableBitfield.h"
+#include <ComposableBitfield.h>
+#include <ConstQualifiedType.h>
 
 template<class T>
 static void printComposableTypeToOstream(std::ostream& os, const T& composableType, std::string classname);
@@ -72,17 +72,18 @@ std::ostream& operator<<(std::ostream& os, const ReturnValue& rv) {
 
 std::ostream& operator<<(std::ostream& os, const TypeItf& typeItf)
 {
+  bool isConst = typeItf.isConst();
   os << "TypeItf:" << typeItf.getMostDefinedName() << ", ";
   os << "isTypeDef:" << (typeItf.isTypedDef() ? "yes" : "no") << ", ";
   os << "isAnonymous:" << (typeItf.isAnonymous() ? "yes" : "no") << ", ";
   os << "isPointer:" << (typeItf.isPointer() ? "yes" : "no") << ", ";
-  os << "isConst:" << (typeItf.isConst() ? "yes" : "no") << ", ";
   os << "isCType:" << (typeItf.isCType() ? "yes" : "no") << ", ";
   os << "isStruct:" << (typeItf.isStruct() ? "yes" : "no") << ", ";
   os << "isUnion:" << (typeItf.isUnion() ? "yes" : "no") << ", ";
   os << "isImplicit:" << (typeItf.isImplicit() ? "yes" : "no") << ", ";
   os << "isEnum:" << (typeItf.isEnum() ? "yes" : "no") << ", ";
   os << "isIncomplete:" << (typeItf.isIncompleteType() ? "yes" : "no") << ", ";
+  os << "isConst:" << (isConst ? "yes" : "no");
   os << std::endl << gs_indentation;
 
   if(typeItf.isCType())
@@ -108,6 +109,14 @@ std::ostream& operator<<(std::ostream& os, const TypeItf& typeItf)
   else if(typeItf.isIncompleteType())
   {
     os << dynamic_cast<const IncompleteType &>(typeItf);
+  }
+  else if(isConst)
+  {
+    os << dynamic_cast<const ConstQualifiedType &>(typeItf);
+  }
+  else
+  {
+    os << std::endl;
   }
   return os;
 }
@@ -257,5 +266,15 @@ std::ostream& operator<<(std::ostream& os, const ComposableBitfield& composableB
   os << gs_indentation << *composableBitfield.getType();
   gs_indentation.pop_back();
   os << gs_indentation << ")END ComposableBitfield '" << composableBitfield.getName() << "'";
+  return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const ConstQualifiedType& constQualifiedType)
+{
+  os << "ConstQualifiedType(" << std::endl;
+  gs_indentation.push_back('\t');
+  os << gs_indentation << *constQualifiedType.getType();
+  gs_indentation.pop_back();
+  os << gs_indentation << ")END ConstQualifiedType '" << std::endl;
   return os;
 }

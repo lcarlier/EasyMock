@@ -1,14 +1,13 @@
 #include "Pointer.h"
 
-Pointer::Pointer(TypeItf *p_type, bool p_isConst):
-Pointer(p_type, "", p_isConst)
+Pointer::Pointer(TypeItf *p_type):
+Pointer(p_type, "")
 {
 }
 
-Pointer::Pointer(TypeItf *p_type,  const std::string p_type_def_name, bool p_isConst):
+Pointer::Pointer(TypeItf *p_type,  const std::string p_type_def_name):
 TypeItf("", p_type_def_name), m_pointedType(p_type), m_isIncompletePointerType(false)
 {
-  this->setConst(p_isConst);
   this->setPointer(true);
 }
 

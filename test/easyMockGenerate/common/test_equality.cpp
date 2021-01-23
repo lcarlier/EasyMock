@@ -12,6 +12,7 @@
 #include <FunctionDeclaration.h>
 #include <Enum.h>
 #include <ComposableBitfield.h>
+#include <ConstQualifiedType.h>
 
 TEST(equality, CType)
 {
@@ -33,24 +34,22 @@ TEST(equality, CType)
 
 TEST(equality, PointerToConstSame)
 {
-  bool isConst = true;
-  Pointer p1(new CType(CTYPE_INT, isConst));
-  Pointer p2(new CType(CTYPE_INT, !isConst));
+  Pointer p1 { new ConstQualifiedType(new CType(CTYPE_INT)) };
+  Pointer p2 { new CType(CTYPE_INT) };
+  Pointer p3 { new ConstQualifiedType(new CType(CTYPE_INT)) };
 
   ASSERT_NE(p1, p2);
-  p2.getPointedType()->setConst(isConst);
-  ASSERT_EQ(p1, p2);
+  ASSERT_EQ(p1, p3);
 }
 
 TEST(equality, ConstPointerSame)
 {
-  bool isConst = true;
-  Pointer p1(new CType(CTYPE_INT), isConst);
-  Pointer p2(new CType(CTYPE_INT), !isConst);
+  ConstQualifiedType ctp1 { new Pointer (new CType(CTYPE_INT)) };
+  Pointer p1 { new CType(CTYPE_INT) };
+  ConstQualifiedType ctp2 { new Pointer (new CType(CTYPE_INT)) };
 
-  ASSERT_NE(p1, p2);
-  p2.setConst(isConst);
-  ASSERT_EQ(p1, p2);
+  ASSERT_NE(static_cast<TypeItf&>(ctp1), static_cast<TypeItf&>(p1));
+  ASSERT_EQ(ctp1, ctp2);
 }
 
 template<typename T>
@@ -169,9 +168,8 @@ TEST(equality, ParameterPointerSameParam)
 
 TEST(equality, ParameterConstSameParam)
 {
-  bool isConst = true;
-  Parameter p1(new CType(CTYPE_VOID, isConst), "v1");
-  Parameter p2(new CType(CTYPE_VOID, isConst), "v2");
+  Parameter p1 { new ConstQualifiedType(new CType(CTYPE_VOID)), "v1" };
+  Parameter p2 { new ConstQualifiedType(new CType(CTYPE_VOID)), "v2" };
 
   //Even though name is different parameters are the same
   ASSERT_EQ(p1, p2);
@@ -211,14 +209,13 @@ TEST(equality, ParameterPointerDifferentParam)
 
 TEST(equality, ParameterConstDifferentParam)
 {
-  bool isConst = true;
-  Parameter p1(new CType(CTYPE_INT, isConst), "p1");
-  Parameter p2(new CType(CTYPE_VOID, isConst), "p1");
+  Parameter p1 { new ConstQualifiedType(new CType(CTYPE_INT)), "p1" };
+  Parameter p2 { new ConstQualifiedType(new CType(CTYPE_VOID)), "p1" };
 
   ASSERT_NE(p1, p2);
 
-  Parameter p3(new CType(CTYPE_INT, isConst), "p1");
-  Parameter p4(new CType(CTYPE_INT, !isConst), "p1");
+  Parameter p3 { new ConstQualifiedType(new CType(CTYPE_INT)), "p1" };
+  Parameter p4 { new CType(CTYPE_INT), "p1" };
 
   ASSERT_NE(p3, p4);
 }
@@ -257,9 +254,8 @@ TEST(equality, ReturnValuePointerSame)
 
 TEST(equality, ReturnValueConstSame)
 {
-  bool isConst = true;
-  ReturnValue rv1(new CType(CTYPE_INT, isConst));
-  ReturnValue rv2(new CType(CTYPE_INT, isConst));
+  ReturnValue rv1 { new ConstQualifiedType(new CType(CTYPE_INT)) };
+  ReturnValue rv2 { new ConstQualifiedType(new CType(CTYPE_INT)) };
 
   ASSERT_EQ(rv1, rv2);
 }
@@ -300,15 +296,13 @@ TEST(equality, ReturnValuePointerDifferent)
 
 TEST(equality, ReturnValueConstDifferent)
 {
-  bool isConst = true;
-
   ReturnValue rv1 = VoidReturnValue();
-  ReturnValue rv2 = ReturnValue(new CType(CTYPE_INT, isConst));
+  ReturnValue rv2 = ReturnValue { new ConstQualifiedType(new CType(CTYPE_INT)) };
 
   ASSERT_NE(rv1, rv2);
 
-  ReturnValue rv3 = ReturnValue(new CType(CTYPE_INT, isConst));
-  ReturnValue rv4 = ReturnValue(new CType(CTYPE_INT, !isConst));
+  ReturnValue rv3 = ReturnValue { new ConstQualifiedType(new CType(CTYPE_INT)) };
+  ReturnValue rv4 = ReturnValue { new CType(CTYPE_INT) };
 
   ASSERT_NE(rv3, rv4);
 }
@@ -371,9 +365,8 @@ TEST(equality, StructFieldPointerSame)
 
 TEST(equality, StructFieldConstSame)
 {
-  bool isConst = true;
-  ComposableField f1(new CType(CTYPE_INT, isConst), "a");
-  ComposableField f2(new CType(CTYPE_INT, isConst), "a");
+  ComposableField f1 { new ConstQualifiedType(new CType(CTYPE_INT)), "a" };
+  ComposableField f2 { new ConstQualifiedType(new CType(CTYPE_INT)), "a" };
 
   ASSERT_EQ(f1, f2);
 }
@@ -404,9 +397,8 @@ TEST(equality, StructFieldDifferent)
 
 TEST(equality, StructFieldConstDifferent)
 {
-  bool isConst = true;
-  ComposableField f1(new CType(CTYPE_INT, !isConst), "a");
-  ComposableField f2(new CType(CTYPE_INT, isConst), "a");
+  ComposableField f1 { new CType(CTYPE_INT), "a" };
+  ComposableField f2 { new ConstQualifiedType(new CType(CTYPE_INT)), "a" };
 
   ASSERT_NE(f1, f2);
 }

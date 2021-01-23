@@ -1,6 +1,8 @@
 #include "TypeItf.h"
 #include "Pointer.h"
 #include "FunctionType.h"
+#include "QualifiedType.h"
+#include "ConstQualifiedType.h"
 
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string.hpp>
@@ -26,7 +28,6 @@ TypeItf({.name = p_name, .typedDefName = p_typed_def_name,
         .isPointer = false,
         .isFunction = false,
         .isEnum = false,
-        .isConst = false,
         .isImplicit = false,
         .isIncompleteType = false
         })
@@ -43,7 +44,6 @@ TypeItf::TypeItf(TypeItf::attributes attrib)
   this->m_isPointer = attrib.isPointer;
   this->m_isFunction = attrib.isFunction;
   this->m_isEnum = attrib.isEnum;
-  this->m_isConst = attrib.isConst;
   this->m_isImplicit = attrib.isImplicit;
   this->m_isIncompleteType = attrib.isIncompleteType;
 }
@@ -58,7 +58,8 @@ std::string TypeItf::s_getFullDeclarationName(const TypeItf* type, bool fullyQua
 {
   const Pointer *ptrType = dynamic_cast<const Pointer*>(type);
   const TypeItf *pointedType = ptrType ? ptrType->getPointedType() : nullptr;
-  const FunctionType* pointedFuncType = pointedType ? dynamic_cast<const FunctionType*>(pointedType) : nullptr;
+  const FunctionType* pointedFuncType = dynamic_cast<const FunctionType*>(pointedType);
+  const QualifiedType* qualifiedType = dynamic_cast<const QualifiedType*>(type);
   std::string fullDeclarationName("");
   if(ptrType)
   {
@@ -104,9 +105,15 @@ std::string TypeItf::s_getFullDeclarationName(const TypeItf* type, bool fullyQua
       }
     }
   }
-  if(type->m_isConst && fullyQualified)
+  if(qualifiedType)
   {
-    fullDeclarationName.append("const ");
+    fullDeclarationName.append(s_getFullDeclarationName(qualifiedType->getType(), fullyQualified, naked));
+    fullDeclarationName.push_back(' ');
+    if(fullyQualified)
+    {
+      fullDeclarationName.append(qualifiedType->getString());
+      fullDeclarationName.push_back(' ');
+    }
   }
   if(!type->m_typedDefName.empty() && !naked && !pointedFuncType)
   {
@@ -190,14 +197,7 @@ void TypeItf::setUnion(bool value)
 
 bool TypeItf::isConst() const
 {
-  return m_isConst;
-}
-
-TypeItf* TypeItf::setConst(bool value)
-{
-  m_isConst = value;
-
-  return this;
+  return dynamic_cast<const ConstQualifiedType*>(this) != nullptr;
 }
 
 bool TypeItf::isImplicit() const
@@ -263,7 +263,8 @@ bool TypeItf::isTypedDef() const
 bool TypeItf::isAnonymous() const
 {
   //Pointer types are never anonymous
-  return !m_isPointer && m_name.empty() && m_typedDefName.empty();
+  const ConstQualifiedType* constType = dynamic_cast<const ConstQualifiedType*>(this);
+  return !constType && !m_isPointer && m_name.empty() && m_typedDefName.empty();
 }
 
 bool TypeItf::isComposableType() const
@@ -303,7 +304,9 @@ bool TypeItf::operator==(const TypeItf& other) const
 
 bool TypeItf::isEqual(const TypeItf& other) const
 {
-  return this->m_name == other.m_name &&
+  bool isAnonymousEqual = this->isAnonymous() == other.isAnonymous();
+  return isAnonymousEqual &&
+          this->m_name == other.m_name &&
           this->m_typedDefName == other.m_typedDefName &&
           this->m_isCType == other.m_isCType &&
           this->m_isStruct == other.m_isStruct &&
@@ -311,7 +314,6 @@ bool TypeItf::isEqual(const TypeItf& other) const
           this->m_isPointer == other.m_isPointer &&
           this->m_isFunction == other.m_isFunction &&
           this->m_isEnum == other.m_isEnum &&
-          this->m_isConst == other.m_isConst &&
           this->m_isImplicit == other.m_isImplicit &&
           this->m_isIncompleteType == other.m_isIncompleteType;
 }

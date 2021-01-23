@@ -5,6 +5,7 @@
 #include <EasyMock_CType.h>
 #include <vector>
 #include <Pointer.h>
+#include <ConstQualifiedType.h>
 
 template <typename PTR_TYPE, easyMock_cTypes_t C_TYPE, bool isConst>
 class PtrFunPtrGenericFactory : public FunctionFactory<PTR_TYPE *, std::tuple<PTR_TYPE *>, std::tuple<EasyMock_Matcher>>
@@ -20,13 +21,29 @@ class PtrFunPtrGenericFactory : public FunctionFactory<PTR_TYPE *, std::tuple<PT
 
   FunctionDeclaration functionFactory() override
   {
-    TypeItf *rvType = new Pointer(new CType(C_TYPE, isConst));
+    TypeItf *rvType = nullptr;
+    std::string declString { "" };
+    if(isConst)
+    {
+      declString.append("const ");
+      rvType = new Pointer(new ConstQualifiedType(new CType(C_TYPE)));
+    }
+    else
+    {
+      rvType = new Pointer(new CType(C_TYPE));
+    }
+    declString.append(easyMock_arrayCTypeStr[C_TYPE]);
+    declString.push_back('*');
     TypeItf *paramType = rvType->clone();
 
-    FunctionDeclaration f(functionGetFunctionName(), ReturnValue(rvType), Parameter::Vector({new Parameter(paramType, "ptr")}));
-
-    rvType = nullptr; //We lost the ownership
+    Parameter *p = new Parameter(paramType, "ptr");
     paramType = nullptr; //We lost the ownership
+    p->setDeclareString(declString);
+    ReturnValue rv { rvType };
+    rvType = nullptr; //We lost the ownership
+    rv.setDeclareString(declString);
+    FunctionDeclaration f(functionGetFunctionName(), rv, Parameter::Vector({p}));
+
     return f;
   }
 

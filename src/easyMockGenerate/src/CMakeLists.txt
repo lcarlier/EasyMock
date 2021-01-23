@@ -21,6 +21,8 @@ add_library(${EASYMOCK_COMMON_OBJ}
   ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/ElementToMockContext.cpp
   ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/ComposableBitfield.cpp
   ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/ComposableFieldItf.cpp
+  ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/QualifiedType.cpp
+  ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/ConstQualifiedType.cpp
 )
 
 set(EASYMOCK_GEN_SOURCE_FILE

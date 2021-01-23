@@ -3,6 +3,7 @@
 #include <StructType.h>
 #include <FunctionType.h>
 #include <Pointer.h>
+#include <ConstQualifiedType.h>
 
 #include <string>
 
@@ -27,11 +28,11 @@ TEST(ReturnValue, CheckPointerToFunction)
 TEST(ReturnValue, CheckConstPointerToFunction)
 {
   FunctionType *ft = new FunctionType("", TypedReturnValue(CTYPE_INT), Parameter::Vector({NamedParameter(CTYPE_FLOAT, "")}));
-  Pointer *ptf = new Pointer(ft, true);
+  ConstQualifiedType *cptf = new ConstQualifiedType(new Pointer(ft));
   ft = nullptr;
-  ReturnValue rv(ptf);
-  ptf = nullptr;
-  EXPECT_STRCASEEQ(rv.getDeclareString().c_str(), "int(*const");
+  ReturnValue rv(cptf);
+  cptf = nullptr;
+  EXPECT_STRCASEEQ(rv.getDeclareString().c_str(), "int(* const");
 }
 
 /*
@@ -58,12 +59,12 @@ TEST(ReturnValue, CheckPointerToPointerToFunction)
 TEST(ReturnValue, CheckConstPointerToConstPointerToFunction)
 {
   FunctionType *ft1 = new FunctionType("", TypedReturnValue(CTYPE_DOUBLE), Parameter::Vector({NamedParameter(CTYPE_CHAR, "")}));
-  Pointer *ptf1 = new Pointer(ft1, true);
+  ConstQualifiedType *cptf1 = new ConstQualifiedType(new Pointer(ft1));
   ft1 = nullptr;
-  FunctionType *ft2 = new FunctionType("", ReturnValue(ptf1), Parameter::Vector({NamedParameter(CTYPE_FLOAT, "")}));
-  ptf1 = nullptr;
-  Pointer *ptf2 = new Pointer(ft2, true);
+  FunctionType *ft2 = new FunctionType("", ReturnValue(cptf1), Parameter::Vector({NamedParameter(CTYPE_FLOAT, "")}));
+  cptf1 = nullptr;
+  ConstQualifiedType *cptf2 = new ConstQualifiedType(new Pointer(ft2));
   ft2 = nullptr;
-  ReturnValue rv(ptf2);
-  EXPECT_STRCASEEQ(rv.getDeclareString().c_str(), "double(*const(*const");
+  ReturnValue rv(cptf2);
+  EXPECT_STRCASEEQ(rv.getDeclareString().c_str(), "double(* const(* const");
 }

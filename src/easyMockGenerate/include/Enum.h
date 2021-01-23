@@ -18,14 +18,19 @@
 class Enum  : public TypeItf
 {
 public:
-  /*
-   * \brief Create an enum
+  /*!
+   * \brief Creates an enum
    *
    * \param p_name The enum name
-   * \param p_typed_def_name The enum typedef alias
-   * \param p_is_const Specifies whether the value of the enum is constant.
    */
-  Enum(const std::string p_name, const std::string p_typed_def_name, const bool p_is_const = false);
+  Enum(const std::string p_name);
+
+  /*!
+   * \copydoc Enum(std::string)
+   *
+   * \param p_typed_def_name The enum typedef alias
+   */
+  Enum(const std::string p_name, const std::string p_typed_def_name);
 
   /*!
    * \copydoc TypeItf::clone

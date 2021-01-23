@@ -298,17 +298,6 @@ public:
   bool isImplicit() const;
 
   /*!
-   * \brief Set the type to be const.
-   *
-   * \warning When the type is a Pointer, make sure to use this function with care as the way
-   * to declare constant pointed value is by using this function the the type
-   * returned by Pointer::getPointedType().
-   *
-   * \sa isConst()
-   */
-  TypeItf* setConst(bool value);
-
-  /*!
    * \brief Set the type to be implicit.
    *
    * Implicit types are types that are defined by the compiler such as va_args.
@@ -353,7 +342,6 @@ public:
   bool prefix ## isPointer; \
   bool prefix ## isFunction; \
   bool prefix ## isEnum; \
-  bool prefix ## isConst; \
   bool prefix ## isImplicit; \
   bool prefix ## isIncompleteType;
 

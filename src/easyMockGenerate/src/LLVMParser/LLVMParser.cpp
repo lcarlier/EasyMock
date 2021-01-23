@@ -12,6 +12,7 @@
 #include <IncompleteType.h>
 #include <ComposableField.h>
 #include <ComposableBitfield.h>
+#include <ConstQualifiedType.h>
 
 #include <clang/AST/RecursiveASTVisitor.h>
 #include <clang/Frontend/CompilerInstance.h>
@@ -216,7 +217,10 @@ private:
       clangType.dump();
       assert(false);
     }
-    type->setConst(clangQualType.isLocalConstQualified());
+    if(clangQualType.isLocalConstQualified())
+    {
+      type = new ConstQualifiedType(type);
+    }
 
     clang::RecordDecl *recDecl = clangType.getAsRecordDecl();
     if(recDecl)
@@ -471,7 +475,7 @@ private:
 
     std::string typedDefName = getTypedefName(type);
 
-    return new Pointer(rv, typedDefName, false);
+    return new Pointer(rv, typedDefName);
   }
 
   TypeItf* getFromArrayType(const clang::Type &type, structKnownTypeMap &structKnownType)

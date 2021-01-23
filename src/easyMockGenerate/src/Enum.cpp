@@ -1,9 +1,13 @@
 #include "Enum.h"
 
-Enum::Enum(const std::string p_name, const std::string p_typed_def_name, const bool p_is_const):
-TypeItf(p_name, p_typed_def_name)
+Enum::Enum(const std::string p_name):
+Enum { p_name, "" }
 {
-  setConst(p_is_const);
+}
+
+Enum::Enum(const std::string p_name, const std::string p_typed_def_name):
+TypeItf { p_name, p_typed_def_name }
+{
   setEnum(true);
 }
 

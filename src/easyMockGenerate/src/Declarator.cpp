@@ -60,7 +60,7 @@ void Declarator::setType(TypeItf* type)
   }
 }
 
-void Declarator::setDeclareString(const std::string& newString)
+Declarator& Declarator::setDeclareString(const std::string& newString)
 {
   if(!newString.empty())
   {
@@ -73,6 +73,8 @@ void Declarator::setDeclareString(const std::string& newString)
   {
     this->m_declaredString = this->m_type->getFullDeclarationName();
   }
+
+  return *this;
 }
 
 std::string Declarator::getDeclareString(bool p_naked) const
