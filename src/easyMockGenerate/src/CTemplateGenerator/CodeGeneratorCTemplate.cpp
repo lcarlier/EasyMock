@@ -110,6 +110,9 @@
 #define GENERATED_TYPE_DECLARE_TYPE_SECTION "GENERATED_TYPE_DECLARE_TYPE_SECTION"
 #define GENERATED_TYPE_DECLARE_TYPE_VAR "GENERATED_TYPE_DECLARE_TYPE_VAR"
 #define GENERATED_TYPE_DECLARE_TYPE_TEMPLATE_VAR TEMPLATE_VAR(GENERATED_TYPE_DECLARE_TYPE_VAR)
+#define GENERATED_TYPE_DECLARE_TYPENAME_VAR "GENERATED_TYPE_TYPENAME_VAR"
+#define GENERATED_TYPE_DECLARE_TYPENAME_TEMPLATE_VAR TEMPLATE_VAR(GENERATED_TYPE_DECLARE_TYPENAME_VAR)
+#define GENERATED_TYPE_DECLARE_MACRO_GUARD_NAME MOCK_FRAMEWORK_NAME_UPPER "_" GENERATED_TYPE_DECLARE_TYPENAME_TEMPLATE_VAR "_GENERATED"
 
 #define GENERATED_MACRO_SECTION "GENERATED_MACRO_SECTION"
 #define GENERATED_MACRO_ID_VAR "GENERATED_MACRO_ID_VAR"
@@ -582,11 +585,14 @@ static const char headerFileTemplate[] =
           "#endif" CARRIAGE_RETURN
           TEMPLATE_END_SECTION(GENERATED_MACRO_SECTION)
           TEMPLATE_BEG_SECTION(GENERATED_TYPE_SECTION)
+          "#ifndef " GENERATED_TYPE_DECLARE_MACRO_GUARD_NAME CARRIAGE_RETURN
+          "#define " GENERATED_TYPE_DECLARE_MACRO_GUARD_NAME CARRIAGE_RETURN
           IF_SECTION_EXISTS(GENERATED_TYPE_DECLARE_TYPE_SECTION,
             GENERATED_TYPE_DECLARE_TYPE_TEMPLATE_VAR ";"
           )
           TEMPLATE_INCL_SECTION(COMPOSABLE_TYPE_DECLARE_COMPOSABLE_TYPE_SECTION)
           CARRIAGE_RETURN
+          "#endif //" GENERATED_TYPE_DECLARE_MACRO_GUARD_NAME CARRIAGE_RETURN
           TEMPLATE_END_SECTION(GENERATED_TYPE_SECTION)
           "//---------------- END GENERATING USED TYPE -----------------"  CARRIAGE_RETURN
         ) //IF_SECTION_EXISTS(GENERATE_MOCKED_TYPE_SECTION,
@@ -1181,11 +1187,17 @@ void CodeGeneratorCTemplate::generateDeclarationOfUsedType(ctemplate::TemplateDi
   if(p_type->isComposableType())
   {
     ctemplate::TemplateDictionary *generatedType_section = m_generateMockedTypeSection->AddSectionDictionary(GENERATED_TYPE_SECTION);
+    const std::string& typeName = p_type->getMostDefinedName();
+    assert(!typeName.empty());
+    generatedType_section->SetValue(GENERATED_TYPE_DECLARE_TYPENAME_VAR, typeName);
     generateDeclarationOfAnonymousType(p_rootDictionnary, generatedType_section, dynamic_cast<const ComposableType*>(p_type), false);
   }
   else if(p_type->isTypedDef())
   {
     ctemplate::TemplateDictionary *generatedType_section = m_generateMockedTypeSection->AddSectionDictionary(GENERATED_TYPE_SECTION);
+    const std::string& typeName = p_type->getMostDefinedName();
+    assert(!typeName.empty());
+    generatedType_section->SetValue(GENERATED_TYPE_DECLARE_TYPENAME_VAR, typeName);
     ctemplate::TemplateDictionary* generatedType_typeSection = generatedType_section->AddSectionDictionary(GENERATED_TYPE_DECLARE_TYPE_SECTION);
     std::string declaredType("typedef ");
     declaredType.append(p_type->getFullDeclarationName(true));
