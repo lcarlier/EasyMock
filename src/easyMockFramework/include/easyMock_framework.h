@@ -5,9 +5,13 @@
 #ifndef EASYMOCK_FRAMEWORK_H
 #define EASYMOCK_FRAMEWORK_H
 
-#include <cstring.h>
+/*
+ * We do not include header from the standard library because we want our header
+ * to be used on file that are compiled with -nostdinc
+ */
 
-#include <stdbool.h>
+#include "easyMock_glueStdlib.h"
+#include "cstring.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -36,7 +40,7 @@ typedef struct
    *
    * This callback is called by easyMock_check().
    */
-  bool (*verifyMockedFile) ();
+  easyMock_bool (*verifyMockedFile) ();
 } easyMock_mockedFileRegister_t;
 
 /*!
@@ -79,18 +83,18 @@ cstring easyMock_popCurrentCall();
  * This function is called by the mocked header code whenever an error has
  * to be reported.
  */
-void easyMock_addError(bool callback, const char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
+void easyMock_addError(easyMock_bool callback, const char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
 /*!
  * \brief Returns whether the order of call of mocked function must be checked.
  *
  * This function is called by the mocked header code to report an error if the
  * wrong function was called.
  */
-bool easyMock_checkCallsOrder();
+easyMock_bool easyMock_checkCallsOrder();
 /*!
  * \brief Returns whether the call stack must be part of the error messages.
  */
-bool easyMock_printCallStack();
+easyMock_bool easyMock_printCallStack();
 
 #ifdef __cplusplus
 }

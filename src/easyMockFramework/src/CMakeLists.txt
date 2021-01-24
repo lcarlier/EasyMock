@@ -5,6 +5,7 @@ set(EASYMOCK_FRAMEWORK_LIBRARY_SOURCE_FILE
   ${EasyMock_SOURCE_DIR}/src/easyMockFramework/src/easyMock_matcher.cpp
   ${EasyMock_SOURCE_DIR}/src/easyMockFramework/src/cstring.c
   ${EasyMock_SOURCE_DIR}/src/easyMockFramework/src/MockedFunction.c
+  ${EasyMock_SOURCE_DIR}/src/easyMockFramework/src/easyMock_glueStdlib.c
 )
 
 add_library(${EASYMOCK_FRAMEWORK_LIBRARY} SHARED

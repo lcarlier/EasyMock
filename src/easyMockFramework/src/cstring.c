@@ -23,7 +23,7 @@ cstring cstring_new_init(const char *initVal)
   return rv;
 }
 
-size_t cstring_length(const cstring *s)
+easyMock_size_t cstring_length(const cstring *s)
 {
   if(s->heap)
   {

@@ -14,6 +14,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <boost/core/demangle.hpp>
+#include <cstdbool>
 
 #undef NDEBUG
 #include <assert.h>
@@ -315,7 +316,7 @@ extern "C" void easyMock_addCall(const char* call)
   easyMock.addCall(newCall);
 }
 
-extern "C" void easyMock_addError(bool callstack, const char *fmt, ...)
+extern "C" void easyMock_addError(easyMock_bool callstack, const char *fmt, ...)
 {
   //https://en.cppreference.com/w/cpp/io/c/vfprintf
   va_list args1;
@@ -331,12 +332,12 @@ extern "C" void easyMock_addError(bool callstack, const char *fmt, ...)
   easyMock.addError(error, callstack);
 }
 
-extern "C" bool easyMock_checkCallsOrder()
+extern "C" easyMock_bool easyMock_checkCallsOrder()
 {
   return easyMock.checkCallsOrder();
 }
 
-extern "C" bool easyMock_printCallStack()
+extern "C" easyMock_bool easyMock_printCallStack()
 {
   return easyMock.printCallStack();
 }
@@ -361,12 +362,12 @@ extern "C" const char **easyMock_getErrorArr(unsigned int *size)
   return easyMock.getErrorArr(size);
 }
 
-extern "C" void easyMock_setPrintCallStack(bool val)
+extern "C" void easyMock_setPrintCallStack(easyMock_bool val)
 {
   easyMock.setPrintCallStack(val);
 }
 
-extern "C" void easyMock_setCheckCallsOrder(bool val)
+extern "C" void easyMock_setCheckCallsOrder(easyMock_bool val)
 {
   easyMock.setCheckCallsOrder(val);
 }

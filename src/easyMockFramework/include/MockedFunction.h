@@ -7,9 +7,12 @@
 #ifndef MOCKEDFUNCTION_H
 #define MOCKEDFUNCTION_H
 
-#include <easyMock_framework.h>
+/*
+ * We do not include header from the standard library because we want our header
+ * to be used on file that are compiled with -nostdinc
+ */
 
-#include <stddef.h>
+#include <easyMock_framework.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,7 +34,7 @@ typedef struct
   /*!
    * \brief Size of the element stored in mockedData.
    */
-  size_t dataSize;
+  easyMock_size_t dataSize;
   /*!
    * \brief Store the number of the expected call.
    */
@@ -54,7 +57,7 @@ typedef struct
 /*!
  * \brief Initialise a MockedFunction
  */
-void MockedFunction_init(MockedFunction *mf, const char* name, size_t dataSize);
+void MockedFunction_init(MockedFunction *mf, const char* name, easyMock_size_t dataSize);
 
 /*!
  * \brief Add an expected call to the MockedFunction data.
@@ -64,12 +67,12 @@ void MockedFunction_addExpectedCall(MockedFunction *mf, const void* data);
 /*!
  * \brief Get the data of the current expected function call.
  */
-bool MockedFunction_getCurrentCallParam(MockedFunction *mf, void* data);
+easyMock_bool MockedFunction_getCurrentCallParam(MockedFunction *mf, void* data);
 
 /*!
  * \brief Add an actual call to the MockedFunction data.
  */
-bool MockedFunction_addActualCall(MockedFunction *mf);
+easyMock_bool MockedFunction_addActualCall(MockedFunction *mf);
 
 /*!
  * \brief Returns the number of actual call done on the mocked function.
@@ -99,7 +102,7 @@ void MockedFunction_reset(MockedFunction *mf);
  * - no errors are reported.
  * - the number of actual call is equal to the number of expected call
  */
-bool MockedFunction_verify(MockedFunction *mf);
+easyMock_bool MockedFunction_verify(MockedFunction *mf);
 
 #ifdef __cplusplus
 }

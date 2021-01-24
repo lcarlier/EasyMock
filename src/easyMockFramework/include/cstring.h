@@ -6,11 +6,16 @@
 #ifndef CSTRING_H
 #define CSTRING_H
 
+/*
+ * We do not include header from the standard library because we want our header
+ * to be used on file that are compiled with -nostdinc
+ */
+
+#include "easyMock_glueStdlib.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <stddef.h>
 
 #ifndef CSTRING_MAX_STACK_SIZE
 #define CSTRING_MAX_STACK_SIZE 256
@@ -49,7 +54,7 @@ void cstring_append(cstring *s, const char *strToAppend);
 /*!
  * \brief Returns the length of the string in a similar fashion as strlen.
  */
-size_t cstring_length(const cstring *s);
+easyMock_size_t cstring_length(const cstring *s);
 
 /*!
  * \brief Returns the internal pointer of the cstring

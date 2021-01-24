@@ -23,6 +23,7 @@ add_executable(${EASYMOCK_GENERATE_TEST_BINARY}
     ${EasyMock_SOURCE_DIR}/src/easyMockFramework/src/easyMock_matcher.cpp
     ${EasyMock_SOURCE_DIR}/src/easyMockFramework/src/cstring.c
     ${EasyMock_SOURCE_DIR}/src/easyMockFramework/src/MockedFunction.c
+    ${EasyMock_SOURCE_DIR}/src/easyMockFramework/src/easyMock_glueStdlib.c
 )
 
 add_dependencies(${EASYMOCK_GENERATE_TEST_BINARY} generateTestInclude)

@@ -14,7 +14,7 @@ static void MockedFunction_emptyDataQueue(MockedFunction* mf);
 static bool MockedFunction_isEmpty(MockedFunction* mf);
 static unsigned int MockedFunction_getCurrentIdx(MockedFunction* mf);
 
-void MockedFunction_init(MockedFunction *mf, const char* name, size_t dataSize)
+void MockedFunction_init(MockedFunction *mf, const char* name, easyMock_size_t dataSize)
 {
   mf->name = name;
   mf->dataSize = dataSize;
@@ -49,7 +49,7 @@ void MockedFunction_addExpectedCall(MockedFunction *mf, const void* data)
   mf->expectedCall++;
 }
 
-bool MockedFunction_getCurrentCallParam(MockedFunction *mf, void* data)
+easyMock_bool MockedFunction_getCurrentCallParam(MockedFunction *mf, void* data)
 {
   if(MockedFunction_isEmpty(mf))
   {
@@ -67,7 +67,7 @@ bool MockedFunction_getCurrentCallParam(MockedFunction *mf, void* data)
   return true;
 }
 
-bool MockedFunction_addActualCall(MockedFunction *mf)
+easyMock_bool MockedFunction_addActualCall(MockedFunction *mf)
 {
   /*
    * Increment the actualCall anyway because MockedFunction_verify()
@@ -98,7 +98,7 @@ void MockedFunction_reset(MockedFunction *mf)
   MockedFunction_emptyDataQueue(mf);
 }
 
-bool MockedFunction_verify(MockedFunction *mf)
+easyMock_bool MockedFunction_verify(MockedFunction *mf)
 {
   if (mf->expectedCall != mf->actualCall)
   {
