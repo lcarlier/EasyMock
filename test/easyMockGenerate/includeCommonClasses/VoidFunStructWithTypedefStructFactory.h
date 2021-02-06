@@ -21,5 +21,11 @@ public:
 
 };
 
+class VoidFunStructWithTypedefStructGenerateTypeFactory : public VoidFunStructWithTypedefStructFactory
+{
+public:
+  VoidFunStructWithTypedefStructGenerateTypeFactory() { m_generate_types = true; }
+};
+
 #endif /* VOIDFUNSTRUCTWITHTYPEDEFSTRUCT_H */
 

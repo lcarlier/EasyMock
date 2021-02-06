@@ -14,5 +14,11 @@ public:
 
 };
 
+class StructFileFromStdioGenerateTypeFactory : public StructFileFromStdioFactory
+{
+public:
+  StructFileFromStdioGenerateTypeFactory() { m_generate_types = true; }
+};
+
 #endif /* STRUCTFILEFROMSTDIOFACTORY_H */
 

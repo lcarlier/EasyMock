@@ -21,5 +21,11 @@ public:
 
 };
 
+class VoidFunStructWithAnonymousStructFieldGenerateTypeFactory : public VoidFunStructWithAnonymousStructFieldFactory
+{
+public:
+  VoidFunStructWithAnonymousStructFieldGenerateTypeFactory() { m_generate_types = true; }
+};
+
 #endif /* VOIDFUNSTRUCTWITHANONYMOUSSTRUCTFIELDFACTORY_H */
 

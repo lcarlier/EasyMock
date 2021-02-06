@@ -21,6 +21,11 @@ ComposableType(p_name, p_type_def_name, p_elem, p_is_embedded_in_other_type)
   setStruct(true);
 }
 
+const char* StructType::getComposableTypeKeyword() const
+{
+  return "struct";
+}
+
 StructType* StructType::clone() const
 {
   return new StructType(*this);

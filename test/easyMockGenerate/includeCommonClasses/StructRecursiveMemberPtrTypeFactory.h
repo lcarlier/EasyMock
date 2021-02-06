@@ -13,5 +13,11 @@ public:
   std::string getFilename() override;
 };
 
+class StructRecursiveMemberPtrTypeGenerateTypeFactory : public StructRecursiveMemberPtrTypeFactory
+{
+public:
+  StructRecursiveMemberPtrTypeGenerateTypeFactory() { m_generate_types = true; }
+};
+
 #endif /* STRUCTRECURSIVEMEMBERPTRTYPEFACTORY_H */
 

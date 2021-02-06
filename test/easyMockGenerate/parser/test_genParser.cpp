@@ -29,8 +29,15 @@ TYPED_TEST(GenericParser_testCase, parser)
   ASSERT_EQ(elementToMock.size(), funList.size());
   for(size_t funIdx = 0; funIdx < funList.size(); funIdx++)
   {
-    FunctionDeclaration& funFromFactory = funList[funIdx];
+    const FunctionDeclaration& funFromFactory = funList[funIdx];
+    std::ostringstream factorySs;
+    factorySs <<  funFromFactory;
+
     const FunctionDeclaration& funFromParser = FunctionDeclaration::toFunctionDeclaration(elementToMock[funIdx]);
+    std::ostringstream parserSs;
+    parserSs << funFromParser;
+
+    ASSERT_STRCASEEQ(factorySs.str().c_str(), parserSs.str().c_str()) << std::endl << "factoryStr" << factorySs.str() << std::endl << "parserStr" << parserSs.str();
     ASSERT_EQ(funFromFactory, funFromParser) << "funIdx: " << funIdx;
   }
   DefinedMacroList ml = funFactory.getDefinedMacroList();

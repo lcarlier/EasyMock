@@ -53,25 +53,29 @@ public:
   CodeGeneratorCTemplate();
   bool generateCode(const std::string& p_outDir, const std::string &p_fullPathToHeaderToMock, const ElementToMockContext& p_elem) override;
 private:
-  void fillInTemplateVariables(ctemplate::TemplateDictionary *dict, const std::string &mockedHeader, const ElementToMock::Vector &fList);
+  void fillInTemplateVariables(const std::string &mockedHeader, const ElementToMock::Vector &fList);
   void fillInMacroDefinition(const ElementToMockContext& p_elem);
-  void generateFunctionSection(ctemplate::TemplateDictionary *rootDictionnary, const FunctionDeclaration *f);
-  void generateFunctionParamSection(ctemplate::TemplateDictionary *rootDictionnary, ctemplate::TemplateDictionary *dict, const Parameter::Vector& functionParam);
+  void generateFunctionSection( const FunctionDeclaration *f);
+  void generateFunctionParamSection(ctemplate::TemplateDictionary *dict, const Parameter::Vector& functionParam);
   //p_uniquePrepend and p_declPrepend must never become a reference because the string appended in recursive calls must reverted when the recursive call returns
-  void generateBodyStructCompare(ctemplate::TemplateDictionary *rootDictionnary, ctemplate::TemplateDictionary *paramSectDict, const ComposableType *p_structType, const ComposableFieldItf *p_curField, const ComposableFieldItf *p_previousField, std::string p_uniquePrepend, std::string p_declPrepend);
-  void generateComposedTypedCompareSection(ctemplate::TemplateDictionary *p_rootDictionnary, const ComposableType *p_composedType, std::string p_uniquePrepend, std::string p_declPrepend);
-  ctemplate::TemplateDictionary* generateDeclarationOfAnonymousType(ctemplate::TemplateDictionary *p_rootDictionnary, ctemplate::TemplateDictionary *compareDir, const ComposableType *p_composedType, bool p_forceAnonymousType);
-  void generateDeclarationOfUsedType(ctemplate::TemplateDictionary *p_rootDictionnary, const TypeItf* p_type);
+  void generateBodyStructCompare(ctemplate::TemplateDictionary *paramSectDict, const ComposableType *p_structType, const ComposableFieldItf *p_curField, const ComposableFieldItf *p_previousField, std::string p_uniquePrepend, std::string p_declPrepend);
+  void generateComposedTypedCompareSection(const ComposableType *p_composedType, std::string p_uniquePrepend, std::string p_declPrepend);
+  ctemplate::TemplateDictionary* generateDeclarationOfAnonymousType(ctemplate::TemplateDictionary *compareDir, const ComposableType *p_composedType, bool p_forceAnonymousType, int p_level);
+  void generateDeclarationOfUsedType(ctemplate::TemplateDictionary* p_parentDict, const TypeItf* p_type);
   bool generateCodeToFile(const std::string &outDir, const std::string &filename, const std::string &extension, const std::string &generatedCode);
   std::string getDeclaratorString(const Declarator* p_decl);
   std::string getNonQualifiedDeclaratorString(const Declarator* p_decl);
   void generateBasicTypeField(const ComposableFieldItf *curField, ctemplate::TemplateDictionary *paramSectDict, const ComposableType *p_composedType, std::string p_declPrepend);
-  void generateExtraDecl(ctemplate::TemplateDictionary *p_rootDictionnary, ctemplate::TemplateDictionary *dict, const char *sectionName, const char *templateFileName, const FunctionType *ft);
+  void generateExtraDecl(ctemplate::TemplateDictionary *dict, const char *sectionName, const char *templateFileName, const FunctionType *ft);
   void generateFieldCmp(std::string &p_condition, const ComposableType *p_composedType, const ComposableFieldItf *p_curField, const ComposableFieldItf *p_previousField, std::string p_varName);
   void setStructCompareStringFormat(ctemplate::TemplateDictionary *p_errorDict, const TypeItf* p_curFieldType);
+  bool isTypeGenerated(const TypeItf* p_type, bool p_insert);
+
+  const TypeItf* getMostPointedType(const TypeItf* p_type);
 
   std::unordered_set<std::string> m_generatedComparator;
   unsigned int m_nbUnamedParam;
+  ctemplate::TemplateDictionary *m_rootDictionary;
   ctemplate::TemplateDictionary *m_generateMockedTypeSection;
   std::unordered_set<std::string> m_generateTypes;
 };

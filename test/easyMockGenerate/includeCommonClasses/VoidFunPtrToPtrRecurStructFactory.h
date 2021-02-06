@@ -15,5 +15,11 @@ public:
 
 };
 
+class VoidFunPtrToPtrRecurStructGenerateTypeFactory : public VoidFunPtrToPtrRecurStructFactory
+{
+public:
+  VoidFunPtrToPtrRecurStructGenerateTypeFactory() { m_generate_types = true; }
+};
+
 #endif /* VOIDFUNPTRTOPTRRECURSTRUCTFACTORY_H */
 

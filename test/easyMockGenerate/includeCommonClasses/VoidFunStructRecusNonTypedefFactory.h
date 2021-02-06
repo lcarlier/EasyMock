@@ -14,5 +14,11 @@ public:
 
 };
 
+class VoidFunStructRecusNonTypedefGenerateTypeFactory : public VoidFunStructRecusNonTypedefFactory
+{
+public:
+  VoidFunStructRecusNonTypedefGenerateTypeFactory() { m_generate_types = true; }
+};
+
 #endif /* VOIDFUNSTRUCTRECUSNONTYPEDEFFACTORY_H */
 

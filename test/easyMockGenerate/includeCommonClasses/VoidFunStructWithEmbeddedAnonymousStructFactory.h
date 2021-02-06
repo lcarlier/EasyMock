@@ -21,5 +21,11 @@ public:
 
 };
 
+class VoidFunStructWithEmbeddedAnonymousStructGenerateTypeFactory : public VoidFunStructWithEmbeddedAnonymousStructFactory
+{
+public:
+  VoidFunStructWithEmbeddedAnonymousStructGenerateTypeFactory() { m_generate_types = true; }
+};
+
 #endif /* VOIDFUNSTRUCTWITHEMBEDDEDANONYMOUSSTRUCTFACTORY_H */
 

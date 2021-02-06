@@ -21,5 +21,11 @@ public:
 
 };
 
+class VoidFunStructWithEmbeddedStructGenerateTypeFactory : public VoidFunStructWithEmbeddedStructFactory
+{
+public:
+  VoidFunStructWithEmbeddedStructGenerateTypeFactory() { m_generate_types = true; }
+};
+
 #endif /* VOIDFUNSTRUCTWITHEMBEDDEDSTRUCTFACTORY_H */
 

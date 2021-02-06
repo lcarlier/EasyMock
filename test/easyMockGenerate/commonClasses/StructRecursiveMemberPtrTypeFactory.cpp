@@ -9,7 +9,7 @@ FunctionDeclaration StructRecursiveMemberPtrTypeFactory::functionFactory()
 {
   bool isEmbeddedInOtherType = false;
   StructType *recurStruct = new StructType("recurs", isEmbeddedInOtherType);
-  ComposableField *valField = new ComposableField(new Pointer(new IncompleteType(*recurStruct)), "val");
+  ComposableField *valField = new ComposableField(new Pointer(new IncompleteType(*recurStruct, IncompleteType::Type::STRUCT)), "val");
   recurStruct->addField(valField);
 
   FunctionDeclaration f(functionGetFunctionName(), VoidReturnValue(), Parameter::Vector({new Parameter(recurStruct, "rec")}));

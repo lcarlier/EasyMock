@@ -12,16 +12,16 @@ FunctionDeclaration StructFileFromStdioFactory::functionFactory()
   StructType *FILE_T = new StructType("MY_IO_FILE", "T_MY_IO_FILE", isEmbeddedInOtherType);
   StructType *IO_MARK = new StructType("MY_IO_MARK", isEmbeddedInOtherType);
 
-  ComposableField* cf = new ComposableField(new Pointer(new IncompleteType(*IO_MARK)), "_next");
+  ComposableField* cf = new ComposableField(new Pointer(new IncompleteType(*IO_MARK, IncompleteType::Type::STRUCT)), "_next");
   IO_MARK->addField(cf);
-  cf = new ComposableField(new Pointer(new IncompleteType(*FILE_T)), "_sbuf");
+  cf = new ComposableField(new Pointer(new IncompleteType(*FILE_T, IncompleteType::Type::STRUCT)), "_sbuf");
   //When the _sbuf field is declared, it is not yet typed def
   cf->setDeclareString("struct MY_IO_FILE*");
   IO_MARK->addField(cf);
 
   cf = new ComposableField(new Pointer(IO_MARK), "_markers");
   FILE_T->addField(cf);
-  cf = new ComposableField(new Pointer(new IncompleteType(*FILE_T)), "_chain");
+  cf = new ComposableField(new Pointer(new IncompleteType(*FILE_T, IncompleteType::Type::STRUCT)), "_chain");
   //When the _chain field is declared, it is not yet typed def
   cf->setDeclareString("struct MY_IO_FILE*");
   FILE_T->addField(cf);

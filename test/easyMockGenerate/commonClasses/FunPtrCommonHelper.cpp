@@ -40,7 +40,7 @@ FunctionDeclaration* getFunPtrDeclaration(unsigned int n, const char *functionNa
       FunctionType* ft2 = new FunctionType("", rv, Parameter::Vector({NamedParameter(CTYPE_FLOAT, ""), NamedParameter(CTYPE_FLOAT, "")}));
       Pointer *ptf2 = new Pointer(ft2);
 
-      FunctionDeclaration *fd = new FunctionDeclaration(functionName, TypedReturnValue(CTYPE_INT), Parameter::Vector({new Parameter(ptf2, "param")}));
+      FunctionDeclaration *fd = new FunctionDeclaration(functionName, TypedReturnValue(CTYPE_INT), Parameter::Vector({new Parameter(ptf2, "")}));
       return fd;
     }
 

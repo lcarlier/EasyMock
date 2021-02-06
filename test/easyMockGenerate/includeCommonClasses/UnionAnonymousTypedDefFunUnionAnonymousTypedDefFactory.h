@@ -16,5 +16,11 @@ private:
 
 };
 
+class UnionAnonymousTypedDefFunUnionAnonymousTypedDefGenerateTypeFactory : public UnionAnonymousTypedDefFunUnionAnonymousTypedDefFactory
+{
+public:
+  UnionAnonymousTypedDefFunUnionAnonymousTypedDefGenerateTypeFactory() { m_generate_types = true; }
+};
+
 #endif /* UNIONANONYMOUSTYPEDDEFFUNUNIONANONYMOUSTYPEDDEFFACTORY_H */
 

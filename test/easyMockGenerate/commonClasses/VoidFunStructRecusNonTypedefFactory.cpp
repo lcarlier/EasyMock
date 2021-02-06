@@ -9,7 +9,7 @@
 FunctionDeclaration VoidFunStructRecusNonTypedefFactory::functionFactory()
 {
   StructType *t_struct = new StructType("s_s1", "t_s1", false);
-  ComposableField* cf = new ComposableField(new Pointer(new IncompleteType(*t_struct)), "recur");
+  ComposableField* cf = new ComposableField(new Pointer(new IncompleteType(*t_struct, IncompleteType::Type::STRUCT)), "recur");
   //When the recursive (incomplete) field is declared, it is not yet typed def
   cf->setDeclareString("struct s_s1*");
   t_struct->addField(cf);

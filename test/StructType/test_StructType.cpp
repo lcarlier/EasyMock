@@ -92,7 +92,7 @@ TEST(StructType, UniqueNamTypeDefStruct)
 TEST(StructType, PtrToPtrRecur)
 {
   StructType t("ptrToPtrStructRecur", false);
-  Pointer *p = new Pointer(new IncompleteType(t));
+  Pointer *p = new Pointer(new IncompleteType(t, IncompleteType::Type::STRUCT));
   Pointer *p2p = new Pointer(p);
   t.addField(new ComposableField(p2p, "r"));
   //Nothing to check in particular. The address sanitiser shouldn't return any error

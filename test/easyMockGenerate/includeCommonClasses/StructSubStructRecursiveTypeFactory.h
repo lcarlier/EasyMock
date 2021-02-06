@@ -20,5 +20,11 @@ public:
   void setupTestCase(EasyMockTestCase::TestCase tc) override;
 };
 
+class StructSubStructRecursiveTypeGenerateTypeFactory : public StructSubStructRecursiveTypeFactory
+{
+public:
+  StructSubStructRecursiveTypeGenerateTypeFactory() { m_generate_types = true; }
+};
+
 #endif /* STRUCTSUBSTRUCTRECURSIVETYPEFACTORY_H */
 

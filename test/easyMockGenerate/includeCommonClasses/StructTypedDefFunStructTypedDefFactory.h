@@ -14,5 +14,11 @@ public:
   void setupTestCase(EasyMockTestCase::TestCase tc) override;
 };
 
+class StructTypedDefFunStructTypedDefGenerateTypeFactory : public StructTypedDefFunStructTypedDefFactory
+{
+public:
+  StructTypedDefFunStructTypedDefGenerateTypeFactory() { m_generate_types = true; }
+};
+
 #endif /* VOIDSTRUCTTYPEDDEFFACTORY_H */
 

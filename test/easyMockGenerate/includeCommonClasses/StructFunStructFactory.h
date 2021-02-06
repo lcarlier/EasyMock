@@ -17,5 +17,11 @@ public:
 
 };
 
+class StructFunStructGenerateTypeFactory : public StructFunStructFactory
+{
+public:
+  StructFunStructGenerateTypeFactory() { m_generate_types = true; }
+};
+
 #endif /* STRUCTFUNSTRUCTFACTORY_H */
 

@@ -10,7 +10,7 @@ ElementToMockList VoidFunStructForwardDeclaredFactory::functionFactoryArray()
 {
     ElementToMockList returnedList;
     StructType *forwardDeclaredParent = new StructType("forwardDeclaredParent", false);
-    Pointer *ptrToForwardDeclaredParent = new Pointer(new IncompleteType(*forwardDeclaredParent));
+    Pointer *ptrToForwardDeclaredParent = new Pointer(new IncompleteType(*forwardDeclaredParent, IncompleteType::Type::STRUCT));
 
     StructType *forwardDeclaredChild = new StructType("forwardDeclaredChild", false);
     forwardDeclaredChild->addField(new ComposableField(ptrToForwardDeclaredParent, "p"));

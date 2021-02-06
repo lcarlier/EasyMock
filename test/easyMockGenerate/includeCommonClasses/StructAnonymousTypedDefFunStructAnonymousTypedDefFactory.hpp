@@ -15,5 +15,11 @@ class StructAnonymousTypedDefFunStructAnonymousTypedDefFactory : public Function
   void setupTestCase(EasyMockTestCase::TestCase tc) override;
 };
 
+class StructAnonymousTypedDefFunStructAnonymousTypedDefGenerateTypeFactory : public StructAnonymousTypedDefFunStructAnonymousTypedDefFactory
+{
+public:
+  StructAnonymousTypedDefFunStructAnonymousTypedDefGenerateTypeFactory() { m_generate_types = true; }
+};
+
 #endif /* VOIDSTRUCTANONYMOUSTYPEDEF_HPP */
 

@@ -20,5 +20,11 @@ public:
   void setupTestCase(EasyMockTestCase::TestCase tc) override;
 };
 
+class VoidFunUnionWithEmbeddedAnonymousUnionGenerateTypeFactory : public VoidFunUnionWithEmbeddedAnonymousUnionFactory
+{
+public:
+  VoidFunUnionWithEmbeddedAnonymousUnionGenerateTypeFactory() { m_generate_types = true; }
+};
+
 #endif /* VOIDFUNUNIONWITHEMBEDDEDANONYMOUSUNIONFACTORY_H */
 

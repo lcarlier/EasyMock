@@ -97,7 +97,7 @@ private:
     const clang::QualType &rvQualType = func->getReturnType();
     structKnownTypeMap structKnownType;
 
-    TypeItf *type = getEasyMocktype(rvQualType, structKnownType);
+    TypeItf *type = getEasyMocktype(rvQualType, structKnownType, false);
     ReturnValue rv(type);
     std::string declString = getDeclareString(func->getBeginLoc(), func->getEndLoc());
     size_t funNamePos = declString.find(funName);
@@ -130,7 +130,7 @@ private:
 
       structKnownTypeMap structKnownType;
       const std::string paramName = param->getNameAsString();
-      TypeItf *type = getEasyMocktype(paramQualType, structKnownType);
+      TypeItf *type = getEasyMocktype(paramQualType, structKnownType, false);
 
       Parameter *p = new Parameter(type, paramName);
       type = nullptr; //We lost the ownership
@@ -178,7 +178,7 @@ private:
     return declareString;
   }
 
-  TypeItf* getEasyMocktype(const clang::QualType &clangQualType, structKnownTypeMap &structKnownType)
+  TypeItf* getEasyMocktype(const clang::QualType &clangQualType, structKnownTypeMap &structKnownType, bool isEmbeddedInOtherType)
   {
     const clang::Type &clangType = *clangQualType.getTypePtr();
     const std::string& nakedDeclString = clangQualType.getAsString();
@@ -189,19 +189,19 @@ private:
     }
     else if(clangType.isStructureType())
     {
-      type = getFromStructType(clangType, structKnownType);
+      type = getFromStructType(clangType, structKnownType, isEmbeddedInOtherType);
     }
     else if(clangType.isPointerType())
     {
-      type = getFromPointerType(clangType, structKnownType);
+      type = getFromPointerType(clangType, structKnownType, isEmbeddedInOtherType);
     }
     else if (clangType.isArrayType())
     {
-      type = getFromArrayType(clangType, structKnownType);
+      type = getFromArrayType(clangType, structKnownType, isEmbeddedInOtherType);
     }
     else if (clangType.isUnionType())
     {
-      type = getFromUnionType(clangType, structKnownType);
+      type = getFromUnionType(clangType, structKnownType, isEmbeddedInOtherType);
     }
     else if (clangType.isFunctionProtoType())
     {
@@ -305,14 +305,14 @@ private:
     return returnedType;
   }
 
-  TypeItf* getFromStructType(const clang::Type &type, structKnownTypeMap &structKnownType)
+  TypeItf* getFromStructType(const clang::Type &type, structKnownTypeMap &structKnownType, bool isEmbeddedInOtherType)
   {
-    return getFromContainerType(type, STRUCT, structKnownType);
+    return getFromContainerType(type, STRUCT, structKnownType, isEmbeddedInOtherType);
   }
 
-  TypeItf* getFromUnionType(const clang::Type &type, structKnownTypeMap &structKnownType)
+  TypeItf* getFromUnionType(const clang::Type &type, structKnownTypeMap &structKnownType, bool isEmbeddedInOtherType)
   {
-    return getFromContainerType(type, UNION, structKnownType);
+    return getFromContainerType(type, UNION, structKnownType, isEmbeddedInOtherType);
   }
 
   /*
@@ -327,7 +327,7 @@ private:
 
     const clang::QualType &rvQualType = fp->getReturnType();
 
-    TypeItf *rvType = getEasyMocktype(rvQualType, structKnownType);
+    TypeItf *rvType = getEasyMocktype(rvQualType, structKnownType, false);
     ReturnValue rv(rvType);
     rvType = nullptr; //We lost the ownership
 
@@ -336,7 +336,7 @@ private:
     for(unsigned paramIdx = 0; paramIdx < nbParams; paramIdx++)
     {
       const clang::QualType& paramQualType = fp->getParamType(paramIdx);
-      TypeItf *paramType = getEasyMocktype(paramQualType, structKnownType);
+      TypeItf *paramType = getEasyMocktype(paramQualType, structKnownType, false);
 
       Parameter *p = new Parameter(paramType, "");
       paramType = nullptr; //We lost the ownership
@@ -359,7 +359,7 @@ private:
     return new Enum(name, typedefName);
   }
 
-  TypeItf* getFromContainerType(const clang::Type &type, ContainerType contType, structKnownTypeMap &structKnownType)
+  TypeItf* getFromContainerType(const clang::Type &type, ContainerType contType, structKnownTypeMap &structKnownType, bool p_isEmbeddedInOtherType)
   {
     const clang::RecordType *RT = nullptr;
     switch(contType)
@@ -385,45 +385,49 @@ private:
       return structKnownType.at(typeName).clone();
     }
 
-    bool isEmbeddedInOtherType = false;
     const clang::TypedefType* TDT = type.getAs<clang::TypedefType>();
     clang::TypedefNameDecl* TD_RD = nullptr;
     if(TDT != nullptr)
     {
       TD_RD = TDT->getDecl();
     }
+    bool isBeingDefined = false;
     if(TD_RD != nullptr)
     {
       //isTopLevelDeclInObjCContainer seems to be equivalent to isEmbeddedInDeclarator for typedef
-      isEmbeddedInOtherType = TD_RD->isTopLevelDeclInObjCContainer();
+      isBeingDefined = TD_RD->isTopLevelDeclInObjCContainer();
     }
     else
     {
-      isEmbeddedInOtherType = RD->isEmbeddedInDeclarator();
+      isBeingDefined = RD->isEmbeddedInDeclarator();
     }
+    bool isEmbeddedInOtherType = p_isEmbeddedInOtherType && isBeingDefined;
 
     ComposableType *sType = nullptr;
+    IncompleteType::Type incType = IncompleteType::Type::STRUCT;
     switch(contType)
     {
       case STRUCT:
         sType = new StructType(typeName, typedDefName, isEmbeddedInOtherType);
+        incType = IncompleteType::Type::STRUCT;
         break;
       case UNION:
         sType = new UnionType(typeName, typedDefName, isEmbeddedInOtherType);
+        incType = IncompleteType::Type::UNION;
     }
     if(!typedDefName.empty())
     {
-      structKnownType.insert({typedDefName,IncompleteType(*sType)});
+      structKnownType.insert({typedDefName,IncompleteType(*sType, incType)});
     }
     if(!typeName.empty())
     {
-      structKnownType.insert({typeName, IncompleteType(*sType)});
+      structKnownType.insert({typeName, IncompleteType(*sType, incType)});
     }
     for (clang::FieldDecl *FD :
           RD->fields()) {
       const clang::QualType &qualType = FD->getType();
       const clang::Type *typePtr = qualType.getTypePtr();
-      TypeItf *type = getEasyMocktype(qualType, structKnownType);
+      TypeItf *type = getEasyMocktype(qualType, structKnownType, true);
 
       ComposableFieldItf *sf = nullptr;
       std::string fName = FD->getNameAsString();
@@ -468,22 +472,22 @@ private:
     return sType;
   }
 
-  TypeItf* getFromPointerType(const clang::Type &type, structKnownTypeMap &structKnownType)
+  TypeItf* getFromPointerType(const clang::Type &type, structKnownTypeMap &structKnownType, bool isEmbeddedInOtherType)
   {
     const clang::QualType &pointeeQualType = type.getPointeeType();
-    TypeItf *rv = getEasyMocktype(pointeeQualType, structKnownType);
+    TypeItf *rv = getEasyMocktype(pointeeQualType, structKnownType, isEmbeddedInOtherType);
 
     std::string typedDefName = getTypedefName(type);
 
     return new Pointer(rv, typedDefName);
   }
 
-  TypeItf* getFromArrayType(const clang::Type &type, structKnownTypeMap &structKnownType)
+  TypeItf* getFromArrayType(const clang::Type &type, structKnownTypeMap &structKnownType, bool isEmbeddedInOtherType)
   {
     const clang::ArrayType &arrayType = *type.getAsArrayTypeUnsafe();
     const clang::QualType &arrayElemQualType = arrayType.getElementType();
 
-    TypeItf *rv = getEasyMocktype(arrayElemQualType, structKnownType);
+    TypeItf *rv = getEasyMocktype(arrayElemQualType, structKnownType, isEmbeddedInOtherType);
 
     return rv;
   }

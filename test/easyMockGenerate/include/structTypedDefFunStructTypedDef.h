@@ -11,7 +11,7 @@ extern "C"
     int a;
   } TypedDefStruct;
 
-  TypedDefStruct structTypedDefFunStructTypedDef(TypedDefStruct s2);
+  TypedDefStruct structTypedDefFunStructTypedDef(struct foo s2);
 
 #ifdef __cplusplus
 }

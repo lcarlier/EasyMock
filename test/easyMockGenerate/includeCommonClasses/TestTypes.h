@@ -101,28 +101,46 @@
         DoubleFunDoubleFactory, \
         LongDoubleFunLongDoubleFactory, \
         StructFunStructFactory, \
+        StructFunStructGenerateTypeFactory, \
         StructTypedDefFunStructTypedDefFactory, \
+        StructTypedDefFunStructTypedDefGenerateTypeFactory, \
         StructAnonymousTypedDefFunStructAnonymousTypedDefFactory, \
+        StructAnonymousTypedDefFunStructAnonymousTypedDefGenerateTypeFactory, \
         UnionFunUnionFactory, \
+        UnionFunUnionGenerateTypeFactory, \
         UnionTypedDefFunUnionTypedDefFactory, \
+        UnionTypedDefFunUnionTypedDefGenerateTypeFactory, \
         UnionAnonymousTypedDefFunUnionAnonymousTypedDefFactory, \
+        UnionAnonymousTypedDefFunUnionAnonymousTypedDefGenerateTypeFactory, \
         StructWithUnionFunStructWithUnionFactory, \
+        StructWithUnionFunStructWithUnionGenerateTypeFactory, \
         ConstIntFunConstIntFactory, \
         Int128FunUint128Factory, \
         Int128FunUint128FactoryGenTypeFactory
 
 #define VOID_FUN_COMPOSABLE_TYPE_WITH_COMPOSABLE_TYPE_TYPES \
         VoidFunStructWithEmbeddedStructFactory, \
+        VoidFunStructWithEmbeddedStructGenerateTypeFactory, \
         VoidFunStructWithEmbeddedAnonymousStructFactory, \
+        VoidFunStructWithEmbeddedAnonymousStructGenerateTypeFactory, \
         VoidFunUnionWithEmbeddedUnionFactory, \
+        VoidFunUnionWithEmbeddedUnionGenerateTypeFactory, \
         VoidFunUnionWithEmbeddedAnonymousUnionFactory, \
+        VoidFunUnionWithEmbeddedAnonymousUnionGenerateTypeFactory, \
         VoidFunStructWithAnonymousStructFieldFactory, \
+        VoidFunStructWithAnonymousStructFieldGenerateTypeFactory, \
         VoidFunUnionWithAnonymousUnionFieldFactory, \
+        VoidFunUnionWithAnonymousUnionFieldGenerateTypeFactory, \
         VoidFunStructWithFirstAnonymousStructFieldFactory, \
+        VoidFunStructWithFirstAnonymousStructFieldGenerateTypeFactory, \
         VoidFunUnionWithFirstAnonymousUnionFieldFactory, \
+        VoidFunUnionWithFirstAnonymousUnionFieldGenerateTypeFactory, \
         VoidFunStructWithTypedefStructFactory, \
+        VoidFunStructWithTypedefStructGenerateTypeFactory, \
         StructSubStructRecursiveTypeFactory, \
-        VoidFunStructBitfieldFactory
+        StructSubStructRecursiveTypeGenerateTypeFactory, \
+        VoidFunStructBitfieldFactory, \
+        VoidFunStructBitfieldGenerateTypeFactory
 
 #define COMPILE_ONLY_TYPES \
         CompileTwoFunctionsFactory, \
@@ -138,14 +156,24 @@
         VoidFunEnumFactory, \
         VoidFunPtrToPtrRecurStructFactory, \
         VoidFunStructForwardDeclaredFactory, \
+        VoidFunStructForwardDeclaredGenerateTypeFactory, \
         VoidFunTypeDefFactory, \
         VoidFunTypeDefGenerateTypeFactory, \
         CrossDefinedFunCrossDefinedFactory, \
         CrossDefinedFunCrossDefinedGenTypeFactory, \
         VoidFunTypedefFunPtrGenerateTypeFactory, \
-        VoidFunStructBitfieldGenerateTypeFactory, \
         VoidFunStructWithConstMemberFactory, \
-        VoidFunStructWithConstMemberGenerateTypeFactory
+        VoidFunStructWithConstMemberGenerateTypeFactory, \
+        StructRecursiveMemberPtrTypeFactory, \
+        StructRecursiveMemberPtrTypeGenerateTypeFactory, \
+        StructFileFromStdioFactory, \
+        StructFileFromStdioGenerateTypeFactory, \
+        VoidFunStructPtrFactory, \
+        VoidFunStructPtrGenerateTypeFactory, \
+        VoidFunStructRecusNonTypedefFactory, \
+        VoidFunStructRecusNonTypedefGenerateTypeFactory, \
+        VoidFunStructWithArrayFactory, \
+        VoidFunStructWithArrayGenerateTypeFactory
 
 typedef ::testing::Types
 <
@@ -174,13 +202,8 @@ typedef ::testing::BigTypes
         NON_PTR_FUN_FACTORIES,
         VOID_FUN_COMPOSABLE_TYPE_WITH_COMPOSABLE_TYPE_TYPES,
         COMPILE_ONLY_TYPES,
-        StructRecursiveMemberPtrTypeFactory,
-        VoidFunStructPtrFactory,
         IntFunStructPtrIntCharPtrFactory,
-        VoidFunStructWithArrayFactory,
-        VoidFunIntArrayFactory,
-        VoidFunStructRecusNonTypedefFactory,
-        StructFileFromStdioFactory
+        VoidFunIntArrayFactory
 > ParserTestTypes;
 
 typedef ::testing::Types

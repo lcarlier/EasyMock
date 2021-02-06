@@ -20,7 +20,7 @@ FunctionDeclaration VoidFunUnionWithFirstAnonymousUnionFieldFactory::functionFac
   beingDefined->addField(new ComposableField(CTYPE_FLOAT, "s2"));
   top->addField(new ComposableField(beingDefined, ""));
   top->addField(new ComposableField(CTYPE_INT, "a"));
-  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), Parameter::Vector({new Parameter(top, "t")}));
+  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), Parameter::Vector({new Parameter(top, "u")}));
 
   return f;
 }
@@ -48,7 +48,7 @@ std::string VoidFunUnionWithFirstAnonymousUnionFieldFactory::getMatcherFunctionN
 
 std::string VoidFunUnionWithFirstAnonymousUnionFieldFactory::getFieldWrongName()
 {
-  return "t";
+  return "u";
 }
 
 std::string VoidFunUnionWithFirstAnonymousUnionFieldFactory::getSubFieldWrongName()

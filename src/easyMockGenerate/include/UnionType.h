@@ -19,6 +19,7 @@ public:
    * \param p_is_embedded_in_other_type Specifies whether the type is embedded in another type or not. See ComposableType::isDeclarationEmbeddedInOtherType().
    */
   UnionType(const std::string p_name, bool p_is_embedded_in_other_type);
+
   /*!
    * \brief Creates a new UnionType.
    *
@@ -27,6 +28,7 @@ public:
    * \param p_is_embedded_in_other_type See UnionType(const std::string,bool).
    */
   UnionType(const std::string p_name, const std::string p_type_def_name, bool p_is_embedded_in_other_type);
+
   /*!
    * \brief Creates a new UnionType.
    *
@@ -35,6 +37,7 @@ public:
    * \param p_is_embedded_in_other_type See UnionType(const std::string p_name,bool p_is_embedded_in_other_type).
    */
   UnionType(const std::string p_name, const ComposableFieldItf::Vector p_elem, bool p_is_embedded_in_other_type);
+
   /*!
    * \brief Creates a new UnionType.
    *
@@ -44,6 +47,11 @@ public:
    * \param p_is_embedded_in_other_type See UnionType(const std::string p_name,bool p_is_embedded_in_other_type).
    */
   UnionType(const std::string p_name, const std::string p_type_def_name, const ComposableFieldItf::Vector p_elem, bool p_is_embedded_in_other_type);
+
+  /*!
+   * \copydoc ComposableType::getComposableTypeKeyword
+   */
+  const char* getComposableTypeKeyword() const override;
 
   /*!
    * \copydoc TypeItf::clone()

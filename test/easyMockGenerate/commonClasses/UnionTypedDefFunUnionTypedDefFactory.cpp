@@ -11,7 +11,7 @@ FunctionDeclaration UnionTypedDefFunUnionTypedDefFactory::functionFactory()
   st1->addField(new ComposableField(CTYPE_INT, "b"));
   UnionType *rv = st1->clone();
 
-  FunctionDeclaration f(functionGetFunctionName(), ReturnValue(rv), Parameter::Vector({new Parameter(st1, "s2")}));
+  FunctionDeclaration f(functionGetFunctionName(), ReturnValue(rv), Parameter::Vector({new Parameter(st1, "param")}));
   return f;
 }
 

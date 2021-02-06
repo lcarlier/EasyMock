@@ -1,7 +1,7 @@
 #include "IncompleteType.h"
 
-IncompleteType::IncompleteType(const TypeItf& p_type)
-: TypeItf(p_type.getName(), p_type.getTypedDefName())
+IncompleteType::IncompleteType(const TypeItf& p_type, Type p_typeType)
+: TypeItf(p_type.getName(), p_type.getTypedDefName()), m_type(p_typeType)
 {
   setIncompleteType(true);
   setCType(p_type.isCType());
@@ -11,6 +11,18 @@ IncompleteType::IncompleteType(const TypeItf& p_type)
   setPointer(p_type.isPointer());
   setStruct(p_type.isStruct());
   setUnion(p_type.isUnion());
+}
+
+const char* IncompleteType::getComposableTypeKeyword() const
+{
+  switch(m_type)
+  {
+    case Type::STRUCT:
+      return "struct";
+    case Type::UNION:
+      return "union";
+  }
+  return "error IncompleteType::getComposableTypeKeyword()";
 }
 
 IncompleteType* IncompleteType::clone() const

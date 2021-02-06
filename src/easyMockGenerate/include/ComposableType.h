@@ -76,6 +76,13 @@ public:
    */
   bool isDeclarationEmbeddedInOtherType() const;
 
+  /*!
+   * \brief Returns the keyword to declare the composable type.
+   *
+   * i.e. return "struct" for struct and "union" for union
+   */
+  virtual const char* getComposableTypeKeyword() const = 0;
+
   bool operator==(const ComposableType &other) const;
   bool operator!=(const ComposableType &other) const;
 

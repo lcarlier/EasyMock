@@ -15,5 +15,11 @@ public:
 
 };
 
+class VoidFunStructForwardDeclaredGenerateTypeFactory : public VoidFunStructForwardDeclaredFactory
+{
+public:
+  VoidFunStructForwardDeclaredGenerateTypeFactory() { m_generate_types = true; }
+};
+
 #endif /* VOIDFUNSTRUCTFORWARDDECLAREDFACTORY_H */
 

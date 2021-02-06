@@ -21,6 +21,11 @@ ComposableType(p_name, p_type_def_name, p_elem, p_is_embedded_in_other_type)
   setUnion(true);
 }
 
+const char* UnionType::getComposableTypeKeyword() const
+{
+  return "union";
+}
+
 UnionType* UnionType::clone() const
 {
   return new UnionType(*this);

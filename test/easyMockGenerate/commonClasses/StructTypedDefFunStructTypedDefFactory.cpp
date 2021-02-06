@@ -6,9 +6,12 @@
 FunctionDeclaration StructTypedDefFunStructTypedDefFactory::functionFactory()
 {
   bool isEmbeddedInOtherType = false;
-  StructType *st1 = new StructType("foo", "TypedDefStruct", isEmbeddedInOtherType);
-  st1->addField(new ComposableField(CTYPE_INT, "a"));
-  StructType *rv = st1->clone();
+  StructType *st1 = new StructType("foo", isEmbeddedInOtherType);
+  ComposableField *cf = new ComposableField(CTYPE_INT, "a");
+  st1->addField(cf->clone());
+
+  StructType *rv = new StructType("foo", "TypedDefStruct", isEmbeddedInOtherType);
+  rv->addField(cf);
 
   FunctionDeclaration f(functionGetFunctionName(), ReturnValue(rv), Parameter::Vector({new Parameter(st1, "s2")}));
   return f;

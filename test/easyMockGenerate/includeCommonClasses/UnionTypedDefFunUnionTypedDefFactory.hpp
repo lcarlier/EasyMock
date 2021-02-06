@@ -16,5 +16,11 @@ private:
 
 };
 
+class UnionTypedDefFunUnionTypedDefGenerateTypeFactory : public UnionTypedDefFunUnionTypedDefFactory
+{
+public:
+  UnionTypedDefFunUnionTypedDefGenerateTypeFactory() { m_generate_types = true; }
+};
+
 #endif /* UNIONTYPEDDEFFUNUNIONTYPEDDEFFACTORY_HPP */
 

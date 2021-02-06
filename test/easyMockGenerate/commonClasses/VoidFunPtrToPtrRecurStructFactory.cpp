@@ -11,7 +11,7 @@ ElementToMockList VoidFunPtrToPtrRecurStructFactory::functionFactoryArray()
 {
   ElementToMockList returnedList;
   StructType t("ptrToPtrStructRecur", false);
-  Pointer *pField = new Pointer(new IncompleteType(t));
+  Pointer *pField = new Pointer(new IncompleteType(t, IncompleteType::Type::STRUCT));
   Pointer *p2pField = new Pointer(pField);
   t.addField(new ComposableField(p2pField, "r"));
 

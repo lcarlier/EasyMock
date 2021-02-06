@@ -21,5 +21,11 @@ public:
 
 };
 
+class VoidFunUnionWithFirstAnonymousUnionFieldGenerateTypeFactory : public VoidFunUnionWithFirstAnonymousUnionFieldFactory
+{
+public:
+  VoidFunUnionWithFirstAnonymousUnionFieldGenerateTypeFactory() { m_generate_types = true; }
+};
+
 #endif /* VOIDFUNUNIONWITHFIRSTANONYMOUSUNIONFIELDFACTORY_H */
 

@@ -16,5 +16,11 @@ private:
 
 };
 
+class UnionFunUnionGenerateTypeFactory : public UnionFunUnionFactory
+{
+public:
+  UnionFunUnionGenerateTypeFactory() { m_generate_types = true; }
+};
+
 #endif /* UNIONFUNUNIONFACTORY_H */
 

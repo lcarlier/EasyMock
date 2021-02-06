@@ -18,8 +18,16 @@
 class IncompleteType : public TypeItf {
 public:
   /*!
-   * \brief Creates a new ::IncompleteType instance
+   * \brief Type of IncompleteType
+   */
+  enum class Type
+  {
+    STRUCT,
+    UNION
+  };
 
+  /*!
+   * \brief Creates a new ::IncompleteType instance
    *
    * To represent the following structure
    * \code{.c}
@@ -46,13 +54,20 @@ public:
    *
    * Similar code can be used to represent forward declared types.
    */
-  IncompleteType(const TypeItf& p_type);
+  IncompleteType(const TypeItf& p_type, Type p_typeType);
+
+  /*!
+   * \copydoc ComposableType::getComposableTypeKeyword
+   */
+  const char* getComposableTypeKeyword() const;
 
   /*!
    * \copydoc TypeItf::clone
    */
   IncompleteType *clone() const override;
-  ~IncompleteType();
+  virtual ~IncompleteType();
+private:
+  Type m_type;
 };
 
 #endif /* INCOMPLETETYPE_H */

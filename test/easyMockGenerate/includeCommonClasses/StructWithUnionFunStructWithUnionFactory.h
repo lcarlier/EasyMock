@@ -16,5 +16,11 @@ public:
 
 };
 
+class StructWithUnionFunStructWithUnionGenerateTypeFactory : public StructWithUnionFunStructWithUnionFactory
+{
+public:
+  StructWithUnionFunStructWithUnionGenerateTypeFactory() { m_generate_types = true; }
+};
+
 #endif /* STRUCTWITHUNIONFUNSTRUCTWITHUNIONFACTORY_H */
 

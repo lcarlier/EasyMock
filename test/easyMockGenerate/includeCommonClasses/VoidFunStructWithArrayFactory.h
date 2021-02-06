@@ -15,5 +15,11 @@ public:
 
 };
 
+class VoidFunStructWithArrayGenerateTypeFactory : public VoidFunStructWithArrayFactory
+{
+public:
+  VoidFunStructWithArrayGenerateTypeFactory() { m_generate_types = true; }
+};
+
 #endif /* VOIDFUNSTRUCTWITHARRAYFACTORY_H */
 
