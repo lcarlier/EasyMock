@@ -18,13 +18,20 @@ TYPED_TEST_CASE(GenericParser_testCase, ParserTestTypes);
 TYPED_TEST(GenericParser_testCase, parser)
 {
   TypeParam funFactory;
+
+  /*
+   * Get the function list from the factory before the parser to make sure the
+   * anonymous type ID is correctly reset. The parser will then generate the
+   * same anonymous type ID.
+   */
+  ElementToMockList funList = funFactory.functionFactoryArray();
+
   ElementToMockContext ctxt;
   LLVMParser parser;
   std::string fileName(PROJECT_ROOT_DIR"/test/easyMockGenerate/include/");
   fileName.append(funFactory.getFilename());
   parser.setFilename(fileName);
   parser.getElementToMockContext(ctxt);
-  ElementToMockList funList = funFactory.functionFactoryArray();
   const ElementToMock::Vector& elementToMock = ctxt.getElementToMock();
   ASSERT_EQ(elementToMock.size(), funList.size());
   for(size_t funIdx = 0; funIdx < funList.size(); funIdx++)

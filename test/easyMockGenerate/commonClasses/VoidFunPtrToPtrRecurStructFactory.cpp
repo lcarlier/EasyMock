@@ -35,14 +35,6 @@ ElementToMockList VoidFunPtrToPtrRecurStructFactory::functionFactoryArray()
     returnedList.push_back(fd);
   }
   {
-    /*
-     * with -fno-access-control we are able to set this static class variable to
-     * decrement the number of anonymous composable type by the number of anonymous
-     * type the UT contains.
-     * Thanks to that, the following code will generate the same anonymous ID
-     */
-    constexpr int NB_ANONYMOUS_TYPE_IN_THIS_UT = 1;
-    ComposableType::m_number_of_anonymous_composable_type -= NB_ANONYMOUS_TYPE_IN_THIS_UT;
     StructType *topS = new StructType("structAnonStructFieldptrToPtrStructRecur", false);
     topS->addField(new ComposableField(new CType(CTYPE_INT), "a"));
     StructType *anonS = new StructType("", true);
@@ -50,6 +42,15 @@ ElementToMockList VoidFunPtrToPtrRecurStructFactory::functionFactoryArray()
     topS->addField(new ComposableField(anonS, ""));
 
     FunctionDeclaration *fd = new FunctionDeclaration("voidFunStructAnonStructFieldptrToPtrStructRecur", VoidReturnValue(), Parameter::Vector({new Parameter(topS, "s")}));
+
+    /*
+     * with -fno-access-control we are able to set this static class variable to
+     * decrement the number of anonymous composable type by the number of anonymous
+     * type the UT contains.
+     * Thanks to that, the parser will generate the same anonymous ID as the code above.
+     */
+    constexpr int NB_ANONYMOUS_TYPE_IN_THIS_UT = 1;
+    ComposableType::m_number_of_anonymous_composable_type -= NB_ANONYMOUS_TYPE_IN_THIS_UT;
     returnedList.push_back(fd);
   }
   return returnedList;

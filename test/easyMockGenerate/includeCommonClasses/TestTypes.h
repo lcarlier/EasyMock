@@ -62,6 +62,7 @@
 #include <Int128FunUint128Factory.h>
 #include <VoidFunStructBitfieldFactory.h>
 #include <VoidFunStructWithConstMemberFactory.h>
+#include <VoidFunStructWithSecondLevelAnonymousFactory.h>
 
 // TestTypesInclude.h is generated
 #include "TestTypesInclude.h"
@@ -140,7 +141,9 @@
         StructSubStructRecursiveTypeFactory, \
         StructSubStructRecursiveTypeGenerateTypeFactory, \
         VoidFunStructBitfieldFactory, \
-        VoidFunStructBitfieldGenerateTypeFactory
+        VoidFunStructBitfieldGenerateTypeFactory, \
+        VoidFunStructWithSecondLevelAnonymousFactory, \
+        VoidFunStructWithSecondLevelAnonymousGenerateTypeFactory
 
 #define COMPILE_ONLY_TYPES \
         CompileTwoFunctionsFactory, \

@@ -49,6 +49,13 @@ class ComposableFieldItf;
  */
 class CodeGeneratorCTemplate : public CodeGeneratorItf
 {
+private:
+  enum class GenerateDeclarationOfComposableTypeOrigin
+  {
+    GENERATE_COMPARE_FUNCTION,
+    GENERATE_TOP_LEVEL_USED_TYPE,
+    GENERATE_SUB_LEVEL_USED_TYPE
+  };
 public:
   CodeGeneratorCTemplate();
   bool generateCode(const std::string& p_outDir, const std::string &p_fullPathToHeaderToMock, const ElementToMockContext& p_elem) override;
@@ -58,9 +65,10 @@ private:
   void generateFunctionSection( const FunctionDeclaration *f);
   void generateFunctionParamSection(ctemplate::TemplateDictionary *dict, const Parameter::Vector& functionParam);
   //p_uniquePrepend and p_declPrepend must never become a reference because the string appended in recursive calls must reverted when the recursive call returns
-  void generateBodyStructCompare(ctemplate::TemplateDictionary *paramSectDict, const ComposableType *p_structType, const ComposableFieldItf *p_curField, const ComposableFieldItf *p_previousField, std::string p_uniquePrepend, std::string p_declPrepend);
+  void generateAllFieldStructCompare(ctemplate::TemplateDictionary *p_compareFunDict, const ComposableType *p_composedType, std::string p_uniquePrepend, std::string p_declPrepend);
+  void generateBodyStructCompare(ctemplate::TemplateDictionary *p_compareFunDict, const char* p_sectionToAdd, const ComposableType *p_structType, const ComposableFieldItf *p_curField, const ComposableFieldItf *p_previousField, std::string p_uniquePrepend, std::string p_declPrepend);
   void generateComposedTypedCompareSection(const ComposableType *p_composedType, std::string p_uniquePrepend, std::string p_declPrepend);
-  ctemplate::TemplateDictionary* generateDeclarationOfAnonymousType(ctemplate::TemplateDictionary *compareDir, const ComposableType *p_composedType, bool p_forceAnonymousType, int p_level);
+  ctemplate::TemplateDictionary* generateDeclarationOfComposableType(ctemplate::TemplateDictionary *compareDir, const ComposableType *p_composedType, int p_level, GenerateDeclarationOfComposableTypeOrigin p_origin);
   void generateDeclarationOfUsedType(ctemplate::TemplateDictionary* p_parentDict, const TypeItf* p_type);
   bool generateCodeToFile(const std::string &outDir, const std::string &filename, const std::string &extension, const std::string &generatedCode);
   std::string getDeclaratorString(const Declarator* p_decl);
@@ -70,6 +78,7 @@ private:
   void generateFieldCmp(std::string &p_condition, const ComposableType *p_composedType, const ComposableFieldItf *p_curField, const ComposableFieldItf *p_previousField, std::string p_varName);
   void setStructCompareStringFormat(ctemplate::TemplateDictionary *p_errorDict, const TypeItf* p_curFieldType);
   bool isTypeGenerated(const TypeItf* p_type, bool p_insert);
+  void generateSimpleTypeDef(const TypeItf* p_type);
 
   const TypeItf* getMostPointedType(const TypeItf* p_type);
 
@@ -78,6 +87,7 @@ private:
   ctemplate::TemplateDictionary *m_rootDictionary;
   ctemplate::TemplateDictionary *m_generateMockedTypeSection;
   std::unordered_set<std::string> m_generateTypes;
+  std::unordered_set<std::string> m_generatedTypeTypedDefSection;
 };
 
 #endif /* CODEGENERATORCTEMPLATE_H */

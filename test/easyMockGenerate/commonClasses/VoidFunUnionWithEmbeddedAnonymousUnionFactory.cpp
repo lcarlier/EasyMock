@@ -5,15 +5,6 @@
 
 FunctionDeclaration VoidFunUnionWithEmbeddedAnonymousUnionFactory::functionFactory()
 {
-  const unsigned int NB_ANONYMOUS_TYPE_IN_THIS_UT = 1;
-  /*
-   * with -fno-access-control we are able to set this static class variable to
-   * decrement the number of anonymous composable type by the number of anonymous
-   * type the UT contains.
-   * Thanks to that, the following code will generate the same anonymous ID
-   */
-  ComposableType::m_number_of_anonymous_composable_type -= NB_ANONYMOUS_TYPE_IN_THIS_UT;
-
   bool isEmbeddedStruct = true;
   UnionType* top = new UnionType("topEmbeddedAnonymousUnion", !isEmbeddedStruct); //NOT EMBEDDED
   UnionType* beingDefined = new UnionType("", isEmbeddedStruct);
@@ -21,6 +12,15 @@ FunctionDeclaration VoidFunUnionWithEmbeddedAnonymousUnionFactory::functionFacto
   beingDefined->addField(new ComposableField(CTYPE_FLOAT, "b"));
   top->addField(new ComposableField(beingDefined, "eau"));
   FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), Parameter::Vector({new Parameter(top, "u")}));
+
+  const unsigned int NB_ANONYMOUS_TYPE_IN_THIS_UT = 1;
+  /*
+   * with -fno-access-control we are able to set this static class variable to
+   * decrement the number of anonymous composable type by the number of anonymous
+   * type the UT contains.
+   * Thanks to that, the parser will generate the same anonymous ID as the code above.
+   */
+  ComposableType::m_number_of_anonymous_composable_type -= NB_ANONYMOUS_TYPE_IN_THIS_UT;
   return f;
 }
 

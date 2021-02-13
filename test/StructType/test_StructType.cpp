@@ -48,6 +48,7 @@ TEST(StructType, UniqueNameAnonymous)
   bool isEmbeddedInOtherType = true;
 
   ComposableType::m_number_of_anonymous_composable_type = 0;
+  ComposableType::setFileHash(1);
   for(int i = 0; i < 3; i++)
   {
     StructType st1("", ComposableFieldItf::Vector({new ComposableField(CTYPE_CHAR, "f")}), isEmbeddedInOtherType);
@@ -55,9 +56,9 @@ TEST(StructType, UniqueNameAnonymous)
     ASSERT_TRUE(st1.isStruct());
     ASSERT_FALSE(st1.isUnion());
     ASSERT_TRUE(st1.isDeclarationEmbeddedInOtherType());
-    std::string uniqueName("struct_anonymous_type_in_file_0_number_");
-    uniqueName.append(std::to_string(i+1));
-    ASSERT_STREQ(uniqueName.c_str(), st1.getUniqueName().c_str());
+    std::string uniqueName("struct_anonymous_type_in_file_1_number_");
+    uniqueName.append(std::to_string(i));
+    ASSERT_STREQ(uniqueName.c_str(), st1.getUniqueName().c_str()) << "i: " << i;
   }
 }
 

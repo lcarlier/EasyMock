@@ -1,4 +1,4 @@
-  #include <LLVMParser.h>
+#include <LLVMParser.h>
 
 #include <ElementToMockContext.h>
 #include <StructType.h>
@@ -427,10 +427,10 @@ private:
           RD->fields()) {
       const clang::QualType &qualType = FD->getType();
       const clang::Type *typePtr = qualType.getTypePtr();
+      std::string fName = FD->getNameAsString();
       TypeItf *type = getEasyMocktype(qualType, structKnownType, true);
 
       ComposableFieldItf *sf = nullptr;
-      std::string fName = FD->getNameAsString();
       if(FD->isBitField())
       {
         if(!type->isCType())

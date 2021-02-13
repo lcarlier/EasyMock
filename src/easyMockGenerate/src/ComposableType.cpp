@@ -25,6 +25,7 @@ TypeItf(p_name, p_typed_def_name), m_elem(p_elem), m_is_declaration_embedded_in_
 {
   if(this->isAnonymous())
   {
+    assert(m_number_of_anonymous_composable_type >= 0);
     this->m_anonymous_number = m_number_of_anonymous_composable_type;
     m_number_of_anonymous_composable_type++;
   }
@@ -69,9 +70,11 @@ const std::string ComposableType::getUniqueName() const
   if(this->isAnonymous())
   {
     uniqueName.append("_anonymous_type_in_file_");
+    assert(m_unique_hash != 0);
     uniqueName.append(std::to_string(m_unique_hash));
     uniqueName.append("_number_");
-    uniqueName.append(std::to_string(m_number_of_anonymous_composable_type));
+    assert(m_anonymous_number >= 0);
+    uniqueName.append(std::to_string(m_anonymous_number));
   }
 
   return uniqueName;
