@@ -578,19 +578,37 @@ TEST(equality, AutoCleanVectorDifferent)
 TEST(equality, Enum)
 {
   Enum e1("e1", "");
+  e1.addEnumValue(0, "ZERO");
+  e1.addEnumValue(1, "ONE");
   Enum e2("e1", "");
+  e2.addEnumValue(0, "ZERO");
+  e2.addEnumValue(1, "ONE");
   Enum e3("e2", "");
+  e3.addEnumValue(0, "ZERO");
+  e3.addEnumValue(1, "ONE");
+  Enum e4("e2", "");
+  e4.addEnumValue(0, "ZERO");
+  e4.addEnumValue(2, "ONE");
+  Enum e5("e2", "");
+  e4.addEnumValue(0, "ZERO");
+  e4.addEnumValue(1, "TWO");
 
   ASSERT_EQ(e1,e2);
   ASSERT_NE(e1,e3);
   ASSERT_NE(e2,e3);
+  ASSERT_NE(e3,e4);
+  ASSERT_NE(e3,e5);
 
   TypeItf &tiC1 = e1;
   TypeItf &tiC2 = e2;
   TypeItf &tiC3 = e3;
+  TypeItf &tiC4 = e4;
+  TypeItf &tiC5 = e5;
   ASSERT_EQ(tiC1,tiC2);
   ASSERT_NE(tiC1,tiC3);
   ASSERT_NE(tiC2,tiC3);
+  ASSERT_NE(tiC3,tiC4);
+  ASSERT_NE(tiC3,tiC5);
 }
 
 TEST(equality, ComposableBitfield)

@@ -615,6 +615,8 @@ TEST(moveCopy, FunctionType)
 TEST(moveCopy, Enum)
 {
   Enum etype1("e1", "");
+  etype1.addEnumValue(0, "ZERO");
+  etype1.addEnumValue(1, "ONE");
   Enum etype2(etype1);
   ASSERT_EQ(etype1, etype2);
 
