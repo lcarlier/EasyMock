@@ -208,7 +208,14 @@ static void printComposableTypeToOstream(std::ostream& os, const T& composableTy
 
 std::ostream& operator<<(std::ostream& os, const Enum& etype)
 {
-  return os << "Enum: name:'" << etype.getName() << "' typedef:'" << etype.getTypedDefName() << "'" << std::endl;
+  os << "Enum: name:'" << etype.getName() << "' typedef:'" << etype.getTypedDefName() << "'" << std::endl;
+  gs_indentation.push_back('\t');
+  for(auto enumVal : etype.getValues())
+  {
+    os << gs_indentation << enumVal.second << " = " << enumVal.first << std::endl;
+  }
+  gs_indentation.pop_back();
+  return os;
 }
 
 std::ostream& operator<<(std::ostream& os, const IncompleteType& incType)

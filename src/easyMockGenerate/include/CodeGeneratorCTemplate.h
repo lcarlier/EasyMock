@@ -78,16 +78,19 @@ private:
   void generateFieldCmp(std::string &p_condition, const ComposableType *p_composedType, const ComposableFieldItf *p_curField, const ComposableFieldItf *p_previousField, std::string p_varName);
   void setStructCompareStringFormat(ctemplate::TemplateDictionary *p_errorDict, const TypeItf* p_curFieldType);
   bool isTypeGenerated(const TypeItf* p_type, bool p_insert);
-  void generateSimpleTypeDef(const TypeItf* p_type);
+  void generateSimpleTypeDef(const TypeItf* p_type, uint32_t p_anonymousNumber);
+  void generateEnum(const TypeItf* p_type);
 
   const TypeItf* getMostPointedType(const TypeItf* p_type);
 
+  uint32_t m_nbAnonymousGeneratedType;
   std::unordered_set<std::string> m_generatedComparator;
   unsigned int m_nbUnamedParam;
   ctemplate::TemplateDictionary *m_rootDictionary;
   ctemplate::TemplateDictionary *m_generateMockedTypeSection;
   std::unordered_set<std::string> m_generateTypes;
   std::unordered_set<std::string> m_generatedTypeTypedDefSection;
+  std::unordered_set<std::string> m_generatedTypeEnumSection;
 };
 
 #endif /* CODEGENERATORCTEMPLATE_H */

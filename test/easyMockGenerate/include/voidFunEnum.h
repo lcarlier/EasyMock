@@ -5,20 +5,30 @@
 extern "C" {
 #endif
 
-  enum enumTest
+  enum enumTestParam
   {
     ONE = 1,
     TWO = 2
   };
 
-  void voidFunEnum(enum enumTest e);
-  void voidFunPtrEnum(enum enumTest* e);
+  void voidFunEnum(enum enumTestParam e);
+  void voidFunPtrEnum(enum enumTestParam* e);
 
-  enum enumTest enumFunVoid();
+  typedef enum
+  {
+    ZERO,
+    FOUR = 4
+  } t_enumTestRv;
+  t_enumTestRv enumFunVoid();
 
+  typedef enum enumStruct
+  {
+    THREE = 3,
+    FIVE = 5
+  } t_enumStruct;
   struct structTestEnum
   {
-    enum enumTest e;
+    enum enumStruct e;
   };
 
   void voidFunStructEnum(struct structTestEnum s);
@@ -28,7 +38,7 @@ extern "C" {
     int a;
     struct
     {
-      enum enumTest e;
+      t_enumStruct e;
     };
   };
 

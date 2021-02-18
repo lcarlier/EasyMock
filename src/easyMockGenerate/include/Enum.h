@@ -6,18 +6,23 @@
 
 #include <TypeItf.h>
 
+#include <cstdint>
 #include <string>
+#include <map>
 
 /*!
- * \brief This class represents any of the C basic types
+ * \brief This class represents an enum and the values it contains
  *
- * Only the enum name is stored in this class. The different enum
- * values are not stored in this class because they are not useful
- * for mock generation
  */
 class Enum  : public TypeItf
 {
 public:
+
+  /*!
+   * \brief Type used to store enum values
+   */
+  using listOfValuesType = std::map<unsigned int, std::string>;
+
   /*!
    * \brief Creates an enum
    *
@@ -33,13 +38,29 @@ public:
   Enum(const std::string p_name, const std::string p_typed_def_name);
 
   /*!
+   * \brief Adds a new enum value inside the enum type.
+   */
+  void addEnumValue(int64_t p_value, const std::string& p_enumStr);
+
+  /*!
+   * \brief Returns the list of enum values that the enum type contains.
+   */
+  const listOfValuesType& getValues() const;
+
+  /*!
    * \copydoc TypeItf::clone
    */
   Enum *clone() const override;
 
+protected:
+   /*!
+   * \copydoc TypeItf::isEqual
+   */
+  bool isEqual(const TypeItf& p_other) const override;
+
   virtual ~Enum();
 private:
-
+  listOfValuesType m_listOfValues;
 };
 
 #endif /* ENUM_H */

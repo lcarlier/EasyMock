@@ -10,6 +10,8 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <functional>
+#include <iostream>
+#include <fstream>
 
 #include <CodeGeneratorCTemplate.h>
 
@@ -25,6 +27,7 @@ static void appendReadIntoString(int fd, std::string *str, const char *strName, 
 static void loadSo(const char *pathToSo, const char *functionToLoad, const char *comparatorToMatch, void **funcPtr, void **functExpectPtr, void **functMatcherPtr, void **functOutputPtr, void **handle, bool & m_rmDir);
 static void executeCmd(const char * const aArguments[], std::string *stdOut, std::string *stdErr, int *status);
 static void cleanTest(void **handle, const std::string &mockDir, bool rmDirectory);
+static void dumpToFile(const std::string& dir, const std::string& file, const std::string& data);
 
 easyMockGenerate_baseTestCase::easyMockGenerate_baseTestCase(const std::string functionToMock, const std::string pathToFileToMock, const std::string mockDir, bool generateTypes, bool rmDir) :
 ::testing::Test(),
@@ -186,6 +189,8 @@ void easyMockGenerate_baseTestCase::prepareTest(const ElementToMockContext &elem
      * When the UT fails, do not delete the folder of the generated code
      */
     m_rmDir = false;
+    dumpToFile(finalMockDir, "stdout.txt", stdOut);
+    dumpToFile(finalMockDir, "stderr.txt", stdErr);
   }
   ASSERT_EQ(status, 0) << std::endl << "Compilation mock failed " << std::endl << "cwd: " << cwd << std::endl << "stdout: " << std::endl << stdOut << std::endl << "stderr:" << std::endl << stdErr << std::endl;
 
@@ -448,4 +453,15 @@ static void loadSo(const char *pathToSo, const char *functionToLoad, const char 
   std::string funPtrOutPtr(functionToLoad);
   funPtrOutPtr.append("_ExpectReturnAndOutput");
   *funcPtr_output_ptr = dlsym(*handle, funPtrOutPtr.c_str());
+}
+
+static void dumpToFile(const std::string& p_dir, const std::string& p_file, const std::string& p_data)
+{
+  std::string fileName { p_dir };
+  fileName.push_back('/');
+  fileName.append(p_file);
+  std::ofstream ofile;
+  ofile.open(fileName, std::ios::trunc);
+  ofile << p_data;
+  ofile.close();
 }

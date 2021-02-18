@@ -10,26 +10,40 @@
 ElementToMockList VoidFunEnumFactory::functionFactoryArray()
 {
   ElementToMockList returnedList;
-  Enum e("enumTest", "");
   {
+    Enum e("enumTestParam", "");
+    e.addEnumValue(1, "ONE");
+    e.addEnumValue(2, "TWO");
     FunctionDeclaration *fd = new FunctionDeclaration("voidFunEnum", VoidReturnValue(false), Parameter::Vector({new Parameter(e.clone(), "e")}));
     returnedList.push_back(fd);
   }
   {
+    Enum e("enumTestParam", "");
+    e.addEnumValue(1, "ONE");
+    e.addEnumValue(2, "TWO");
     FunctionDeclaration *fd = new FunctionDeclaration("voidFunPtrEnum", VoidReturnValue(false), Parameter::Vector({new Parameter(new Pointer(e.clone()), "e")}));
     returnedList.push_back(fd);
   }
   {
+    Enum e("", "t_enumTestRv");
+    e.addEnumValue(0, "ZERO");
+    e.addEnumValue(4, "FOUR");
     FunctionDeclaration *fd = new FunctionDeclaration("enumFunVoid", ReturnValue(e.clone()), Parameter::Vector({}));
     returnedList.push_back(fd);
   }
+  Enum e("enumStruct", "");
+  e.addEnumValue(3, "THREE");
+  e.addEnumValue(5, "FIVE");
   {
     StructType *s = new StructType("structTestEnum", false);
-    s->addField(new ComposableField(e.clone(), "e"));
+    ComposableField *enumField = new ComposableField(e.clone(), "e");
+    enumField->setDeclareString("enum enumStruct");
+    s->addField(enumField);
     FunctionDeclaration *fd = new FunctionDeclaration("voidFunStructEnum", VoidReturnValue(false), Parameter::Vector({new Parameter(s, "s")}));
     returnedList.push_back(fd);
   }
   {
+    e.m_typedDefName =  "t_enumStruct";
     StructType *s = new StructType("structTestAnonyStructEnum", false);
     s->addField(new ComposableField(new CType(CTYPE_INT), "a"));
     StructType *as = new StructType("", true);

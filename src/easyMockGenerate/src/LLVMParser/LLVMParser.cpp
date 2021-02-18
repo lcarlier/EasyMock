@@ -354,9 +354,17 @@ private:
     const clang::EnumDecl *ED = ET->getDecl();
 
     const std::string name = ED->getNameAsString();
-    const std::string typedefName= getTypedefName(type);
+    const std::string typedefName = getTypedefName(type);
 
-    return new Enum(name, typedefName);
+    Enum* toReturn = new Enum(name, typedefName);
+    for(const auto& enumConstantDeclaration : ED->enumerators())
+    {
+      int64_t enumValue = enumConstantDeclaration->getInitVal().getExtValue();
+      const std::string enumName = enumConstantDeclaration->getNameAsString();
+      toReturn->addEnumValue(enumValue, enumName);
+    }
+
+    return toReturn;
   }
 
   TypeItf* getFromContainerType(const clang::Type &type, ContainerType contType, structKnownTypeMap &structKnownType, bool p_isEmbeddedInOtherType)

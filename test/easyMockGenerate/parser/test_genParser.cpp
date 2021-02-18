@@ -44,7 +44,7 @@ TYPED_TEST(GenericParser_testCase, parser)
     std::ostringstream parserSs;
     parserSs << funFromParser;
 
-    ASSERT_STRCASEEQ(factorySs.str().c_str(), parserSs.str().c_str()) << std::endl << "factoryStr" << factorySs.str() << std::endl << "parserStr" << parserSs.str();
+    ASSERT_STREQ(factorySs.str().c_str(), parserSs.str().c_str()) << std::endl << "factoryStr" << factorySs.str() << std::endl << "parserStr" << parserSs.str();
     ASSERT_EQ(funFromFactory, funFromParser) << "funIdx: " << funIdx;
   }
   DefinedMacroList ml = funFactory.getDefinedMacroList();

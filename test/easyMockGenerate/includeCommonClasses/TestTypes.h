@@ -157,6 +157,7 @@
         VoidFunFunPtrGenerateTypeFactory, \
         VoidFunTypedefFunPtrFactory, \
         VoidFunEnumFactory, \
+        VoidFunEnumGenerateTypeFactory, \
         VoidFunPtrToPtrRecurStructFactory, \
         VoidFunStructForwardDeclaredFactory, \
         VoidFunStructForwardDeclaredGenerateTypeFactory, \

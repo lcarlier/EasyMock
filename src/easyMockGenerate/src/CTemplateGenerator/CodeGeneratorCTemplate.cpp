@@ -25,6 +25,7 @@
 #include "ComposableBitfield.h"
 #include "QualifiedType.h"
 #include "IncompleteType.h"
+#include "Enum.h"
 
 #undef NDEBUG
 #include <cassert>
@@ -126,12 +127,22 @@
 #define GENERATED_MACRO_DEFINITION_SECTION "GENERATED_MACRO_DEFINITION_SECTION"
 #define GENERATED_MACRO_DEFINITION_TEMPLATE_VAR TEMPLATE_VAR(GENERATED_MACRO_DEFINITION_VAR)
 
-#define GENERATED_TYPE_SIMPLE_TYPDEF_SECTION "GENERATED_TYPE_SIMPLE_TYPDEF_SECTION"
-#define GENERATED_TYPE_SIMPLE_TYPDEF_TYPEE_VAR "GENERATED_TYPE_SIMPLE_TYPDEF_TYPEE_VAR"
-#define GENERATED_TYPE_SIMPLE_TYPDEF_TYPEE_TEMPLATE_VAR TEMPLATE_VAR("GENERATED_TYPE_SIMPLE_TYPDEF_TYPEE_VAR")
-#define GENERATED_TYPE_SIMPLE_TYPDEF_TYPED_VAR "GENERATED_TYPE_SIMPLE_TYPDEF_TYPED_VAR"
-#define GENERATED_TYPE_SIMPLE_TYPDEF_TYPED_TEMPLATE_VAR TEMPLATE_VAR("GENERATED_TYPE_SIMPLE_TYPDEF_TYPED_VAR")
-#define GENERATED_TYPE_SIMPLE_TYPDEF_GUARD_NAME MOCK_FRAMEWORK_NAME_UPPER "_" GENERATED_TYPE_SIMPLE_TYPDEF_TYPED_TEMPLATE_VAR "_GENERATED"
+#define GENERATED_TYPE_SIMPLE_TYPEDEF_SECTION "GENERATED_TYPE_SIMPLE_TYPEDEF_SECTION"
+#define GENERATED_TYPE_SIMPLE_TYPEDEF_TYPEE_VAR "GENERATED_TYPE_SIMPLE_TYPEDEF_TYPEE_VAR"
+#define GENERATED_TYPE_SIMPLE_TYPEDEF_TYPEE_TEMPLATE_VAR TEMPLATE_VAR("GENERATED_TYPE_SIMPLE_TYPEDEF_TYPEE_VAR")
+#define GENERATED_TYPE_SIMPLE_TYPEDEF_TYPED_VAR "GENERATED_TYPE_SIMPLE_TYPEDEF_TYPED_VAR"
+#define GENERATED_TYPE_SIMPLE_TYPEDEF_TYPED_TEMPLATE_VAR TEMPLATE_VAR("GENERATED_TYPE_SIMPLE_TYPEDEF_TYPED_VAR")
+#define GENERATED_TYPE_SIMPLE_TYPEDEF_GUARD_NAME MOCK_FRAMEWORK_NAME_UPPER "_" GENERATED_TYPE_SIMPLE_TYPEDEF_TYPED_TEMPLATE_VAR "_GENERATED"
+
+#define GENERATED_TYPE_ENUM_SECTION "GENERATED_TYPE_ENUM_SECTION"
+#define GENERATED_TYPE_ENUM_NAME_VAR "GENERATED_TYPE_ENUM_NAME_VAR"
+#define GENERATED_TYPE_ENUM_NAME_TEMPLATE_VAR TEMPLATE_VAR("GENERATED_TYPE_ENUM_NAME_VAR")
+#define GENERATED_TYPE_ENUM_VALUE_SECTION "GENERATED_TYPE_ENUM_VALUE_SECTION"
+#define GENERATED_TYPE_ENUM_VALUE_NAME_VAR "GENERATED_TYPE_ENUM_VALUE_NAME_VAR"
+#define GENERATED_TYPE_ENUM_VALUE_NAME_TEMPLATE_VAR TEMPLATE_VAR("GENERATED_TYPE_ENUM_VALUE_NAME_VAR")
+#define GENERATED_TYPE_ENUM_VALUE_VALUE_VAR "GENERATED_TYPE_ENUM_VALUE_VALUE_VAR"
+#define GENERATED_TYPE_ENUM_VALUE_VALUE_TEMPLATE_VAR TEMPLATE_VAR("GENERATED_TYPE_ENUM_VALUE_VALUE_VAR")
+#define GENERATED_TYPE_ENUM_GUARD_NAME MOCK_FRAMEWORK_NAME_UPPER "_" GENERATED_TYPE_ENUM_NAME_TEMPLATE_VAR "_GENERATED"
 
 #define COMPOSABLE_TYPE_DECLARE_TYPE_SECTION "COMPOSABLE_TYPE_DECLARE_TYPE_SECTION"
 #define TYPE_DECLARATION_VAR "TYPE_DECLARATION_VAR"
@@ -589,33 +600,40 @@ static const char headerFileTemplate[] =
         "#endif" CARRIAGE_RETURN
         IF_SECTION_EXISTS(GENERATE_MOCKED_TYPE_SECTION,
           "//------------------ GENERATING USED TYPE -------------------"  CARRIAGE_RETURN
+
           TEMPLATE_BEG_SECTION(GENERATED_MACRO_SECTION)
           "#ifndef " GENERATED_MACRO_ID_TEMPLATE_VAR CARRIAGE_RETURN
           "#define " GENERATED_MACRO_ID_TEMPLATE_VAR IF_SECTION_EXISTS(GENERATED_MACRO_DEFINITION_SECTION, " " GENERATED_MACRO_DEFINITION_TEMPLATE_VAR) CARRIAGE_RETURN
           "#endif //macro " GENERATED_MACRO_ID_TEMPLATE_VAR CARRIAGE_RETURN
           TEMPLATE_END_SECTION(GENERATED_MACRO_SECTION)
-          TEMPLATE_BEG_SECTION(GENERATED_TYPE_SIMPLE_TYPDEF_SECTION)
-          "#ifndef " GENERATED_TYPE_SIMPLE_TYPDEF_GUARD_NAME CARRIAGE_RETURN
-          "#define " GENERATED_TYPE_SIMPLE_TYPDEF_GUARD_NAME CARRIAGE_RETURN
-          "typedef " GENERATED_TYPE_SIMPLE_TYPDEF_TYPEE_TEMPLATE_VAR " " GENERATED_TYPE_SIMPLE_TYPDEF_TYPED_TEMPLATE_VAR ";" CARRIAGE_RETURN
-          "#endif //typedef " GENERATED_TYPE_SIMPLE_TYPDEF_GUARD_NAME CARRIAGE_RETURN
-          TEMPLATE_END_SECTION(GENERATED_TYPE_SIMPLE_TYPDEF_SECTION)
+
+          TEMPLATE_BEG_SECTION(GENERATED_TYPE_SIMPLE_TYPEDEF_SECTION)
+          "typedef " GENERATED_TYPE_SIMPLE_TYPEDEF_TYPEE_TEMPLATE_VAR " " GENERATED_TYPE_SIMPLE_TYPEDEF_TYPED_TEMPLATE_VAR ";" CARRIAGE_RETURN
+          TEMPLATE_END_SECTION(GENERATED_TYPE_SIMPLE_TYPEDEF_SECTION)
+
+          TEMPLATE_BEG_SECTION(GENERATED_TYPE_ENUM_SECTION)
+          IF_SECTION_EXISTS(COMPOSABLE_TYPE_TYPEDEF_SECTION, "typedef ") "enum " GENERATED_TYPE_ENUM_NAME_TEMPLATE_VAR CARRIAGE_RETURN
+          "{" CARRIAGE_RETURN
+          TEMPLATE_BEG_SECTION(GENERATED_TYPE_ENUM_VALUE_SECTION)
+          "  " GENERATED_TYPE_ENUM_VALUE_NAME_TEMPLATE_VAR " = " GENERATED_TYPE_ENUM_VALUE_VALUE_TEMPLATE_VAR "," CARRIAGE_RETURN
+          TEMPLATE_END_SECTION(GENERATED_TYPE_ENUM_VALUE_SECTION)
+          "}"
+          IF_SECTION_EXISTS(COMPOSABLE_TYPE_TYPEDEF_SECTION, " " COMPOSABLE_TYPE_TYPEDEF_NAME_TEMPLATE_VAR)
+          ";" CARRIAGE_RETURN
+          TEMPLATE_END_SECTION(GENERATED_TYPE_ENUM_SECTION)
+
           TEMPLATE_BEG_SECTION(GENERATED_TYPE_FORWARD_DECLARATION_SECTION)
-          "#ifndef " GENERATED_TYPE_FORWARD_DECLARATION_GUARD_NAME CARRIAGE_RETURN
-          "#define " GENERATED_TYPE_FORWARD_DECLARATION_GUARD_NAME CARRIAGE_RETURN
           TEMPLATE_INCL_SECTION(COMPOSABLE_TYPE_DECLARE_COMPOSABLE_TYPE_SECTION) CARRIAGE_RETURN
-          "#endif //forward " GENERATED_TYPE_FORWARD_DECLARATION_GUARD_NAME CARRIAGE_RETURN
           TEMPLATE_END_SECTION(GENERATED_TYPE_FORWARD_DECLARATION_SECTION)
+
           TEMPLATE_BEG_SECTION(GENERATED_TYPE_SECTION)
-          "#ifndef " GENERATED_TYPE_DECLARE_MACRO_GUARD_NAME CARRIAGE_RETURN
-          "#define " GENERATED_TYPE_DECLARE_MACRO_GUARD_NAME CARRIAGE_RETURN
           IF_SECTION_EXISTS(GENERATED_TYPE_DECLARE_TYPE_SECTION,
             GENERATED_TYPE_DECLARE_TYPE_TEMPLATE_VAR ";"
           )
           TEMPLATE_INCL_SECTION(COMPOSABLE_TYPE_DECLARE_COMPOSABLE_TYPE_SECTION)
           CARRIAGE_RETURN
-          "#endif //" GENERATED_TYPE_DECLARE_MACRO_GUARD_NAME CARRIAGE_RETURN
           TEMPLATE_END_SECTION(GENERATED_TYPE_SECTION)
+
           "//---------------- END GENERATING USED TYPE -----------------"  CARRIAGE_RETURN
         ) //IF_SECTION_EXISTS(GENERATE_MOCKED_TYPE_SECTION,
         CARRIAGE_RETURN
@@ -668,6 +686,8 @@ static const char extraTopDeclTemplate[] =
         TEMPLATE_INCL_SECTION(EXTRA_TOP_LEVEL_DECL_SECTION)
         TEMPLATE_END_SECTION(EXTRA_TOP_LEVEL_DECL_SECTION "INSIDE");
 
+static const std::string GENERATED_ANONYMOUS_TYPE_PREFIX { "easymock_generated_type" };
+
 CodeGeneratorCTemplate::CodeGeneratorCTemplate():
 m_nbUnamedParam(0)
 {
@@ -689,6 +709,8 @@ bool CodeGeneratorCTemplate::generateCode(const std::string& p_outDir, const std
     m_rootDictionary->AddSectionDictionary(INCLUDE_MOCKED_HEADER_SECTION);
   }
   m_generatedTypeTypedDefSection.clear();
+  m_generatedTypeEnumSection.clear();
+  m_nbAnonymousGeneratedType = 0;
 
   std::string filenameToMock = boost::filesystem::path(p_fullPathToHeaderToMock).filename().string();
   fillInMacroDefinition(p_ctxt);
@@ -1294,7 +1316,7 @@ void CodeGeneratorCTemplate::generateDeclarationOfUsedType(ctemplate::TemplateDi
       generateDeclarationOfComposableType(generatedType_section, p_composableType, 1, GenerateDeclarationOfComposableTypeOrigin::GENERATE_TOP_LEVEL_USED_TYPE);
     }
   }
-  else if(p_type->isTypedDef())
+  else if(p_type->isTypedDef() && !p_type->isEnum())
   {
     ctemplate::TemplateDictionary *generatedType_section = p_parentDictionary->AddSectionDictionary(GENERATED_TYPE_SECTION);
     const std::string& typeName = p_type->getMostDefinedName();
@@ -1309,6 +1331,10 @@ void CodeGeneratorCTemplate::generateDeclarationOfUsedType(ctemplate::TemplateDi
       declaredType.append(p_type->getTypedDefName());
     }
     generatedType_typeSection->SetValue(GENERATED_TYPE_DECLARE_TYPE_VAR, declaredType);
+  }
+  else if(p_type->isEnum())
+  {
+    generateEnum(p_type);
   }
   else if(qualifiedType)
   {
@@ -1467,7 +1493,12 @@ ctemplate::TemplateDictionary* CodeGeneratorCTemplate::generateDeclarationOfComp
         const FunctionType *ft = dynamic_cast<const FunctionType*>(fieldPtrType->getPointedType());
         generateExtraDecl(curFieldDict, EXTRA_DECL_SECTION, EXTRA_DECL_TEMPLATE_NAME, ft);
       }
-      generateSimpleTypeDef(fieldType);
+      /*
+       * The generated type anonymous number won't be sequential but it is not
+       * important
+       */
+      generateSimpleTypeDef(fieldType, m_nbAnonymousGeneratedType++);
+      generateEnum(fieldType);
     }
   }
   return anonymousDeclDict;
@@ -1657,20 +1688,81 @@ const TypeItf* CodeGeneratorCTemplate::getMostPointedType(const TypeItf* p_type)
   return p_type;
 }
 
-void CodeGeneratorCTemplate::generateSimpleTypeDef(const TypeItf* p_type)
+void CodeGeneratorCTemplate::generateSimpleTypeDef(const TypeItf* p_type, uint32_t p_anonymousNumber)
 {
   const std::string& typeName = p_type->getName();
   const std::string& typedefName = p_type->getTypedDefName();
 
-  if(m_generatedTypeTypedDefSection.find(typedefName) != m_generatedTypeTypedDefSection.end())
+  if(!typedefName.empty())
+  {
+    const TypeItf* mostPointerType = getMostPointedType(p_type);
+    /*
+     * Not yet supported via this function
+     */
+    if(mostPointerType->isFunction())
+    {
+      return;
+    }
+    if(m_generatedTypeTypedDefSection.find(typedefName) != m_generatedTypeTypedDefSection.end())
+    {
+      return;
+    }
+    m_generatedTypeTypedDefSection.emplace(typedefName);
+    std::string localType { typeName };
+    if(localType.empty())
+    {
+      localType = GENERATED_ANONYMOUS_TYPE_PREFIX + std::to_string(p_anonymousNumber);
+    }
+    ctemplate::TemplateDictionary* typeDefDict = m_rootDictionary->AddSectionDictionary(GENERATED_TYPE_SIMPLE_TYPEDEF_SECTION);
+    std::string fullTypeName;
+    if(p_type->isEnum())
+    {
+      fullTypeName.append("enum ");
+    }
+    fullTypeName.append(localType);
+    typeDefDict->SetValue(GENERATED_TYPE_SIMPLE_TYPEDEF_TYPEE_VAR, fullTypeName);
+    typeDefDict->SetValue(GENERATED_TYPE_SIMPLE_TYPEDEF_TYPED_VAR, typedefName);
+  }
+}
+
+void CodeGeneratorCTemplate::generateEnum(const TypeItf* p_type)
+{
+  if(!p_type->isEnum())
   {
     return;
   }
-  if(!typeName.empty() && !typedefName.empty())
+  /*
+   * The generated type anonymous number won't be sequential but it is not
+   * important
+   */
+  const uint32_t anonymousNumber = m_nbAnonymousGeneratedType++;
+  /*
+   * First generate the typedef if any. It is very important to do so because
+   * we might see a type first without the typedef coming and then the same
+   * with the typedef coming depending on how things have been parsed.
+   */
+  generateSimpleTypeDef(p_type, anonymousNumber);
+  const std::string& typeName = p_type->getName();
+  if(!typeName.empty())
   {
-    m_generatedTypeTypedDefSection.emplace(typedefName);
-    ctemplate::TemplateDictionary* typeDefDict = m_rootDictionary->AddSectionDictionary(GENERATED_TYPE_SIMPLE_TYPDEF_SECTION);
-    typeDefDict->SetValue(GENERATED_TYPE_SIMPLE_TYPDEF_TYPEE_VAR, typeName);
-    typeDefDict->SetValue(GENERATED_TYPE_SIMPLE_TYPDEF_TYPED_VAR, typedefName);
+    if(m_generatedTypeEnumSection.find(typeName) != m_generatedTypeEnumSection.end())
+    {
+      return;
+    }
+    m_generatedTypeEnumSection.emplace(typeName);
+  }
+  std::string localTypeName {typeName};
+  if(localTypeName.empty())
+  {
+    localTypeName = GENERATED_ANONYMOUS_TYPE_PREFIX + std::to_string(anonymousNumber);
+  }
+  ctemplate::TemplateDictionary* enumSection = m_rootDictionary->AddSectionDictionary(GENERATED_TYPE_ENUM_SECTION);
+  enumSection->SetValue(GENERATED_TYPE_ENUM_NAME_VAR, localTypeName);
+  const Enum* enumType = dynamic_cast<const Enum*>(p_type);
+  for(const auto& enumVal : enumType->getValues())
+  {
+    ctemplate::TemplateDictionary *curVal = enumSection->AddSectionDictionary(GENERATED_TYPE_ENUM_VALUE_SECTION);
+    curVal->SetValue(GENERATED_TYPE_ENUM_VALUE_VALUE_VAR, std::to_string(enumVal.first));
+    curVal->SetValue(GENERATED_TYPE_ENUM_VALUE_NAME_VAR, enumVal.second);
   }
 }
