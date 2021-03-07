@@ -22,26 +22,26 @@
 #define PIPE_READ 0
 #define PIPE_WRITE 1
 
-static void readStdoutStderrUntilEnd(int fdStdOut, int fdStdErr, std::string *stdOut, std::string *stdErr);
-static void appendReadIntoString(int fd, std::string *str, const char *strName, bool *noMoreToRead);
+static void readStdoutStderrUntilEnd(int fdStdOut, int fdStdErr, std::string &stdOut, std::string &stdErr);
+static void appendReadIntoString(int fd, std::string &str, const char *strName, bool *noMoreToRead);
 static void loadSo(const char *pathToSo, const char *functionToLoad, const char *comparatorToMatch, void **funcPtr, void **functExpectPtr, void **functMatcherPtr, void **functOutputPtr, void **handle, bool & m_rmDir);
-static void executeCmd(const char * const aArguments[], std::string *stdOut, std::string *stdErr, int *status);
 static void cleanTest(void **handle, const std::string &mockDir, bool rmDirectory);
-static void dumpToFile(const std::string& dir, const std::string& file, const std::string& data);
+static void dumpToFile(const std::string& dir, const std::string& file, std::string& data, bool append);
 
 easyMockGenerate_baseTestCase::easyMockGenerate_baseTestCase(const std::string functionToMock, const std::string pathToFileToMock, const std::string mockDir, bool generateTypes, bool rmDir) :
-::testing::Test(),
-m_functionToMock(functionToMock),
-m_comparatorToMatch(""),
-m_pathToFileToMock(pathToFileToMock),
-m_mockDir(mockDir),
-m_rmDir(rmDir),
-handle(NULL),
-m_fptr(NULL),
-m_fptr_expect(NULL),
-m_fptr_matcher(NULL),
-m_fptr_output_ptr(NULL),
-m_generate_types(generateTypes)
+::testing::Test {} ,
+m_functionToMock {functionToMock },
+m_comparatorToMatch {"" },
+m_pathToFileToMock { pathToFileToMock },
+m_mockDir { mockDir },
+m_rmDir { rmDir },
+handle { NULL },
+m_fptr { NULL } ,
+m_fptr_expect { NULL },
+m_fptr_matcher { NULL },
+m_fptr_output_ptr { NULL },
+m_generate_types { generateTypes },
+m_finalMockDir { "" }
 {
   ComposableType::setFileHash(std::hash<std::string>{}(pathToFileToMock));
 }
@@ -141,66 +141,85 @@ void rmDir(const std::string &dir)
   ASSERT_EQ(errCode.value(), 0) << "Error removing directory " << dir << " errCode: " << errCode.message();
 }
 
-void easyMockGenerate_baseTestCase::prepareTest(const ElementToMockContext &elem, const std::string &functionToMock, std::string &comparatorToMatch, const std::string &fullPathToFileToMock, const std::string &mockDir, void **fptr, void **fptr_expect, void **fptr_matcher, void **fptr_output_ptr, void **handle)
-{
+void easyMockGenerate_baseTestCase::prepareTest(const ElementToMockContext &elem, const std::string &functionToMock, std::string &comparatorToMatch, const std::string &fullPathToFileToMock, const std::string &mockDir, void **fptr, void **fptr_expect, void **fptr_matcher, void **fptr_output_ptr, void **handle) {
   char cwd[PATH_MAX];
-  ASSERT_NE(getcwd(cwd, PATH_MAX), nullptr) << std::endl << "getcwd error. errno: " << errno << "(" << strerror(errno) << ")" << std::endl;
+  ASSERT_NE(getcwd(cwd, PATH_MAX), nullptr)
+                        << std::endl << "getcwd error. errno: " << errno << "(" << strerror(errno) << ")" << std::endl;
   CodeGeneratorCTemplate generate;
   generate.setGenerateUsedType(m_generate_types);
 
   std::string pathAndfileNameToMock = boost::filesystem::path(fullPathToFileToMock).stem().string();
   std::string fileNameToMock = boost::filesystem::path(pathAndfileNameToMock).filename().string();
-  std::string finalMockDir(mockDir);
-  if(m_generate_types)
+  m_finalMockDir = mockDir ;
+  if (m_generate_types)
   {
-    finalMockDir.append("/typeGenerate");
+    m_finalMockDir.append("/typeGenerate");
   }
   else
   {
-    finalMockDir.append("/useHeader");
+    m_finalMockDir.append("/useHeader");
   }
-  createDir(finalMockDir);
-  bool codeGen = generate.generateCode(finalMockDir, fullPathToFileToMock, elem);
+  createDir(m_finalMockDir);
+  bool codeGen = generate.generateCode(m_finalMockDir, fullPathToFileToMock, elem);
   ASSERT_TRUE(codeGen) << std::endl << "Generation failed." << std::endl << "cwd: " << cwd << std::endl;
-  std::string stdOut;
-  std::string stdErr;
   int status;
 
-  std::string objFile(finalMockDir);
+  std::string objFile(m_finalMockDir);
   objFile.append("/easyMock_");
   objFile.append(pathAndfileNameToMock);
   std::string fileToCompile(objFile);
   objFile.append(".o");
   fileToCompile.append(".c");
+  std::string initLog{std::string("Log for: ") + fileToCompile + std::string("\n")};
+  dumpToFile(m_finalMockDir, "stdout.txt", initLog, false);
+  initLog = std::string("Log for: ") + fileToCompile + std::string("\n");
+  dumpToFile(m_finalMockDir, "stderr.txt", initLog, false);
 #if defined(__clang__)
   const char *cCompiler = "clang";
-  const char *cppCompiler = "clang++";
 #elif defined(__GNUC__) || defined(__GNUG__)
   const char *cCompiler = "gcc";
-  const char *cppCompiler = "g++";
 #else
 #error "Compiler not supported"
 #endif
-  const char * const compileMockCmd[] = {cCompiler, "-Wall", "-Werror", "-g", "-O0", "-fpic", "-I", finalMockDir.c_str(), "-I", PROJECT_ROOT_DIR"/src/easyMockFramework/include", "-I", PROJECT_ROOT_DIR"/test/easyMockGenerate/include", "-o", objFile.c_str(), "-c", fileToCompile.c_str(), NULL};
-  executeCmd(compileMockCmd, &stdOut, &stdErr, &status);
-  if(status != 0)
+
+  const char *const whichCCompilerCmd[] =
   {
-    /*
-     * When the UT fails, do not delete the folder of the generated code
-     */
-    m_rmDir = false;
-    dumpToFile(finalMockDir, "stdout.txt", stdOut);
-    dumpToFile(finalMockDir, "stderr.txt", stdErr);
-  }
-  ASSERT_EQ(status, 0) << std::endl << "Compilation mock failed " << std::endl << "cwd: " << cwd << std::endl << "stdout: " << std::endl << stdOut << std::endl << "stderr:" << std::endl << stdErr << std::endl;
+    "which",
+    cCompiler,
+    nullptr
+  };
+  executeCmd(whichCCompilerCmd, &status);
+
+  ASSERT_EQ(status, 0);
+  const char *const compileMockCmd[] = {cCompiler, "-Wall", "-Werror", "-g", "-O0", "-fpic", "-I", m_finalMockDir.c_str(),
+                                        "-I", PROJECT_ROOT_DIR"/src/easyMockFramework/include", "-I",
+                                        PROJECT_ROOT_DIR"/test/easyMockGenerate/include", "-o", objFile.c_str(), "-c",
+                                        fileToCompile.c_str(), NULL};
+  executeCmd(compileMockCmd, &status);
+  ASSERT_EQ(status, 0) << std::endl << "Compilation mock failed " << std::endl << "cwd: " << cwd << std::endl;
+
+  const char * const fileObjFile [] =
+  {
+    "file",
+    objFile.c_str(),
+    nullptr
+  };
+  executeCmd(fileObjFile, &status);
+  ASSERT_EQ(status, 0);
 
   std::string pathToLib(mockDir);
   pathToLib.append("/lib");
   pathToLib.append(fileNameToMock);
+#if defined(__APPLE__)
+  pathToLib.append(".dylib");
+#elif defined(__linux__)
   pathToLib.append(".so");
+#else
+#error "OS not supported"
+#endif
   const char * const compileLibCmd[] =
   {
-    cppCompiler,
+    cCompiler,
     "-shared",
 #if defined(__clang__)
     "-undefined", "dynamic_lookup",
@@ -210,15 +229,17 @@ void easyMockGenerate_baseTestCase::prepareTest(const ElementToMockContext &elem
     objFile.c_str(),
     NULL
   };
-  executeCmd(compileLibCmd, &stdOut, &stdErr, &status);
-  if(status != 0)
+  executeCmd(compileLibCmd, &status);
+  ASSERT_EQ(status, 0) << std::endl << "Compilation lib failed " << std::endl << "cwd: " << cwd << std::endl;
+
+  const char * const fileLibFile [] =
   {
-    /*
-     * When the UT fails, do not delete the folder of the generated code
-     */
-    m_rmDir = false;
-  }
-  ASSERT_EQ(status, 0) << std::endl << "Compilation lib failed " << std::endl << "cwd: " << cwd << std::endl << "stdout: " << std::endl << stdOut << std::endl << "stderr:" << std::endl << stdErr << std::endl;
+    "file",
+    pathToLib.c_str(),
+    nullptr
+  };
+  executeCmd(fileLibFile, &status);
+  ASSERT_EQ(status, 0);
 
   loadSo(pathToLib.c_str(), functionToMock.c_str(), comparatorToMatch.c_str(), fptr, fptr_expect, fptr_matcher, fptr_output_ptr, handle, m_rmDir);
 }
@@ -241,15 +262,13 @@ static void cleanTest(void **handle, const std::string &mockDir, bool rmDirector
   }
 }
 
-static void readStdoutStderrUntilEnd(int fdStdOut, int fdStdErr, std::string *stdOut, std::string *stdErr)
+static void readStdoutStderrUntilEnd(int fdStdOut, int fdStdErr, std::string &stdOut, std::string &stdErr)
 {
   fd_set rfds;
   int retval;
 
   bool stdOutDone = false;
   bool stdErrDone = false;
-  stdOut->clear();
-  stdErr->clear();
   while (stdOutDone == false || stdErrDone == false)
   {
     FD_ZERO(&rfds);
@@ -291,7 +310,7 @@ static void readStdoutStderrUntilEnd(int fdStdOut, int fdStdErr, std::string *st
   }
 }
 
-static void appendReadIntoString(int fd, std::string *str, const char *strName, bool *noMoreToRead)
+static void appendReadIntoString(int fd, std::string &str, const char *strName, bool *noMoreToRead)
 {
   int rv;
   const size_t bufSize = 256;
@@ -300,7 +319,7 @@ static void appendReadIntoString(int fd, std::string *str, const char *strName, 
   ASSERT_NE(rv, -1) << "Error reading " << strName << " fd " << fd << ": " << strerror(errno);
   if (rv > 0)
   {
-    str->append(buf, rv);
+    str.append(buf, rv);
   }
   else if (rv == 0)
   {
@@ -308,13 +327,27 @@ static void appendReadIntoString(int fd, std::string *str, const char *strName, 
   }
 }
 
-static void executeCmd(const char * const aArguments[], std::string *stdOut, std::string *stdErr, int *status)
+void easyMockGenerate_baseTestCase::executeCmd(const char * const aArguments[], int *status)
 {
+  std::string stdOutLog {};
+  std::string stdErrLog {};
   *status = -1;
   int pipeStdOut[2];
   int pipeStdErr[2];
   pid_t cpid;
   int rv;
+
+  stdOutLog.append("executing ");
+  for (int argsIdx = 0;; argsIdx++)
+  {
+      if (aArguments[argsIdx] == NULL)
+      {
+          break;
+      }
+      stdOutLog.push_back(' ');
+      stdOutLog.append(aArguments[argsIdx]);
+  }
+  stdOutLog.append("\n");
   rv = pipe(pipeStdOut);
   ASSERT_EQ(rv, 0) << "pipe stdout error: " << strerror(errno);
 
@@ -357,16 +390,6 @@ static void executeCmd(const char * const aArguments[], std::string *stdOut, std
       exit(1);
     }
 
-    std::fprintf(stdout, "executing ");
-    for (int argsIdx = 0;; argsIdx++)
-    {
-      if (aArguments[argsIdx] == NULL)
-      {
-        break;
-      }
-      fprintf(stdout, "%s ", aArguments[argsIdx]);
-    }
-    std::fprintf(stdout, "\n");
     execvp(aArguments[0], (char * const *) aArguments);
     std::fprintf(stderr, "execvp error: %s", strerror(errno));
     exit(1);
@@ -379,7 +402,7 @@ static void executeCmd(const char * const aArguments[], std::string *stdOut, std
     rv = close(pipeStdErr[PIPE_WRITE]);
     ASSERT_EQ(rv, 0) << "close stderr write failed: %s" << strerror(errno);
 
-    readStdoutStderrUntilEnd(pipeStdOut[PIPE_READ], pipeStdErr[PIPE_READ], stdOut, stdErr);
+    readStdoutStderrUntilEnd(pipeStdOut[PIPE_READ], pipeStdErr[PIPE_READ], stdOutLog, stdErrLog);
     rv = close(pipeStdOut[PIPE_READ]);
     ASSERT_EQ(rv, 0) << "close stdout read failed: %s" << strerror(errno);
     rv = close(pipeStdErr[PIPE_READ]);
@@ -416,6 +439,15 @@ static void executeCmd(const char * const aArguments[], std::string *stdOut, std
     }
     while (!WIFEXITED(wstatus) && !WIFSIGNALED(wstatus));
     *status = WEXITSTATUS(wstatus);
+    if(*status != 0)
+    {
+     /*
+      * When the UT fails, do not delete the folder of the generated code
+      */
+      m_rmDir = false;
+    }
+    dumpToFile(m_finalMockDir, "stdout.txt", stdOutLog, true);
+    dumpToFile(m_finalMockDir, "stderr.txt", stdErrLog, true);
   }
 }
 
@@ -455,13 +487,14 @@ static void loadSo(const char *pathToSo, const char *functionToLoad, const char 
   *funcPtr_output_ptr = dlsym(*handle, funPtrOutPtr.c_str());
 }
 
-static void dumpToFile(const std::string& p_dir, const std::string& p_file, const std::string& p_data)
+static void dumpToFile(const std::string& p_dir, const std::string& p_file, std::string& p_data, bool append)
 {
   std::string fileName { p_dir };
   fileName.push_back('/');
   fileName.append(p_file);
   std::ofstream ofile;
-  ofile.open(fileName, std::ios::trunc);
+  ofile.open(fileName, append ? std::ios::app : std::ios::trunc);
   ofile << p_data;
   ofile.close();
+  p_data.clear();
 }

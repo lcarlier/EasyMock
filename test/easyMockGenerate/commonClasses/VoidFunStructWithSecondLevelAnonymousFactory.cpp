@@ -25,7 +25,7 @@ FunctionDeclaration VoidFunStructWithSecondLevelAnonymousFactory::functionFactor
         {
           StructType *anonymousStruct1 = new StructType("", true);
           anonymousStruct1->addField(new ComposableField(CTYPE_INT, "a"));
-          CType *c = new CType(CTYPE_CHAR, "u8");
+          CType *c = new CType(CTYPE_UCHAR, "u8");
           anonymousStruct1->addField(new ComposableField(c, "b"));
           anonymousStruct->addField(new ComposableField(anonymousStruct1, ""));
         }

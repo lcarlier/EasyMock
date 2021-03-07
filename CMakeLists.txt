@@ -21,16 +21,17 @@ function(ljoin VALUES GLUE OUTPUT)
 endfunction()
 
 set(BUILD_TARGET_ARCH "" CACHE STRING "The target build architecture")
+message(STATUS "CMAKE_HOST_SYSTEM_PROCESSOR : ${CMAKE_HOST_SYSTEM_PROCESSOR}")
 if(BUILD_TARGET_ARCH STREQUAL "")
-    if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm"
-        OR CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64"
-        OR CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64"
+    if(CMAKE_HOST_SYSTEM_PROCESSOR  STREQUAL "arm"
+        OR CMAKE_HOST_SYSTEM_PROCESSOR  STREQUAL "arm64"
+        OR CMAKE_HOST_SYSTEM_PROCESSOR  STREQUAL "aarch64"
     )
         set(BUILD_TARGET_ARCH "arm")
-    elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
+    elseif(CMAKE_HOST_SYSTEM_PROCESSOR  STREQUAL "x86_64")
         set(BUILD_TARGET_ARCH "x86")
     else()
-        message(FATAL_ERROR "Architecture ${CMAKE_SYSTEM_PROCESSOR} not supported")
+        message(FATAL_ERROR "Architecture ${CMAKE_HOST_SYSTEM_PROCESSOR} not supported")
     endif()
 endif()
 
@@ -110,14 +111,27 @@ message(STATUS "LIBNCURSES_LDFLAGS: ${LIBNCURSES_LDFLAGS}")
 
 find_package(Boost 1.65 REQUIRED system filesystem)
 
-set(LLVM_VERSION 10 CACHE STRING "The LLVM version used")
+set(LLVM_DEFAULT_VERSION 10)
 
-find_program(LLVM_CONFIG_AUTO NAMES llvm-config-${LLVM_VERSION})
-set(LLVM_CONFIG ${LLVM_CONFIG_AUTO} CACHE FILEPATH "Path to llvm-config")
+message(STATUS "LLVM_PATH: ${LLVM_PATH}")
+find_program(LLVM_CONFIG NAMES llvm-config-${LLVM_DEFAULT_VERSION} llvm-config PATHS ${LLVM_PATH})
 if (NOT LLVM_CONFIG OR NOT EXISTS ${LLVM_CONFIG})
-    message (FATAL_ERROR "llvm-config command not found (${LLVM_CONFIG}). Please install llvm-config-${LLVM_VERSION} or use -DLLVM_CONFIG=<pathTo_llvm-config>")
+    message (FATAL_ERROR "llvm-config command not found (${LLVM_CONFIG}). Please install llvm-config-${LLVM_DEFAULT_VERSION} or use -DLLVM_PATH=<path-to_llvm-install>")
 else()
     message (STATUS "llvm-config found --> ${LLVM_CONFIG}")
+endif()
+
+if(NOT EXISTS ${LLVM_PATH})
+    # We've got llvm-config right so <path-to-llvm-config>/../.. == LLVM_PATH
+    # llvm-config-x can be symlink so we must resolve it first i.e. realpath(realpath({LLVM_CONFIG}))
+    execute_process(COMMAND python -c "import os; print(os.path.realpath(os.path.realpath('${LLVM_CONFIG}')+'/../..'))" OUTPUT_VARIABLE LLVM_PATH OUTPUT_STRIP_TRAILING_WHITESPACE)
+endif()
+
+message(STATUS "LLVM_PATH: ${LLVM_PATH}")
+find_library(CLANG_LIBRARIES NAMES clang PATHS ${LLVM_PATH} PATH_SUFFIXES lib)
+
+if (NOT CLANG_LIBRARIES OR NOT EXISTS ${CLANG_LIBRARIES})
+    message (FATAL_ERROR "libclang was not found in the system. CLANG_LIBRARIES=${CLANG_LIBRARIES}")
 endif()
 
 # set the C_IMPLICIT_INCLUDE_DIRECTORIES macro variable used in LLVMParser.cpp
@@ -189,24 +203,14 @@ if(${BACKTRACE_SUPPORT})
 )
 endif()
 
-if(APPLE)
-    execute_process(COMMAND bash -c "dirname $(mdfind -name libclang.dylib)" OUTPUT_VARIABLE CLANG_LIBRARIES)
-elseif(UNIX)
-    set(LLVM_PATH llvm-${LLVM_VERSION}/lib) #relative to /usr/lib
-    find_library(CLANG_LIBRARIES clang PATH_SUFFIXES ${LLVM_PATH})
-endif()
-if (NOT CLANG_LIBRARIES)
-    message (FATAL_ERROR "libclang-${LLVM_VERSION} was not found in the system. /usr/lib/${LLVM_PATH} was consulted")
-endif()
-
-#execute_process(COMMAND ${LLVM_CONFIG} --cxxflags COMMAND cut -d " " -f 1 COMMAND tr -d "\n" OUTPUT_VARIABLE LLVM_CXXFLAGS)
+execute_process(COMMAND ${LLVM_CONFIG} --version COMMAND cut -d "." -f 1 OUTPUT_VARIABLE LLVM_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
 execute_process(COMMAND ${LLVM_CONFIG} --includedir COMMAND tr -d "\n" OUTPUT_VARIABLE LLVM_INCLUDEDIR OUTPUT_STRIP_TRAILING_WHITESPACE)
 set(LLVM_CXXFLAGS -I${LLVM_INCLUDEDIR})
 execute_process(COMMAND ${LLVM_CONFIG} --ldflags COMMAND tr -d "\n" OUTPUT_VARIABLE LLVM_LDFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
 execute_process(COMMAND ${LLVM_CONFIG} --ldflags COMMAND cut -d "L" -f 2 COMMAND tr -d "\n" COMMAND tr -d " " OUTPUT_VARIABLE LLVM_LIBRARY_PATH OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-message(STATUS "LVM_CONFIG: ${LLVM_CONFIG}")
 message(STATUS "LVM_VERSION: ${LLVM_VERSION}")
+message(STATUS "LVM_CONFIG: ${LLVM_CONFIG}")
 message(STATUS "LVM_CXXFLAGS: ${LLVM_CXXFLAGS}")
 message(STATUS "LVM_LDFLAGS: ${LLVM_LDFLAGS}")
 message(STATUS "LVM_LIBRARY_PATH: ${LLVM_LIBRARY_PATH}")

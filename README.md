@@ -130,10 +130,10 @@ cmake ..
 make -j $(nproc)
 ```
 
-On MacOS, the path to `llvm-config` and `libctemplate` must be given to cmake by using the
-`LLVM_CONFIG` and `CTEMPLATE_LIB_INSTALL` cache entries. For instance:
+On MacOS, the path to `libctemplate` must be given to cmake by using the `CTEMPLATE_LIB_INSTALL` cache entries.
+I.E:
 ```sh
-cmake ../ -DLLVM_CONFIG=/opt/homebrew/Cellar/llvm/11.0.0/bin/llvm-config -DDCTEMPLATE_LIB_INSTALL=${LIBCTEMPLATE_INSTALL}
+cmake ../ -DDCTEMPLATE_LIB_INSTALL=${LIBCTEMPLATE_INSTALL}
 ```
 
 Note: On MacOS, the following command `cmake ../ -GXcode <rest of parameters>` can be used to generate the

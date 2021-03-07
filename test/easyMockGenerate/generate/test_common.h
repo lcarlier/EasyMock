@@ -65,12 +65,14 @@ protected:
   void setGenerateTypes(bool p_generateTypes);
 private:
   void prepareTest(const ElementToMockContext &ctxt, const std::string &functionToMock, std::string &comparatorToMatch, const std::string &fullPathToFileToMock, const std::string &mockDir, void **funcPtr, void **functExpectPtr, void **functMatcherPtr, void **functOutputPtr, void **handle);
+  void executeCmd(const char * const aArguments[], int *status);
   void *handle;
   void *m_fptr;
   void *m_fptr_expect;
   void *m_fptr_matcher;
   void *m_fptr_output_ptr;
   bool m_generate_types;
+  std::string m_finalMockDir;
 };
 
 #endif /* TEST_COMMON_H */

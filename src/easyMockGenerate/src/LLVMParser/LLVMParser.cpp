@@ -181,7 +181,7 @@ private:
   TypeItf* getEasyMocktype(const clang::QualType &clangQualType, structKnownTypeMap &structKnownType, bool isEmbeddedInOtherType)
   {
     const clang::Type &clangType = *clangQualType.getTypePtr();
-    const std::string& nakedDeclString = clangQualType.getAsString();
+    const std::string& nakedDeclString = clangQualType.getCanonicalType().getAsString();
     TypeItf *type = nullptr;
     if(clangType.isBuiltinType())
     {
@@ -357,7 +357,7 @@ private:
     const std::string typedefName = getTypedefName(type);
 
     Enum* toReturn = new Enum(name, typedefName);
-    for(const auto& enumConstantDeclaration : ED->enumerators())
+    for(const auto enumConstantDeclaration : ED->enumerators())
     {
       int64_t enumValue = enumConstantDeclaration->getInitVal().getExtValue();
       const std::string enumName = enumConstantDeclaration->getNameAsString();
@@ -367,22 +367,22 @@ private:
     return toReturn;
   }
 
-  TypeItf* getFromContainerType(const clang::Type &type, ContainerType contType, structKnownTypeMap &structKnownType, bool p_isEmbeddedInOtherType)
+  TypeItf* getFromContainerType(const clang::Type &p_type, ContainerType contType, structKnownTypeMap &structKnownType, bool p_isEmbeddedInOtherType)
   {
     const clang::RecordType *RT = nullptr;
     switch(contType)
     {
       case STRUCT:
-        RT = type.getAsStructureType();
+        RT = p_type.getAsStructureType();
         break;
       case UNION:
-        RT = type.getAsUnionType();
+        RT = p_type.getAsUnionType();
         break;
     }
 
     clang::RecordDecl* RD = RT->getDecl();
     std::string typeName = RD->getNameAsString();
-    std::string typedDefName = getTypedefName(type);
+    std::string typedDefName = getTypedefName(p_type);
 
     if(structKnownType.find(typedDefName) != structKnownType.end())
     {
@@ -393,7 +393,7 @@ private:
       return structKnownType.at(typeName).clone();
     }
 
-    const clang::TypedefType* TDT = type.getAs<clang::TypedefType>();
+    const clang::TypedefType* TDT = p_type.getAs<clang::TypedefType>();
     clang::TypedefNameDecl* TD_RD = nullptr;
     if(TDT != nullptr)
     {
@@ -436,18 +436,18 @@ private:
       const clang::QualType &qualType = FD->getType();
       const clang::Type *typePtr = qualType.getTypePtr();
       std::string fName = FD->getNameAsString();
-      TypeItf *type = getEasyMocktype(qualType, structKnownType, true);
+      TypeItf *fieldType = getEasyMocktype(qualType, structKnownType, true);
 
       ComposableFieldItf *sf = nullptr;
       if(FD->isBitField())
       {
-        if(!type->isCType())
+        if(!fieldType->isCType())
         {
           fprintf(stderr, "Type must be CType for fields");
           typePtr->dump();
           assert(false);
         }
-        CType *cTypePtr = dynamic_cast<CType*>(type);
+        CType *cTypePtr = dynamic_cast<CType*>(fieldType);
         unsigned bitWidth = FD->getBitWidthValue(*m_context);
         assert(bitWidth < 256);
         sf = new ComposableBitfield(cTypePtr, fName, static_cast<uint8_t>(bitWidth));
@@ -463,7 +463,7 @@ private:
         {
          .arraySize            = arraySize
         };
-        sf = new ComposableField(type, fName, attrib);
+        sf = new ComposableField(fieldType, fName, attrib);
         setDeclaratorDeclareString(qualType, sf, getDeclareString(FD->getBeginLoc(), FD->getEndLoc()));
       }
       sType->addField(sf);
@@ -800,4 +800,3 @@ CodeParser_errCode LLVMParser::getElementToMockContext(ElementToMockContext& p_c
 }
 
 LLVMParser::~LLVMParser() { }
-
