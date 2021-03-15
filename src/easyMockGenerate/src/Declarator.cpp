@@ -1,15 +1,19 @@
 #include "Declarator.h"
 #include "TypeItf.h"
+#include "Pointer.h"
+#include "FunctionType.h"
 
 #include <utility>
-#include <stddef.h>
+#include <cstddef>
+
+#include <boost/functional/hash.hpp>
 
 Declarator::Declarator(TypeItf* typeItf) :
-m_type(typeItf), m_declaredString("")
+m_type { typeItf }, m_declaredString { "" }
 {
   if(m_type)
   {
-    m_declaredString = m_type->getFullDeclarationName();
+    m_declaredString = m_type->getDeclarationPrefix();
   }
 }
 
@@ -22,6 +26,28 @@ Declarator::Declarator(Declarator&& other) :
 m_type { nullptr }, m_declaredString {}
 {
   swap(*this, other);
+}
+
+void Declarator::updateDeclareString()
+{
+  if(m_type)
+  {
+    const TypeItf *mostPointedType = m_type;
+    const Pointer* pointerType = mostPointedType->asPointer();
+    if(pointerType)
+    {
+      mostPointedType = pointerType->getMostPointedType();
+    }
+    const FunctionType* ft = dynamic_cast<const FunctionType*>(mostPointedType);
+    if(ft)
+    {
+      m_declaredString = ft->getDeclarationPrefix();
+    }
+    else
+    {
+      m_declaredString = m_type->getFullDeclarationName();
+    }
+  }
 }
 
 Declarator& Declarator::operator=(Declarator other)
@@ -54,10 +80,7 @@ void Declarator::setType(TypeItf* type)
   }
   m_type = type;
   m_declaredString.clear();
-  if(m_type)
-  {
-    m_declaredString = m_type->getFullDeclarationName();
-  }
+  updateDeclareString();
 }
 
 Declarator& Declarator::setDeclareString(const std::string& newString)
@@ -77,15 +100,15 @@ Declarator& Declarator::setDeclareString(const std::string& newString)
   return *this;
 }
 
-std::string Declarator::getDeclareString(bool p_naked) const
+std::string Declarator::getDeclareString() const
 {
-  if (!m_declaredString.empty() && !p_naked)
+  if (!m_declaredString.empty())
   {
     return m_declaredString;
   }
   if (m_type)
   {
-    return m_type->getFullDeclarationName(p_naked);
+    return m_type->getDeclarationPrefix();
   }
   return "";
 }
@@ -98,6 +121,15 @@ Declarator* Declarator::clone() const
 bool Declarator::operator==(const Declarator& other) const
 {
   return this->isEqual(other);
+}
+
+std::size_t Declarator::getHash() const
+{
+  std::size_t seed { 0 };
+  boost::hash_combine(seed, m_declaredString);
+  boost::hash_combine(seed, *m_type);
+
+  return seed;
 }
 
 bool Declarator::isEqual(const Declarator& other) const

@@ -54,14 +54,19 @@ public:
   bool isConst() const override;
 
   /*!
-   * \copydoc ::QualifiedType::getString()
+   * \copydoc ::QualifiedType::getQualifierString()
    */
-  const char* getString() const override;
+  const char* getQualifierString() const override;
 
   /*!
    * \copydoc ::TypeItf::clone()
    */
   TypeItf* clone() const override;
+
+  /*!
+   * \copydoc ::EasyMock::Hashable::getHash()
+   */
+  std::size_t getHash() const override;
 
   ~ConstQualifiedType() = default;
 protected:
@@ -72,4 +77,3 @@ private:
 };
 
 #endif /* CONSTQUALIFIEDTYPE_H */
-

@@ -3,9 +3,14 @@
 #include "FunctionType.h"
 #include "QualifiedType.h"
 #include "ConstQualifiedType.h"
+#include "TypedefType.h"
+#include "Enum.h"
+#include "ComposableType.h"
+#include "IncompleteType.h"
 
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/functional/hash.hpp>
 
 #undef NDEBUG
 #include <cassert>
@@ -16,153 +21,39 @@ TypeItf("")
 }
 
 TypeItf::TypeItf(const std::string p_name) :
-TypeItf(p_name, "")
-{
-}
-
-TypeItf::TypeItf(const std::string p_name, const std::string p_typed_def_name) :
-TypeItf({.name = p_name, .typedDefName = p_typed_def_name,
+TypeItf({.name = p_name,
         .isCType = false,
         .isStruct = false,
         .isUnion = false,
         .isPointer = false,
-        .isFunction = false,
+        .isFunctionType = false,
         .isEnum = false,
         .isImplicit = false,
-        .isIncompleteType = false
+        .isIncompleteType = false,
+        .isTypedefType = false,
+        .isQualifiedType = false,
         })
 {
 }
 
 TypeItf::TypeItf(TypeItf::attributes attrib)
 {
-  this->m_name = attrib.name;
-  this->m_typedDefName = attrib.typedDefName;
-  this->m_isCType = attrib.isCType;
-  this->m_isStruct = attrib.isStruct;
-  this->m_isUnion = attrib.isUnion;
-  this->m_isPointer = attrib.isPointer;
-  this->m_isFunction = attrib.isFunction;
-  this->m_isEnum = attrib.isEnum;
-  this->m_isImplicit = attrib.isImplicit;
-  this->m_isIncompleteType = attrib.isIncompleteType;
+  m_name = attrib.name;
+  m_isCType = attrib.isCType;
+  m_isStruct = attrib.isStruct;
+  m_isUnion = attrib.isUnion;
+  m_isPointer = attrib.isPointer;
+  m_isFunctionType = attrib.isFunctionType;
+  m_isEnum = attrib.isEnum;
+  m_isImplicit = attrib.isImplicit;
+  m_isIncompleteType = attrib.isIncompleteType;
+  m_isTypedefType = attrib.isTypedefType;
+  m_isQualifiedType = attrib.isQualifiedType;
 }
 
 const std::string &TypeItf::getName() const
 {
   return m_name;
-}
-
-//static
-std::string TypeItf::s_getFullDeclarationName(const TypeItf* type, bool fullyQualified, bool naked)
-{
-  const Pointer *ptrType = dynamic_cast<const Pointer*>(type);
-  const TypeItf *pointedType = ptrType ? ptrType->getPointedType() : nullptr;
-  const FunctionType* pointedFuncType = dynamic_cast<const FunctionType*>(pointedType);
-  const QualifiedType* qualifiedType = dynamic_cast<const QualifiedType*>(type);
-  std::string fullDeclarationName("");
-  if(ptrType)
-  {
-    if(pointedFuncType)
-    {
-      const FunctionType* funcType = dynamic_cast<const FunctionType*>(pointedType);
-      fullDeclarationName.append(funcType->getReturnType()->getDeclareString(naked));
-      fullDeclarationName.append("(*");
-      if(!type->m_typedDefName.empty())
-      {
-        fullDeclarationName.append(type->m_typedDefName);
-        fullDeclarationName.append(")(");
-        bool firstParam = true;
-        for(const Parameter *p : funcType->getFunctionsParameters())
-        {
-          if(!firstParam)
-          {
-            fullDeclarationName.append(", ");
-          }
-          fullDeclarationName.append(p->getDeclareString(naked));
-          firstParam = false;
-        }
-        fullDeclarationName.push_back(')');
-      }
-    }
-    else
-    {
-      if(ptrType->isTypedDef() && !naked)
-      {
-        fullDeclarationName.append(pointedType->getTypedDefName());
-      }
-      else
-      {
-        fullDeclarationName.append(s_getFullDeclarationName(pointedType, fullyQualified, naked));
-      }
-      if(ptrType->getTypedDefName().empty() || naked)
-      {
-        fullDeclarationName.append("* ");
-        if(pointedFuncType)
-        {
-          fullDeclarationName.pop_back(); //Pop the trailing space
-        }
-      }
-    }
-  }
-  if(qualifiedType)
-  {
-    fullDeclarationName.append(s_getFullDeclarationName(qualifiedType->getType(), fullyQualified, naked));
-    fullDeclarationName.push_back(' ');
-    if(fullyQualified)
-    {
-      fullDeclarationName.append(qualifiedType->getString());
-      fullDeclarationName.push_back(' ');
-    }
-  }
-  if(!type->m_typedDefName.empty() && !naked && !pointedFuncType)
-  {
-    fullDeclarationName.append(type->m_typedDefName);
-    return fullDeclarationName;
-  }
-  if(type->m_isStruct)
-  {
-    fullDeclarationName.append("struct ");
-  }
-  if(type->m_isUnion)
-  {
-    fullDeclarationName.append("union ");
-  }
-  if(type->m_isEnum)
-  {
-    fullDeclarationName.append("enum ");
-  }
-  fullDeclarationName.append(type->m_name);
-  boost::trim_right(fullDeclarationName);
-
-  return fullDeclarationName;
-}
-
-std::string TypeItf::getFullDeclarationName(bool p_naked) const
-{
-  return s_getFullDeclarationName(this, true, p_naked);
-}
-
-std::string TypeItf::getFullNonQualifiedDeclarationName(bool p_naked) const
-{
-  return s_getFullDeclarationName(this, false, p_naked);
-}
-
-const std::string& TypeItf::getTypedDefName() const
-{
-  return m_typedDefName;
-}
-
-const std::string& TypeItf::getMostDefinedName() const
-{
-  if(!m_typedDefName.empty())
-  {
-    return m_typedDefName;
-  }
-  else
-  {
-    return m_name;
-  }
 }
 
 //Protected
@@ -212,6 +103,21 @@ TypeItf* TypeItf::setImplicit(bool value)
   return this;
 }
 
+const TypeItf* TypeItf::unqualify() const
+{
+  const TypeItf* unqualifiedType = this;
+  while(unqualifiedType->m_isQualifiedType)
+  {
+    unqualifiedType = static_cast<const QualifiedType*>(this)->getUnqualifiedType();
+  }
+  return unqualifiedType;
+}
+
+TypeItf* TypeItf::unqualify()
+{
+  return const_cast<TypeItf*>(static_cast<const TypeItf*>(this)->unqualify());
+}
+
 ComposableFieldItf::Vector& TypeItf::getContainedFields()
 {
   return const_cast<ComposableFieldItf::Vector &>(static_cast<const TypeItf &>(*this).getContainedFields());
@@ -229,6 +135,25 @@ bool TypeItf::isCType() const
   return m_isCType;
 }
 
+bool TypeItf::isTypedDef() const
+{
+  return m_isTypedefType;
+}
+
+const TypedefType* TypeItf::asTypedefType() const
+{
+  if(!this->isTypedDef())
+  {
+    return nullptr;
+  }
+  return static_cast<const TypedefType*>(this);
+}
+
+TypedefType* TypeItf::asTypedefType()
+{
+  return const_cast<TypedefType*>(static_cast<const TypeItf*>(this)->asTypedefType());
+}
+
 //Protected
 void TypeItf::setCType(bool value)
 {
@@ -242,7 +167,7 @@ void TypeItf::setPointer(bool value)
 
 void TypeItf::setFunction(bool value)
 {
-  m_isFunction = value;
+  m_isFunctionType = value;
 }
 
 void TypeItf::setEnum(bool value)
@@ -255,16 +180,24 @@ void TypeItf::setIncompleteType(bool value)
   m_isIncompleteType = value;
 }
 
-bool TypeItf::isTypedDef() const
+void TypeItf::setTypedefType(bool value)
 {
-  return m_typedDefName.size() != 0;
+  m_isTypedefType = value;
+}
+
+void TypeItf::setQualifiedType(bool value)
+{
+  m_isQualifiedType = value;
 }
 
 bool TypeItf::isAnonymous() const
 {
-  //Pointer types are never anonymous
-  const ConstQualifiedType* constType = dynamic_cast<const ConstQualifiedType*>(this);
-  return !constType && !m_isPointer && m_name.empty() && m_typedDefName.empty();
+  const TypeItf* rawType = this->getRawType();
+  /*
+   * Note:
+   * Only composable type or enum type can be anonymous
+   */
+  return (rawType->isComposableType() || rawType->isEnum()) && m_name.empty();
 }
 
 bool TypeItf::isComposableType() const
@@ -272,14 +205,56 @@ bool TypeItf::isComposableType() const
   return !m_isIncompleteType && (m_isStruct || m_isUnion);
 }
 
+const ComposableType* TypeItf::asComposableType() const
+{
+  if(!isComposableType())
+  {
+    return nullptr;
+  }
+  return static_cast<const ComposableType*>(this);
+}
+
+ComposableType* TypeItf::asComposableType()
+{
+  return const_cast<ComposableType*>(static_cast<const TypeItf*>(this)->asComposableType());
+}
+
 bool TypeItf::isPointer() const
 {
   return !m_isIncompleteType && m_isPointer;
 }
 
-bool TypeItf::isFunction() const
+const Pointer* TypeItf::asPointer() const
 {
-  return !m_isIncompleteType && m_isFunction;
+  if(!m_isPointer)
+  {
+    return nullptr;
+  }
+  return static_cast<const Pointer*>(this);
+}
+
+Pointer* TypeItf::asPointer()
+{
+  return const_cast<Pointer*>(static_cast<const TypeItf*>(this)->asPointer());
+}
+
+bool TypeItf::isFunctionType() const
+{
+  return !m_isIncompleteType && m_isFunctionType;
+}
+
+const FunctionType* TypeItf::asFunctionType() const
+{
+  if(!this->isFunctionType())
+  {
+    return nullptr;
+  }
+  return static_cast<const FunctionType*>(this);
+}
+
+FunctionType* TypeItf::asFunctionType()
+{
+  return const_cast<FunctionType*>(static_cast<const TypeItf*>(this)->asFunctionType());
 }
 
 bool TypeItf::isEnum() const
@@ -287,14 +262,132 @@ bool TypeItf::isEnum() const
   return !m_isIncompleteType && m_isEnum;
 }
 
+const Enum* TypeItf::asEnum() const
+{
+  if(!m_isEnum)
+  {
+    return nullptr;
+  }
+  return static_cast<const Enum*>(this);
+}
+
+Enum* TypeItf::asEnum()
+{
+  return const_cast<Enum*>(static_cast<const TypeItf*>(this)->asEnum());
+}
+
 bool TypeItf::isIncompleteType() const
 {
   return m_isIncompleteType;
 }
 
+const IncompleteType* TypeItf::asIncompleteType() const
+{
+  if(!m_isIncompleteType)
+  {
+    return nullptr;
+  }
+  return static_cast<const IncompleteType*>(this);
+}
+
+IncompleteType* TypeItf::asIncompleteType()
+{
+  return const_cast<IncompleteType*>(static_cast<const TypeItf*>(this)->asIncompleteType());
+}
+
+bool TypeItf::isQualified() const
+{
+  return m_isQualifiedType;
+}
+
+const QualifiedType* TypeItf::asQualifiedType() const
+{
+  if(!m_isQualifiedType)
+  {
+    return nullptr;
+  }
+  return static_cast<const QualifiedType*>(this);
+}
+
+QualifiedType* TypeItf::asQualifiedType()
+{
+  return const_cast<QualifiedType*>(static_cast<const TypeItf*>(this)->asQualifiedType());
+}
+
+/*
+ * int var <--> t_int var;            // typedef int t_int
+ * int (*var) <--> p_a (var);         // typedef int* var
+ * struct f (var) <--> t_f (var);     // typedef struct f t_f
+ * const int (var) <--> c_int (var);  // typedef const int c_int
+ */
+std::string TypeItf::getFullDeclarationName(bool p_naked) const
+{
+  const std::string prefix = getDeclarationPrefix(p_naked);
+  const std::string postfix = getDeclarationPostfix(p_naked);
+  std::string toReturn { prefix + std::string { " " } + postfix};
+
+  while(toReturn.back() == ' ')
+  {
+    toReturn.pop_back();
+  }
+  return toReturn;
+}
+
 easyMock_cTypes_t TypeItf::getCType() const
 {
   return CTYPE_INVALID;
+}
+
+
+const TypeItf* TypeItf::getRawType() const
+{
+  const Pointer* pointerType = asPointer();
+  if(pointerType)
+  {
+    return pointerType->getPointedType()->getRawType();
+  }
+
+  const QualifiedType* qualifiedType = asQualifiedType();
+  if(qualifiedType)
+  {
+    return qualifiedType->getUnqualifiedType()->getRawType();
+  }
+
+  const TypedefType* typedefType = asTypedefType();
+  if(typedefType)
+  {
+    return typedefType->getTypee()->getRawType();
+  }
+
+  return this;
+}
+
+TypeItf* TypeItf::getRawType()
+{
+  return const_cast<TypeItf*>(static_cast<const TypeItf*>(this)->getRawType());
+}
+
+std::string TypeItf::getDeclarationPostfix(bool p_naked) const
+{
+  return "";
+}
+
+std::size_t TypeItf::getHash() const
+{
+  std::size_t seed { 0 };
+  boost::hash_combine(seed, m_name);
+  boost::hash_combine(seed, m_isCType);
+  boost::hash_combine(seed, m_isStruct);
+  boost::hash_combine(seed, m_isUnion);
+  boost::hash_combine(seed, m_isPointer);
+  boost::hash_combine(seed, m_isFunctionType);
+  boost::hash_combine(seed, m_isEnum);
+  boost::hash_combine(seed, m_isImplicit);
+  boost::hash_combine(seed, m_isIncompleteType);
+  boost::hash_combine(seed, m_isTypedefType);
+  boost::hash_combine(seed, m_isQualifiedType);
+
+  return seed;
 }
 
 bool TypeItf::operator==(const TypeItf& other) const
@@ -307,22 +400,19 @@ bool TypeItf::isEqual(const TypeItf& other) const
   bool isAnonymousEqual = this->isAnonymous() == other.isAnonymous();
   return isAnonymousEqual &&
           this->m_name == other.m_name &&
-          this->m_typedDefName == other.m_typedDefName &&
           this->m_isCType == other.m_isCType &&
           this->m_isStruct == other.m_isStruct &&
           this->m_isUnion == other.m_isUnion &&
           this->m_isPointer == other.m_isPointer &&
-          this->m_isFunction == other.m_isFunction &&
+          this->m_isFunctionType == other.m_isFunctionType &&
           this->m_isEnum == other.m_isEnum &&
           this->m_isImplicit == other.m_isImplicit &&
-          this->m_isIncompleteType == other.m_isIncompleteType;
+          this->m_isIncompleteType == other.m_isIncompleteType &&
+          this->m_isTypedefType == other.m_isTypedefType &&
+          this->m_isQualifiedType == other.m_isQualifiedType;
 }
 
 bool TypeItf::operator!=(const TypeItf& other) const
 {
   return (*this == other) == false;
-}
-
-TypeItf::~TypeItf()
-{
 }

@@ -1,12 +1,10 @@
 #include "Enum.h"
 
-Enum::Enum(const std::string p_name):
-Enum { p_name, "" }
-{
-}
+#include <boost/functional/hash.hpp>
+#include <boost/type_index/type_index_facade.hpp>
 
-Enum::Enum(const std::string p_name, const std::string p_typed_def_name):
-TypeItf { p_name, p_typed_def_name }
+Enum::Enum(const std::string p_name):
+TypeItf { p_name }
 {
   setEnum(true);
 }
@@ -34,11 +32,25 @@ bool Enum::isEqual(const TypeItf& p_other) const
   return parentEqual && listOfValueEqual;
 }
 
+std::string Enum::getDeclarationPrefix(bool) const
+{
+  std::string toReturn { std::string {"enum "} + m_name };
+  while(toReturn.back() == ' ')
+  {
+    toReturn.pop_back();
+  }
+  return toReturn;
+}
+
+std::size_t Enum::getHash() const
+{
+  std::size_t seed { TypeItf::getHash() };
+  boost::hash_combine(seed, boost::hash_range(this->m_listOfValues.begin(), this->m_listOfValues.end()));
+
+  return seed;
+}
+
 Enum *Enum::clone() const
 {
   return new Enum(*this);
 }
-
-Enum::~Enum() {
-}
-

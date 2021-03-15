@@ -1,6 +1,8 @@
 cmake_minimum_required (VERSION 3.10)
 project (EasyMock)
 
+# There is only one debug build. If this changes, check test/end2end/CMakeList.txt because an assumption is made
+# on that over there.
 set(build_debug "Debug")
 set(build_release "Release")
 set(build_release_with_test "ReleaseWithTest")

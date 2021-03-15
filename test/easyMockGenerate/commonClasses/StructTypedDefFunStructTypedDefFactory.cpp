@@ -2,6 +2,7 @@
 
 #include <StructType.h>
 #include <ComposableField.h>
+#include <TypedefType.h>
 
 FunctionDeclaration StructTypedDefFunStructTypedDefFactory::functionFactory()
 {
@@ -10,10 +11,11 @@ FunctionDeclaration StructTypedDefFunStructTypedDefFactory::functionFactory()
   ComposableField *cf = new ComposableField(CTYPE_INT, "a");
   st1->addField(cf->clone());
 
-  StructType *rv = new StructType("foo", "TypedDefStruct", isEmbeddedInOtherType);
+  TypedefType *trv = new TypedefType("TypedDefStruct", new StructType("foo", isEmbeddedInOtherType));
+  StructType *rv = dynamic_cast<StructType*>(trv->getTypee());
   rv->addField(cf);
 
-  FunctionDeclaration f(functionGetFunctionName(), ReturnValue(rv), Parameter::Vector({new Parameter(st1, "s2")}));
+  FunctionDeclaration f(functionGetFunctionName(), ReturnValue(trv), Parameter::Vector({new Parameter(st1, "s2")}));
   return f;
 }
 

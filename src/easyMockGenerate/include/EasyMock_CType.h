@@ -32,13 +32,6 @@ public:
    * \param p_cType The C basic data type.
    */
   CType(const easyMock_cTypes_t p_cType);
-  /*!
-   * \brief Creates a new CType.
-   *
-   * \param p_cType See CType(const easyMock_cTypes_t,bool).
-   * \param p_typeDefName The typedef that aliases this CType type.
-   */
-  CType(const easyMock_cTypes_t p_cType, std::string p_typeDefName);
 
   /*!
    * \brief returns the type represented by this instance.
@@ -67,10 +60,16 @@ public:
    */
   bool setUnsigned(bool val);
 
+  /*!
+   * \copydoc ::TypeItf::getDeclarationPrefix
+   */
+  virtual std::string getDeclarationPrefix(bool p_naked = false) const override;
+
   CType(const CType &other) = default;
   CType& operator=(const CType &other) = default;
   CType(CType &&other) = default;
   CType& operator=(CType &&other) = default;
+
   /*!
    * \brief Checks the equality in between 2 CType.
    *
@@ -84,6 +83,12 @@ public:
    * \copydoc TypeItf::clone
    */
   CType *clone() const override;
+
+  /*!
+   * \copydoc ::EasyMock::Hashable::getHash()
+   */
+  std::size_t getHash() const override;
+
   /*
    * bool isEqual(const TypeItf &other);
    * Doesn't need to be overridden because the name is updated whenever the CType object changes.
@@ -102,4 +107,3 @@ private:
 };
 
 #endif /* CTYPE_H */
-

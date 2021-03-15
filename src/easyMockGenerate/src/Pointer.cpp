@@ -1,12 +1,11 @@
 #include "Pointer.h"
+#include "QualifiedType.h"
+#include "FunctionType.h"
+
+#include <cassert>
 
 Pointer::Pointer(TypeItf *p_type):
-Pointer(p_type, "")
-{
-}
-
-Pointer::Pointer(TypeItf *p_type,  const std::string p_type_def_name):
-TypeItf("", p_type_def_name), m_pointedType(p_type), m_isIncompletePointerType(false)
+TypeItf(""), m_pointedType(p_type)
 {
   this->setPointer(true);
 }
@@ -15,11 +14,10 @@ Pointer::Pointer(const Pointer& other):
 TypeItf(other)
 {
   m_pointedType = other.m_pointedType->clone();
-  m_isIncompletePointerType = other.m_isIncompletePointerType;
 }
 
 Pointer::Pointer(Pointer &&other):
-TypeItf(other), m_pointedType(nullptr), m_isIncompletePointerType(false)
+TypeItf(other), m_pointedType(nullptr)
 {
   swap(*this, other);
 }
@@ -54,7 +52,7 @@ TypeItf* Pointer::getPointedType()
 
 bool Pointer::setPointedType(TypeItf* newPointedType)
 {
-  if(m_pointedType && !m_isIncompletePointerType)
+  if(m_pointedType)
   {
     delete m_pointedType;
     m_pointedType = nullptr;
@@ -63,15 +61,17 @@ bool Pointer::setPointedType(TypeItf* newPointedType)
   return true;
 }
 
-void Pointer::setIncompleteTypePointer(bool value)
-{
-  m_isIncompletePointerType = value;
-}
-
 void Pointer::swap(Pointer &first, Pointer &second)
 {
   std::swap(first.m_pointedType, second.m_pointedType);
-  std::swap(first.m_isIncompletePointerType, second.m_isIncompletePointerType);
+}
+
+std::size_t Pointer::getHash() const
+{
+  std::size_t seed { TypeItf::getHash() };
+  boost::hash_combine(seed, *m_pointedType);
+
+  return seed;
 }
 
 bool Pointer::isEqual(const TypeItf& p_other) const
@@ -86,22 +86,24 @@ bool Pointer::isEqual(const TypeItf& p_other) const
     return false;
   }
   const Pointer& other = static_cast<const Pointer&>(p_other);
-  bool deletePointedTypeEqual = this->m_isIncompletePointerType == other.m_isIncompletePointerType;
-  if(!deletePointedTypeEqual)
-  {
-    return false;
-  }
-  bool typeEqual;
-  if(!this->m_isIncompletePointerType)
-  {
-    typeEqual = *this->m_pointedType == *other.m_pointedType;
-  }
-  else
-  {
-    typeEqual = this->getPointedType()->getMostDefinedName() == other.getPointedType()->getMostDefinedName();
-  }
 
-  return deletePointedTypeEqual && typeEqual;
+  bool typeEqual = *this->m_pointedType == *other.m_pointedType;
+
+  return typeEqual;
+}
+
+std::string Pointer::getDeclarationPrefix(bool p_naked) const
+{
+  return m_pointedType->getDeclarationPrefix(p_naked) + std::string { "*" };
+}
+
+TypeItf* Pointer::getMostPointedType() const
+{
+  if(m_pointedType->isPointer())
+  {
+    return dynamic_cast<const Pointer*>(m_pointedType)->getMostPointedType();
+  }
+  return m_pointedType;
 }
 
 Pointer* Pointer::clone() const

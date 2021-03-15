@@ -21,14 +21,14 @@ public:
   bool operator!=(const QualifiedType& p_other) const;
 
   /*!
-   * \copydoc ::QualifiedType::getType()
+   * \copydoc ::QualifiedType::getUnqualifiedType()
    */
-  const TypeItf* getType() const;
+  const TypeItf* getUnqualifiedType() const;
 
   /*!
    * \brief Returns the type being qualified
    */
-  TypeItf* getType();
+  TypeItf* getUnqualifiedType();
 
   /*!
    * \brief Returns whether the qualified type is const.
@@ -43,12 +43,23 @@ public:
    *
    * For const qualified type, this function returns "const"
    */
-  virtual const char* getString() const;
+  virtual const char* getQualifierString() const;
+
+  /*!
+   * \copydoc ::TypeItf::getDeclarationPrefix
+   */
+  virtual std::string getDeclarationPrefix(bool p_naked = false) const override;
 
   /*!
    * \copydoc ::TypeItf::clone()
    */
   virtual TypeItf* clone() const override;
+
+  /*!
+   * \copydoc ::EasyMock::Hashable::getHash()
+   */
+  std::size_t getHash() const override;
+
   virtual ~QualifiedType();
 protected:
   /*!
@@ -65,10 +76,10 @@ protected:
   QualifiedType(TypeItf* p_type);
 
   virtual bool isEqual(const TypeItf& p_other) const override;
+
   friend void swap(QualifiedType& first, QualifiedType& second);
 private:
   TypeItf* m_type;
 };
 
 #endif /* QUALIFIEDTYPE_H */
-

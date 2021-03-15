@@ -4,6 +4,8 @@
 #ifndef DECLARATOR_H
 #define DECLARATOR_H
 
+#include "EasyMock_Hashable.h"
+
 #include <string>
 
 class TypeItf;
@@ -36,7 +38,7 @@ class TypeItf;
  * used as is and it is recommended to use a subclass instead. To make sure of that
  * the constructors of the Declarator class are protected.
  */
-class Declarator
+class Declarator : public virtual EasyMock::Hashable
 {
 public:
   Declarator(const Declarator& other);
@@ -49,26 +51,26 @@ public:
    *
    * \sa TypeItf
    */
-  virtual TypeItf* getType();
+  TypeItf* getType();
 
   /*!
    * \copydoc getType()
    */
-  virtual const TypeItf* getType() const;
+  const TypeItf* getType() const;
 
   /*!
    * \brief Sets the type of the declarator
    *
    * \sa TypeItf
    */
-  virtual void setType(TypeItf* type);
+  void setType(TypeItf* type);
 
   /*!
    * \brief Returns the actual line of code which was use to declare the Declarator.
    *
    * \sa setDeclareString
    */
-  std::string getDeclareString(bool p_naked = false) const;
+  std::string getDeclareString() const;
 
   /*!
    * \brief Sets the string which is used to declare the Declarator
@@ -115,6 +117,12 @@ public:
    * \copydoc ::TypeItf::clone
    */
   virtual Declarator* clone() const;
+
+  /*!
+   * \copydoc ::EasyMock::Hashable::getHash()
+   */
+  std::size_t getHash() const override;
+
 protected:
 
   /*!
@@ -145,11 +153,12 @@ protected:
   explicit Declarator(TypeItf* p_typeItf);
   virtual ~Declarator();
 
+  friend void swap(Declarator &first, Declarator &second);
+private:
   TypeItf* m_type;
   std::string m_declaredString;
 
-  friend void swap(Declarator &first, Declarator &second);
+  void updateDeclareString();
 };
 
 #endif /* DECLARATOR_H */
-

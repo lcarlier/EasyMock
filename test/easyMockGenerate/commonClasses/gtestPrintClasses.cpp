@@ -15,8 +15,10 @@
 #include <ComposableBitfield.h>
 #include <ConstQualifiedType.h>
 
+#include "TypedefType.h"
+
 template<class T>
-static void printComposableTypeToOstream(std::ostream& os, const T& composableType, std::string classname);
+static void printComposableTypeToOstream(std::ostream& os, const T& composableType, std::string&& classname);
 
 static std::string gs_indentation;
 
@@ -73,7 +75,7 @@ std::ostream& operator<<(std::ostream& os, const ReturnValue& rv) {
 std::ostream& operator<<(std::ostream& os, const TypeItf& typeItf)
 {
   bool isConst = typeItf.isConst();
-  os << "TypeItf:" << typeItf.getMostDefinedName() << ", ";
+  os << "TypeItf:" << typeItf.getName() << ", ";
   os << "isTypeDef:" << (typeItf.isTypedDef() ? "yes" : "no") << ", ";
   os << "isAnonymous:" << (typeItf.isAnonymous() ? "yes" : "no") << ", ";
   os << "isPointer:" << (typeItf.isPointer() ? "yes" : "no") << ", ";
@@ -88,31 +90,35 @@ std::ostream& operator<<(std::ostream& os, const TypeItf& typeItf)
 
   if(typeItf.isCType())
   {
-    os << dynamic_cast<const CType &>(typeItf);
+    os << static_cast<const CType &>(typeItf);
   }
   else if(typeItf.isStruct())
   {
-    os << dynamic_cast<const StructType &>(typeItf);
+    os << static_cast<const StructType &>(typeItf);
   }
   else if(typeItf.isUnion())
   {
-    os << dynamic_cast<const UnionType &>(typeItf);
+    os << static_cast<const UnionType &>(typeItf);
   }
   else if(typeItf.isPointer())
   {
-    os << dynamic_cast<const Pointer &>(typeItf);
+    os << static_cast<const Pointer &>(typeItf);
   }
   else if(typeItf.isEnum())
   {
-    os << dynamic_cast<const Enum &>(typeItf);
+    os << static_cast<const Enum &>(typeItf);
   }
   else if(typeItf.isIncompleteType())
   {
-    os << dynamic_cast<const IncompleteType &>(typeItf);
+    os << static_cast<const IncompleteType &>(typeItf);
   }
   else if(isConst)
   {
-    os << dynamic_cast<const ConstQualifiedType &>(typeItf);
+    os << static_cast<const ConstQualifiedType &>(typeItf);
+  }
+  else if(typeItf.isTypedDef())
+  {
+    os << static_cast<const TypedefType &>(typeItf);
   }
   else
   {
@@ -168,29 +174,19 @@ std::ostream& operator<<(std::ostream& os, const UnionType& unionType)
 std::ostream& operator<<(std::ostream& os, const Pointer& pointerType)
 {
   os << "Pointer: ";
-  os << "isIncompletePointerType: " << (pointerType.m_isIncompletePointerType ? "yes" : "no");
   gs_indentation.push_back('\t');
   os << std::endl << gs_indentation;
-  if(!pointerType.m_isIncompletePointerType)
-  {
-    os << *pointerType.getPointedType();
-  }
-  else
-  {
-    os << "pointedType pointer: " << pointerType.getPointedType();
-  }
+  os << "pointedType pointer: " << *pointerType.getPointedType();
   gs_indentation.pop_back();
   return os;
 }
 
 template<class T>
-static void printComposableTypeToOstream(std::ostream& os, const T& composableType, std::string classname)
+static void printComposableTypeToOstream(std::ostream& os, const T& composableType, std::string&& classname)
 {
   os << classname << "(";
   os << "name: '" << composableType.getName() << "'" << ", ";
-  os << "typeDefName: '" << composableType.getTypedDefName() << "'" << ", ";
   os << "anonymous: " << (composableType.isAnonymous() ? "yes" : " no") << ", ";
-  os << "m_anonymous_number: " << composableType.m_anonymous_number << ", ";
   os << "DeclEmbedded: " << (composableType.isDeclarationEmbeddedInOtherType() ? "yes" : " no");
   os << ")" << std::endl;
 
@@ -208,7 +204,7 @@ static void printComposableTypeToOstream(std::ostream& os, const T& composableTy
 
 std::ostream& operator<<(std::ostream& os, const Enum& etype)
 {
-  os << "Enum: name:'" << etype.getName() << "' typedef:'" << etype.getTypedDefName() << "'" << std::endl;
+  os << "Enum: name:'" << etype.getName() << "'" << std::endl;
   gs_indentation.push_back('\t');
   for(auto enumVal : etype.getValues())
   {
@@ -220,7 +216,7 @@ std::ostream& operator<<(std::ostream& os, const Enum& etype)
 
 std::ostream& operator<<(std::ostream& os, const IncompleteType& incType)
 {
-  return os << "Incomplete Type: name:'" << incType.getName() << "' typedef:'" << incType.getTypedDefName() << "'" << std::endl;
+  return os << "Incomplete Type: name:'" << incType.getName() << "'" << std::endl;
 }
 
 void PrintTo(const __int128& int128Type, std::ostream* os)
@@ -280,8 +276,15 @@ std::ostream& operator<<(std::ostream& os, const ConstQualifiedType& constQualif
 {
   os << "ConstQualifiedType(" << std::endl;
   gs_indentation.push_back('\t');
-  os << gs_indentation << *constQualifiedType.getType();
+  os << gs_indentation << *constQualifiedType.getUnqualifiedType();
   gs_indentation.pop_back();
   os << gs_indentation << ")END ConstQualifiedType '" << std::endl;
+  return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const TypedefType& p_typedefType)
+{
+  os << "TypedefType " << p_typedefType.getName() << std::endl;
+  os << *p_typedefType.getTypee() << std::endl;
   return os;
 }

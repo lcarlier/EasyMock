@@ -1,16 +1,13 @@
 #include "EasyMock_CType.h"
 
+#include <boost/functional/hash.hpp>
+
 CType::CType() : CType(CTYPE_INVALID)
 {
 }
 
 CType::CType(const easyMock_cTypes_t p_cType) :
-CType(p_cType, "")
-{
-}
-
-CType::CType(const easyMock_cTypes_t p_cType, std::string p_typeDefName) :
-TypeItf(easyMock_arrayCTypeStr[p_cType], p_typeDefName), m_cType(p_cType), m_initAsNakedChar(p_cType == CTYPE_CHAR)
+TypeItf(easyMock_arrayCTypeStr[p_cType]), m_cType(p_cType), m_initAsNakedChar(p_cType == CTYPE_CHAR)
 {
   this->setCType(true);
 }
@@ -134,6 +131,20 @@ bool CType::isEqual(const TypeItf& p_other) const
   return ctypeEq;
 }
 
+std::string CType::getDeclarationPrefix(bool p_naked) const
+{
+  return m_name;
+}
+
+std::size_t CType::getHash() const
+{
+  std::size_t seed { TypeItf::getHash() };
+  boost::hash_combine(seed, static_cast<uint32_t>(m_cType));
+  boost::hash_combine(seed, m_initAsNakedChar);
+
+  return seed;
+}
+
 bool CType::operator==(const CType& other) const
 {
   return this->isEqual(other);
@@ -143,4 +154,3 @@ bool CType::operator!=(const CType& other) const
 {
   return (*this == other) == false;
 }
-

@@ -20,13 +20,10 @@
 class Pointer : public TypeItf
 {
 public:
-  Pointer(TypeItf *p_type);
-
   /*!
    * \brief Creates a new Pointer
    *
    * \param p_type The TypeItf to which the pointer is pointing to.
-   * \param p_type_def_name The typedef alias associated with this pointer type
    *
    * A pointer can be typedef when having such c code
    * \code{.c}
@@ -35,7 +32,7 @@ public:
    *
    * \heapPointer
    */
-  Pointer(TypeItf *p_type, const std::string p_type_def_name);
+  Pointer(TypeItf *p_type);
   Pointer(const Pointer &other);
   Pointer& operator=(Pointer other);
 
@@ -50,7 +47,6 @@ public:
 
   /*!
    * \copydoc TypeItf::~TypeItf()
-   * \warning See also ::Pointer::setIncompleteTypePointer()
    */
   virtual ~Pointer();
 
@@ -68,41 +64,31 @@ public:
    * \warning If the pointer was already pointing to a TypeItf object. It will be
    * deleted first.
    *
-   * \warning If the pointer is set as incomplete pointer (with ::Pointer::setIncompleteTypePointer())
-   * <b>before</b> calling ::Pointer::setPointedType(), the TypeItf object to which this pointer is
-   * pointing <b>will not be deleted</b>. This is to be able to support incomplete
-   * or recursive (i.e. type using themselve) type.
-   *
    * \see ComposableField::ComposableField(TypeItf*,std::string,attributes)
    */
   bool setPointedType(TypeItf* newPointedType);
 
   /*!
-   * \brief Sets whether the pointed is is an incomplete type or not.
-   *
-   * An example of pointer pointing to an incomplete type is as following
-   * \code{.c}
-   * struct s
-   * {
-   *    struct s * f;
-   * };
-   * \endcode
-   * The field @c is of the <tt>struct s</tt> is a recursive/incomplete pointer type.
-   *
-   * Setting a Pointer object to be incomplete is important when comparing Pointer
-   * objects. When a Pointer object is set to be incomplete, the
-   * ::Pointer::operator==(const Pointer&) const will compare the name returned by
-   * ::TypeItf::getMostDefinedName() of the pointed type instead of comparing
-   * the full pointed type object via their own operator==. This is to avoid
-   * infinite call loop to ::Pointer::operator==(const Pointer&) const when the
-   * incomplete type is actually recursive.
-   *
-   * \note union can also hold incomplete pointer type.
+   * \copydoc ::TypeItf::getDeclarationPrefix
    */
-  void setIncompleteTypePointer(bool value);
+  virtual std::string getDeclarationPrefix(bool p_naked = false) const override;
 
-  /*! @copydoc TypeItf::clone() */
+  /*!
+   * \brief Helper function that returned the actual type pointed by this pointer
+   *
+   * \return The ::TypeItf object corresponding to the actual type pointed by this pointer
+   */
+  TypeItf* getMostPointedType() const;
+
+  /*!
+   * \copydoc TypeItf::clone()
+   */
   Pointer* clone() const override;
+
+  /*!
+   * \copydoc ::EasyMock::Hashable::getHash()
+   */
+  std::size_t getHash() const override;
 
 protected:
   /*!
@@ -112,8 +98,6 @@ protected:
 private:
   void swap(Pointer &first, Pointer &second);
   TypeItf* m_pointedType;
-  bool m_isIncompletePointerType;
 };
 
 #endif /* POINTER_H */
-

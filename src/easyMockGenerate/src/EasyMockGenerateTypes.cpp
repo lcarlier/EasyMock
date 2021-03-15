@@ -23,6 +23,7 @@ const char *easyMock_arrayCTypeStr[] =
   "void",
   "invalid"
 };
+static_assert(CTYPE_CHAR == 0);
 static_assert(ARRAY_SIZE(easyMock_arrayCTypeStr) == CTYPE_INVALID+1);
 
 const char *easyMock_printfFormat[] =
@@ -47,4 +48,3 @@ const char *easyMock_printfFormat[] =
   "invalidPrintfFormat"
 };
 static_assert(ARRAY_SIZE(easyMock_printfFormat) == CTYPE_INVALID+1);
-

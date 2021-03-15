@@ -1,12 +1,14 @@
 #include "IncompleteType.h"
 
+#include <boost/functional/hash.hpp>
+
 IncompleteType::IncompleteType(const TypeItf& p_type, Type p_typeType)
-: TypeItf(p_type.getName(), p_type.getTypedDefName()), m_type(p_typeType)
+: TypeItf(p_type.getName()), m_type(p_typeType)
 {
   setIncompleteType(true);
   setCType(p_type.isCType());
   setEnum(p_type.isEnum());
-  setFunction(p_type.isFunction());
+  setFunction(p_type.isFunctionType());
   setImplicit(p_type.isImplicit());
   setPointer(p_type.isPointer());
   setStruct(p_type.isStruct());
@@ -25,6 +27,24 @@ const char* IncompleteType::getComposableTypeKeyword() const
   return "error IncompleteType::getComposableTypeKeyword()";
 }
 
+std::string IncompleteType::getDeclarationPrefix(bool) const
+{
+  std::string toReturn { getComposableTypeKeyword() + std::string{ " " } + m_name};
+  while(toReturn.back() == ' ')
+  {
+    toReturn.pop_back();
+  }
+  return toReturn;
+}
+
+std::size_t IncompleteType::getHash() const
+{
+  std::size_t seed { TypeItf::getHash() };
+  boost::hash_combine(seed, static_cast<uint32_t>(m_type));
+
+  return seed;
+}
+
 IncompleteType* IncompleteType::clone() const
 {
   return new IncompleteType(*this);
@@ -32,4 +52,3 @@ IncompleteType* IncompleteType::clone() const
 
 IncompleteType::~IncompleteType()
 {}
-

@@ -6,13 +6,14 @@
 #include <EasyMock_CType.h>
 #include <StructType.h>
 #include <ComposableField.h>
+#include <TypedefType.h>
 
 #include <assert.h>
 
-FunctionDeclaration* getFunPtrDeclaration(unsigned int n, const char *functionName)
+FunctionDeclaration* getFunPtrDeclaration(unsigned int n, const char *functionName, std::string&& structName, std::string&& typedefName)
 {
   ReturnValue ftRv(new CType(CTYPE_INT));
-  FunctionType *ft = new FunctionType("", ftRv, Parameter::Vector({NamedParameter(CTYPE_INT, ""), NamedParameter(CTYPE_FLOAT, "")}));
+  FunctionType *ft = new FunctionType(ftRv, Parameter::Vector({NamedParameter(CTYPE_INT, ""), NamedParameter(CTYPE_FLOAT, "")}));
   Pointer ptrToFun(ft);
   switch(n)
   {
@@ -20,7 +21,12 @@ FunctionDeclaration* getFunPtrDeclaration(unsigned int n, const char *functionNa
     //First function
     {
       ReturnValue rv(new CType(CTYPE_VOID));
-      Parameter *p = new Parameter(ptrToFun.clone(), "funPtr");
+      TypeItf* paramType = ptrToFun.clone();
+      if(!typedefName.empty())
+      {
+        paramType = new TypedefType(typedefName, paramType);
+      }
+      Parameter *p = new Parameter(paramType, "funPtr");
       FunctionDeclaration* fd = new FunctionDeclaration(functionName, rv, Parameter::Vector({p}));
       return fd;
     }
@@ -32,12 +38,12 @@ FunctionDeclaration* getFunPtrDeclaration(unsigned int n, const char *functionNa
      * int funPtrFunPtr(double (*(*)(float, float ))(char, char ))
      */
     {
-      FunctionType *ft1 = new FunctionType("", TypedReturnValue(CTYPE_DOUBLE), Parameter::Vector({NamedParameter(CTYPE_CHAR, ""), NamedParameter(CTYPE_CHAR, "")}));
+      FunctionType *ft1 = new FunctionType(TypedReturnValue(CTYPE_DOUBLE), Parameter::Vector({NamedParameter(CTYPE_CHAR, ""), NamedParameter(CTYPE_CHAR, "")}));
       Pointer *ptf1 = new Pointer(ft1);
       ft1 = nullptr;
       ReturnValue rv(ptf1);
       ptf1 = nullptr;
-      FunctionType* ft2 = new FunctionType("", rv, Parameter::Vector({NamedParameter(CTYPE_FLOAT, ""), NamedParameter(CTYPE_FLOAT, "")}));
+      FunctionType* ft2 = new FunctionType(rv, Parameter::Vector({NamedParameter(CTYPE_FLOAT, ""), NamedParameter(CTYPE_FLOAT, "")}));
       Pointer *ptf2 = new Pointer(ft2);
 
       FunctionDeclaration *fd = new FunctionDeclaration(functionName, TypedReturnValue(CTYPE_INT), Parameter::Vector({new Parameter(ptf2, "")}));
@@ -59,10 +65,10 @@ FunctionDeclaration* getFunPtrDeclaration(unsigned int n, const char *functionNa
      * double (* (* funPtrFunToFun(int ))(float ))(char );
      */
     {
-      FunctionType *ft1 = new FunctionType("", TypedReturnValue(CTYPE_DOUBLE), Parameter::Vector({NamedParameter(CTYPE_CHAR, ""),NamedParameter(CTYPE_CHAR, "")}));
+      FunctionType *ft1 = new FunctionType(TypedReturnValue(CTYPE_DOUBLE), Parameter::Vector({NamedParameter(CTYPE_CHAR, ""),NamedParameter(CTYPE_CHAR, "")}));
       Pointer *ptf1 = new Pointer(ft1);
       ft1 = nullptr;
-      FunctionType *ft2 = new FunctionType("", ReturnValue(ptf1), Parameter::Vector({NamedParameter(CTYPE_FLOAT, ""),NamedParameter(CTYPE_FLOAT, "")}));
+      FunctionType *ft2 = new FunctionType(ReturnValue(ptf1), Parameter::Vector({NamedParameter(CTYPE_FLOAT, ""),NamedParameter(CTYPE_FLOAT, "")}));
       ptf1 = nullptr;
       Pointer *ptf2 = new Pointer(ft2);
       ft2 = nullptr;
@@ -77,8 +83,13 @@ FunctionDeclaration* getFunPtrDeclaration(unsigned int n, const char *functionNa
      * intFunPtrToFunField
      */
     {
-      StructType *s = new StructType("ptrFunField", false);
-      s->addField(new ComposableField(ptrToFun.clone(), "funPtr"));
+      StructType *s = new StructType(structName, false);
+      TypeItf* fieldType = ptrToFun.clone();
+      if(!typedefName.empty())
+      {
+        fieldType = new TypedefType(typedefName, fieldType);
+      }
+      s->addField(new ComposableField(fieldType, "funPtr"));
       FunctionDeclaration *fd = new FunctionDeclaration(functionName, TypedReturnValue(CTYPE_INT), Parameter::Vector({new Parameter(s, "ptrToFunField")}));
       return fd;
     }
@@ -90,24 +101,20 @@ FunctionDeclaration* getFunPtrDeclaration(unsigned int n, const char *functionNa
      */
     {
       bool isEmbeddedStruct = true;
-      StructType* top = new StructType("topAnonymousStructPtrFunField", !isEmbeddedStruct); //NOT EMBEDDED
+      StructType* top = new StructType(structName, !isEmbeddedStruct); //NOT EMBEDDED
       top->addField(new ComposableField(CTYPE_INT, "a"));
       StructType* beingDefined = new StructType("", isEmbeddedStruct);
-      beingDefined->addField(new ComposableField(ptrToFun.clone(), "funPtr"));
+      TypeItf* fieldType = ptrToFun.clone();
+      if(!typedefName.empty())
+      {
+        fieldType = new TypedefType(typedefName, fieldType);
+      }
+      beingDefined->addField(new ComposableField(fieldType, "funPtr"));
       top->addField(new ComposableField(beingDefined, ""));
       FunctionDeclaration *fd = new FunctionDeclaration(functionName, TypedReturnValue(CTYPE_INT), Parameter::Vector({new Parameter(top, "ptrToStructAnonFunField")}));
 
-      const unsigned int NB_ANONYMOUS_TYPE_IN_THIS_UT = 1;
-      /*
-       * with -fno-access-control we are able to set this static class variable to
-       * decrement the number of anonymous composable type by the number of anonymous
-       * type the UT contains.
-       * Thanks to that, the parser will generate the same anonymous ID as the code above.
-       */
-      ComposableType::m_number_of_anonymous_composable_type -= NB_ANONYMOUS_TYPE_IN_THIS_UT;
       return fd;
     }
   }
   assert(false);
 }
-

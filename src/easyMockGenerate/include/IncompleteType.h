@@ -62,13 +62,25 @@ public:
   const char* getComposableTypeKeyword() const;
 
   /*!
+   * \copydoc ::TypeItf::getDeclarationPrefix
+   */
+  virtual std::string getDeclarationPrefix(bool p_naked = false) const override;
+
+  /*!
    * \copydoc TypeItf::clone
    */
   IncompleteType *clone() const override;
+
+  /*!
+   * \copydoc ::EasyMock::Hashable::getHash()
+   */
+  std::size_t getHash() const override;
+
   virtual ~IncompleteType();
+
+protected:
 private:
   Type m_type;
 };
 
 #endif /* INCOMPLETETYPE_H */
-

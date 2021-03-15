@@ -13,8 +13,59 @@
 #include <IncompleteType.h>
 #include <ComposableBitfield.h>
 #include <ConstQualifiedType.h>
+#include <TypedefType.h>
+
+#include "common.h"
 
 #include <gtestPrintClasses.h>
+
+namespace
+{
+template<typename ...>
+struct TestFunctionWrapper;
+
+
+template<typename T, typename ... Param>
+struct TestFunctionWrapper<T, std::tuple<Param ...>>
+{
+  void test(Param &&... p1, Param &&... p2)
+  {
+    T f1(std::forward<Param>(p1)...);
+    T f2(f1);
+    ASSERT_EQ(f1, f2);
+
+    T f3(std::forward<Param>(p2)...);
+    ASSERT_NE(f3,f1);
+    f3 = f1;
+    ASSERT_EQ(f3,f1);
+
+    T f4 = std::move(f3);
+    ASSERT_EQ(f4, f1);
+
+    T f6(std::forward<Param>(p2)...);
+    ASSERT_NE(f6, f2);
+    f6 = std::move(f2);
+    ASSERT_EQ(f6, f1);
+  }
+};
+
+#define DECLARE_FUNCTION_TEST_FUNCTION(funName) \
+template<typename T, typename ... Param> \
+void funName() \
+{ \
+  TestFunctionWrapper<T, Param...> testStruct{}; \
+  if constexpr(std::is_base_of<FunctionType, T>::value) \
+  { \
+    testStruct.test(f1Param, \
+                    f2Param); \
+  } \
+  else \
+  { \
+    testStruct.test("foo", f1Param, \
+                    "foo", f2Param); \
+  } \
+}
+}
 
 TEST(moveCopy, CType)
 {
@@ -97,7 +148,7 @@ TEST(moveCopy, ConstPointer)
 
 TEST(moveCopy, PointerWithRecursField)
 {
-  StructType *t_struct = new StructType("s_s1", "t_s1", false);
+  StructType *t_struct = new StructType("s_s1", false);
   t_struct->addField(new ComposableField(new Pointer(new IncompleteType(*t_struct, IncompleteType::Type::STRUCT)), "recur"));
 
   Pointer p1(t_struct);
@@ -354,73 +405,94 @@ TEST(moveCopy, UnionTypeTwoRecursiveTypes)
   runTypeTwoRecursiveTypes(u2);
 }
 
+static void testTypedefType(TypedefType& p1)
+{
+  TypedefType p2(p1);
+  ASSERT_EQ(p1, p2);
+
+  TypedefType p3( "char_t", new CType(CTYPE_DOUBLE));
+  ASSERT_NE(p3, p1);
+  p3 = p1;
+  ASSERT_EQ(p3, p1);
+
+  TypedefType p4 = std::move(p3);
+  ASSERT_EQ(p4, p1);
+
+  TypedefType p6("char_t", new CType(CTYPE_DOUBLE));
+  ASSERT_NE(p6, p2);
+  p6 = std::move(p2);
+  ASSERT_EQ(p6, p1);
+}
+
 TEST(moveCopy, StructTypedAnonymousTypedDef)
 {
   bool isEmbeddedInOtherType = false;
 
-  StructType s1("", "Anonymous", isEmbeddedInOtherType);
+  TypedefType s1 { "Anonymous", new StructType("", isEmbeddedInOtherType) };
 
-  testComposableType(s1);
+  testTypedefType(s1);
 }
 
 TEST(moveCopy, UnionTypedAnonymousTypedDef)
 {
   bool isEmbeddedInOtherType = false;
 
-  UnionType u1("", "Anonymous", isEmbeddedInOtherType);
+  TypedefType u1 { "Anonymous", new UnionType("", isEmbeddedInOtherType) };
 
-  testComposableType(u1);
+  testTypedefType(u1);
 }
+
 
 TEST(moveCopy, StructTypedTypedDef)
 {
   bool isEmbeddedInOtherType = false;
 
-  StructType s1("foo", "NotAnonymous", isEmbeddedInOtherType);
+  TypedefType s1 { "NotAnonymous", new StructType("foo", isEmbeddedInOtherType) };
 
-  testComposableType(s1);
+  testTypedefType(s1);
 }
 
 TEST(moveCopy, UnionTypedTypedDef)
 {
   bool isEmbeddedInOtherType = false;
 
-  UnionType u1("foo", "NotAnonymous", isEmbeddedInOtherType);
+  TypedefType u1 { "NotAnonymous", new UnionType("foo", isEmbeddedInOtherType) };
 
-  testComposableType(u1);
+  testTypedefType(u1);
 }
 
 TEST(moveCopy, StructEmbeddedInOtherType)
 {
   bool isEmbeddedInOtherType = true;
 
-  StructType s1("foo", "NotAnonymous", isEmbeddedInOtherType);
+  TypedefType s1 { "NotAnonymous", new StructType("foo", isEmbeddedInOtherType) };
 
-  testComposableType(s1);
+  testTypedefType(s1);
 }
 
 TEST(moveCopy, UnionEmbeddedInOtherType)
 {
   bool isEmbeddedInOtherType = true;
 
-  UnionType u1("foo", "NotAnonymous", isEmbeddedInOtherType);
+  TypedefType u1 { "NotAnonymous", new UnionType("foo", isEmbeddedInOtherType) };
 
-  testComposableType(u1);
+  testTypedefType(u1);
 }
 
 TEST(moveCopy, fromSTDIO)
 {
   bool isEmbeddedInOtherType = false;
-  StructType *FILE_T = new StructType("MY_IO_FILE", "T_MY_IO_FILE", isEmbeddedInOtherType);
+  TypedefType *tFILE_T = new TypedefType("T_MY_IO_FILE" ,new StructType("MY_IO_FILE", isEmbeddedInOtherType));
+  StructType *FILE_T = dynamic_cast<StructType*>(tFILE_T->getTypee());
   StructType *IO_MARK = new StructType("MY_IO_MARK", isEmbeddedInOtherType);
 
   IO_MARK->addField(new ComposableField(new Pointer(new IncompleteType(*IO_MARK, IncompleteType::Type::STRUCT)), "_next"));
-  IO_MARK->addField(new ComposableField(new Pointer(new IncompleteType(*FILE_T, IncompleteType::Type::STRUCT)), "_sbuf"));
+  IO_MARK->addField(new ComposableField(new Pointer(new IncompleteType(*tFILE_T, IncompleteType::Type::STRUCT)), "_sbuf"));
 
   FILE_T->addField(new ComposableField(new Pointer(IO_MARK), "_markers"));
-  FILE_T->addField(new ComposableField(new Pointer(new IncompleteType(*FILE_T, IncompleteType::Type::STRUCT)), "_chain"));
+  FILE_T->addField(new ComposableField(new Pointer(new IncompleteType(*tFILE_T, IncompleteType::Type::STRUCT)), "_chain"));
 
-  Parameter *p = new Parameter(new Pointer(FILE_T), "file");
+  Parameter *p = new Parameter(new Pointer(tFILE_T), "file");
   FILE_T = nullptr; //We lost the ownership
   Function f1("structFileFromStdio", TypedReturnValue(CTYPE_VOID), Parameter::Vector({p}));
   p = nullptr; //We lost the ownership
@@ -576,51 +648,38 @@ TEST(moveCopy, ReturnValueDeclareString)
   testMoveCopyReturnValue(rv1);
 }
 
-template <typename T>
-void testFunction()
-{
-  T f1("foo", VoidReturnValue(), {});
-  T f2(f1);
-  ASSERT_EQ(f1, f2);
+#define f1Param VoidReturnValue(), {}
+#define f2Param TypedReturnValue(CTYPE_INT), {}
 
-  T f3("bar", TypedReturnValue(CTYPE_INT), {});
-  ASSERT_NE(f3,f1);
-  f3 = f1;
-  ASSERT_EQ(f3,f1);
+  DECLARE_FUNCTION_TEST_FUNCTION(testFunction)
 
-  T f4 = std::move(f3);
-  ASSERT_EQ(f4, f1);
-
-  T f6("bar", TypedReturnValue(CTYPE_INT), {});
-  ASSERT_NE(f6, f2);
-  f6 = std::move(f2);
-  ASSERT_EQ(f6, f1);
-}
+#undef f1Param
+#undef f2Param
 
 TEST(moveCopy, Function)
 {
-    testFunction<Function>();
+    testFunction<Function, functionTuple>();
 }
 
 TEST(moveCopy, FunctionDeclaration)
 {
-    testFunction<FunctionDeclaration>();
+    testFunction<FunctionDeclaration, functionTuple>();
 }
 
 TEST(moveCopy, FunctionType)
 {
-    testFunction<FunctionType>();
+    testFunction<FunctionType, functionTypeTuple>();
 }
 
 TEST(moveCopy, Enum)
 {
-  Enum etype1("e1", "");
+  Enum etype1("e1");
   etype1.addEnumValue(0, "ZERO");
   etype1.addEnumValue(1, "ONE");
   Enum etype2(etype1);
   ASSERT_EQ(etype1, etype2);
 
-  Enum etype3("e2", "");
+  Enum etype3("e2");
   ASSERT_NE(etype3,etype1);
   etype3 = etype1;
   ASSERT_EQ(etype3,etype1);
@@ -628,7 +687,7 @@ TEST(moveCopy, Enum)
   Enum etype4 = std::move(etype3);
   ASSERT_EQ(etype4, etype1);
 
-  Enum etype6("e3", "");
+  Enum etype6("e3");
   ASSERT_NE(etype6, etype2);
   etype6 = std::move(etype2);
   ASSERT_EQ(etype6, etype1);
@@ -656,12 +715,12 @@ TEST(moveCopy, ComposableBitfield)
 
 TEST(moveCopy, ConstQualifiedType)
 {
-  CType *uChar = new CType(CTYPE_UCHAR, "foo");
+  TypedefType *uChar = new TypedefType("foo", new CType(CTYPE_UCHAR));
   ConstQualifiedType bf1 { uChar };
   ConstQualifiedType bf2 { bf1 };
   ASSERT_EQ(bf1, bf2);
 
-  CType cChar { CTYPE_CHAR, "foo"};
+  TypedefType cChar { "foo", new CType(CTYPE_CHAR) };
   ConstQualifiedType bf3{ cChar.clone() };
   ASSERT_NE(bf3,bf1);
   bf3 = bf1;
@@ -670,7 +729,7 @@ TEST(moveCopy, ConstQualifiedType)
   ConstQualifiedType bf4 = std::move(bf3);
   ASSERT_EQ(bf4, bf1);
 
-  CType* cChar2 = new CType(CTYPE_CHAR, "bar");
+  TypedefType* cChar2 = new TypedefType("bar", new CType(CTYPE_CHAR));
   ConstQualifiedType bf5 { cChar2 };
   ASSERT_NE(bf5, bf2);
   bf5 = std::move(bf2);

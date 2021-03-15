@@ -6,6 +6,8 @@
 
 #include <cassert>
 
+#include <boost/functional/hash.hpp>
+
 ComposableField::ComposableField(const easyMock_cTypes_t p_ctype, std::string p_name) :
 ComposableField(new CType(p_ctype), p_name)
 {
@@ -23,12 +25,20 @@ m_arraySize(p_attrib.arraySize)
 
 bool ComposableField::isIncompleteTypeField() const
 {
-  return m_type->isIncompleteType();
+  return getType()->isIncompleteType();
 }
 
 bool ComposableField::operator==(const ComposableField& other) const
 {
   return this->isEqual(other);
+}
+
+std::size_t ComposableField::getHash() const
+{
+  std::size_t seed { ComposableFieldItf::getHash() };
+  boost::hash_combine(seed, m_arraySize);
+
+  return seed;
 }
 
 bool ComposableField::isEqual(const Declarator& p_other) const

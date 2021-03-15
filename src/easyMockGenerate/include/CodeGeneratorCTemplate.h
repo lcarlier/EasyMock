@@ -10,12 +10,18 @@
 #include <ctemplate/template.h>
 #include <string>
 #include <unordered_set>
+#include <unordered_map>
+
+#include <EasyMock_Hashable.h>
 
 class Declarator;
 class FunctionDeclaration;
 class FunctionType;
 class ComposableType;
 class ComposableFieldItf;
+class TypedefType;
+class TypeItf;
+class Enum;
 
 /*!
  * \brief CTemplate based implementation of the generator
@@ -23,8 +29,8 @@ class ComposableFieldItf;
  * This implementation uses Google libctemplate. Bear in mind that the term
  * template here has nothing to do with C++ templated class. The 2 main
  * templates are:
- * * #templateText: \copydoc templateText
- * * #headerFileTemplate: \copydoc headerFileTemplate
+ * * #anonymous_namespace{CodeGeneratorCTemplate.cpp}::templateText: \copydoc anonymous_namespace{CodeGeneratorCTemplate.cpp}::templateText
+ * * #anonymous_namespace{CodeGeneratorCTemplate.cpp}::headerFileTemplate: \copydoc anonymous_namespace{CodeGeneratorCTemplate.cpp}::headerFileTemplate
  *
  * In order to abstract the syntax of CTemplate, a set of C macro have been
  * implemented.
@@ -58,7 +64,11 @@ private:
   };
 public:
   CodeGeneratorCTemplate();
-  bool generateCode(const std::string& p_outDir, const std::string &p_fullPathToHeaderToMock, const ElementToMockContext& p_elem) override;
+protected:
+  /*!
+   * \copydoc ::CodeGeneratorItf::generateCodeImplementation
+   */
+  bool generateCodeImplementation(const std::string& p_outDir, const std::string &p_fullPathToHeaderToMock, const ElementToMockContext& p_elem) override;
 private:
   void fillInTemplateVariables(const std::string &mockedHeader, const ElementToMock::Vector &fList);
   void fillInMacroDefinition(const ElementToMockContext& p_elem);
@@ -78,20 +88,25 @@ private:
   void generateFieldCmp(std::string &p_condition, const ComposableType *p_composedType, const ComposableFieldItf *p_curField, const ComposableFieldItf *p_previousField, std::string p_varName);
   void setStructCompareStringFormat(ctemplate::TemplateDictionary *p_errorDict, const TypeItf* p_curFieldType);
   bool isTypeGenerated(const TypeItf* p_type, bool p_insert);
-  void generateSimpleTypeDef(const TypeItf* p_type, uint32_t p_anonymousNumber);
+  void generateSimpleTypeDef(const TypeItf* p_type);
   void generateEnum(const TypeItf* p_type);
+  std::string getAnonymousTypedefUniqueName(const TypeItf* p_type);
+  std::string getComparatorName(const ComposableType* p_composableType);
+  void registerTypeDef(const TypeItf* p_type);
+  const std::string& getTypeDefName(const TypeItf* p_type);
+  const TypeItf* getRawType(const TypeItf* p_type);
+  const std::string& getMostDefinedName(const TypeItf* p_type);
 
   const TypeItf* getMostPointedType(const TypeItf* p_type);
 
-  uint32_t m_nbAnonymousGeneratedType;
-  std::unordered_set<std::string> m_generatedComparator;
+  EasyMock::HashablePointerUnordereddSet<const ComposableType*> m_generatedComparator;
   unsigned int m_nbUnamedParam;
   ctemplate::TemplateDictionary *m_rootDictionary;
   ctemplate::TemplateDictionary *m_generateMockedTypeSection;
-  std::unordered_set<std::string> m_generateTypes;
-  std::unordered_set<std::string> m_generatedTypeTypedDefSection;
-  std::unordered_set<std::string> m_generatedTypeEnumSection;
+  EasyMock::HashablePointerUnordereddMap<const TypeItf*, const TypedefType*> m_typeToTypedef;
+  EasyMock::HashablePointerUnordereddSet<const TypeItf*> m_generateTypes;
+  EasyMock::HashablePointerUnordereddSet<const TypedefType*> m_generatedTypeTypedDefSection;
+  EasyMock::HashablePointerUnordereddSet<const Enum*> m_generatedTypeEnumSection;
 };
 
 #endif /* CODEGENERATORCTEMPLATE_H */
-

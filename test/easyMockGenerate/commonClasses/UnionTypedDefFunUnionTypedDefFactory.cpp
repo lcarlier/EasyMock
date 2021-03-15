@@ -2,16 +2,18 @@
 
 #include <UnionType.h>
 #include <ComposableField.h>
+#include <TypedefType.h>
 
 FunctionDeclaration UnionTypedDefFunUnionTypedDefFactory::functionFactory()
 {
   bool isEmbeddedInOtherType = false;
-  UnionType *st1 = new UnionType("u", "t_u", isEmbeddedInOtherType);
+  TypedefType *tst1 = new TypedefType("t_u", new UnionType("u", isEmbeddedInOtherType));
+  UnionType *st1 = dynamic_cast<UnionType*>(tst1->getTypee());
   st1->addField(new ComposableField(CTYPE_INT, "a"));
   st1->addField(new ComposableField(CTYPE_INT, "b"));
-  UnionType *rv = st1->clone();
+  TypeItf *rv = tst1->clone();
 
-  FunctionDeclaration f(functionGetFunctionName(), ReturnValue(rv), Parameter::Vector({new Parameter(st1, "param")}));
+  FunctionDeclaration f(functionGetFunctionName(), ReturnValue(rv), Parameter::Vector({new Parameter(tst1, "param")}));
   return f;
 }
 
@@ -36,7 +38,7 @@ void UnionTypedDefFunUnionTypedDefFactory::setupTestCase(EasyMockTestCase::TestC
       m_rvContext.m_rv.push_back(t);
       m_expects.push_back(std::make_tuple(t));
       m_params.push_back(std::make_tuple(t));
-      m_compare.push_back(std::make_tuple(nullptr)); //Seperate dedicated UT are writen to test the generation and function of the comparators for structs
+      m_compare.push_back(std::make_tuple(nullptr)); //Separate dedicated UT are written to test the generation and function of the comparators for structs
       break;
     case EasyMockTestCase::ThreeExpects:
       for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::ThreeExpects_NbExpects; expectIdx++)
@@ -44,7 +46,7 @@ void UnionTypedDefFunUnionTypedDefFactory::setupTestCase(EasyMockTestCase::TestC
         m_rvContext.m_rv.push_back(t);
         m_expects.push_back(std::make_tuple(t));
         m_params.push_back(std::make_tuple(t));
-        m_compare.push_back(std::make_tuple(nullptr)); //Seperate dedicated UT are writen to test the generation and function of the comparators for structs
+        m_compare.push_back(std::make_tuple(nullptr)); //Separate dedicated UT are written to test the generation and function of the comparators for structs
       }
       break;
     case EasyMockTestCase::NotEnoughCall:
@@ -53,7 +55,7 @@ void UnionTypedDefFunUnionTypedDefFactory::setupTestCase(EasyMockTestCase::TestC
         m_rvContext.m_rv.push_back(t);
         m_expects.push_back(std::make_tuple(t));
         m_params.push_back(std::make_tuple(t));
-        m_compare.push_back(std::make_tuple(nullptr)); //Seperate dedicated UT are writen to test the generation and function of the comparators for structs
+        m_compare.push_back(std::make_tuple(nullptr)); //Separate dedicated UT are written to test the generation and function of the comparators for structs
       }
       break;
     case EasyMockTestCase::OneExpectArgIsBad: //Not tested in a generic way

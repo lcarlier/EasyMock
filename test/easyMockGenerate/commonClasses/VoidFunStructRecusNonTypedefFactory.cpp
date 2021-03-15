@@ -5,16 +5,16 @@
 #include <EasyMock_CType.h>
 #include <Pointer.h>
 #include <IncompleteType.h>
+#include <TypedefType.h>
 
 FunctionDeclaration VoidFunStructRecusNonTypedefFactory::functionFactory()
 {
-  StructType *t_struct = new StructType("s_s1", "t_s1", false);
+  TypedefType *tt_struct = new TypedefType("t_s1", new StructType("s_s1", false));
+  StructType *t_struct = dynamic_cast<StructType*>(tt_struct->getTypee());
   ComposableField* cf = new ComposableField(new Pointer(new IncompleteType(*t_struct, IncompleteType::Type::STRUCT)), "recur");
-  //When the recursive (incomplete) field is declared, it is not yet typed def
-  cf->setDeclareString("struct s_s1*");
   t_struct->addField(cf);
 
-  Parameter *p = new Parameter(new Pointer(t_struct), "s");
+  Parameter *p = new Parameter(new Pointer(tt_struct), "s");
   t_struct = nullptr; //We lost the ownership
   FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), Parameter::Vector({p}));
   p = nullptr; //We lost the ownership

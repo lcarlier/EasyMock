@@ -6,59 +6,52 @@
 #include <Pointer.h>
 #include <EasyMock_CType.h>
 #include <ComposableField.h>
+#include <TypedefType.h>
 
 ElementToMockList VoidFunEnumFactory::functionFactoryArray()
 {
   ElementToMockList returnedList;
   {
-    Enum e("enumTestParam", "");
+    Enum e("enumTestParam");
     e.addEnumValue(1, "ONE");
     e.addEnumValue(2, "TWO");
     FunctionDeclaration *fd = new FunctionDeclaration("voidFunEnum", VoidReturnValue(false), Parameter::Vector({new Parameter(e.clone(), "e")}));
     returnedList.push_back(fd);
   }
   {
-    Enum e("enumTestParam", "");
+    Enum e("enumTestParam");
     e.addEnumValue(1, "ONE");
     e.addEnumValue(2, "TWO");
     FunctionDeclaration *fd = new FunctionDeclaration("voidFunPtrEnum", VoidReturnValue(false), Parameter::Vector({new Parameter(new Pointer(e.clone()), "e")}));
     returnedList.push_back(fd);
   }
   {
-    Enum e("", "t_enumTestRv");
+    TypedefType te { "t_enumTestRv", new Enum("") };
+    Enum& e = dynamic_cast<Enum&>(*te.getTypee());
     e.addEnumValue(0, "ZERO");
     e.addEnumValue(4, "FOUR");
-    FunctionDeclaration *fd = new FunctionDeclaration("enumFunVoid", ReturnValue(e.clone()), Parameter::Vector({}));
+    FunctionDeclaration *fd = new FunctionDeclaration("enumFunVoid", ReturnValue(te.clone()), Parameter::Vector({}));
     returnedList.push_back(fd);
   }
-  Enum e("enumStruct", "");
+  Enum e("enumStruct");
   e.addEnumValue(3, "THREE");
   e.addEnumValue(5, "FIVE");
   {
     StructType *s = new StructType("structTestEnum", false);
     ComposableField *enumField = new ComposableField(e.clone(), "e");
-    enumField->setDeclareString("enum enumStruct");
     s->addField(enumField);
     FunctionDeclaration *fd = new FunctionDeclaration("voidFunStructEnum", VoidReturnValue(false), Parameter::Vector({new Parameter(s, "s")}));
     returnedList.push_back(fd);
   }
   {
-    e.m_typedDefName =  "t_enumStruct";
+    TypedefType te { "t_enumStruct", e.clone() };
     StructType *s = new StructType("structTestAnonyStructEnum", false);
     s->addField(new ComposableField(new CType(CTYPE_INT), "a"));
     StructType *as = new StructType("", true);
-    as->addField(new ComposableField(e.clone(), "e"));
+    as->addField(new ComposableField(te.clone(), "e"));
     s->addField(new ComposableField(as, ""));
     FunctionDeclaration *fd = new FunctionDeclaration("voidFunStructAnonStructEnum", VoidReturnValue(false), Parameter::Vector({new Parameter(s, "s")}));
 
-    const unsigned int NB_ANONYMOUS_TYPE_IN_THIS_UT = 1;
-    /*
-     * with -fno-access-control we are able to set this static class variable to
-     * decrement the number of anonymous composable type by the number of anonymous
-     * type the UT contains.
-     * Thanks to that, the parser will generate the same anonymous ID as the code above.
-     */
-    ComposableType::m_number_of_anonymous_composable_type -= NB_ANONYMOUS_TYPE_IN_THIS_UT;
     returnedList.push_back(fd);
   }
   return returnedList;

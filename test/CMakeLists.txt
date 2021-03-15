@@ -39,6 +39,7 @@ set(TEST_INCLUDE_DIR ${EasyMock_SOURCE_DIR}/src/common/include
                      ${CMAKE_CURRENT_BINARY_DIR}/test
                      ${gtest_SOURCE_DIR}/include
                      ${CTEMPLATE_INCLUDEDIR}
+                     ${Boost_INCLUDE_DIR}
 )
 
 set(TEST_LINK_LIB ${EASYMOCK_DEFAULT_FULL_LD_PARAM} gtest_main dl -rdynamic)
@@ -114,6 +115,7 @@ add_library(${TEST_FACTORIES_COMMON_OBJ}
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/VoidFunStructBitfieldFactory.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/VoidFunStructWithConstMemberFactory.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/VoidFunStructWithSecondLevelAnonymousFactory.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/ConstVoidPtrFunConstVoidPtrFactory.cpp
 )
 
 set(EASYMOCK_TEST_LIBRARY easyMockTestLibrary)
@@ -128,12 +130,15 @@ target_include_directories(${EASYMOCK_TEST_LIBRARY} PRIVATE ${TEST_INCLUDE_DIR})
 target_compile_options(${TEST_FACTORIES_COMMON_OBJ} PRIVATE ${TEST_COMPILE_FLAGS})
 target_include_directories(${TEST_FACTORIES_COMMON_OBJ} PRIVATE ${TEST_INCLUDE_DIR})
 
+add_subdirectory(generateDoxygen)
 add_subdirectory(cstring)
 add_subdirectory(CType)
+add_subdirectory(Enum)
 add_subdirectory(StructType)
 add_subdirectory(ReturnValue)
 add_subdirectory(Pointer)
 add_subdirectory(FunctionPointer)
 add_subdirectory(ConstQualifiedType)
+add_subdirectory(Parameter)
 add_subdirectory(easyMockGenerate)
 add_subdirectory(end2end)

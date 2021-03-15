@@ -18,26 +18,45 @@
  */
 class FunctionType : public Function, public TypeItf {
 public:
-    /*!
-     * \brief Instantiates a new FunctionType object
-     *
-     * \copydetails Function
-     */
-    FunctionType(std::string p_functionName, ReturnValue p_functionReturnType, Parameter::Vector p_functionParameters);
+  /*!
+   * \brief Creates a new FunctionType object
 
-    FunctionType(const FunctionType &other) = default;
-    FunctionType& operator=(const FunctionType &other) = default;
-    FunctionType(FunctionType &&other) = default;
-    FunctionType& operator=(FunctionType &&other) = default;
+   * \param p_functionReturnType The return value of the function
+   * \param p_functionParameters A Parameter::Vector containing the parameters
+   */
+  FunctionType(ReturnValue p_functionReturnType, Parameter::Vector p_functionParameters);
 
-    bool operator==(const FunctionType &other) const;
-    bool operator!=(const FunctionType &other) const;
+  FunctionType(const FunctionType &other) = default;
+  FunctionType& operator=(const FunctionType &other) = default;
+  FunctionType(FunctionType &&other) = default;
+  FunctionType& operator=(FunctionType &&other) = default;
 
-    virtual FunctionType* clone() const override;
-    virtual ~FunctionType();
+  /*!
+   * \copydoc ::TypeItf::getDeclarationPrefix
+   */
+  virtual std::string getDeclarationPrefix(bool p_naked = false) const override;
+
+  /*!
+   * \copydoc ::TypeItf::getDeclarationPostfix
+   */
+  virtual std::string getDeclarationPostfix(bool p_naked = false) const override;
+
+  bool operator==(const FunctionType &other) const;
+  bool operator!=(const FunctionType &other) const;
+
+  /*!
+   * \copydoc ::TypeItf::clone
+   */
+  virtual FunctionType* clone() const override;
+
+  /*!
+   * \copydoc ::EasyMock::Hashable::getHash()
+   */
+  std::size_t getHash() const override;
+
+  virtual ~FunctionType();
+
 private:
-
 };
 
 #endif /* FUNCTIONTYPE_H */
-

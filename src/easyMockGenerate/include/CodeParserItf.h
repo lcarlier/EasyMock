@@ -41,13 +41,14 @@ public:
   /*!
    * \brief Sets the path to the header file to be parsed.
    */
-  //setFilename is also going to initilise the hash type for anonymous name of the structs and unions comparator functions
-  void setFilename(const std::string& filename) { m_filename = filename; ComposableType::setFileHash(std::hash<std::string>{}(filename)); }
+  void setFilename(const std::string& filename) { m_filename = filename; }
+
   /*!
    * \brief Sets the compiler flags that must be used by the parser to parse
    * the file.
    */
   void setFlags(const ParserExtraArgs& flags) { m_flags = flags; }
+
   /*!
    * \brief Parses the header file.
    *
@@ -65,4 +66,3 @@ protected:
 };
 
 #endif /* CODEPARSERITF_H */
-

@@ -7,25 +7,28 @@
 #include <ComposableField.h>
 #include <Pointer.h>
 #include <IncompleteType.h>
+#include <TypedefType.h>
 
 FunctionDeclaration VoidFunStructWithSecondLevelAnonymousFactory::functionFactory()
 {
-  StructType *top = new StructType("top", "top_t", false);
+  TypedefType *ttop = new TypedefType("top_t", new StructType("top", false));
+  StructType *top = dynamic_cast<StructType*>(ttop->getTypee());
   {
     StructType *sLevel1 = new StructType("level1", true);
     {
       StructType *anonymousStruct = new StructType("", true);
       {
         {
-          StructType *sLevel2 = new StructType("level2", "level2_t", false);
+          TypedefType *tsLevel2 = new TypedefType("level2_t", new StructType("level2", false));
+          StructType *sLevel2 = dynamic_cast<StructType*>(tsLevel2->getTypee());
           sLevel2->addField(new ComposableField(CTYPE_INT, "a"));
-          anonymousStruct->addField(new ComposableField(sLevel2, "l2"));
+          anonymousStruct->addField(new ComposableField(tsLevel2, "l2"));
         }
 
         {
           StructType *anonymousStruct1 = new StructType("", true);
           anonymousStruct1->addField(new ComposableField(CTYPE_INT, "a"));
-          CType *c = new CType(CTYPE_UCHAR, "u8");
+          TypedefType *c = new TypedefType("u8", new CType(CTYPE_UCHAR));
           anonymousStruct1->addField(new ComposableField(c, "b"));
           anonymousStruct->addField(new ComposableField(anonymousStruct1, ""));
         }
@@ -41,22 +44,13 @@ FunctionDeclaration VoidFunStructWithSecondLevelAnonymousFactory::functionFactor
       sLevel1->addField(new ComposableField(anonymousStruct, ""));
     }
     ComposableField* level1Field = new ComposableField(sLevel1, "l1");
-    level1Field->setDeclareString("struct level1");
     top->addField(level1Field);
   }
 
-  Parameter* p = new Parameter(top, "s");
+  Parameter* p = new Parameter(ttop, "s");
 
   FunctionDeclaration f(functionGetFunctionName(), VoidReturnValue(), Parameter::Vector({p}));
 
-  constexpr unsigned int NB_ANONYMOUS_TYPE_IN_THIS_UT = 3;
-  /*
-   * with -fno-access-control we are able to set this static class variable to
-   * decrement the number of anonymous composable type by the number of anonymous
-   * type the UT contains.
-   * Thanks to that, the parser will generate the same anonymous ID as the code above.
-   */
-  ComposableType::m_number_of_anonymous_composable_type -= NB_ANONYMOUS_TYPE_IN_THIS_UT;
   return f;
 }
 

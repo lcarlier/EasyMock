@@ -23,6 +23,7 @@ add_library(${EASYMOCK_COMMON_OBJ}
   ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/ComposableFieldItf.cpp
   ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/QualifiedType.cpp
   ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/ConstQualifiedType.cpp
+  ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/TypedefType.cpp
 )
 
 set(EASYMOCK_GEN_SOURCE_FILE
@@ -37,6 +38,7 @@ add_subdirectory(CmdLineParser)
 add_executable(${EASYMOCK_GEN}
   ${EASYMOCK_GEN_SOURCE_FILE}
 )
+set_target_properties(${EASYMOCK_GEN} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 target_compile_options(${EASYMOCK_COMMON_OBJ} PRIVATE  ${EASYMOCK_DEFAULT_FULL_CC_PARAM})
 target_compile_options(${EASYMOCK_GEN} PRIVATE ${EASYMOCK_DEFAULT_FULL_CC_PARAM})
 

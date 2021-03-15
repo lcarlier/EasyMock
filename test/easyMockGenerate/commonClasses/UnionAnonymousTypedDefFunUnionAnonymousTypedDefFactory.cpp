@@ -2,16 +2,18 @@
 
 #include <UnionType.h>
 #include <ComposableField.h>
+#include <TypedefType.h>
 
 FunctionDeclaration UnionAnonymousTypedDefFunUnionAnonymousTypedDefFactory::functionFactory()
 {
   bool isEmbeddedInOtherType = false;
-  UnionType *st1 = new UnionType("", "TypedDefAnonymousUnion", isEmbeddedInOtherType);
+  TypedefType *tst1 = new TypedefType("TypedDefAnonymousUnion", new UnionType("", isEmbeddedInOtherType));
+  UnionType *st1 = dynamic_cast<UnionType*>(tst1->getTypee());
   st1->addField(new ComposableField(CTYPE_INT, "a"));
   st1->addField(new ComposableField(CTYPE_INT, "b"));
-  UnionType *rv = st1->clone();
+  TypeItf *rv = tst1->clone();
 
-  FunctionDeclaration f(functionGetFunctionName(), ReturnValue(rv), Parameter::Vector({new Parameter(st1, "u")}));
+  FunctionDeclaration f(functionGetFunctionName(), ReturnValue(rv), Parameter::Vector({new Parameter(tst1, "u")}));
   return f;
 }
 

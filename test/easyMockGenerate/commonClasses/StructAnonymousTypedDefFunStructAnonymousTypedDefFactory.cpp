@@ -2,15 +2,23 @@
 
 #include <StructType.h>
 #include <ComposableField.h>
+#include <TypedefType.h>
 
 FunctionDeclaration StructAnonymousTypedDefFunStructAnonymousTypedDefFactory::functionFactory()
 {
   bool isEmbeddedInOtherType = false;
-  StructType *st1 = new StructType("", "TypedDefAnonymousStruct", isEmbeddedInOtherType);
+  TypedefType *tst1 = new TypedefType("TypedDefAnonymousStruct", new StructType("", isEmbeddedInOtherType));
+  StructType *st1 = dynamic_cast<StructType*>(tst1->getTypee());
   st1->addField(new ComposableField(CTYPE_INT, "a"));
-  StructType *rv = st1->clone();
 
-  FunctionDeclaration f(functionGetFunctionName(), ReturnValue(rv), Parameter::Vector({new Parameter(st1, "s1")}));
+  TypedefType *tst2 = new TypedefType("TypedDefAnonymousStruct2", new StructType("", isEmbeddedInOtherType));
+  StructType *st2 = dynamic_cast<StructType*>(tst2->getTypee());
+  st2->addField(new ComposableField(CTYPE_INT, "a"));
+
+  TypeItf *rv = tst1->clone();
+
+  FunctionDeclaration f(functionGetFunctionName(), ReturnValue(rv), Parameter::Vector({new Parameter(tst1, "s1"), new Parameter(tst2, "s2")}));
+
   return f;
 }
 
@@ -28,30 +36,32 @@ void StructAnonymousTypedDefFunStructAnonymousTypedDefFactory::setupTestCase(Eas
 {
   TypedDefAnonymousStruct t;
   t.a = 42;
+  TypedDefAnonymousStruct2 t2;
+  t2.a = 43;
   switch(tc)
   {
     case EasyMockTestCase::OneExpect:
       m_rvContext.m_rv.push_back(t);
-      m_expects.push_back(std::make_tuple(t));
-      m_params.push_back(std::make_tuple(t));
-      m_compare.push_back(std::make_tuple(nullptr)); //Seperate dedicated UT are writen to test the generation and function of the comparators for structs
+      m_expects.push_back(std::make_tuple(t, t2));
+      m_params.push_back(std::make_tuple(t, t2));
+      m_compare.push_back(std::make_tuple(nullptr, nullptr)); //Separate dedicated UT are written to test the generation and function of the comparators for structs
       break;
     case EasyMockTestCase::ThreeExpects:
       for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::ThreeExpects_NbExpects; expectIdx++)
       {
         m_rvContext.m_rv.push_back(t);
-        m_expects.push_back(std::make_tuple(t));
-        m_params.push_back(std::make_tuple(t));
-        m_compare.push_back(std::make_tuple(nullptr)); //Seperate dedicated UT are writen to test the generation and function of the comparators for structs
+        m_expects.push_back(std::make_tuple(t, t2));
+        m_params.push_back(std::make_tuple(t, t2));
+        m_compare.push_back(std::make_tuple(nullptr, nullptr)); //Separate dedicated UT are written to test the generation and function of the comparators for structs
       }
       break;
     case EasyMockTestCase::NotEnoughCall:
       for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::NotEnoughCall_NbExpects; expectIdx++)
       {
         m_rvContext.m_rv.push_back(t);
-        m_expects.push_back(std::make_tuple(t));
-        m_params.push_back(std::make_tuple(t));
-        m_compare.push_back(std::make_tuple(nullptr)); //Seperate dedicated UT are writen to test the generation and function of the comparators for structs
+        m_expects.push_back(std::make_tuple(t, t2));
+        m_params.push_back(std::make_tuple(t, t2));
+        m_compare.push_back(std::make_tuple(nullptr, nullptr)); //Separate dedicated UT are written to test the generation and function of the comparators for structs
       }
       break;
     case EasyMockTestCase::OneExpectArgIsBad: //Not tested in a generic way

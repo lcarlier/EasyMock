@@ -27,13 +27,19 @@ public:
    * \return true if the generation of the mocks is successful
    * \return false instead.
    */
-  virtual bool generateCode(const std::string& p_outDir, const std::string &p_fullPathToHeaderToMock, const ElementToMockContext& p_elem) = 0;
+  bool generateCode(const std::string& p_outDir, const std::string &p_fullPathToHeaderToMock, const ElementToMockContext& p_elem);
   void setMockOnlyFunction(const MockOnlyList& list);
   void setGenerateUsedType(bool value);
 protected:
+
+  /*!
+   * \brief Method to be overridden by any classes generating the mocks.
+   *
+   * \copydetails ::CodeGeneratorItf::generateCode
+   */
+  virtual bool generateCodeImplementation(const std::string& p_outDir, const std::string &p_fullPathToHeaderToMock, const ElementToMockContext& p_elem) = 0;
   MockOnlyList m_mockOnlyList;
   bool m_generateUsedType;
 };
 
 #endif /* CODEGENERATORITF_H */
-

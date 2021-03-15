@@ -8,16 +8,16 @@
 #include <map>
 #include <queue>
 #include <vector>
-#include <stdarg.h>
+#include <cstdarg>
 
-#include <string.h>
+#include <cstring>
 #include <sys/types.h>
 #include <unistd.h>
 #include <boost/core/demangle.hpp>
 #include <cstdbool>
 
 #undef NDEBUG
-#include <assert.h>
+#include <cassert>
 
 #ifdef BACKTRACE_SUPPORT
 #define UNW_LOCAL_ONLY
@@ -35,6 +35,9 @@ typedef std::vector<std::string> FifoError_t;
 
 static std::string allErrorStr;
 static std::vector<const char*> cError;
+
+namespace EasyMock
+{
 
 class EasyMock
 {
@@ -96,9 +99,9 @@ public:
       allErrorStr.append(curErr);
       allErrorStr.append("\n\r");
     }
-    if (allErrorStr.size() == 0)
+    if (allErrorStr.empty())
     {
-      return NULL;
+      return nullptr;
     }
     else
     {
@@ -116,12 +119,12 @@ public:
     *size = cError.size();
     if(*size > 0)
     {
-      cError.push_back(NULL);
+      cError.push_back(nullptr);
       return &cError[0];
     }
     else
     {
-      return NULL;
+      return nullptr;
     }
   }
 
@@ -291,7 +294,9 @@ private:
   FifoError_t m_error;
 };
 
-static EasyMock __attribute ((init_priority(101))) easyMock;
+}
+
+static EasyMock::EasyMock __attribute__ ((init_priority(101))) easyMock;
 
 extern "C" void easyMock_registerMockedFile(const easyMock_mockedFileRegister_t *args)
 {
@@ -334,12 +339,14 @@ extern "C" void easyMock_addError(easyMock_bool callstack, const char *fmt, ...)
 
 extern "C" easyMock_bool easyMock_checkCallsOrder()
 {
-  return easyMock.checkCallsOrder();
+  easyMock_bool rv = easyMock.checkCallsOrder() ? easyMock_true : easyMock_false;
+  return rv;
 }
 
 extern "C" easyMock_bool easyMock_printCallStack()
 {
-  return easyMock.printCallStack();
+  easyMock_bool rv = easyMock.printCallStack() ? easyMock_true : easyMock_false;
+  return rv;
 }
 
 extern "C" void easyMock_init()

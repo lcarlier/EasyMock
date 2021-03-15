@@ -89,10 +89,15 @@ public:
    * \copydoc ::TypeItf::clone
    */
   virtual ComposableFieldItf* clone() const override = 0;
+
+  /*!
+   * \copydoc ::EasyMock::Hashable::getHash()
+   */
+  std::size_t getHash() const override;
+
   virtual ~ComposableFieldItf() {}
 private:
   std::string m_name;
 };
 
 #endif /* COMPOSABLEFIELDITF_H */
-

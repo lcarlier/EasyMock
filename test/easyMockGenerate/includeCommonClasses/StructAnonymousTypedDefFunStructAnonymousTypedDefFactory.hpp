@@ -6,7 +6,7 @@
 #include <easyMock.h>
 #include <structAnonymousTypedDefFunStructAnonymousTypedDef.h>
 
-class StructAnonymousTypedDefFunStructAnonymousTypedDefFactory : public FunctionFactory<TypedDefAnonymousStruct, std::tuple<TypedDefAnonymousStruct>, std::tuple<EasyMock_Matcher>>
+class StructAnonymousTypedDefFunStructAnonymousTypedDefFactory : public FunctionFactory<TypedDefAnonymousStruct, std::tuple<TypedDefAnonymousStruct, TypedDefAnonymousStruct2>, std::tuple<EasyMock_Matcher, EasyMock_Matcher>>
 {
   public:
   FunctionDeclaration functionFactory() override;

@@ -7,6 +7,8 @@
 #include "Parameter.h"
 #include "ReturnValue.h"
 
+#include "EasyMock_Hashable.h"
+
 /*!
  * \brief Types of supported mock
  */
@@ -24,7 +26,7 @@ enum ElementToMock_Type
  * Currently only C function are supported but it is the purpose
  * to add more. I.e. C++ classes.
  */
-class ElementToMock
+class ElementToMock : virtual public EasyMock::Hashable
 {
 public:
   typedef AutoCleanVectorPtr<ElementToMock> Vector;
@@ -36,9 +38,11 @@ public:
    */
   virtual ElementToMock_Type getMockType() const = 0;
 
+  /*!
+   * \copydoc ::TypeItf::clone
+   */
   virtual ElementToMock* clone() const = 0;
   virtual ~ElementToMock();
 };
 
 #endif /* ELEMENTTOMOCK_H */
-

@@ -1,0 +1,6 @@
+#ifndef EASYMOCK_CONSTVOIDFUNCONSTVOID_H
+#define EASYMOCK_CONSTVOIDFUNCONSTVOID_H
+
+void const* constVoidPtrFunConstVoidPtr(void const* p);
+
+#endif //EASYMOCK_CONSTVOIDFUNCONSTVOID_H

@@ -63,6 +63,7 @@
 #include <VoidFunStructBitfieldFactory.h>
 #include <VoidFunStructWithConstMemberFactory.h>
 #include <VoidFunStructWithSecondLevelAnonymousFactory.h>
+#include <ConstVoidPtrFunConstVoidPtrFactory.h>
 
 // TestTypesInclude.h is generated
 #include "TestTypesInclude.h"
@@ -177,7 +178,9 @@
         VoidFunStructRecusNonTypedefFactory, \
         VoidFunStructRecusNonTypedefGenerateTypeFactory, \
         VoidFunStructWithArrayFactory, \
-        VoidFunStructWithArrayGenerateTypeFactory
+        VoidFunStructWithArrayGenerateTypeFactory, \
+        ConstVoidPtrFunConstVoidPtrFactory, \
+        ConstVoidPtrFunConstVoidPtrGenerateTypeFactory
 
 typedef ::testing::Types
 <
@@ -216,4 +219,3 @@ typedef ::testing::Types
 > CompileOnlyTypes;
 
 #endif /* TESTTYPES_H */
-

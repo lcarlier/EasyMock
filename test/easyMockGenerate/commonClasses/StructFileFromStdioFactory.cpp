@@ -5,29 +5,28 @@
 #include <EasyMock_CType.h>
 #include <Pointer.h>
 #include <IncompleteType.h>
+#include <TypedefType.h>
 
 FunctionDeclaration StructFileFromStdioFactory::functionFactory()
 {
   bool isEmbeddedInOtherType = false;
-  StructType *FILE_T = new StructType("MY_IO_FILE", "T_MY_IO_FILE", isEmbeddedInOtherType);
+  TypedefType *tFILE_T = new TypedefType("T_MY_IO_FILE", new StructType("MY_IO_FILE", isEmbeddedInOtherType));
+  StructType *FILE_T = dynamic_cast<StructType*>(tFILE_T->getTypee());
   StructType *IO_MARK = new StructType("MY_IO_MARK", isEmbeddedInOtherType);
 
   ComposableField* cf = new ComposableField(new Pointer(new IncompleteType(*IO_MARK, IncompleteType::Type::STRUCT)), "_next");
   IO_MARK->addField(cf);
   cf = new ComposableField(new Pointer(new IncompleteType(*FILE_T, IncompleteType::Type::STRUCT)), "_sbuf");
-  //When the _sbuf field is declared, it is not yet typed def
-  cf->setDeclareString("struct MY_IO_FILE*");
   IO_MARK->addField(cf);
 
   cf = new ComposableField(new Pointer(IO_MARK), "_markers");
   FILE_T->addField(cf);
   cf = new ComposableField(new Pointer(new IncompleteType(*FILE_T, IncompleteType::Type::STRUCT)), "_chain");
-  //When the _chain field is declared, it is not yet typed def
-  cf->setDeclareString("struct MY_IO_FILE*");
+
   FILE_T->addField(cf);
 
-  Parameter *p = new Parameter(new Pointer(FILE_T), "file");
-  FILE_T = nullptr; //We lost the ownership
+  Parameter *p = new Parameter(new Pointer(tFILE_T), "file");
+  tFILE_T = nullptr; //We lost the ownership
   FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), Parameter::Vector({p}));
   p = nullptr; //We lost the ownership
 

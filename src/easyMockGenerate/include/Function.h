@@ -7,6 +7,7 @@
 #include "TypeItf.h"
 #include "ElementToMock.h"
 #include "ReturnValue.h"
+#include "EasyMock_Hashable.h"
 
 #include <string>
 
@@ -14,9 +15,9 @@
  * \brief Represents a function.
  *
  * The goal of this class is to provide a common interface to the
- * FunctionDeclaration and FunctionType classes.
+ * ::FunctionDeclaration and ::FunctionType classes.
  */
-class Function
+class Function : virtual public EasyMock::Hashable
 {
 public:
   typedef AutoCleanVectorPtr<Function> Vector;
@@ -97,9 +98,17 @@ public:
   bool operator==(const Function &other) const;
   bool operator!=(const Function &other) const;
 
+  /*!
+   * \copydoc ::TypeItf::clone
+   */
   virtual Function* clone() const;
 
-private:
+  /*!
+   * \copydoc ::EasyMock::Hashable::getHash()
+   */
+  std::size_t getHash() const override;
+
+protected:
   std::string m_name;
   Parameter::Vector m_parameters;
   ReturnValue m_returnType;
@@ -108,4 +117,3 @@ private:
 };
 
 #endif /* FUNCTION_H */
-

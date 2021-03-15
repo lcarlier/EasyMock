@@ -3,18 +3,21 @@
 #include <StructType.h>
 #include <ComposableField.h>
 #include <EasyMock_CType.h>
+#include <TypedefType.h>
 
 FunctionDeclaration VoidFunStructWithTypedefStructFactory::functionFactory()
 {
-  StructType *t_subStructVar = new StructType("", "t_subStruct", false);
+  TypedefType *tt_subStructVar = new TypedefType("t_subStruct", new StructType("", false));
+  StructType *t_subStructVar = dynamic_cast<StructType*>(tt_subStructVar->getTypee());
   t_subStructVar->addField(new ComposableField(new CType(CTYPE_INT), "a"));
 
-  StructType *t_structVar = new StructType("", "t_struct", false);
-  t_structVar->addField(new ComposableField(t_subStructVar, "sub"));
-  t_subStructVar = nullptr; //We lost the ownership
+  TypedefType *tt_structVar = new TypedefType("t_struct", new StructType("", false));
+  StructType *t_structVar = dynamic_cast<StructType*>(tt_structVar->getTypee());
+  t_structVar->addField(new ComposableField(tt_subStructVar, "sub"));
+  tt_subStructVar = nullptr; //We lost the ownership
 
-  Parameter *p = new Parameter(t_structVar, "s");
-  t_structVar = nullptr; //We lost the ownership
+  Parameter *p = new Parameter(tt_structVar, "s");
+  tt_structVar = nullptr; //We lost the ownership
   FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), Parameter::Vector({p}));
   p = nullptr; //We lost the ownership
 

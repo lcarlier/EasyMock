@@ -13,6 +13,7 @@
 #include <ComposableField.h>
 #include <ComposableBitfield.h>
 #include <ConstQualifiedType.h>
+#include <TypedefType.h>
 
 #include <clang/AST/RecursiveASTVisitor.h>
 #include <clang/Frontend/CompilerInstance.h>
@@ -231,63 +232,62 @@ private:
     return type;
   }
 
-  CType* getFromBuiltinType(const clang::Type &type, const std::string& nakedDeclString)
+  TypeItf* getFromBuiltinType(const clang::Type &type, const std::string& nakedDeclString)
   {
-    CType *returnedType = nullptr;
+    CType *cType = nullptr;
 
-    const std::string typedefName= getTypedefName(type);
     if(type.isVoidType())
     {
-      returnedType = new CType(CTYPE_VOID, typedefName);
+      cType = new CType(CTYPE_VOID);
     }
     else if(type.isCharType())
     {
 #if IS_CHAR_DEFAULT_UNSIGNED
       if(type.isUnsignedIntegerType() && nakedDeclString.compare("unsigned char") == 0)
       {
-        returnedType = new CType(CTYPE_UCHAR, typedefName);
+        cType = new CType(CTYPE_UCHAR);
       }
       else
 #endif
       {
-        returnedType = new CType(CTYPE_CHAR, typedefName);
+        cType = new CType(CTYPE_CHAR);
       }
     }
     else if(isShortType(type))
     {
-      returnedType = new CType(CTYPE_SHORT, typedefName);
+      cType = new CType(CTYPE_SHORT);
     }
     else if(isLongType(type))
     {
-      returnedType = new CType(CTYPE_LONG, typedefName);
+      cType = new CType(CTYPE_LONG);
     }
     else if(isIntType(type))
     {
-      returnedType = new CType(CTYPE_INT, typedefName);
+      cType = new CType(CTYPE_INT);
     }
     else if(isLongLongType(type))
     {
-      returnedType = new CType(CTYPE_LONG_LONG, typedefName);
+      cType = new CType(CTYPE_LONG_LONG);
     }
     else if(isDoubleType(type))
     {
-      returnedType = new CType(CTYPE_DOUBLE, typedefName);
+      cType = new CType(CTYPE_DOUBLE);
     }
     else if(isLongDoubleType(type))
     {
-      returnedType = new CType(CTYPE_LONG_DOUBLE, typedefName);
+      cType = new CType(CTYPE_LONG_DOUBLE);
     }
     else if(isFloatType(type))
     {
-      returnedType = new CType(CTYPE_FLOAT, typedefName);
+      cType = new CType(CTYPE_FLOAT);
     }
     else if(isBoolType(type))
     {
-      returnedType = new CType(CTYPE_INT, typedefName);
+      cType = new CType(CTYPE_INT);
     }
     else if(isInt128Type(type))
     {
-      returnedType = new CType(CTYPE_INT128, typedefName);
+      cType = new CType(CTYPE_INT128);
     }
     else
     {
@@ -299,7 +299,13 @@ private:
     //Unsigned
     if(type.isUnsignedIntegerType())
     {
-      returnedType->setUnsigned(true);
+      cType->setUnsigned(true);
+    }
+    const std::string typedefName = getTypedefName(type);
+    TypeItf* returnedType = cType;
+    if(!typedefName.empty())
+    {
+      returnedType = new TypedefType(typedefName, returnedType);
     }
 
     return returnedType;
@@ -343,7 +349,7 @@ private:
       vectParam.push_back(p);
       p = nullptr; //We lost the ownership
     }
-    FunctionType *f = new FunctionType("", rv, vectParam);
+    FunctionType *f = new FunctionType(rv, vectParam);
 
     return f;
   }
@@ -354,16 +360,20 @@ private:
     const clang::EnumDecl *ED = ET->getDecl();
 
     const std::string name = ED->getNameAsString();
-    const std::string typedefName = getTypedefName(type);
 
-    Enum* toReturn = new Enum(name, typedefName);
+    Enum* enumType = new Enum(name);
     for(const auto enumConstantDeclaration : ED->enumerators())
     {
       int64_t enumValue = enumConstantDeclaration->getInitVal().getExtValue();
       const std::string enumName = enumConstantDeclaration->getNameAsString();
-      toReturn->addEnumValue(enumValue, enumName);
+      enumType->addEnumValue(enumValue, enumName);
     }
-
+    const std::string typedefName = getTypedefName(type);
+    TypeItf *toReturn = enumType;
+    if(!typedefName.empty())
+    {
+      toReturn = new TypedefType(typedefName, toReturn);
+    }
     return toReturn;
   }
 
@@ -416,11 +426,11 @@ private:
     switch(contType)
     {
       case STRUCT:
-        sType = new StructType(typeName, typedDefName, isEmbeddedInOtherType);
+        sType = new StructType(typeName, isEmbeddedInOtherType);
         incType = IncompleteType::Type::STRUCT;
         break;
       case UNION:
-        sType = new UnionType(typeName, typedDefName, isEmbeddedInOtherType);
+        sType = new UnionType(typeName, isEmbeddedInOtherType);
         incType = IncompleteType::Type::UNION;
     }
     if(!typedDefName.empty())
@@ -468,8 +478,10 @@ private:
       }
       sType->addField(sf);
     }
+    TypeItf* toReturn = sType;
     if(!typedDefName.empty())
     {
+      toReturn = new TypedefType(typedDefName, toReturn);
       structKnownType.erase(typedDefName);
     }
     if(!typeName.empty())
@@ -477,7 +489,7 @@ private:
       structKnownType.erase(typeName);
     }
 
-    return sType;
+    return toReturn;
   }
 
   TypeItf* getFromPointerType(const clang::Type &type, structKnownTypeMap &structKnownType, bool isEmbeddedInOtherType)
@@ -485,9 +497,14 @@ private:
     const clang::QualType &pointeeQualType = type.getPointeeType();
     TypeItf *rv = getEasyMocktype(pointeeQualType, structKnownType, isEmbeddedInOtherType);
 
+    TypeItf *returnedTyped = new Pointer(rv);
     std::string typedDefName = getTypedefName(type);
+    if(!typedDefName.empty())
+    {
+      returnedTyped = new TypedefType(typedDefName, returnedTyped);
+    }
 
-    return new Pointer(rv, typedDefName);
+    return returnedTyped;
   }
 
   TypeItf* getFromArrayType(const clang::Type &type, structKnownTypeMap &structKnownType, bool isEmbeddedInOtherType)
@@ -696,7 +713,7 @@ public:
     }
     if(m_ctxt.hasMacroDefine(id))
     {
-      fprintf(stderr, "Warning: Redifining %s\n", id.c_str());
+      fprintf(stderr, "Warning: Redefining %s\n", id.c_str());
     }
     m_ctxt.addMacroDefine(id, definition);
   }

@@ -21,7 +21,7 @@ class ctype_unsigned_testcase : public ::testing::TestWithParam<ctype_params>
 
 TEST_P(ctype_unsigned_testcase, ctypeConstructor)
 {
-  const ParamType &params = GetParam();
+  const auto &params = GetParam();
 
   CType signedT = CType(params.signedType);
   ASSERT_EQ(signedT.getName(), easyMock_arrayCTypeStr[params.signedType]);
@@ -32,7 +32,7 @@ TEST_P(ctype_unsigned_testcase, ctypeConstructor)
 
 TEST_P(ctype_unsigned_testcase, ctypeSetUnsigned)
 {
-  const ParamType &params = GetParam();
+  const auto &params = GetParam();
 
   CType t = CType(params.signedType);
 
@@ -68,7 +68,7 @@ class ctype_signed_only_testcase : public ::testing::TestWithParam<easyMock_cTyp
 
 TEST_P(ctype_signed_only_testcase, ctypeSetUnsigned)
 {
-  const ParamType &param = GetParam();
+  const auto &param = GetParam();
 
   const easyMock_cTypes_t &e_ctype = param;
 
@@ -165,3 +165,16 @@ TEST(ctype_char_signed_unsigned, unsigned_signed_char)
   ASSERT_NE(uc, sc);
 }
 
+class ctype_declare_string_testcase : public ::testing::TestWithParam<int>
+{
+};
+
+TEST_P(ctype_declare_string_testcase, all_type)
+{
+  const auto& p = GetParam();
+  CType c { static_cast<easyMock_cTypes_t >(p) };
+  const char* toExpect = easyMock_arrayCTypeStr[p];
+  ASSERT_STREQ(c.getFullDeclarationName().c_str(), toExpect);
+}
+
+INSTANTIATE_TEST_CASE_P(CtypeDeclareString, ctype_declare_string_testcase, ::testing::Range(static_cast<int>(CTYPE_CHAR), static_cast<int>(CTYPE_INVALID-1)));

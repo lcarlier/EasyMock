@@ -128,18 +128,21 @@ public:
    * isUnboundSpecifiedArray() must also return true.
    */
   bool isArray() const;
+
   /*!
    * \brief Returns if the array size is bounded.
    *
    * \see bool setArraySize(uint64_t size)
    */
   bool isBoundSpecifiedArray() const;
+
   /*!
    * \brief Returns if the array size is unbounded.
    *
    * \see bool setArraySize(uint64_t size)
    */
   bool isUnboundSpecifiedArray() const;
+
   /*!
    * \brief Sets the size of the field's array.
    *
@@ -163,6 +166,7 @@ public:
    * - for field <tt>f3</tt>: the array size must be set to 0
    */
   bool setArraySize(uint64_t size);
+
   /*!
    * \brief Returns the size of the field's array.
    *
@@ -181,6 +185,11 @@ public:
    */
   ComposableField* clone() const override;
 
+  /*!
+   * \copydoc ::EasyMock::Hashable::getHash()
+   */
+  std::size_t getHash() const override;
+
   virtual ~ComposableField() override;
 
 private:
@@ -195,4 +204,3 @@ private:
 };
 
 #endif /* STRUCTFIELD_H */
-

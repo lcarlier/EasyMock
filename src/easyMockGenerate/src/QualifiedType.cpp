@@ -1,13 +1,15 @@
 #include <QualifiedType.h>
+#include <boost/functional/hash.hpp>
 
 QualifiedType::QualifiedType() :
-TypeItf{ "", "" }, m_type { nullptr }
+QualifiedType{ nullptr }
 {
 }
 
 QualifiedType::QualifiedType(TypeItf* p_type) :
-TypeItf { "", "" }, m_type { p_type }
+TypeItf { "" }, m_type { p_type }
 {
+  setQualifiedType(true);
 }
 
 QualifiedType::QualifiedType(const QualifiedType& p_other) :
@@ -23,20 +25,14 @@ QualifiedType& QualifiedType::operator=(QualifiedType p_other)
   return *this;
 }
 
-/*QualifiedType::QualifiedType(const QualifiedType&& p_other) :
-TypeItf { p_other }, m_type { nullptr }
-{
-  swap(*this, p_other);
-}*/
-
-const TypeItf* QualifiedType::getType() const
+const TypeItf* QualifiedType::getUnqualifiedType() const
 {
   return m_type;
 }
 
-TypeItf* QualifiedType::getType()
+TypeItf* QualifiedType::getUnqualifiedType()
 {
-  return const_cast<TypeItf*>(static_cast<const QualifiedType &>(*this).getType());
+  return const_cast<TypeItf*>(static_cast<const QualifiedType &>(*this).getUnqualifiedType());
 }
 
 bool QualifiedType::isConst() const
@@ -44,9 +40,9 @@ bool QualifiedType::isConst() const
   return false;
 }
 
-const char* QualifiedType::getString() const
+const char* QualifiedType::getQualifierString() const
 {
-  return "QualifiedType::getString() must be overriden";
+  return "QualifiedType::getString() must be overridden";
 }
 
 TypeItf* QualifiedType::clone() const
@@ -70,6 +66,14 @@ bool QualifiedType::operator!=(const QualifiedType& p_other) const
   return !(*this == p_other);
 }
 
+std::size_t QualifiedType::getHash() const
+{
+  std::size_t seed { TypeItf::getHash() };
+  boost::hash_combine(seed, *m_type);
+
+  return seed;
+}
+
 bool QualifiedType::isEqual(const TypeItf& p_other) const
 {
   bool parentEq = TypeItf::isEqual(p_other);
@@ -83,8 +87,12 @@ bool QualifiedType::isEqual(const TypeItf& p_other) const
   return parentEq && typeEq;
 }
 
+std::string QualifiedType::getDeclarationPrefix(bool p_naked) const
+{
+  return m_type->getFullDeclarationName(p_naked) + std::string { " " } + std::string { getQualifierString() };
+}
+
 QualifiedType::~QualifiedType()
 {
   delete m_type;
 }
-

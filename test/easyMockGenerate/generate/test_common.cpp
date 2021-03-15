@@ -35,15 +35,14 @@ m_comparatorToMatch {"" },
 m_pathToFileToMock { pathToFileToMock },
 m_mockDir { mockDir },
 m_rmDir { rmDir },
-handle { NULL },
-m_fptr { NULL } ,
-m_fptr_expect { NULL },
-m_fptr_matcher { NULL },
-m_fptr_output_ptr { NULL },
+handle { nullptr },
+m_fptr { nullptr } ,
+m_fptr_expect { nullptr },
+m_fptr_matcher { nullptr },
+m_fptr_output_ptr { nullptr },
 m_generate_types { generateTypes },
 m_finalMockDir { "" }
 {
-  ComposableType::setFileHash(std::hash<std::string>{}(pathToFileToMock));
 }
 
 void easyMockGenerate_baseTestCase::setComparatorToMatch(const std::string comparatorToMatch)
@@ -88,6 +87,10 @@ void easyMockGenerate_baseTestCase::SetUp()
 
 void easyMockGenerate_baseTestCase::TearDown()
 {
+  if(::testing::Test::HasFailure())
+  {
+    m_rmDir = false;
+  }
   cleanTest(&handle, m_mockDir, m_rmDir);
   ExtraTearDown();
 }
@@ -441,6 +444,7 @@ void easyMockGenerate_baseTestCase::executeCmd(const char * const aArguments[], 
     *status = WEXITSTATUS(wstatus);
     if(*status != 0)
     {
+      fprintf(stdout, "stdout:\n%s\n\nstderr:\n%s\n", stdOutLog.c_str(), stdErrLog.c_str());
      /*
       * When the UT fails, do not delete the folder of the generated code
       */

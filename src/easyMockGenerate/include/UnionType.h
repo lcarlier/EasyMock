@@ -24,29 +24,10 @@ public:
    * \brief Creates a new UnionType.
    *
    * \param p_name See UnionType(const std::string p_name,bool p_is_embedded_in_other_type).
-   * \param p_type_def_name The typedef that aliases this union.
-   * \param p_is_embedded_in_other_type See UnionType(const std::string,bool).
-   */
-  UnionType(const std::string p_name, const std::string p_type_def_name, bool p_is_embedded_in_other_type);
-
-  /*!
-   * \brief Creates a new UnionType.
-   *
-   * \param p_name See UnionType(const std::string p_name,bool p_is_embedded_in_other_type).
    * \param p_elem A ComposableFieldItf::Vector which contains all the fields of the union.
    * \param p_is_embedded_in_other_type See UnionType(const std::string p_name,bool p_is_embedded_in_other_type).
    */
   UnionType(const std::string p_name, const ComposableFieldItf::Vector p_elem, bool p_is_embedded_in_other_type);
-
-  /*!
-   * \brief Creates a new UnionType.
-   *
-   * \param p_name See UnionType(const std::string p_name,bool p_is_embedded_in_other_type).
-   * \param p_type_def_name See UnionType(const std::string p_name, const std::string p_type_def_name, bool p_is_embedded_in_other_type).
-   * \param p_elem See UnionType(const std::string p_name, const ComposableFieldItf::Vector p_elem, bool p_is_embedded_in_other_type).
-   * \param p_is_embedded_in_other_type See UnionType(const std::string p_name,bool p_is_embedded_in_other_type).
-   */
-  UnionType(const std::string p_name, const std::string p_type_def_name, const ComposableFieldItf::Vector p_elem, bool p_is_embedded_in_other_type);
 
   /*!
    * \copydoc ComposableType::getComposableTypeKeyword

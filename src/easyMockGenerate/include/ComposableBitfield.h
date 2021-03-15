@@ -63,6 +63,11 @@ public:
    */
   ComposableBitfield* clone() const override;
 
+  /*!
+   * \copydoc ::EasyMock::Hashable::getHash()
+   */
+  std::size_t getHash() const override;
+
   virtual ~ComposableBitfield() override;
 private:
   /*!
@@ -76,4 +81,3 @@ private:
 };
 
 #endif /* COMPOSABLEBITFIELD_H */
-

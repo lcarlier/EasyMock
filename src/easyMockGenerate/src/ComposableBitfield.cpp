@@ -2,6 +2,8 @@
 
 #include <EasyMock_CType.h>
 
+#include <boost/functional/hash.hpp>
+
 ComposableBitfield::ComposableBitfield(easyMock_cTypes_t p_type, std::string p_name, uint8_t p_size) :
 ComposableBitfield(new CType(p_type), p_name, p_size)
 {
@@ -15,6 +17,14 @@ ComposableFieldItf(p_type, p_name), m_size(p_size)
 bool ComposableBitfield::operator==(const ComposableBitfield &other) const
 {
   return this->isEqual(other);
+}
+
+std::size_t ComposableBitfield::getHash() const
+{
+  std::size_t seed { ComposableFieldItf::getHash() };
+  boost::hash_combine(seed, m_size);
+
+  return seed;
 }
 
 bool ComposableBitfield::isEqual(const Declarator& p_other) const

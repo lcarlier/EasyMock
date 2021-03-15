@@ -11,7 +11,12 @@ extern "C"
     int a;
   } TypedDefAnonymousStruct;
 
-  TypedDefAnonymousStruct structAnonymousTypedDefFunStructAnonymousTypedDef(TypedDefAnonymousStruct s1);
+  typedef struct
+  {
+    int a;
+  } TypedDefAnonymousStruct2;
+
+  TypedDefAnonymousStruct structAnonymousTypedDefFunStructAnonymousTypedDef(TypedDefAnonymousStruct s1, TypedDefAnonymousStruct2 s2);
 
 #ifdef __cplusplus
 }

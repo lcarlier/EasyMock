@@ -7,12 +7,20 @@
 FunctionDeclaration ConstIntFunConstIntFactory::functionFactory()
 {
   ReturnValue rv { new ConstQualifiedType(new CType(CTYPE_INT)) };
+  /*
+   * We use setDeclareString because rv.getFullDeclareString() generates
+   * "int const" by default
+   */
   rv.setDeclareString("const int");
 
   TypeItf* curType = new CType(CTYPE_INT);
   ConstQualifiedType* constCurType = new ConstQualifiedType(curType);
   curType = nullptr; //We lost the ownership
   Parameter *param = new Parameter(constCurType, "i");
+  /*
+   * We use setDeclareString because rv.getFullDeclareString() generates
+   * "int const" by default
+   */
   param->setDeclareString("const int");
   constCurType = nullptr; //We lost the ownership
 

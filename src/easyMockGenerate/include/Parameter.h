@@ -66,6 +66,11 @@ public:
    */
   virtual Parameter* clone() const override;
 
+  /*!
+   * \copydoc ::EasyMock::Hashable::getHash()
+   */
+  std::size_t getHash() const override;
+
 private:
   /*!
    * \copydoc ::Declarator::isEqual
@@ -83,4 +88,3 @@ Parameter *StructParameter(std::string type, std::string name, const ComposableF
 
 
 #endif /* PARAMETER_H */
-

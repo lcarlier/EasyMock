@@ -4,6 +4,8 @@
 #include "StructType.h"
 #include "Pointer.h"
 
+#include <boost/functional/hash.hpp>
+
 ReturnValue::ReturnValue(TypeItf* type) :
 Declarator(type)
 {

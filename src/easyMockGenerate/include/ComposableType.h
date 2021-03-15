@@ -39,13 +39,6 @@ public:
   void addField(ComposableFieldItf *newField);
 
   /*!
-   * \return A string which uniquely identify the type. This can be based on
-   * name or typedef name (if they are not empty) or for anonymous type
-   * based on internal logic to generate the name.
-   */
-  const std::string getUniqueName() const;
-
-  /*!
    * \return true if the type declaration is embedded in another type.
    * \return false if the type declaration is not embedded in another type.
    *
@@ -83,22 +76,22 @@ public:
    */
   virtual const char* getComposableTypeKeyword() const = 0;
 
-  bool operator==(const ComposableType &other) const;
-  bool operator!=(const ComposableType &other) const;
+  /*!
+   * \copydoc ::EasyMock::Hashable::getHash()
+   */
+  std::size_t getHash() const override;
 
   /*!
-   * \brief Initialise a hash used for the type when the type is anonymous.
-   *
-   * The tool is foreseen to generate only 1 header file, no more.
-   * A hash of the path of the file to be mocked can be used as parameter to this function.
+   * \copydoc ::TypeItf::getDeclarationPrefix
    */
-  static void setFileHash(std::size_t hash);
+  virtual std::string getDeclarationPrefix(bool p_naked = false) const override;
+
+  bool operator==(const TypeItf &other) const;
+  bool operator!=(const TypeItf &other) const;
 
 protected:
   ComposableType(const std::string p_name, bool p_is_embedded_in_other_type);
-  ComposableType(const std::string p_name, const std::string p_type_def_name, bool p_is_embedded_in_other_type);
   ComposableType(const std::string p_name, const ComposableFieldItf::Vector p_elem, bool p_is_embedded_in_other_type);
-  ComposableType(const std::string p_name, const std::string p_type_def_name, const ComposableFieldItf::Vector p_elem, bool p_is_embedded_in_other_type);
 
   /*
    * There is no pointer to move so I decided not to use the
@@ -116,20 +109,8 @@ protected:
   virtual ~ComposableType() = 0; //pure virtual. ComposableType shouldn't be instantiable
 
 private:
-  /* Don't make it constant otherwise the object is not copyable anymore */
   ComposableFieldItf::Vector m_elem;
   bool m_is_declaration_embedded_in_other_type;
-  int m_anonymous_number;
-
-  /*
-   * The tool is foreseen to generate only 1 header file, no more.
-   * We store into this variable a unique hash of the path of the file
-   * to be mocked to be able to generate a unique name for the comparators
-   * of anonymous structs and unions
-   */
-  static size_t m_unique_hash;
-  static unsigned int m_number_of_anonymous_composable_type;
 };
 
 #endif /* COMPOSABLETYPE_H */
-

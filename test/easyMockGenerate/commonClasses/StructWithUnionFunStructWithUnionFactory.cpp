@@ -3,16 +3,18 @@
 #include <StructType.h>
 #include <UnionType.h>
 #include <ComposableField.h>
+#include <TypedefType.h>
 
 FunctionDeclaration StructWithUnionFunStructWithUnionFactory::functionFactory()
 {
-  StructType *st = new StructType("", "sWithUnion", false);
-  UnionType *ut = new UnionType("ut", "", true);
+  TypedefType *tst = new TypedefType("sWithUnion", new StructType("", false));
+  StructType *st = dynamic_cast<StructType*>(tst->getTypee());
+  UnionType *ut = new UnionType("ut", true);
   ut->addField(new ComposableField(CTYPE_INT, "a"));
   ut->addField(new ComposableField(CTYPE_FLOAT, "b"));
   st->addField(new ComposableField(ut, "u"));
-  StructType *rv = st->clone();
-  FunctionDeclaration f(functionGetFunctionName(), ReturnValue(rv), Parameter::Vector({new Parameter(st, "st")}));
+  TypeItf *rv = tst->clone();
+  FunctionDeclaration f(functionGetFunctionName(), ReturnValue(rv), Parameter::Vector({new Parameter(tst, "st")}));
   return f;
 }
 
@@ -41,7 +43,7 @@ void StructWithUnionFunStructWithUnionFactory::setupTestCase(EasyMockTestCase::T
       m_rvContext.m_rv.push_back(s);
       m_expects.push_back(std::make_tuple(s));
       m_params.push_back(std::make_tuple(s));
-      m_compare.push_back(std::make_tuple(nullptr)); //Seperate dedicated UT are writen to test the generation and function of the comparators for structs
+      m_compare.push_back(std::make_tuple(nullptr)); //Separate dedicated UT are written to test the generation and function of the comparators for structs
       break;
     case EasyMockTestCase::ThreeExpects:
       for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::ThreeExpects_NbExpects; expectIdx++)
@@ -49,7 +51,7 @@ void StructWithUnionFunStructWithUnionFactory::setupTestCase(EasyMockTestCase::T
         m_rvContext.m_rv.push_back(s);
         m_expects.push_back(std::make_tuple(s));
         m_params.push_back(std::make_tuple(s));
-        m_compare.push_back(std::make_tuple(nullptr)); //Seperate dedicated UT are writen to test the generation and function of the comparators for structs
+        m_compare.push_back(std::make_tuple(nullptr)); //Separate dedicated UT are written to test the generation and function of the comparators for structs
       }
       break;
     case EasyMockTestCase::NotEnoughCall:
@@ -58,7 +60,7 @@ void StructWithUnionFunStructWithUnionFactory::setupTestCase(EasyMockTestCase::T
         m_rvContext.m_rv.push_back(s);
         m_expects.push_back(std::make_tuple(s));
         m_params.push_back(std::make_tuple(s));
-        m_compare.push_back(std::make_tuple(nullptr)); //Seperate dedicated UT are writen to test the generation and function of the comparators for structs
+        m_compare.push_back(std::make_tuple(nullptr)); //Separate dedicated UT are written to test the generation and function of the comparators for structs
       }
       break;
     case EasyMockTestCase::OneExpectArgIsBad: //Not tested in a generic way

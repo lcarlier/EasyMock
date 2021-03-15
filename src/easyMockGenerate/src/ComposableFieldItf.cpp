@@ -1,5 +1,7 @@
 #include <ComposableFieldItf.h>
 
+#include <boost/functional/hash.hpp>
+
 ComposableFieldItf::ComposableFieldItf(TypeItf* p_type, std::string& p_name) :
 Declarator(p_type), m_name(p_name)
 {
@@ -23,6 +25,14 @@ bool ComposableFieldItf::isAnonymous() const
 const std::string& ComposableFieldItf::getName() const
 {
   return m_name;
+}
+
+std::size_t ComposableFieldItf::getHash() const
+{
+  std::size_t seed { Declarator::getHash() };
+  boost::hash_combine(seed, m_name);
+
+  return seed;
 }
 
 bool ComposableFieldItf::isEqual(const Declarator& p_other) const

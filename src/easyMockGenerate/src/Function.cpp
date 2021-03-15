@@ -1,5 +1,6 @@
 #include "Function.h"
-#include "TypeItf.h"
+
+#include <boost/functional/hash.hpp>
 
 Function::Function(std::string p_functionName, ReturnValue p_functionReturnType, Parameter::Vector p_functionParameters):
 m_name(p_functionName), m_parameters(p_functionParameters), m_returnType(p_functionReturnType), m_isVariadic(false), m_isInlined(false) { }
@@ -49,15 +50,27 @@ void Function::setInlined(bool value)
   m_isInlined = value;
 }
 
+std::size_t Function::getHash() const
+{
+  std::size_t seed { 0 };
+  boost::hash_combine(seed, m_isInlined);
+  boost::hash_combine(seed, m_isVariadic);
+  boost::hash_combine(seed, m_name);
+  boost::hash_combine(seed, m_parameters);
+  boost::hash_combine(seed, m_returnType);
+
+  return seed;
+}
+
 bool Function::operator==(const Function& other) const
 {
+  const bool isInlineEq = this->m_isInlined == other.m_isInlined;
+  const bool isVariadicEq = this->m_isVariadic == other.m_isVariadic;
   const bool nameEq = this->m_name == other.m_name;
   const bool paramEq = this->m_parameters == other.m_parameters;
-  const bool isVariadicEq = this->m_isVariadic == other.m_isVariadic;
-  const bool isInlineEq = this->m_isInlined == other.m_isInlined;
   const bool returnTypeEq = this->m_returnType == other.m_returnType;
 
-  return nameEq && paramEq && isVariadicEq && isInlineEq && returnTypeEq;
+  return isInlineEq && isVariadicEq && nameEq && paramEq && returnTypeEq;
 }
 
 bool Function::operator!=(const Function& other) const

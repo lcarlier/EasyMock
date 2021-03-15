@@ -1,8 +1,16 @@
 #include <ConstQualifiedType.h>
 
+#include <boost/functional/hash.hpp>
+
+#include <cassert>
+
 ConstQualifiedType::ConstQualifiedType(TypeItf *p_type) :
 QualifiedType { p_type }
 {
+  if(p_type)
+  {
+    assert(!p_type->isConst());
+  }
 }
 
 ConstQualifiedType& ConstQualifiedType::operator=(ConstQualifiedType p_other)
@@ -24,9 +32,15 @@ bool ConstQualifiedType::isConst() const
   return true;
 }
 
-const char* ConstQualifiedType::getString() const
+const char* ConstQualifiedType::getQualifierString() const
 {
   return "const";
+}
+
+std::size_t ConstQualifiedType::getHash() const
+{
+  std::size_t seed { QualifiedType::getHash() };
+  return seed;
 }
 
 bool ConstQualifiedType::operator==(const ConstQualifiedType& p_other) const

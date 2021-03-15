@@ -7,6 +7,11 @@
 #define AUTOCLEANVECTORPTR_H
 
 #include <vector>
+#include <numeric>
+
+#include <boost/functional/hash.hpp>
+
+#include <EasyMock_Hashable.h>
 
 /*!
  * This templated class is used to hold pointers that will be deleted when
@@ -23,7 +28,7 @@
  * care of managing the pointers held by this data structure.
  */
 template <class T>
-class AutoCleanVectorPtr
+class AutoCleanVectorPtr : public virtual EasyMock::Hashable
 {
 public:
   typedef typename std::vector<T*>::iterator iterator;
@@ -59,17 +64,33 @@ public:
 
   bool operator==(const AutoCleanVectorPtr &other) const
   {
+    auto fEqual = [](const T* lhs, const T* rhs)
+                  {
+                    return *lhs == *rhs;
+                  };
     return m_vect.size() == other.m_vect.size() &&
             std::equal(m_vect.begin()      ,       m_vect.end(),
                        other.m_vect.begin(), other.m_vect.end(),
-                [](const T* lhs, const T* rhs)
-                {
-                  return *lhs == *rhs;
-                });
+            fEqual
+                );
   }
   bool operator!=(const AutoCleanVectorPtr &other) const
   {
     return (*this == other) == false;
+  }
+
+  /*!
+   * \copydoc ::EasyMock::Hashable::getHash()
+   */
+  std::size_t getHash() const override
+  {
+    auto hashOp = [](size_t seed, T* elem)
+    {
+      boost::hash_combine(seed, *elem);
+      return seed;
+    };
+    std::size_t seed {} ;
+    return std::accumulate(m_vect.begin(), m_vect.end(), seed, hashOp);
   }
   AutoCleanVectorPtr() {}
 
@@ -98,7 +119,7 @@ public:
    * The "wrong" function is picked by the compiler
    * when the list initialiser contains only 1 element
    *
-   * Because of the keyword explicity, the following is not valid anymore
+   * Because of the keyword explicit, the following is not valid anymore
    * AutoCleanVectorPtr<int*> t = {new int(5)};
    * but I don't think it is a problem since the following works
    * AutoCleanVectorPtr<int*> t({new int(5)});
@@ -141,4 +162,3 @@ private:
 };
 
 #endif /* AUTOCLEANVECTORPTR_H */
-

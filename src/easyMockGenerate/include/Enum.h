@@ -14,7 +14,7 @@
  * \brief This class represents an enum and the values it contains
  *
  */
-class Enum  : public TypeItf
+class Enum : public TypeItf
 {
 public:
 
@@ -31,13 +31,6 @@ public:
   Enum(const std::string p_name);
 
   /*!
-   * \copydoc Enum(std::string)
-   *
-   * \param p_typed_def_name The enum typedef alias
-   */
-  Enum(const std::string p_name, const std::string p_typed_def_name);
-
-  /*!
    * \brief Adds a new enum value inside the enum type.
    */
   void addEnumValue(int64_t p_value, const std::string& p_enumStr);
@@ -48,20 +41,29 @@ public:
   const listOfValuesType& getValues() const;
 
   /*!
+   * \copydoc ::TypeItf::getDeclarationPrefix
+   */
+  virtual std::string getDeclarationPrefix(bool p_naked = false) const override;
+
+  /*!
    * \copydoc TypeItf::clone
    */
   Enum *clone() const override;
 
+  /*!
+   * \copydoc ::EasyMock::Hashable::getHash()
+   */
+  std::size_t getHash() const override;
+
+  virtual ~Enum() = default;
 protected:
    /*!
    * \copydoc TypeItf::isEqual
    */
   bool isEqual(const TypeItf& p_other) const override;
 
-  virtual ~Enum();
 private:
   listOfValuesType m_listOfValues;
 };
 
 #endif /* ENUM_H */
-

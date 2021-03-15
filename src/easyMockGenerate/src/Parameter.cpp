@@ -4,6 +4,8 @@
 #include "StructType.h"
 #include "Pointer.h"
 
+#include <boost/functional/hash.hpp>
+
 Parameter::Parameter(TypeItf* p_type, std::string p_name) :
 Declarator(p_type), m_name(p_name)
 {
@@ -76,6 +78,14 @@ const std::string& Parameter::getName() const
 bool Parameter::operator==(const Parameter& other) const
 {
   return this->isEqual(other);
+}
+
+std::size_t Parameter::getHash() const
+{
+  std::size_t seed { Declarator::getHash() };
+  //Parameters are equals only if type matches, name is not important
+
+  return seed;
 }
 
 bool Parameter::isEqual(const Declarator& other) const

@@ -9,11 +9,20 @@
 #include "AutoCleanVectorPtr.h"
 #include "ComposableFieldItf.h"
 #include "EasyMockGenerateTypes.h"
+#include "EasyMock_Hashable.h"
+
+class FunctionType;
+class TypedefType;
+class Enum;
+class ComposableType;
+class Pointer;
+class QualifiedType;
+class IncompleteType;
 
 /*!
  * \brief Base class of all types related classes
  */
-class TypeItf
+class TypeItf : virtual public EasyMock::Hashable
 {
 public:
   typedef AutoCleanVectorPtr<TypeItf> Vector;
@@ -29,34 +38,80 @@ public:
   const std::string &getName() const;
 
   /*!
-   * \return The typedef string
-   * If there is no typedef aliasing this type, this string is empty
+   * \brief Function called by the subclasses to set the type name.
+   *
+   * For C type, it is the string to be used to declare a variable of that C type (e.g. <tt>unsigned int</tt>).
+   *
+   * For C union, C struct and C enum, it is the name of the type without its keyword. Not the typedef alias.
+   *
+   * Pointer object does not call this function because a pointer doesn't have a name, so the type name remains empty.
    */
-  const std::string &getTypedDefName() const;
-
-  /*!
-   * \return If typedef is set, returns it, otherwise returns the name
-   */
-  const std::string &getMostDefinedName() const;
+  void setName(std::string p_name);
 
   /*!
    *
-   * \brief The string that should be used to declare a variable of the type
+   * \brief Convenience function which calls ::TypeItf::getDeclarationPrefix and ::TypeItf::getDeclarationPostfix putting
+   * a space in between
    *
    * \param p_naked Return the string removing any typedef if any
    *
-   * \return The string that should be used to declare a variable of the type
+   * \return The string resulting of the call to ::TypeItf::getDeclarationPrefix and ::TypeItf::getDeclarationPostfix
+   * putting a space in between
    */
   std::string getFullDeclarationName(bool p_naked = false) const;
 
   /*!
-   * \brief The same as getFullDeclarationName but without the const qualifier
+   * \brief Generates the string to be put before a variable name when being declared.
    *
    * \param p_naked Return the string removing any typedef if any
    *
-   * \return The same as getFullDeclarationName but without the const qualifier
+   * \sa ::TypeItf::getDeclarationPostfix
+   *
+   * \return the string to be put before a variable name when being declared.
    */
-  std::string getFullNonQualifiedDeclarationName(bool p_naked = false) const;
+  virtual std::string getDeclarationPrefix(bool p_naked = false) const = 0;
+
+  /*!
+   * \brief Generates the string to use after the variable name when being declared.
+   *
+   * The main purpose of this function is to get the string to be put after the variable name when a pointer to
+   * a function is being declared.
+   *
+   * e.g.
+   *
+   * \code{.c}
+   * int (*foo)(int param);
+   * \endcode
+   *
+   * In the above declaration, foo is declared as a pointer to a function(int) returning int.
+   * ::TypeItf::getDeclarationPostfix is going to return `)(int param)`.
+   *
+   * \return The string to use after the variable name when being declared
+   */
+  virtual std::string getDeclarationPostfix(bool p_naked = false) const;
+
+  /*!
+   * \brief Returns the raw type
+   *
+   * A raw type is a type without any of its qualifier, typedef and completely dereferenced.
+   *
+   * e.g. The raw type of
+   * \code{.c}
+   * const char*
+   * \endcode
+   * is
+   * \code{.c}
+   * char
+   * \endcode
+   *
+   * \return The raw type underneath this object
+   */
+  const TypeItf* getRawType() const;
+
+  /*!
+   * \copydoc  ::TypeItf::getRawType() const
+   */
+  TypeItf* getRawType();
 
   /*!
    * \brief Returns the C type this type defines
@@ -137,16 +192,25 @@ public:
   /*!
    * \brief Returns if the type has a typedef alias.
    *
-   * When this function returns true, the function ::TypeItf::getTypedDefName() can
-   * be used to retrieve it.
-   *
-   * When this function returns true, the function ::TypeItf::getMostDefinedName()
-   * returns the same as ::TypeItf::getTypedDefName()
+   * When this function returns true, an pointer to instance of this object can be downcasted to a ::TypedefType object;
    *
    * \return True if the type has a typedef alias
    * \return False instead.
    */
   bool isTypedDef() const;
+
+  /*!
+   * \brief Cast a ::TypeItf pointer to a ::TypedefType pointer.
+   *
+   * \return If this is a pointer to ::TypedefType, returns the casted pointer
+   * \return Else returns nullptr
+   */
+  const TypedefType* asTypedefType() const;
+
+  /*!
+   * \copydoc ::TypeItf::asTypedefType() const
+   */
+  TypedefType* asTypedefType();
 
   /*!
    * \brief Returns if the type is anonymous.
@@ -222,6 +286,19 @@ public:
   bool isComposableType() const;
 
   /*!
+   * \brief Cast a ::TypeItf pointer to a ::ComposableType pointer.
+   *
+   * \return If this is a pointer to ::ComposableType, returns the casted pointer
+   * \return Else returns nullptr
+   */
+  const ComposableType* asComposableType() const;
+
+  /*!
+   * \copydoc ::TypeItf::asComposableType() const
+   */
+  ComposableType* asComposableType();
+
+  /*!
    * \brief Returns if the type is a Pointer.
    *
    * When this function return true, a pointer or reference holding this type
@@ -236,6 +313,19 @@ public:
   bool isPointer() const;
 
   /*!
+   * \brief Cast a ::TypeItf pointer to a ::Pointer pointer.
+   *
+   * \return If this is a pointer to ::Pointer, returns the casted pointed
+   * \return Else returns nullptr
+   */
+  const Pointer* asPointer() const;
+
+  /*!
+   * \copydoc ::TypeItf::asPointer() const
+   */
+  Pointer* asPointer();
+
+  /*!
    * \brief Returns if the type is a function.
    *
    * When this function returns true, a pointer or reference holding this
@@ -247,7 +337,20 @@ public:
    * \return True if the type is a function.
    * \return False instead.
    */
-  bool isFunction() const;
+  bool isFunctionType() const;
+
+  /*!
+   * \brief Cast a ::TypeItf pointer to a ::FunctionType pointer.
+   *
+   * \return If this is a pointer to ::FunctionType, returns the casted pointer
+   * \return Else returns nullptr
+   */
+  const FunctionType* asFunctionType() const;
+
+  /*!
+   * \copydoc ::TypeItf::asFunctionType() const
+   */
+  FunctionType* asFunctionType();
 
   /*!
    * \brief Returns if the type is an enum.
@@ -261,6 +364,19 @@ public:
   bool isEnum() const;
 
   /*!
+   * \brief Cast a ::TypeItf pointer to a ::Enum pointer.
+   *
+   * \return If this is a pointer to ::Enum, returns the casted pointer
+   * \return Else returns nullptr
+   */
+  const Enum* asEnum() const;
+
+  /*!
+   * \copydoc ::TypeItf::asEnum() const
+   */
+  Enum* asEnum();
+
+  /*!
    * \brief Returns if the type is an incomplete type.
    *
    * When this function returns true, a pointer or reference holding this
@@ -270,6 +386,19 @@ public:
    * \return False instead.
    */
   bool isIncompleteType() const;
+
+  /*!
+   * \brief Cast a ::TypeItf pointer to a ::IncompleteType pointer.
+   *
+   * \return If this is a pointer to ::IncompleteType, returns the casted pointer
+   * \return Else returns nullptr
+   */
+  const IncompleteType* asIncompleteType() const;
+
+  /*!
+   * \copydoc ::TypeItf::asIncompleteType() const
+   */
+  IncompleteType* asIncompleteType();
 
   /*!
    * \brief Returns if the type was declare using the \c const keyword.
@@ -297,12 +426,56 @@ public:
    */
   bool isImplicit() const;
 
+
+  /*!
+   * \brief Returns if the type has a qualifier.
+   *
+   * A qualifier can be const or volatile.
+   *
+   * \return True if the type is qualified
+   * \return False instead.
+   */
+  bool isQualified() const;
+
+  /*!
+   * \brief Cast a ::TypeItf pointer to a ::QualifiedType pointer.
+   *
+   * \return If this is a pointer to ::QualifiedType, returns the casted pointer
+   * \return Else returns nullptr
+   */
+  const QualifiedType* asQualifiedType() const;
+
+  /*!
+   * \copydoc ::TypeItf::asQualifiedType() const
+   */
+  QualifiedType* asQualifiedType();
+
   /*!
    * \brief Set the type to be implicit.
    *
    * Implicit types are types that are defined by the compiler such as va_args.
    */
   TypeItf* setImplicit(bool value);
+
+  /*!
+   * \brief Remove the qualifier of the type if any.
+   *
+   * \sa ::TypeItf::isQualified.
+   *
+   * \return A pointer to the unqualified type if any
+   * \return The pointer to this instead.
+   */
+  const TypeItf* unqualify() const;
+
+  /*!
+   * \copydoc ::TypeItf::unqualify() const
+   */
+  TypeItf* unqualify();
+
+  /*!
+   * \copydoc ::EasyMock::Hashable::getHash()
+   */
+  std::size_t getHash() const override;
 
   /*!
    * \brief Checks if 2 TypeItf instances are equal.
@@ -331,24 +504,26 @@ public:
    *
    * I.E. it calls the delete operator on all the non-static pointer members
    */
-  virtual ~TypeItf();
+  virtual ~TypeItf() = default;
 
 #define TYPEITF_COMMON_CLASS_MEMBERS(prefix) \
   std::string prefix ## name; \
-  std::string prefix ## typedDefName; \
   bool prefix ## isCType; \
   bool prefix ## isStruct; \
   bool prefix ## isUnion; \
   bool prefix ## isPointer; \
-  bool prefix ## isFunction; \
+  bool prefix ## isFunctionType; \
   bool prefix ## isEnum; \
   bool prefix ## isImplicit; \
-  bool prefix ## isIncompleteType;
+  bool prefix ## isIncompleteType; \
+  bool prefix ## isTypedefType; \
+  bool prefix ## isQualifiedType;
 
 protected:
   TypeItf();
   explicit TypeItf(const std::string p_name);
-  TypeItf(const std::string p_name, const std::string p_typed_def_name);
+
+  TYPEITF_COMMON_CLASS_MEMBERS(m_)
 
   /*!
    * \brief Specify that the type is a C structure.
@@ -374,21 +549,21 @@ protected:
   /*!
    * \brief Specify that the type is a pointer.
    *
-   * It is called by Pointer objects
+   * It is called by ::Pointer objects
    */
   void setPointer(bool value);
 
   /*!
    * \brief Specify that the type is a function.
    *
-   * It is called by FunctionType objects
+   * It is called by ::FunctionType objects
    */
   void setFunction(bool value);
 
   /*!
    * \brief Specify that the type is an enum.
    *
-   * It is called by Enum objects
+   * It is called by ::Enum objects
    */
   void setEnum(bool value);
 
@@ -400,15 +575,20 @@ protected:
   void setIncompleteType(bool value);
 
   /*!
-   * \brief Function called by the subclasses to set the type name.
+   * \brief Specify that the type is a typedef.
    *
-   * For C type, it is the string to be used to declare a variable of that C type (e.g. <tt>unsigned int</tt>).
-   *
-   * For C union and C struct, it is the name of the struct. Not the typedef alias.
-   *
-   * Pointer object does not call this function because a pointer doesn't have a name, so the type name remains empty.
+   * It is called by ::TypedefType objects
    */
-  void setName(std::string p_name);
+  void setTypedefType(bool value);
+
+  /*!
+   * \brief Specify that the type is qualified.
+   *
+   * It is called by ::QualifiedType objects
+   *
+   * \sa ::TypeItf::isQualified
+   */
+  void setQualifiedType(bool value);
 
   /*!
    * \brief Returns if this instance is equal to another.
@@ -451,16 +631,14 @@ protected:
   virtual bool isEqual(const TypeItf &p_other) const;
 
 private:
-  static std::string s_getFullDeclarationName(const TypeItf* type, bool fullyQualified, bool naked);
+
   typedef struct
   {
     TYPEITF_COMMON_CLASS_MEMBERS()
   } attributes;
   TypeItf(attributes attrib);
 
-  TYPEITF_COMMON_CLASS_MEMBERS(m_)
 #undef TYPEITF_COMMON_CLASS_MEMBERS
 };
 
 #endif /* TYPEITF_H */
-
