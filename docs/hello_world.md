@@ -10,15 +10,15 @@
 
 ## <a name="user-content-intro"></a>Introduction
 This page contains an example on how to create a unit test using EasyMock.
-This example will, on purpose, not use a unit test framework (such as Catch2
-or Google test) because EasyMock is independent of those framework.
-Therefore, the main function is actually calling the unit tests manually.
+This example does, on purpose, NOT use a unit test framework (such as Catch2
+or Google test) because EasyMock is independent from those frameworks.
+Instead, the tests are implemented in the main function using some rudimentary asserts.
 
 ## <a name="user-content-context"></a>Context
 The goal of this example is to implement a function which computes the
 average of some random numbers. The random numbers are coming from a
-library which we do not have the source code and that defines the following
-interface in u8Rand.h
+library from which the source code is not available (but obviously the .so is!).
+The library defines the following interface in u8Rand.h
 
 ```c
 #ifndef U8_RAND_H
@@ -51,26 +51,26 @@ float average(int nbNumber)
 
 ## <a name="user-content-fut"></a>First unit test
 
-The first step is to create the mock of the dependecy. In order to mock our
-dependency, EasyMockGenerate can be used. The following command generates a
-mock implementation for the `u8Rand()` function.
+The first step is to create the mock of the dependency. For that purpose,
+EasyMockGenerate can be used. The following command generates a
+mock for the `u8Rand()` function.
 ```sh
 EasyMockGenerate -i u8Rand.h -o .
 ```
 
-The file created are:
+The files created are:
 * easyMock_u8rand.h
-* easyMock_u8rand.cpp
+* easyMock_u8rand.c
 
-The mock can then be compiled with the following command:
+The mock can be compiled with the following command:
 ```sh
-g++ -Wall -Werror -I $EASYMOCK_SOURCE/src/easyMockFramework/include/ -c easyMock_u8rand.cpp -o easyMock_u8rand.o
+gcc -Wall -Werror -I $EASYMOCK_SOURCE/src/easyMockFramework/include/ -c easyMock_u8rand.c -o easyMock_u8rand.o
 ```
 
-Then the code for the first test can be written.
+Afterwards, the code for the first test can be written like so:
 ```c
 #include "easyMock_u8rand.h"
-#undef NDEBUG //make sure assert are not disabled
+#undef NDEBUG //make sure asserts are not disabled
 #include <assert.h>
 
 void test1()
@@ -85,6 +85,7 @@ void test1()
   float av = average(4);
 
   assert(av == 4.5);
+  printf("test 1 passed\n");
 }
 
 int main(int argc, char *argv[])
@@ -102,10 +103,10 @@ gcc  -Wall -Werror -I $EASYMOCK_SOURCE/src/easyMockFramework/include/ -c main.c 
 
 And eventually the final binary can be obtained with:
 ```sh
-g++ main.o easyMock_u8rand.o -Wl,-rpath,$EASYMOCK_BUILDIR/src/easyMockFramework/src" -L$EASYMOCK_BUILDIR/src/easyMockFramework/src -lEasyMockFramework -o testAverage
+gcc main.o easyMock_u8rand.o -Wl,-rpath,$EASYMOCK_BUILDIR/src/easyMockFramework/src" -L$EASYMOCK_BUILDIR/src/easyMockFramework/src -lEasyMockFramework -o testAverage
 ```
 Note: the `-Wl,-rpath` option is to bake the path to the library into the binary
-so that the .so can be find at runtime by the ELF loader.
+so that the .so can be found at runtime by the ELF loader.
 
 When running the executable, the following output is given:
 ```sh
@@ -113,17 +114,13 @@ When running the executable, the following output is given:
 test 1 passed
 ```
 
-Sweet! Our first test is passing!
-
-It is to be noticed that even though the mocks are implemented in C++, the test
-code (i.e. main) can be implemented in C and everything works eventually
-with C linkage.
+Sweet! The first test is passing!
 
 ## <a name="user-content-sut"></a>Second unit test
-It is now time to write our second unit test. What would happen if the random
-number where very high? Instead of running the code several times and hoping
-that high numbers come randomly twice, we can easily test that with configuring
-EasyMock to return 2 big numbers.
+It is now time to write the second unit test. What would happen if the random
+numbers were higher? Instead of running the code several times and hoping
+that high numbers come randomly twice, it is easy to configure
+EasyMock to return 2 high numbers from the mock.
 
 ```c
 void test2()
@@ -136,10 +133,11 @@ void test2()
   float av = average(2);
 
   assert(av == 160);
+  printf("test 2 passed\n");
 }
 ```
 
-Now if we call this test in our main here is the output we obtain
+When this test is called in the main function, the following output is given:
 ```sh
 ./testAverage
 test 1 passed
@@ -147,9 +145,9 @@ testAverage: main.c:39: test2: Assertion `av == 160' failed.
 zsh: abort (core dumped)  ./testAverage
 ```
 
-It sounds that this test is not passing. The reason is because our average
+It shows that the test is not passing. The reason is because the average
 function stores the counter into an `unsigned char` and it overflows. The fix
-is by writing the `average()` function like so:
+for this bug is to re-write the `average()` function like so:
 
 ```c
 float average(int nbNumber)
@@ -165,7 +163,7 @@ float average(int nbNumber)
 }
 ```
 
-After recompiling everything, the second test works fine
+After recompiling everything, the second test works fine.
 
 ```sh
 ./testAverage
@@ -176,8 +174,7 @@ test 2 passed
 ## <a name="user-content-conclusion"></a>Conclusion
 This example shows how easy it is to reproduce corner cases with EasyMock.
 Thanks to EasyMock, it is possible to mock any kind of dependency and make
-them behave the way you like to make sure that the functionality you are
-writing is well implemented.
+it behave the way it is needed to make sure that correct code is written.
 
 
 [intro]: #user-content-intro
