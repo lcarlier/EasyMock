@@ -17,6 +17,7 @@ echo $BASH
 # any match. We use the { cmd || true; } trick to make the script pass in case grep is not getting any match.
 # Remember that grep returns an error code if it doesn't match anything.
 EXPECTED_WARNING=4
+doxygen --version
 NB_WARNING=$(doxygen docs/doxygen/Doxyfile 2>&1 | { grep -c "CodeGeneratorCTemplate\.h:.*warning" || true; })
 
 # NB_WARNING can be 0 or 4 depending on the doxygen's version

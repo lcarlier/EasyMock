@@ -123,17 +123,24 @@ else()
     message (STATUS "llvm-config found --> ${LLVM_CONFIG}")
 endif()
 
+find_package (Python COMPONENTS Interpreter)
+
 if(NOT EXISTS ${LLVM_PATH})
     # We've got llvm-config right so <path-to-llvm-config>/../.. == LLVM_PATH
     # llvm-config-x can be symlink so we must resolve it first i.e. realpath(realpath({LLVM_CONFIG}))
-    execute_process(COMMAND python -c "import os; print(os.path.realpath(os.path.realpath('${LLVM_CONFIG}')+'/../..'))" OUTPUT_VARIABLE LLVM_PATH OUTPUT_STRIP_TRAILING_WHITESPACE)
+    execute_process(COMMAND python3 -c "import os; print(os.path.realpath(os.path.realpath('${LLVM_CONFIG}')+'/../..'))" OUTPUT_VARIABLE LLVM_PATH OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif()
 
 message(STATUS "LLVM_PATH: ${LLVM_PATH}")
 find_library(CLANG_LIBRARIES NAMES clang PATHS ${LLVM_PATH} PATH_SUFFIXES lib)
 
 if (NOT CLANG_LIBRARIES OR NOT EXISTS ${CLANG_LIBRARIES})
-    message (FATAL_ERROR "libclang was not found in the system. CLANG_LIBRARIES=${CLANG_LIBRARIES}")
+    message (FATAL_ERROR "libclang not found. CLANG_LIBRARIES=${CLANG_LIBRARIES}")
+endif()
+
+find_library(ZLIB_LIBRARIES NAMES z PATHS PATH_SUFFIXES lib)
+if (NOT ZLIB_LIBRARIES)
+    message (FATAL_ERROR "zlib not found.")
 endif()
 
 # set the C_IMPLICIT_INCLUDE_DIRECTORIES macro variable used in LLVMParser.cpp
@@ -248,6 +255,10 @@ set(EASYMOCK_GEN EasyMockGenerate)
 add_subdirectory(src)
 
 if(CMAKE_BUILD_TYPE STREQUAL build_debug OR CMAKE_BUILD_TYPE STREQUAL build_release_with_test)
+    find_program(DOXYGEN_VAR doxygen)
+    if(NOT DOXYGEN_VAR)
+        message(FATAL_ERROR "Doxygen not found")
+    endif()
     include(CTest)
     enable_testing()
     add_subdirectory(test)
