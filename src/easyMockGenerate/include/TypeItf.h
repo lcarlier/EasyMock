@@ -18,6 +18,7 @@ class ComposableType;
 class Pointer;
 class QualifiedType;
 class IncompleteType;
+class CType;
 
 /*!
  * \brief Base class of all types related classes
@@ -188,6 +189,19 @@ public:
    * \return False instead.
    */
   bool isCType() const;
+
+  /*!
+   * \brief Cast a ::TypeItf pointer to a ::CType pointer.
+   *
+   * \return If this is a pointer to ::CType, returns the casted pointed
+   * \return Else returns nullptr
+   */
+  const CType* asCType() const;
+
+  /*!
+   * \copydoc ::TypeItf::asCType() const
+   */
+  CType* asCType();
 
   /*!
    * \brief Returns if the type has a typedef alias.

@@ -693,10 +693,9 @@ TEST(moveCopy, Enum)
   ASSERT_EQ(etype6, etype1);
 }
 
-TEST(moveCopy, ComposableBitfield)
+void testComposableField(ComposableBitfield& bf1)
 {
-  ComposableBitfield bf1(CTYPE_UCHAR, "foo", 3);
-  ComposableBitfield bf2(bf1);
+  ComposableBitfield bf2 { bf1 };
   ASSERT_EQ(bf1, bf2);
 
   ComposableBitfield bf3(CTYPE_CHAR, "foo", 3);
@@ -711,6 +710,20 @@ TEST(moveCopy, ComposableBitfield)
   ASSERT_NE(bf5, bf2);
   bf5 = std::move(bf2);
   ASSERT_EQ(bf5, bf1);
+
+}
+
+TEST(moveCopy, ComposableBitfield)
+{
+  ComposableBitfield bf1(CTYPE_UCHAR, "foo", 3);
+  testComposableField(bf1);
+}
+
+TEST(moveCopy, ComposableBitfieldTypedef)
+{
+  TypedefType typedefType { "t_uint", new CType(CTYPE_UINT) };
+  ComposableBitfield bf1{ static_cast<TypedefType*>(typedefType.clone()), "foo", 3 };
+  testComposableField(bf1);
 }
 
 TEST(moveCopy, ConstQualifiedType)

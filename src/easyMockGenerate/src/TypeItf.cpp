@@ -7,6 +7,7 @@
 #include "Enum.h"
 #include "ComposableType.h"
 #include "IncompleteType.h"
+#include "EasyMock_CType.h"
 
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string.hpp>
@@ -133,6 +134,20 @@ const ComposableFieldItf::Vector& TypeItf::getContainedFields() const
 bool TypeItf::isCType() const
 {
   return m_isCType;
+}
+
+const CType* TypeItf::asCType() const
+{
+  if(!this->isCType())
+  {
+    return nullptr;
+  }
+  return static_cast<const CType*>(this);
+}
+
+CType* TypeItf::asCType()
+{
+  return const_cast<CType*>(static_cast<const TypeItf*>(this)->asCType());
 }
 
 bool TypeItf::isTypedDef() const

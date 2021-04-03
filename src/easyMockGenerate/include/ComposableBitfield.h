@@ -12,6 +12,7 @@
 #include <cstdint>
 
 class CType;
+class TypedefType;
 
 /*!
  * \brief Class representing a bitfield in C
@@ -29,10 +30,16 @@ public:
    * \heapPointer
    */
   ComposableBitfield(CType* p_type, std::string p_name, uint8_t p_size);
+
   /*!
    * \copydoc ::ComposableBitfield::ComposableBitfield(CType*, std::string, uint8_t)
    */
   ComposableBitfield(easyMock_cTypes_t p_type, std::string p_name, uint8_t p_size);
+
+  /*!
+   * \copydoc ::ComposableBitfield::ComposableBitfield(CType*, std::string, uint8_t)
+   */
+  ComposableBitfield(TypedefType* p_type, std::string p_name, uint8_t p_size);
 
   ComposableBitfield(const ComposableBitfield &other) = default;
   ComposableBitfield &operator=(const ComposableBitfield& other) = default;

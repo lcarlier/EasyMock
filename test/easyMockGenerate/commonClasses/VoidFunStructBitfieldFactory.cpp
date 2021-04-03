@@ -6,6 +6,7 @@
 #include <StructType.h>
 #include <ComposableField.h>
 #include <ComposableBitfield.h>
+#include <TypedefType.h>
 
 FunctionDeclaration VoidFunStructBitfieldFactory::functionFactory()
 {
@@ -14,7 +15,8 @@ FunctionDeclaration VoidFunStructBitfieldFactory::functionFactory()
   s->addField(new ComposableBitfield(CTYPE_UINT, "fill_color", 3));
   s->addField(new ComposableBitfield(CTYPE_UINT, "", 4));
   s->addField(new ComposableBitfield(CTYPE_UINT, "show_border", 1));
-  s->addField(new ComposableBitfield(CTYPE_UINT, "border_color", 3));
+  TypedefType uintType { "t_uint", new CType(CTYPE_UINT) };
+  s->addField(new ComposableBitfield(static_cast<TypedefType*>(uintType.clone()), "border_color", 3));
   s->addField(new ComposableBitfield(CTYPE_UINT, "border_style", 2));
   s->addField(new ComposableBitfield(CTYPE_UCHAR, "", 0));
   s->addField(new ComposableBitfield(CTYPE_UCHAR, "width", 4));

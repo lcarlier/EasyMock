@@ -1,8 +1,10 @@
 #include <ComposableBitfield.h>
 
 #include <EasyMock_CType.h>
+#include <TypedefType.h>
 
 #include <boost/functional/hash.hpp>
+#include <cassert>
 
 ComposableBitfield::ComposableBitfield(easyMock_cTypes_t p_type, std::string p_name, uint8_t p_size) :
 ComposableBitfield(new CType(p_type), p_name, p_size)
@@ -12,6 +14,12 @@ ComposableBitfield(new CType(p_type), p_name, p_size)
 ComposableBitfield::ComposableBitfield(CType* p_type, std::string p_name, uint8_t p_size) :
 ComposableFieldItf(p_type, p_name), m_size(p_size)
 {
+}
+
+ComposableBitfield::ComposableBitfield(TypedefType* p_typedefType, std::string p_name, uint8_t p_size) :
+ComposableFieldItf(p_typedefType, p_name), m_size(p_size)
+{
+  assert(p_typedefType->getMostDefinedTypee()->isCType());
 }
 
 bool ComposableBitfield::operator==(const ComposableBitfield &other) const

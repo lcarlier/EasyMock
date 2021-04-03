@@ -451,16 +451,25 @@ private:
       ComposableFieldItf *sf = nullptr;
       if(FD->isBitField())
       {
-        if(!fieldType->isCType())
+        TypedefType *typedefFieldType = fieldType->asTypedefType();
+        if(!fieldType->isCType() && (typedefFieldType && !typedefFieldType->getMostDefinedTypee()->isCType()))
         {
-          fprintf(stderr, "Type must be CType for fields");
+          fprintf(stderr, "Type must be CType for bitfields");
           typePtr->dump();
           assert(false);
         }
-        CType *cTypePtr = dynamic_cast<CType*>(fieldType);
         unsigned bitWidth = FD->getBitWidthValue(*m_context);
         assert(bitWidth < 256);
-        sf = new ComposableBitfield(cTypePtr, fName, static_cast<uint8_t>(bitWidth));
+        if(typedefFieldType)
+        {
+          sf = new ComposableBitfield(typedefFieldType, fName, static_cast<uint8_t>(bitWidth));
+        }
+        else
+        {
+          CType* cTypePtr = fieldType->asCType();
+          assert(cTypePtr);
+          sf = new ComposableBitfield(cTypePtr, fName, static_cast<uint8_t>(bitWidth));
+        }
       }
       else
       {

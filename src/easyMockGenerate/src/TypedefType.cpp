@@ -75,6 +75,21 @@ TypeItf* TypedefType::getTypee()
   return const_cast<TypeItf*>(static_cast<const TypedefType *>(this)->getTypee());
 }
 
+const TypeItf* TypedefType::getMostDefinedTypee() const
+{
+  const TypedefType* typeeTypedef = m_typeeType->asTypedefType();
+  if(typeeTypedef)
+  {
+    return typeeTypedef->getMostDefinedTypee();
+  }
+  return m_typeeType;
+}
+
+TypeItf* TypedefType::getMostDefinedTypee()
+{
+  return const_cast<TypeItf*>(static_cast<const TypedefType*>(this)->getMostDefinedTypee());
+}
+
 std::string TypedefType::getDeclarationPrefix(bool) const
 {
   return m_name;

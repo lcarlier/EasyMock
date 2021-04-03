@@ -1590,6 +1590,7 @@ ctemplate::TemplateDictionary* CodeGeneratorCTemplate::generateDeclarationOfComp
       curFieldValDict->SetValue(TYPE_DECLARATION_VAR, curField->getDeclareString());
       const std::string& curFieldName = curField->getName();
       std::string fieldName = curFieldName;
+      generateSimpleTypeDef(getMostPointedType(curField->getType()));
       if(curCompField && curCompField->isBoundSpecifiedArray())
       {
         fieldName.push_back('[');

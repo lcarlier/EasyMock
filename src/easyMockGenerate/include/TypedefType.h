@@ -66,6 +66,18 @@ public:
   TypeItf* getTypee();
 
   /*!
+   * \brief Returns the actual type alised by the typedef
+   *
+   * \return The actual type alised by the typedef
+   */
+  const TypeItf* getMostDefinedTypee() const;
+
+  /*!
+   * \copydoc ::TypedefType::getMostDefinedTypee() const
+   */
+  TypeItf* getMostDefinedTypee();
+
+  /*!
    * \copydoc ::TypeItf::clone()
    */
   virtual TypeItf* clone() const override;
