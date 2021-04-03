@@ -171,6 +171,8 @@
 #define INCLUDE_MOCKED_HEADER_SECTION "INCLUDE_MOCKED_HEADER_SECTION"
 #define GENERATE_MOCKED_TYPE_SECTION "GENERATE_MOCKED_TYPE_SECTION"
 
+#define GENERATE_USED_TYPE_SECTION "GENERATE_USED_TYPE_SECTION"
+
 /*!
  * \brief Add STR_TO_PRINT into the code if the function being mocked
  * has a return value.
@@ -603,7 +605,7 @@ const char headerFileTemplate[] =
         "#ifdef __cplusplus" CARRIAGE_RETURN
         "extern \"C\" {" CARRIAGE_RETURN
         "#endif" CARRIAGE_RETURN
-        IF_SECTION_EXISTS(GENERATE_MOCKED_TYPE_SECTION,
+        IF_SECTION_EXISTS(GENERATE_USED_TYPE_SECTION,
           /*
            * For the generated used type, we guard the definition with #ifdef
            * because when a user mocks several header using the same types
@@ -656,7 +658,7 @@ const char headerFileTemplate[] =
           TEMPLATE_END_SECTION(GENERATED_TYPE_SECTION)
 
           "//---------------- END GENERATING USED TYPE -----------------"  CARRIAGE_RETURN
-        ) //IF_SECTION_EXISTS(GENERATE_MOCKED_TYPE_SECTION,
+        ) //IF_SECTION_EXISTS(GENERATE_USED_TYPE_SECTION,
         CARRIAGE_RETURN
         TEMPLATE_BEG_SECTION(COMPOSED_TYPE_COMPARE_SECTION)
         COMPOSED_TYPED_COMPARE_FUNCTION_SIGNATURE ";" CARRIAGE_RETURN
@@ -867,7 +869,7 @@ bool CodeGeneratorCTemplate::generateCodeImplementation(const std::string& p_out
   m_generateMockedTypeSection = nullptr;
   if(m_generateUsedType)
   {
-    m_generateMockedTypeSection = m_rootDictionary->AddSectionDictionary(GENERATE_MOCKED_TYPE_SECTION);
+    m_generateMockedTypeSection = m_rootDictionary->AddSectionDictionary(GENERATE_USED_TYPE_SECTION);
   }
   else
   {
