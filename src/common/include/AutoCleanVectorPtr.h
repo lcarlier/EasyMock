@@ -150,6 +150,7 @@ private:
       m_vect.push_back(c.m_vect[curElem]->clone());
     }
   }
+
   void clearVector()
   {
     while(m_vect.size() != 0)

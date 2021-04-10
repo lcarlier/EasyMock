@@ -41,8 +41,8 @@ public:
    */
   virtual std::string getDeclarationPostfix(bool p_naked = false) const override;
 
-  bool operator==(const FunctionType &other) const;
-  bool operator!=(const FunctionType &other) const;
+  bool operator==(const FunctionType &p_other) const;
+  bool operator!=(const FunctionType &p_other) const;
 
   /*!
    * \copydoc ::TypeItf::clone
@@ -55,6 +55,9 @@ public:
   std::size_t getHash() const override;
 
   virtual ~FunctionType();
+
+protected:
+  bool isEqual(const TypeItf &p_other) const override;
 
 private:
 };

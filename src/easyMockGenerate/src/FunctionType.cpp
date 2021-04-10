@@ -10,17 +10,14 @@ Function("", p_functionReturnType, p_functionParameters), TypeItf("")
   setFunction(true);
 }
 
-bool FunctionType::operator==(const FunctionType& other) const
+bool FunctionType::operator==(const FunctionType& p_other) const
 {
-  bool funEqual = Function::operator==(other);
-  bool typeEqual = TypeItf::operator ==(other);
-
-  return funEqual && typeEqual;
+  return isEqual(p_other);
 }
 
-bool FunctionType::operator!=(const FunctionType& other) const
+bool FunctionType::operator!=(const FunctionType& p_other) const
 {
-  return !(*this == other);
+  return !(*this == p_other);
 }
 
 std::string FunctionType::getDeclarationPrefix(bool p_naked) const
@@ -68,6 +65,18 @@ FunctionType* FunctionType::clone() const
   return new FunctionType(*this);
 }
 
+bool FunctionType::isEqual(const TypeItf &p_other) const
+{
+  const Function *function = dynamic_cast<const Function*>(&p_other);
+  if(function == nullptr)
+  {
+    return false;
+  }
+  bool funEqual = Function::operator==(*function);
+  bool typeEqual = TypeItf::isEqual(p_other);
+
+  return funEqual && typeEqual;
+}
 
 FunctionType::~FunctionType() {
 }
