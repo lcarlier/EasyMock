@@ -96,6 +96,7 @@ private:
   const std::string& getTypeDefName(const TypeItf* p_type);
   const TypeItf* getRawType(const TypeItf* p_type);
   const std::string& getMostDefinedName(const TypeItf* p_type);
+  void generateForwardDeclaration(const TypeItf* p_type);
 
   const TypeItf* getMostPointedType(const TypeItf* p_type);
 

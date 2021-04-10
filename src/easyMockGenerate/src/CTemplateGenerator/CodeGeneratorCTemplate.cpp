@@ -129,11 +129,13 @@
 #define GENERATED_MACRO_DEFINITION_TEMPLATE_VAR TEMPLATE_VAR(GENERATED_MACRO_DEFINITION_VAR)
 
 #define GENERATED_TYPE_SIMPLE_TYPEDEF_SECTION "GENERATED_TYPE_SIMPLE_TYPEDEF_SECTION"
+#define GENERATED_TYPE_SIMPLE_TYPEDEF_GUARD_NAME_NAME "GENERATED_TYPE_SIMPLE_TYPEDEF_GUARD_NAME_NAME"
+#define GENERATED_TYPE_SIMPLE_TYPEDEF_GUARD_NAME_NAME_VAR TEMPLATE_VAR(GENERATED_TYPE_SIMPLE_TYPEDEF_GUARD_NAME_NAME)
 #define GENERATED_TYPE_SIMPLE_TYPEDEF_TYPEE_VAR "GENERATED_TYPE_SIMPLE_TYPEDEF_TYPEE_VAR"
-#define GENERATED_TYPE_SIMPLE_TYPEDEF_TYPEE_TEMPLATE_VAR TEMPLATE_VAR("GENERATED_TYPE_SIMPLE_TYPEDEF_TYPEE_VAR")
+#define GENERATED_TYPE_SIMPLE_TYPEDEF_TYPEE_TEMPLATE_VAR TEMPLATE_VAR(GENERATED_TYPE_SIMPLE_TYPEDEF_TYPEE_VAR)
 #define GENERATED_TYPE_SIMPLE_TYPEDEF_TYPED_VAR "GENERATED_TYPE_SIMPLE_TYPEDEF_TYPED_VAR"
-#define GENERATED_TYPE_SIMPLE_TYPEDEF_TYPED_TEMPLATE_VAR TEMPLATE_VAR("GENERATED_TYPE_SIMPLE_TYPEDEF_TYPED_VAR")
-#define GENERATED_TYPE_SIMPLE_TYPEDEF_GUARD_NAME MOCK_FRAMEWORK_NAME_UPPER "_" GENERATED_TYPE_SIMPLE_TYPEDEF_TYPED_TEMPLATE_VAR "_GENERATED"
+#define GENERATED_TYPE_SIMPLE_TYPEDEF_TYPED_TEMPLATE_VAR TEMPLATE_VAR(GENERATED_TYPE_SIMPLE_TYPEDEF_TYPED_VAR)
+#define GENERATED_TYPE_SIMPLE_TYPEDEF_GUARD_NAME MOCK_FRAMEWORK_NAME_UPPER "_" GENERATED_TYPE_SIMPLE_TYPEDEF_GUARD_NAME_NAME_VAR "_GENERATED"
 
 #define GENERATED_TYPE_ENUM_SECTION "GENERATED_TYPE_ENUM_SECTION"
 #define GENERATED_TYPE_ENUM_NAME_VAR "GENERATED_TYPE_ENUM_NAME_VAR"
@@ -620,6 +622,13 @@ const char headerFileTemplate[] =
           "#endif //macro " GENERATED_MACRO_ID_TEMPLATE_VAR CARRIAGE_RETURN
           TEMPLATE_END_SECTION(GENERATED_MACRO_SECTION)
 
+          TEMPLATE_BEG_SECTION(GENERATED_TYPE_FORWARD_DECLARATION_SECTION)
+          "#ifndef " GENERATED_TYPE_FORWARD_DECLARATION_GUARD_NAME CARRIAGE_RETURN
+          "#define " GENERATED_TYPE_FORWARD_DECLARATION_GUARD_NAME CARRIAGE_RETURN
+          TEMPLATE_INCL_SECTION(COMPOSABLE_TYPE_DECLARE_COMPOSABLE_TYPE_SECTION) " //GENERATED_TYPE_FORWARD_DECLARATION_SECTION" CARRIAGE_RETURN
+          "#endif //" GENERATED_TYPE_FORWARD_DECLARATION_GUARD_NAME CARRIAGE_RETURN
+          TEMPLATE_END_SECTION(GENERATED_TYPE_FORWARD_DECLARATION_SECTION)
+
           TEMPLATE_BEG_SECTION(GENERATED_TYPE_SIMPLE_TYPEDEF_SECTION)
           "#ifndef " GENERATED_TYPE_SIMPLE_TYPEDEF_GUARD_NAME CARRIAGE_RETURN
           "#define " GENERATED_TYPE_SIMPLE_TYPEDEF_GUARD_NAME CARRIAGE_RETURN
@@ -639,20 +648,13 @@ const char headerFileTemplate[] =
           "#endif //" GENERATED_TYPE_ENUM_GUARD_NAME CARRIAGE_RETURN
           TEMPLATE_END_SECTION(GENERATED_TYPE_ENUM_SECTION)
 
-          TEMPLATE_BEG_SECTION(GENERATED_TYPE_FORWARD_DECLARATION_SECTION)
-          "#ifndef " GENERATED_TYPE_FORWARD_DECLARATION_GUARD_NAME CARRIAGE_RETURN
-          "#define " GENERATED_TYPE_FORWARD_DECLARATION_GUARD_NAME CARRIAGE_RETURN
-          TEMPLATE_INCL_SECTION(COMPOSABLE_TYPE_DECLARE_COMPOSABLE_TYPE_SECTION) " //GENERATED_TYPE_FORWARD_DECLARATION_SECTION" CARRIAGE_RETURN
-          "#endif //" GENERATED_TYPE_FORWARD_DECLARATION_GUARD_NAME CARRIAGE_RETURN
-          TEMPLATE_END_SECTION(GENERATED_TYPE_FORWARD_DECLARATION_SECTION)
-
           TEMPLATE_BEG_SECTION(GENERATED_TYPE_SECTION)
           "#ifndef " GENERATED_TYPE_DECLARE_MACRO_GUARD_NAME CARRIAGE_RETURN
           "#define " GENERATED_TYPE_DECLARE_MACRO_GUARD_NAME CARRIAGE_RETURN
           IF_SECTION_EXISTS(GENERATED_TYPE_DECLARE_TYPE_SECTION,
             GENERATED_TYPE_DECLARE_TYPE_TEMPLATE_VAR ";"
           )
-          TEMPLATE_INCL_SECTION(COMPOSABLE_TYPE_DECLARE_COMPOSABLE_TYPE_SECTION)
+          TEMPLATE_INCL_SECTION(COMPOSABLE_TYPE_DECLARE_COMPOSABLE_TYPE_SECTION) " //GENERATED_TYPE_SECTION"
           CARRIAGE_RETURN
           "#endif //" GENERATED_TYPE_DECLARE_MACRO_GUARD_NAME CARRIAGE_RETURN
           TEMPLATE_END_SECTION(GENERATED_TYPE_SECTION)
@@ -1007,6 +1009,7 @@ void CodeGeneratorCTemplate::generateFunctionSection(const FunctionDeclaration *
     const FunctionType *functionType = returnValuePointerPointedType->asFunctionType();
     if(functionType)
     {
+      generateDeclarationOfUsedType(m_rootDictionary, functionType);
       generateExtraDecl(functionSectionDict, EXTRA_TOP_LEVEL_DECL_SECTION, EXTRA_TOP_DECL_TEMPLATE_NAME, functionType);
     }
   }
@@ -1026,6 +1029,7 @@ void CodeGeneratorCTemplate::generateFunctionSection(const FunctionDeclaration *
       const FunctionType *functionType = returnValuePointerPointedType->asFunctionType();
       if(functionType)
       {
+        generateDeclarationOfUsedType(m_rootDictionary, functionType);
         generateExtraDecl(returnValParamDict, EXTRA_DECL_SECTION, EXTRA_DECL_TEMPLATE_NAME, functionType);
       }
       returnValParamDict->SetValue(FUNCTION_NON_QUALIFIED_RETURN_VALUE, returnTypeStr);
@@ -1048,6 +1052,8 @@ void CodeGeneratorCTemplate::generateFunctionSection(const FunctionDeclaration *
 
 void CodeGeneratorCTemplate::generateExtraDecl(ctemplate::TemplateDictionary *dict, const char *sectionName, const char *templateFileName, const FunctionType *functionType)
 {
+  generateDeclarationOfUsedType(m_rootDictionary, functionType);
+
   ctemplate::TemplateDictionary *extraDeclDict = dict->AddIncludeDictionary(sectionName);
   extraDeclDict->SetFilename(templateFileName);
 
@@ -1107,6 +1113,7 @@ void CodeGeneratorCTemplate::generateFunctionParamSection(ctemplate::TemplateDic
       const FunctionType *ft = paramPtrPointedType->asFunctionType();
       if(ft)
       {
+        generateDeclarationOfUsedType(m_rootDictionary, ft);
         generateExtraDecl(newTypedefParamSection, EXTRA_DECL_SECTION, EXTRA_DECL_TEMPLATE_NAME, ft);
       }
     }
@@ -1433,25 +1440,19 @@ void CodeGeneratorCTemplate::generateDeclarationOfUsedType(ctemplate::TemplateDi
   const IncompleteType* incompleteType = p_type->asIncompleteType();
   const ComposableType* composableType = p_type->asComposableType();
   const TypedefType *typedefType = p_type->asTypedefType();
-  if((!incompleteType && !pointerType && !qualifiedType) && isTypeGenerated(p_type, true))
+  const FunctionType* functionType = p_type->asFunctionType();
+  if((!incompleteType && !pointerType && !qualifiedType && !functionType) && isTypeGenerated(p_type, true))
   {
     return;
   }
 
   if(incompleteType)
   {
-    ctemplate::TemplateDictionary *forwardDeclaration_section = p_parentDictionary->AddSectionDictionary(GENERATED_TYPE_FORWARD_DECLARATION_SECTION);
-    std::string typeVar {incompleteType->getComposableTypeKeyword()};
-    forwardDeclaration_section->SetValue(COMPOSABLE_TYPE_DECLARATION_TYPE_VAR, typeVar);
-    forwardDeclaration_section->SetValue(COMPOSABLE_TYPE_TYPE_NAME_VAR, incompleteType->getName());
-
-    ctemplate::TemplateDictionary *anonymousDeclDict = forwardDeclaration_section->AddIncludeDictionary(COMPOSABLE_TYPE_DECLARE_COMPOSABLE_TYPE_SECTION);
-    anonymousDeclDict->SetFilename(COMPOSABLE_TYPE_DECLARE_COMPOSABLE_TYPE_TEMPLATE_NAME);
-    anonymousDeclDict->SetValue(COMPOSABLE_TYPE_DECLARATION_TYPE_VAR, typeVar);
-    anonymousDeclDict->SetValue(COMPOSABLE_TYPE_TYPE_NAME_VAR, incompleteType->getName());
+    generateForwardDeclaration(incompleteType);
   }
   else if(composableType)
   {
+    generateForwardDeclaration(composableType);
     /*
      * 1. Generate the contained field's type
      */
@@ -1508,10 +1509,54 @@ void CodeGeneratorCTemplate::generateDeclarationOfUsedType(ctemplate::TemplateDi
   {
     generateDeclarationOfUsedType(p_parentDictionary, pointerType->getPointedType());
   }
+  else if(functionType)
+  {
+    generateDeclarationOfUsedType(p_parentDictionary, functionType->getReturnType()->getType());
+    for(const auto& param:functionType->getFunctionsParameters())
+    {
+      generateDeclarationOfUsedType(p_parentDictionary, param->getType());
+    }
+  }
   else
   {
     return;
   }
+}
+
+void CodeGeneratorCTemplate::generateForwardDeclaration(const TypeItf *p_type)
+{
+  if(!m_generateUsedType)
+  {
+    return;
+  }
+  if(p_type->isAnonymous())
+  {
+    return;
+  }
+  std::string typeVar;
+  {
+    const IncompleteType *incompleteType = p_type->asIncompleteType();
+    const ComposableType *composableType = p_type->asComposableType();
+    if (incompleteType)
+    {
+      typeVar = std::string{incompleteType->getComposableTypeKeyword()};
+    } else if (composableType)
+    {
+      typeVar = std::string{composableType->getComposableTypeKeyword()};
+    } else
+    {
+      return;
+    }
+  }
+  assert(m_generateMockedTypeSection);
+  ctemplate::TemplateDictionary *forwardDeclaration_section = m_generateMockedTypeSection->AddSectionDictionary(GENERATED_TYPE_FORWARD_DECLARATION_SECTION);
+  forwardDeclaration_section->SetValue(COMPOSABLE_TYPE_DECLARATION_TYPE_VAR, typeVar);
+  forwardDeclaration_section->SetValue(COMPOSABLE_TYPE_TYPE_NAME_VAR, p_type->getName());
+
+  ctemplate::TemplateDictionary *anonymousDeclDict = forwardDeclaration_section->AddIncludeDictionary(COMPOSABLE_TYPE_DECLARE_COMPOSABLE_TYPE_SECTION);
+  anonymousDeclDict->SetFilename(COMPOSABLE_TYPE_DECLARE_COMPOSABLE_TYPE_TEMPLATE_NAME);
+  anonymousDeclDict->SetValue(COMPOSABLE_TYPE_DECLARATION_TYPE_VAR, typeVar);
+  anonymousDeclDict->SetValue(COMPOSABLE_TYPE_TYPE_NAME_VAR, p_type->getName());
 }
 
 ctemplate::TemplateDictionary* CodeGeneratorCTemplate::generateDeclarationOfComposableType(ctemplate::TemplateDictionary* p_curFieldDict, const ComposableType* p_composedType, int p_nbLevelToGenerate, CodeGeneratorCTemplate::GenerateDeclarationOfComposableTypeOrigin p_origin)
@@ -1606,11 +1651,15 @@ ctemplate::TemplateDictionary* CodeGeneratorCTemplate::generateDeclarationOfComp
         fieldName.append(std::to_string(curComposableBitfield->getSize()));
       }
       curFieldValDict->SetValue(TYPE_NAME_VAR, fieldName);
-      const Pointer* fieldPtrType = dynamic_cast<const Pointer *>(fieldType);
-      if(fieldPtrType && fieldPtrType->getPointedType()->isFunctionType())
+      const Pointer* fieldPtrType = fieldType->asPointer();
+      if(fieldPtrType)
       {
-        const FunctionType *ft = dynamic_cast<const FunctionType*>(fieldPtrType->getPointedType());
-        generateExtraDecl(curFieldDict, EXTRA_DECL_SECTION, EXTRA_DECL_TEMPLATE_NAME, ft);
+        const FunctionType *ft = fieldPtrType->getMostPointedType()->asFunctionType();
+        if (ft)
+        {
+          generateDeclarationOfUsedType(m_rootDictionary, ft);
+          generateExtraDecl(curFieldDict, EXTRA_DECL_SECTION, EXTRA_DECL_TEMPLATE_NAME, ft);
+        }
       }
       generateEnum(fieldType);
     }
@@ -1812,6 +1861,8 @@ void CodeGeneratorCTemplate::generateSimpleTypeDef(const TypeItf* p_type)
   const FunctionType *functionType = rawType->asFunctionType();
   bool isRawTypeFunctionType = functionType != nullptr;
   ctemplate::TemplateDictionary *typeDefDict = m_rootDictionary->AddSectionDictionary(GENERATED_TYPE_SIMPLE_TYPEDEF_SECTION);
+  typeDefDict->SetValue(GENERATED_TYPE_SIMPLE_TYPEDEF_GUARD_NAME_NAME, typedefName);
+
   if(!isRawTypeFunctionType)
   {
     if (rawType->isAnonymous())
@@ -1822,6 +1873,7 @@ void CodeGeneratorCTemplate::generateSimpleTypeDef(const TypeItf* p_type)
   }
   else
   {
+    generateDeclarationOfUsedType(m_rootDictionary, functionType);
     localType += typedefName;
     localType += functionType->getDeclarationPostfix();
     /*

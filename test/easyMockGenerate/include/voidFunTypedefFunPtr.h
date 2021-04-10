@@ -29,6 +29,13 @@ extern "C" {
 
   int intFunStructTypeDefPtrAnonFunField(struct topAnonymousStructTypeDefPtrFunField ptrToStructAnonFunField);
 
+  struct forwardDecl;
+  typedef void(*forwardDeclParamFunPtr)(struct forwardDecl*);
+  void voidFunForwardDecl(forwardDeclParamFunPtr ptr);
+  struct forwardDecl
+  {
+    int a;
+  };
 
 #ifdef __cplusplus
 }

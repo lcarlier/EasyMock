@@ -3,6 +3,10 @@
 #include "StructType.h"
 #include "ComposableField.h"
 #include "TypedefType.h"
+#include "IncompleteType.h"
+#include "FunctionType.h"
+#include "Pointer.h"
+#include "EasyMock_CType.h"
 
 #include <FunPtrCommonHelper.h>
 
@@ -24,6 +28,15 @@ ElementToMockList VoidFunTypedefFunPtrFactory::functionFactoryArray()
 
   FunctionDeclaration *fd4 = getFunPtrDeclaration(5, "intFunStructTypeDefPtrAnonFunField", "topAnonymousStructTypeDefPtrFunField", "funPtrType");
   returnedList.push_back(fd4);
+
+  StructType* forwardDecl = new StructType {"forwardDecl", false};
+  forwardDecl->addField(new ComposableField {CTYPE_INT, "a"});
+  Pointer* pointerIncompleteStructForwardDecl = new Pointer { forwardDecl };
+  FunctionType* forwardDeclFunType = new FunctionType {VoidReturnValue(), Parameter::Vector {new Parameter {pointerIncompleteStructForwardDecl, ""}}};
+  Pointer* forwardDeclParamFunPtr = new Pointer {forwardDeclFunType};
+  TypedefType* forwardDeclParamFunPtrTypeDef = new TypedefType {"forwardDeclParamFunPtr", forwardDeclParamFunPtr};
+  FunctionDeclaration *fd5 = new FunctionDeclaration{"voidFunForwardDecl", VoidReturnValue(), Parameter::Vector{new Parameter{forwardDeclParamFunPtrTypeDef, "ptr"}}};
+  returnedList.push_back(fd5);
 
   return returnedList;
 }

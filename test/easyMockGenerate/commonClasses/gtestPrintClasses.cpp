@@ -25,12 +25,12 @@ static std::string gs_indentation;
 template <typename T>
 std::ostream& printFunction(std::ostream& os, const T& fun)
 {
-  os << std::endl << "funPrototype: " << fun.getFunctionPrototype() << ", ";
+  os << "funPrototype: " << fun.getFunctionPrototype() << ", ";
   os << "isVariadic: " << (fun.isVariadic() ? "yes" : "no") << ", ";
   os << "isInline: " << (fun.isInlined() ? "yes" : "no") << std::endl;
 
   const ReturnValue *rv = fun.getReturnType();
-  os << "Return value:";
+  os << gs_indentation << "Return value:";
   gs_indentation.push_back('\t');
   os << std::endl << gs_indentation;
   os << *rv << std::endl;
@@ -54,7 +54,10 @@ std::ostream& operator<<(std::ostream& os, const Function& fun)
 
 std::ostream& operator<<(std::ostream& os, const FunctionType& fun)
 {
-  return printFunction(os, fun);
+  gs_indentation.push_back('\t');
+  std::ostream& tos = printFunction(os, fun);
+  gs_indentation.pop_back();
+  return tos;
 }
 
 std::ostream& operator<<(std::ostream& os, const FunctionDeclaration& fun)
@@ -85,7 +88,8 @@ std::ostream& operator<<(std::ostream& os, const TypeItf& typeItf)
   os << "isImplicit:" << (typeItf.isImplicit() ? "yes" : "no") << ", ";
   os << "isEnum:" << (typeItf.isEnum() ? "yes" : "no") << ", ";
   os << "isIncomplete:" << (typeItf.isIncompleteType() ? "yes" : "no") << ", ";
-  os << "isConst:" << (isConst ? "yes" : "no");
+  os << "isConst:" << (isConst ? "yes" : "no") << ", ";
+  os << "isFunctionType:" << (typeItf.isFunctionType() ? "yes" : "no");
   os << std::endl << gs_indentation;
 
   if(typeItf.isCType())
@@ -119,6 +123,10 @@ std::ostream& operator<<(std::ostream& os, const TypeItf& typeItf)
   else if(typeItf.isTypedDef())
   {
     os << static_cast<const TypedefType &>(typeItf);
+  }
+  else if(typeItf.isFunctionType())
+  {
+    os << static_cast<const FunctionType &>(typeItf);
   }
   else
   {
@@ -285,6 +293,8 @@ std::ostream& operator<<(std::ostream& os, const ConstQualifiedType& constQualif
 std::ostream& operator<<(std::ostream& os, const TypedefType& p_typedefType)
 {
   os << "TypedefType " << p_typedefType.getName() << std::endl;
-  os << *p_typedefType.getTypee() << std::endl;
+  gs_indentation.push_back('\t');
+  os << gs_indentation << *p_typedefType.getTypee() << std::endl;
+  gs_indentation.pop_back();
   return os;
 }
