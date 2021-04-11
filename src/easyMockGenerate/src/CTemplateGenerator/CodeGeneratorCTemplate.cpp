@@ -1893,6 +1893,10 @@ void CodeGeneratorCTemplate::generateEnum(const TypeItf* p_type)
   {
     return;
   }
+  if(enumType->getValues().empty())
+  {
+    return;
+  }
 
   /*
    * First generate the typedef if any. It is very important to do so because
