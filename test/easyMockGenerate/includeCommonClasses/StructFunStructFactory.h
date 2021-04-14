@@ -6,7 +6,7 @@
 #include <structFunStruct.h>
 #include <iostream>
 
-class StructFunStructFactory : public FunctionFactory<s1, std::tuple<s2>, std::tuple<EasyMock_Matcher>>
+class StructFunStructFactory : public FunctionFactory<s1, std::tuple<struct s2, struct onelineStruct>, std::tuple<EasyMock_Matcher, EasyMock_Matcher>>
 {
 public:
   FunctionDeclaration functionFactory() override;

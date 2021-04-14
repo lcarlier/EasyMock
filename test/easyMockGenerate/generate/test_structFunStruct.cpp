@@ -14,7 +14,7 @@
 #include <StructFunStructFactory.h>
 
 typedef struct s1 (*structFunStruct_funPtr)(struct s2);
-typedef void (*structFunStruct_funExpectPtr)(struct s2 a, struct s1 rv, EasyMock_Matcher match_a);
+typedef void (*structFunStruct_funExpectPtr)(struct s2 a, struct onelineStruct b, struct s1 rv, EasyMock_Matcher match_a, EasyMock_Matcher match_b);
 typedef int (*structFunStruct_funMatcherPtr)(EASYMOCK_MATCHER_PARAM);
 
 class structFunStruct_testCase : public easyMockGenerate_baseTestCase
@@ -53,7 +53,9 @@ TEST_F(structFunStruct_testCase, OneExpect)
   returnValue.a = 5;
   returnValue.b = 2.5;
 
-  fptr_expect(aToExpect, returnValue, fptr_matcher);
+  struct onelineStruct onelineStruct = {0};
+
+  fptr_expect(aToExpect, onelineStruct, returnValue, fptr_matcher, nullptr);
   struct s1 rv = fptr(aToExpect);
 
   EXPECT_EQ(rv.a, returnValue.a);
@@ -93,7 +95,9 @@ TEST_F(structFunStruct_testCase, OneExpectFirstElemtOfStructWrong)
   returnValue.a = 5;
   returnValue.b = 2.5;
 
-  fptr_expect(aToExpect, returnValue, fptr_matcher);
+  struct onelineStruct onelineStruct = {0};
+
+  fptr_expect(aToExpect, onelineStruct, returnValue, fptr_matcher, nullptr);
   struct s1 rv = fptr(aWrongParam);
 
   EXPECT_EQ(rv.a, returnValue.a);
@@ -101,7 +105,7 @@ TEST_F(structFunStruct_testCase, OneExpectFirstElemtOfStructWrong)
   int check = easyMock_check();
   EXPECT_EQ(check, 0);
 
-  std::string ERROR_EXPECT = "Error : at call 1 of 'struct s1 structFunStruct(struct s2 s)': Parameter 's' which is a struct of type 's2' has field 'c' with value '8', was expecting '9'";
+  std::string ERROR_EXPECT = "Error : at call 1 of 'struct s1 structFunStruct(struct s2 s, struct onelineStruct s2)': Parameter 's' which is a struct of type 's2' has field 'c' with value '8', was expecting '9'";
 #if defined(BACKTRACE_SUPPORT)
   ERROR_EXPECT.append("\n\r\tat ");
 #endif
@@ -147,7 +151,9 @@ TEST_F(structFunStruct_testCase, OneExpectSecondElemtOfStructWrong)
   returnValue.a = 5;
   returnValue.b = 2.5;
 
-  fptr_expect(aToExpect, returnValue, fptr_matcher);
+  struct onelineStruct onelineStruct = {0};
+
+  fptr_expect(aToExpect, onelineStruct, returnValue, fptr_matcher, nullptr);
   struct s1 rv = fptr(aWrongParam);
 
   EXPECT_EQ(rv.a, returnValue.a);
@@ -155,12 +161,12 @@ TEST_F(structFunStruct_testCase, OneExpectSecondElemtOfStructWrong)
   int check = easyMock_check();
   EXPECT_EQ(check, 0);
 
-  //#define ERROR_EXPECT "Error : at call 1 of 'struct s1 structFunStruct(struct s2 s)': Parameter 's' which is a struct of type 's2' has field 'd' with value '3.500000', was expecting '4.500000'\n\r\tat "
+  //#define ERROR_EXPECT "Error : at call 1 of 'struct s1 structFunStruct(struct s2 s, struct onelineStruct s2)': Parameter 's' which is a struct of type 's2' has field 'd' with value '3.500000', was expecting '4.500000'\n\r\tat "
   std::stringstream ssToExpect;
   ssToExpect << static_cast<void *>(&fToExpect);
   std::stringstream ssToExpectWrongParam;
   ssToExpectWrongParam << static_cast<void *>(&fToExpectWrongParam);
-  std::string errorToExpect("Error : at call 1 of 'struct s1 structFunStruct(struct s2 s)': Parameter 's' which is a struct of type 's2' has field 'd' with value '");
+  std::string errorToExpect("Error : at call 1 of 'struct s1 structFunStruct(struct s2 s, struct onelineStruct s2)': Parameter 's' which is a struct of type 's2' has field 'd' with value '");
   errorToExpect.append(ssToExpectWrongParam.str());
   errorToExpect.append("', was expecting '");
   errorToExpect.append(ssToExpect.str());
@@ -210,7 +216,9 @@ TEST_F(structFunStruct_testCase, OneExpectSubStructWrong)
   returnValue.a = 5;
   returnValue.b = 2.5;
 
-  fptr_expect(aToExpect, returnValue, fptr_matcher);
+  struct onelineStruct onelineStruct = {0};
+
+  fptr_expect(aToExpect, onelineStruct, returnValue, fptr_matcher, nullptr);
   struct s1 rv = fptr(aWrongParam);
 
   EXPECT_EQ(rv.a, returnValue.a);
@@ -218,7 +226,7 @@ TEST_F(structFunStruct_testCase, OneExpectSubStructWrong)
   int check = easyMock_check();
   EXPECT_EQ(check, 0);
 
-  std::string ERROR_EXPECT = "Error : at call 1 of 'struct s1 structFunStruct(struct s2 s)': Parameter 's.s' which is a struct of type 's1' has field 'b' with value '2.500000', was expecting '3.500000'";
+  std::string ERROR_EXPECT = "Error : at call 1 of 'struct s1 structFunStruct(struct s2 s, struct onelineStruct s2)': Parameter 's.s' which is a struct of type 's1' has field 'b' with value '2.500000', was expecting '3.500000'";
 #if defined(BACKTRACE_SUPPORT)
   ERROR_EXPECT.append("\n\r\tat ");
 #endif
@@ -268,8 +276,10 @@ TEST_F(structFunStruct_testCase, TwoExpectSecondCallArgBad)
   rvToExpect.a = 42;
   rvToExpect.b = 6.5;
 
-  fptr_expect(aOneToExpect, rvToExpect, fptr_matcher);
-  fptr_expect(aTwoToExpect, rvToExpect, fptr_matcher);
+  struct onelineStruct onelineStruct = {0};
+
+  fptr_expect(aOneToExpect, onelineStruct, rvToExpect, fptr_matcher, nullptr);
+  fptr_expect(aTwoToExpect,onelineStruct, rvToExpect, fptr_matcher, nullptr);
 
   struct s1 rv = fptr(aOneToExpect);
   EXPECT_EQ(rv.a, rvToExpect.a);
@@ -281,7 +291,7 @@ TEST_F(structFunStruct_testCase, TwoExpectSecondCallArgBad)
   int check = easyMock_check();
   EXPECT_EQ(check, 0);
 
-  std::string ERROR_EXPECT = "Error : at call 2 of 'struct s1 structFunStruct(struct s2 s)': Parameter 's' which is a struct of type 's2' has field 'c' with value '8', was expecting '10'";
+  std::string ERROR_EXPECT = "Error : at call 2 of 'struct s1 structFunStruct(struct s2 s, struct onelineStruct s2)': Parameter 's' which is a struct of type 's2' has field 'c' with value '8', was expecting '10'";
 #if defined(BACKTRACE_SUPPORT)
   ERROR_EXPECT.append("\n\r\tat ");
 #endif    

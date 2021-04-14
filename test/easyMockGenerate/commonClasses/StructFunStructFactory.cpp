@@ -5,6 +5,9 @@
 #include "EasyMockGenerateTypes.h"
 #include <StructType.h>
 #include <EasyMockStructHelper.h>
+#include <ComposableField.h>
+#include <EasyMock_CType.h>
+#include <Pointer.h>
 
 float fToExpect[] = {4.5, 5.5, 6.5};
 
@@ -33,7 +36,24 @@ static ReturnValue structFunStructReturnValue()
 
 FunctionDeclaration StructFunStructFactory::functionFactory()
 {
-  FunctionDeclaration f(functionGetFunctionName(), structFunStructReturnValue(), structS2Parameter());
+  Parameter::Vector funParam = structS2Parameter();
+
+  StructType* structOnelineStruct = new StructType { "onelineStruct", false };
+  structOnelineStruct->addField(new ComposableField{CTYPE_UINT, "a"});
+  structOnelineStruct->addField(new ComposableField{CTYPE_UINT, "b"});
+  structOnelineStruct->addField(new ComposableField{CTYPE_UINT, "c"});
+  structOnelineStruct->addField(new ComposableField{ new Pointer { new CType {CTYPE_UINT}}, "pa"});
+  structOnelineStruct->addField(new ComposableField{ new Pointer { new CType {CTYPE_UINT}}, "pb"});
+  structOnelineStruct->addField(new ComposableField{ new Pointer { new CType {CTYPE_UINT}}, "pc"});
+  /*
+   * This UT want's to make sure we are processing the space correctly so set the declare string
+   */
+  structOnelineStruct->getContainedFields()[3].setDeclareString("unsigned int *");
+  structOnelineStruct->getContainedFields()[4].setDeclareString("unsigned int *");
+  structOnelineStruct->getContainedFields()[5].setDeclareString("unsigned int *");
+  funParam.push_back(new Parameter{structOnelineStruct, "s2"});
+
+  FunctionDeclaration f(functionGetFunctionName(), structFunStructReturnValue(), funParam);
   return f;
 }
 
@@ -54,30 +74,31 @@ std::string StructFunStructFactory::getFilename()
 
 void StructFunStructFactory::setupTestCase(EasyMockTestCase::TestCase tc)
 {
+  struct onelineStruct onelineStruct{6, 7, 8};
   switch(tc)
   {
     case EasyMockTestCase::OneExpect:
       m_rvContext.m_rv.push_back(returnValues[0]);
-      m_expects.push_back(std::make_tuple(toExpect[0]));
-      m_params.push_back(std::make_tuple(toExpect[0]));
-      m_compare.push_back(std::make_tuple(nullptr)); //Seperate dedicated UT are writen to test the generation and function of the comparators for structs
+      m_expects.push_back(std::make_tuple(toExpect[0], onelineStruct));
+      m_params.push_back(std::make_tuple(toExpect[0], onelineStruct));
+      m_compare.push_back(std::make_tuple(nullptr, nullptr)); //Seperate dedicated UT are writen to test the generation and function of the comparators for structs
       break;
     case EasyMockTestCase::ThreeExpects:
       for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::ThreeExpects_NbExpects; expectIdx++)
       {
         m_rvContext.m_rv.push_back(returnValues[expectIdx]);
-        m_expects.push_back(std::make_tuple(toExpect[expectIdx]));
-        m_params.push_back(std::make_tuple(toExpect[expectIdx]));
-        m_compare.push_back(std::make_tuple(nullptr)); //Seperate dedicated UT are writen to test the generation and function of the comparators for structs
+        m_expects.push_back(std::make_tuple(toExpect[expectIdx], onelineStruct));
+        m_params.push_back(std::make_tuple(toExpect[expectIdx], onelineStruct));
+        m_compare.push_back(std::make_tuple(nullptr, nullptr)); //Seperate dedicated UT are writen to test the generation and function of the comparators for structs
       }
       break;
     case EasyMockTestCase::NotEnoughCall:
       for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::NotEnoughCall_NbExpects; expectIdx++)
       {
         m_rvContext.m_rv.push_back(returnValues[expectIdx]);
-        m_expects.push_back(std::make_tuple(toExpect[expectIdx]));
-        m_params.push_back(std::make_tuple(toExpect[expectIdx]));
-        m_compare.push_back(std::make_tuple(nullptr)); //Seperate dedicated UT are writen to test the generation and function of the comparators for structs
+        m_expects.push_back(std::make_tuple(toExpect[expectIdx], onelineStruct));
+        m_params.push_back(std::make_tuple(toExpect[expectIdx], onelineStruct));
+        m_compare.push_back(std::make_tuple(nullptr, nullptr)); //Seperate dedicated UT are writen to test the generation and function of the comparators for structs
       }
       break;
     case EasyMockTestCase::OneExpectArgIsBad: //Not tested in a generic way

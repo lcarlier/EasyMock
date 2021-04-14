@@ -8,7 +8,13 @@ extern "C"
 
 #include "structCommonDeclaration.h"
 
-  struct s1 structFunStruct(struct s2 s);
+  struct onelineStruct
+  {
+    unsigned int a , b , c;
+    unsigned int *pa , *pb , *pc;
+  };
+
+  struct s1 structFunStruct(struct s2 s, struct onelineStruct s2);
 
 
 #ifdef __cplusplus

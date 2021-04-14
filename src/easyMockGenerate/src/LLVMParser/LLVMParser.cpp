@@ -31,6 +31,22 @@
 #include <string>
 #include <sstream>
 
+namespace
+{
+void removeTrailingSpace(std::string& declareString)
+{
+  while(!declareString.empty() &&
+        (declareString.back() == ' ' ||
+         declareString.back() == '\n' ||
+         declareString.back() == '\t' ||
+         declareString.back() == '\r')
+      )
+  {
+    declareString.pop_back();
+  }
+}
+}
+
 /*!
  * \brief An implementation of a LLVM clang::RecursiveASTVisitor<FunctionDeclASTVisitor>
  */
@@ -100,7 +116,7 @@ private:
 
     TypeItf *type = getEasyMocktype(rvQualType, structKnownType, false);
     ReturnValue rv(type);
-    std::string declString = getDeclareString(func->getBeginLoc(), func->getEndLoc());
+    std::string declString = getDeclareString(func->getBeginLoc(), func->getEndLoc(), false);
     size_t funNamePos = declString.find(funName);
     if(funNamePos != std::string::npos)
     {
@@ -122,7 +138,7 @@ private:
   {
     Parameter::Vector vectParam;
     unsigned nbParam = func->getNumParams();
-    std::string funcDecl = getDeclareString(func->getBeginLoc(), func->getEndLoc());
+    std::string funcDecl = getDeclareString(func->getBeginLoc(), func->getEndLoc(), false);
 
     for(unsigned paramIdx = 0; paramIdx < nbParam; paramIdx++)
     {
@@ -135,7 +151,7 @@ private:
 
       Parameter *p = new Parameter(type, paramName);
       type = nullptr; //We lost the ownership
-      setDeclaratorDeclareString(paramQualType, p, getDeclareString(param->getBeginLoc(), param->getEndLoc()));
+      setDeclaratorDeclareString(paramQualType, p, getDeclareString(param->getBeginLoc(), param->getEndLoc(), false));
       vectParam.push_back(p);
       p = nullptr; //We lost the ownership
     }
@@ -143,7 +159,7 @@ private:
     return vectParam;
   }
 
-  std::string getDeclareString(const clang::SourceLocation& startLoc, const clang::SourceLocation& endLoc)
+  std::string getDeclareString(const clang::SourceLocation& startLoc, const clang::SourceLocation& endLoc, bool fieldDecl)
   {
     clang::CharSourceRange sourceRange = clang::Lexer::getAsCharRange(startLoc, *m_SM, *m_LO);
     sourceRange.setEnd(endLoc);
@@ -159,6 +175,15 @@ private:
     }
     else
     {
+      if(fieldDecl)
+      {
+        size_t commaPos = declareString.find_first_of(',', 0);
+        if (commaPos != std::string::npos)
+        {
+          declareString.erase(declareString.begin() + commaPos, declareString.end());
+          removeTrailingSpace(declareString);
+        }
+      }
       while(!declareString.empty() && declareString.back() != ' ' &&
               declareString.back() != '*' &&
               declareString.back() != ')')
@@ -166,15 +191,7 @@ private:
         declareString.pop_back();
       }
     }
-    while(!declareString.empty() &&
-            (declareString.back() == ' '  ||
-           declareString.back() == '\n' ||
-           declareString.back() == '\t' ||
-           declareString.back() == '\r')
-            )
-    {
-      declareString.pop_back();
-    }
+    removeTrailingSpace(declareString);
 
     return declareString;
   }
@@ -483,7 +500,7 @@ private:
          .arraySize            = arraySize
         };
         sf = new ComposableField(fieldType, fName, attrib);
-        setDeclaratorDeclareString(qualType, sf, getDeclareString(FD->getBeginLoc(), FD->getEndLoc()));
+        setDeclaratorDeclareString(qualType, sf, getDeclareString(FD->getBeginLoc(), FD->getEndLoc(), true));
       }
       sType->addField(sf);
     }
