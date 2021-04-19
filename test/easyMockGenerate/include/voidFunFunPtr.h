@@ -40,15 +40,11 @@ extern "C" {
 
   int intFunStructPtrAnonFunField(struct topAnonymousStructPtrFunField ptrToStructAnonFunField);
 
-  /*
-   * TO BE ENABLED WHEN SUPPORT OF CONST POINTER IS ADDED
-   */
-#if 0
+
   /*
    * cdecl> declare constFunPtrFunInt as function(int) returning const pointer to function(float) returning int
    */
-  int (* const constFunPtrFunInt(int ))(float );
-#endif
+  int (* const constFunPtrFunInt(int ))(int, float );
 
 #ifdef __cplusplus
 }

@@ -12,12 +12,8 @@ ElementToMockList VoidFunFunPtrFactory::functionFactoryArray()
   returnedList.push_back(getFunPtrDeclaration(3, "ptrFunToFunFunInt"));
   returnedList.push_back(getFunPtrDeclaration(4, "intFunStructPtrFunField", "ptrFunField"));
   returnedList.push_back(getFunPtrDeclaration(5, "intFunStructPtrAnonFunField", "topAnonymousStructPtrFunField"));
-  /*
-   * TO BE ENABLED WHEN SUPPORT OF CONST POINTER IS ADDED
-   */
-#if 0
   returnedList.push_back(getFunPtrDeclaration(6, "constFunPtrFunInt"));
-#endif
+
   return returnedList;
 }
 

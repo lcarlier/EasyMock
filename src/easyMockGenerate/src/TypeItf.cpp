@@ -236,16 +236,16 @@ ComposableType* TypeItf::asComposableType()
 
 bool TypeItf::isPointer() const
 {
-  return !m_isIncompleteType && m_isPointer;
+  return !m_isIncompleteType && unqualify()->m_isPointer;
 }
 
 const Pointer* TypeItf::asPointer() const
 {
-  if(!m_isPointer)
+  if(!isPointer())
   {
     return nullptr;
   }
-  return static_cast<const Pointer*>(this);
+  return static_cast<const Pointer*>(unqualify());
 }
 
 Pointer* TypeItf::asPointer()

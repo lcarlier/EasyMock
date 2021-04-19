@@ -99,9 +99,10 @@ std::string Pointer::getDeclarationPrefix(bool p_naked) const
 
 TypeItf* Pointer::getMostPointedType() const
 {
-  if(m_pointedType->isPointer())
+  const Pointer* ptrType = m_pointedType->asPointer();
+  if(ptrType)
   {
-    return dynamic_cast<const Pointer*>(m_pointedType)->getMostPointedType();
+    return ptrType->getMostPointedType();
   }
   return m_pointedType;
 }

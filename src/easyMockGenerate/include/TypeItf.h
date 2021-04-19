@@ -316,7 +316,15 @@ public:
    * \brief Returns if the type is a Pointer.
    *
    * When this function return true, a pointer or reference holding this type
-   * can be safely downcasted to a ::Pointer instance.
+   * can be safely downcasted to a ::Pointer instance using ::TypeItf::asPointer only.
+   *
+   * \warning When having a const pointer, all of the following functions
+   * - ::TypeItf::isConst
+   * - ::TypeItf::isQualified
+   * - ::TypeItf::isPointer
+   *
+   * \warning return true at the same time. This is because this function unqualify the type under the hood to verify
+   * if it is a pointer or not.
    *
    * Use the function ::Pointer::getPointedType() to know the type on which
    * the pointer points
@@ -328,6 +336,8 @@ public:
 
   /*!
    * \brief Cast a ::TypeItf pointer to a ::Pointer pointer.
+   *
+   * \warning This function unqualifies the pointer under the hood.
    *
    * \return If this is a pointer to ::Pointer, returns the casted pointed
    * \return Else returns nullptr

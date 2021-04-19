@@ -997,15 +997,11 @@ void CodeGeneratorCTemplate::generateFunctionSection(const FunctionDeclaration *
    */
   registerTypeDef(rvType);
   generateDeclarationOfUsedType(m_rootDictionary, rvType);
-  if(!rvType->isPointer())
+  const Pointer *returnValuePointer = rvType->asPointer();
+  functionSectionDict->SetValue(FUNCTION_NON_QUALIFIED_RETURN_VALUE, nonQualRetTypeStr);
+  if(returnValuePointer)
   {
-    functionSectionDict->SetValue(FUNCTION_NON_QUALIFIED_RETURN_VALUE, nonQualRetTypeStr);
-  }
-  else
-  {
-    functionSectionDict->SetValue(FUNCTION_NON_QUALIFIED_RETURN_VALUE, returnTypeStr);
-    const Pointer *returnValuePointer = rvType->asPointer();
-    const TypeItf *returnValuePointerPointedType = returnValuePointer->getMostPointedType();
+    const TypeItf *returnValuePointerPointedType = returnValuePointer->getRawType();
     const FunctionType *functionType = returnValuePointerPointedType->asFunctionType();
     if(functionType)
     {
@@ -1018,21 +1014,17 @@ void CodeGeneratorCTemplate::generateFunctionSection(const FunctionDeclaration *
   if (!isRvVoid)
   {
     ctemplate::TemplateDictionary *returnValParamDict = functionSectionDict->AddSectionDictionary(FUNCTION_RETURN_VALUE_PARAM_SECTION);
-    if(!rvType->isPointer())
+    returnValParamDict->SetValue(FUNCTION_NON_QUALIFIED_RETURN_VALUE, nonQualRetTypeStr);
+    if(returnValuePointer)
     {
-      returnValParamDict->SetValue(FUNCTION_NON_QUALIFIED_RETURN_VALUE, nonQualRetTypeStr);
-    }
-    else
-    {
-      const Pointer *returnValuePointer = rvType->asPointer();
-      const TypeItf *returnValuePointerPointedType = returnValuePointer->getMostPointedType();
+      const TypeItf *returnValuePointerPointedType = returnValuePointer->getRawType();
       const FunctionType *functionType = returnValuePointerPointedType->asFunctionType();
       if(functionType)
       {
         generateDeclarationOfUsedType(m_rootDictionary, functionType);
         generateExtraDecl(returnValParamDict, EXTRA_DECL_SECTION, EXTRA_DECL_TEMPLATE_NAME, functionType);
       }
-      returnValParamDict->SetValue(FUNCTION_NON_QUALIFIED_RETURN_VALUE, returnTypeStr);
+      returnValParamDict->SetValue(FUNCTION_NON_QUALIFIED_RETURN_VALUE, nonQualRetTypeStr);
     }
   }
   const Parameter::Vector& funParams = p_elemToMock->getFunctionsParameters();
@@ -1061,10 +1053,10 @@ void CodeGeneratorCTemplate::generateExtraDecl(ctemplate::TemplateDictionary *di
 
   const ReturnValue *rv = functionType->getReturnType();
   const TypeItf *returnValueType = rv->getType();
-  if(returnValueType->isPointer())
+  const Pointer *returnValueTypePointer = returnValueType->asPointer();
+  if(returnValueTypePointer)
   {
-    const Pointer *returnValueTypePointer = dynamic_cast<const Pointer*>(returnValueType);
-    const TypeItf *returnValuePointedType = returnValueTypePointer->getPointedType();
+    const TypeItf *returnValuePointedType = returnValueTypePointer->getRawType();
     const FunctionType *recursiveFunctionType = returnValuePointedType->asFunctionType();
     if(recursiveFunctionType)
     {
@@ -1109,7 +1101,7 @@ void CodeGeneratorCTemplate::generateFunctionParamSection(ctemplate::TemplateDic
     else
     {
       newTypedefParamSection->SetValue(FUNCTION_PARAM_NON_QUALIFIED_TYPE, argType);
-      const TypeItf *paramPtrPointedType = paramPtrType->getMostPointedType();
+      const TypeItf *paramPtrPointedType = paramPtrType->getRawType();
       const FunctionType *ft = paramPtrPointedType->asFunctionType();
       if(ft)
       {
@@ -1654,7 +1646,7 @@ ctemplate::TemplateDictionary* CodeGeneratorCTemplate::generateDeclarationOfComp
       const Pointer* fieldPtrType = fieldType->asPointer();
       if(fieldPtrType)
       {
-        const FunctionType *ft = fieldPtrType->getMostPointedType()->asFunctionType();
+        const FunctionType *ft = fieldPtrType->getRawType()->asFunctionType();
         if (ft)
         {
           generateDeclarationOfUsedType(m_rootDictionary, ft);
@@ -1830,9 +1822,10 @@ bool CodeGeneratorCTemplate::isTypeGenerated(const TypeItf* p_type, bool p_inser
 
 const TypeItf* CodeGeneratorCTemplate::getMostPointedType(const TypeItf* p_type)
 {
-  if(p_type->isPointer())
+  const Pointer* ptrType = p_type->asPointer();
+  if(ptrType)
   {
-    return getMostPointedType(dynamic_cast<const Pointer*>(p_type)->getPointedType());
+    return ptrType->getMostPointedType();
   }
   return p_type;
 }
@@ -1857,7 +1850,7 @@ void CodeGeneratorCTemplate::generateSimpleTypeDef(const TypeItf* p_type)
    * typedef (p_naked == true).
    */
   std::string localType { typeeType->getFullDeclarationName(true) };
-  const TypeItf *rawType = getRawType(typeeType);
+  const TypeItf *rawType = typeeType->getRawType();
   const FunctionType *functionType = rawType->asFunctionType();
   bool isRawTypeFunctionType = functionType != nullptr;
   ctemplate::TemplateDictionary *typeDefDict = m_rootDictionary->AddSectionDictionary(GENERATED_TYPE_SIMPLE_TYPEDEF_SECTION);

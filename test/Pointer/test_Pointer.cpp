@@ -62,3 +62,15 @@ TEST(Pointer, constVoidPointer)
   Pointer pointer{new ConstQualifiedType(new CType(CTYPE_VOID)) };
   ASSERT_STREQ(pointer.getFullDeclarationName().c_str(), "void const*");
 }
+
+TEST(Pointer, constPtr_isPointer)
+{
+  ConstQualifiedType cqt{new Pointer(new CType(CTYPE_VOID)) };
+  ASSERT_TRUE(cqt.isPointer());
+}
+
+TEST(Pointer, constPtr_asPointer)
+{
+  ConstQualifiedType cqt{new Pointer(new CType(CTYPE_VOID)) };
+  ASSERT_TRUE(cqt.asPointer());
+}

@@ -7,6 +7,7 @@
 #include <StructType.h>
 #include <ComposableField.h>
 #include <TypedefType.h>
+#include <ConstQualifiedType.h>
 
 #include <assert.h>
 
@@ -112,6 +113,17 @@ FunctionDeclaration* getFunPtrDeclaration(unsigned int n, const char *functionNa
       beingDefined->addField(new ComposableField(fieldType, "funPtr"));
       top->addField(new ComposableField(beingDefined, ""));
       FunctionDeclaration *fd = new FunctionDeclaration(functionName, TypedReturnValue(CTYPE_INT), Parameter::Vector({new Parameter(top, "ptrToStructAnonFunField")}));
+
+      return fd;
+    }
+    case 6:
+    /*
+    * cdecl> declare constFunPtrFunInt as function(int) returning const pointer to function(float) returning int
+    */
+    {
+      ConstQualifiedType* constQualifiedFunPtrTypeType = new ConstQualifiedType { ptrToFun.clone() };
+      ReturnValue rv { constQualifiedFunPtrTypeType };
+      FunctionDeclaration *fd = new FunctionDeclaration{ functionName, rv, Parameter::Vector({new Parameter{new CType {CTYPE_INT}, ""}})};
 
       return fd;
     }
