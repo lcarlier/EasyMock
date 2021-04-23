@@ -35,11 +35,11 @@ namespace
 {
 void removeTrailingSpace(std::string& declareString)
 {
+  std::replace(declareString.begin(), declareString.end(),'\t',' ');
+  std::replace(declareString.begin(), declareString.end(),'\r',' ');
+  std::replace(declareString.begin(), declareString.end(),'\n',' ');
   while(!declareString.empty() &&
-        (declareString.back() == ' ' ||
-         declareString.back() == '\n' ||
-         declareString.back() == '\t' ||
-         declareString.back() == '\r')
+        declareString.back() == ' '
       )
   {
     declareString.pop_back();
@@ -189,7 +189,11 @@ private:
         trimToFirstInstanceOf(',');
         trimToFirstInstanceOf('[');
       }
-      while(!declareString.empty() && declareString.back() != ' ' &&
+      while(!declareString.empty() &&
+              declareString.back() != ' ' &&
+              declareString.back() != '\n' &&
+              declareString.back() != '\r' &&
+              declareString.back() != '\t' &&
               declareString.back() != '*' &&
               declareString.back() != ')')
       {

@@ -116,6 +116,7 @@ add_library(${TEST_FACTORIES_COMMON_OBJ}
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/VoidFunStructWithConstMemberFactory.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/VoidFunStructWithSecondLevelAnonymousFactory.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/ConstVoidPtrFunConstVoidPtrFactory.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/VoidFunMultilineFactory.cpp
 )
 
 set(EASYMOCK_TEST_LIBRARY easyMockTestLibrary)

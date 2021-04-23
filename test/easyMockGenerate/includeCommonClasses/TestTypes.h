@@ -64,6 +64,7 @@
 #include <VoidFunStructWithConstMemberFactory.h>
 #include <VoidFunStructWithSecondLevelAnonymousFactory.h>
 #include <ConstVoidPtrFunConstVoidPtrFactory.h>
+#include <VoidFunMultilineFactory.h>
 
 // TestTypesInclude.h is generated
 #include "TestTypesInclude.h"
@@ -180,7 +181,9 @@
         VoidFunStructWithArrayFactory, \
         VoidFunStructWithArrayGenerateTypeFactory, \
         ConstVoidPtrFunConstVoidPtrFactory, \
-        ConstVoidPtrFunConstVoidPtrGenerateTypeFactory
+        ConstVoidPtrFunConstVoidPtrGenerateTypeFactory, \
+        VoidFunMultilineFactory,    \
+        VoidFunMultilineGenerateTypeFactory
 
 typedef ::testing::Types
 <
