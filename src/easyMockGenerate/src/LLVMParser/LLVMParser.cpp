@@ -177,12 +177,17 @@ private:
     {
       if(fieldDecl)
       {
-        size_t commaPos = declareString.find_first_of(',', 0);
-        if (commaPos != std::string::npos)
+        auto trimToFirstInstanceOf = [&declareString](char charToTest)
         {
-          declareString.erase(declareString.begin() + commaPos, declareString.end());
-          removeTrailingSpace(declareString);
-        }
+          size_t commaPos = declareString.find_first_of(charToTest, 0);
+          if (commaPos != std::string::npos)
+          {
+            declareString.erase(declareString.begin() + commaPos, declareString.end());
+            removeTrailingSpace(declareString);
+          }
+        };
+        trimToFirstInstanceOf(',');
+        trimToFirstInstanceOf('[');
       }
       while(!declareString.empty() && declareString.back() != ' ' &&
               declareString.back() != '*' &&
@@ -495,11 +500,7 @@ private:
         {
             arraySize = -1;
         }
-        ComposableField::attributes attrib =
-        {
-         .arraySize            = arraySize
-        };
-        sf = new ComposableField(fieldType, fName, attrib);
+        sf = new ComposableField(fieldType, fName, { .arraySize = arraySize });
         setDeclaratorDeclareString(qualType, sf, getDeclareString(FD->getBeginLoc(), FD->getEndLoc(), true));
       }
       sType->addField(sf);

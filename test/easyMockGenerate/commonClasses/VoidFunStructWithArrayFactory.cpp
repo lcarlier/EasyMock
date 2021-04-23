@@ -9,15 +9,14 @@ FunctionDeclaration VoidFunStructWithArrayFactory::functionFactory()
 {
   bool isEmbeddedInOtherType = false;
   StructType *st = new StructType("structWithArray", isEmbeddedInOtherType);
-  ComposableField::attributes composableFieldAttrib(
-  {
-    .arraySize = 10
-  });
-  st->addField(new ComposableField(new CType(CTYPE_INT), "a", composableFieldAttrib));
+  st->addField(new ComposableField(new CType(CTYPE_INT), "a", { .arraySize = 10 }));
+  st->addField(new ComposableField(new CType(CTYPE_INT), "c", { .arraySize = 4 }));
+  st->addField(new ComposableField(new CType(CTYPE_INT), "d", { .arraySize = 4 }));
+  st->addField(new ComposableField(new CType(CTYPE_INT), "e", { .arraySize = 4 }));
+  st->addField(new ComposableField(new CType(CTYPE_INT), "g", { .arraySize = 4 }));
   st->addField(new ComposableField(CTYPE_FLOAT, "f"));
 
-  composableFieldAttrib.arraySize = 0;
-  st->addField(new ComposableField(new CType(CTYPE_INT), "b", composableFieldAttrib));
+  st->addField(new ComposableField(new CType(CTYPE_INT), "b", { .arraySize = 0}));
   Parameter::Vector p({new Parameter(st, "param")});
   FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), p);
   return f;
