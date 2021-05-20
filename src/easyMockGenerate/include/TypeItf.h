@@ -229,7 +229,7 @@ public:
   /*!
    * \brief Returns if the type is anonymous.
    *
-   * An anonymous type is a type which doesn't have a name or any alias name
+   * An anonymous type is a type which doesn't have a name or any typedef name
    *
    * e.g. in the following code
    * \code{.c}
@@ -541,8 +541,8 @@ public:
   bool prefix ## isImplicit; \
   bool prefix ## isIncompleteType; \
   bool prefix ## isTypedefType; \
-  bool prefix ## isQualifiedType;
-
+  bool prefix ## isQualifiedType; \
+  std::string prefix ## typedefName;
 protected:
   TypeItf();
   explicit TypeItf(const std::string p_name);
@@ -655,6 +655,8 @@ protected:
   virtual bool isEqual(const TypeItf &p_other) const;
 
 private:
+
+  friend class TypedefType;
 
   typedef struct
   {

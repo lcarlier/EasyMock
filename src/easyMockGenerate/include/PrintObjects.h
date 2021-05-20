@@ -1,5 +1,5 @@
-#ifndef GTESTPRINTCLASSES_H
-#define GTESTPRINTCLASSES_H
+#ifndef EASYMOCKPRINTOBJECTS_H
+#define EASYMOCKPRINTOBJECTS_H
 
 #include <ostream>
 class Function;
@@ -42,5 +42,5 @@ void PrintTo(const __int128& bar, std::ostream* os);
 std::ostream& operator<<(std::ostream& os, const unsigned __int128& uint128Type);
 void PrintTo(const unsigned __int128& bar, std::ostream* os);
 
-#endif /* GTESTPRINTCLASSES_H */
+#endif /* EASYMOCKPRINTOBJECTS_H */
 

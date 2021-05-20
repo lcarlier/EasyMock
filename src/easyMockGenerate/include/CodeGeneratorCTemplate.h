@@ -79,7 +79,7 @@ private:
   void generateBodyStructCompare(ctemplate::TemplateDictionary *p_compareFunDict, const char* p_sectionToAdd, const ComposableType *p_structType, const ComposableFieldItf *p_curField, const ComposableFieldItf *p_previousField, std::string p_uniquePrepend, std::string p_declPrepend);
   void generateComposedTypedCompareSection(const ComposableType *p_composedType, std::string p_uniquePrepend, std::string p_declPrepend);
   ctemplate::TemplateDictionary* generateDeclarationOfComposableType(ctemplate::TemplateDictionary *compareDir, const ComposableType *p_composedType, int p_level, GenerateDeclarationOfComposableTypeOrigin p_origin);
-  void generateDeclarationOfUsedType(ctemplate::TemplateDictionary* p_parentDict, const TypeItf* p_type);
+  void generateDeclarationOfUsedType(ctemplate::TemplateDictionary* p_parentDict, const TypeItf* p_type, bool p_generateIncomplete);
   bool generateCodeToFile(const std::string &outDir, const std::string &filename, const std::string &extension, const std::string &generatedCode);
   std::string getDeclaratorString(const Declarator* p_decl);
   std::string getNonQualifiedDeclaratorString(const Declarator* p_decl);
@@ -91,7 +91,8 @@ private:
   void generateSimpleTypeDef(const TypeItf* p_type);
   void generateEnum(const TypeItf* p_type);
   std::string getAnonymousTypedefUniqueName(const TypeItf* p_type);
-  std::string getComparatorName(const ComposableType* p_composableType);
+  template <class T>
+  std::string getComparatorName(const T* p_composableType);
   void registerTypeDef(const TypeItf* p_type);
   const std::string& getTypeDefName(const TypeItf* p_type);
   const TypeItf* getRawType(const TypeItf* p_type);
@@ -106,8 +107,10 @@ private:
   ctemplate::TemplateDictionary *m_generateMockedTypeSection;
   EasyMock::HashablePointerUnordereddMap<const TypeItf*, const TypedefType*> m_typeToTypedef;
   EasyMock::HashablePointerUnordereddSet<const TypeItf*> m_generateTypes;
+  EasyMock::HashablePointerUnordereddSet<const TypeItf*> m_generateForwardTypes;
   EasyMock::HashablePointerUnordereddSet<const TypedefType*> m_generatedTypeTypedDefSection;
   EasyMock::HashablePointerUnordereddSet<const Enum*> m_generatedTypeEnumSection;
+  std::vector<const ComposableType*> m_lateDeclaration;
 };
 
 #endif /* CODEGENERATORCTEMPLATE_H */

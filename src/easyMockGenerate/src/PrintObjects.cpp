@@ -1,4 +1,4 @@
-#include <gtestPrintClasses.h>
+#include <PrintObjects.h>
 
 #include <TypeItf.h>
 #include <Function.h>
@@ -42,7 +42,7 @@ std::ostream& printFunction(std::ostream& os, const T& fun)
   for(curParamIdx =  0; curParamIdx < nbParams; curParamIdx++)
   {
     const Parameter &curParamObj = params[curParamIdx];
-    os << "Parameter " << curParamIdx << ": " << curParamObj;
+    os << gs_indentation << "Parameter " << curParamIdx << ": " << curParamObj;
   }
   return os;
 }

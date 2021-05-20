@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <EasyMock_CType.h>
-#include <gtestPrintClasses.h>
+#include <PrintObjects.h>
 
 typedef struct
 {

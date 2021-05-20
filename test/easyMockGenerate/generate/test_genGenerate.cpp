@@ -1,6 +1,6 @@
 #include <gtest/gtest.h> // googletest header file
 
-#include <gtestPrintClasses.h>
+#include <PrintObjects.h>
 #include <easyMock.h>
 #include <CodeGeneratorCTemplate.h>
 

@@ -24,6 +24,7 @@ add_library(${EASYMOCK_COMMON_OBJ}
   ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/QualifiedType.cpp
   ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/ConstQualifiedType.cpp
   ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/TypedefType.cpp
+  ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/PrintObjects.cpp
 )
 
 set(EASYMOCK_GEN_SOURCE_FILE

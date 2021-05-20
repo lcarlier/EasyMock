@@ -33,6 +33,7 @@ TypeItf({.name = p_name,
         .isIncompleteType = false,
         .isTypedefType = false,
         .isQualifiedType = false,
+        .typedefName = {}
         })
 {
 }
@@ -50,6 +51,7 @@ TypeItf::TypeItf(TypeItf::attributes attrib)
   m_isIncompleteType = attrib.isIncompleteType;
   m_isTypedefType = attrib.isTypedefType;
   m_isQualifiedType = attrib.isQualifiedType;
+  m_typedefName = attrib.typedefName;
 }
 
 const std::string &TypeItf::getName() const
@@ -212,7 +214,7 @@ bool TypeItf::isAnonymous() const
    * Note:
    * Only composable type or enum type can be anonymous
    */
-  return (rawType->isComposableType() || rawType->isEnum()) && m_name.empty();
+  return (rawType->isComposableType() || rawType->isEnum()) && m_name.empty() && m_typedefName.empty();
 }
 
 bool TypeItf::isComposableType() const
@@ -401,6 +403,7 @@ std::size_t TypeItf::getHash() const
   boost::hash_combine(seed, m_isIncompleteType);
   boost::hash_combine(seed, m_isTypedefType);
   boost::hash_combine(seed, m_isQualifiedType);
+  boost::hash_combine(seed, m_typedefName);
 
   return seed;
 }
@@ -424,7 +427,8 @@ bool TypeItf::isEqual(const TypeItf& other) const
           this->m_isImplicit == other.m_isImplicit &&
           this->m_isIncompleteType == other.m_isIncompleteType &&
           this->m_isTypedefType == other.m_isTypedefType &&
-          this->m_isQualifiedType == other.m_isQualifiedType;
+          this->m_isQualifiedType == other.m_isQualifiedType &&
+          this->m_typedefName == other.m_typedefName;
 }
 
 bool TypeItf::operator!=(const TypeItf& other) const

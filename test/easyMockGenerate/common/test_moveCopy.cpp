@@ -17,7 +17,7 @@
 
 #include "common.h"
 
-#include <gtestPrintClasses.h>
+#include <PrintObjects.h>
 
 namespace
 {

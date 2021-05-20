@@ -1,7 +1,7 @@
 set(TEST_CTYPE test_ctype)
 add_executable(${TEST_CTYPE}
     ${EasyMock_SOURCE_DIR}/test/CType/test_CType.cpp
-    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/gtestPrintClasses.cpp
+    ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/PrintObjects.cpp
 )
 target_compile_options(${TEST_CTYPE} PRIVATE ${TEST_COMPILE_FLAGS})
 target_include_directories(${TEST_CTYPE} PRIVATE ${TEST_INCLUDE_DIR})

@@ -6,7 +6,7 @@
 
 #include <TestTypes.h>
 
-#include <gtestPrintClasses.h>
+#include <PrintObjects.h>
 
 template <typename T>
 class GenericParser_testCase : public ::testing::Test
