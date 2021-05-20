@@ -44,6 +44,17 @@ extern "C" {
 
   void voidFunStructAnonStructEnum(struct structTestAnonyStructEnum s);
 
+  struct structTestEmbeddedEnum
+  {
+    enum
+    {
+      NINE = 9,
+      TEN = 10
+    } embeddedEnum;
+  };
+
+  void voidFunStructEmbeddedEnunType(struct structTestEmbeddedEnum s);
+
 #ifdef __cplusplus
 }
 #endif

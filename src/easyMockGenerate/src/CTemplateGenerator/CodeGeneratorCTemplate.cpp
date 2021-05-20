@@ -1671,7 +1671,8 @@ ctemplate::TemplateDictionary* CodeGeneratorCTemplate::generateDeclarationOfComp
     {
       const ComposableField* curCompField = dynamic_cast<const ComposableField*>(curField);
       ctemplate::TemplateDictionary *curFieldValDict = curFieldDict->AddSectionDictionary(COMPOSABLE_TYPE_DECLARE_TYPE_SECTION);
-      curFieldValDict->SetValue(TYPE_DECLARATION_VAR, curField->getDeclareString());
+      std::string declaredString = getDeclaratorString(curField);
+      curFieldValDict->SetValue(TYPE_DECLARATION_VAR, declaredString);
       const std::string& curFieldName = curField->getName();
       std::string fieldName = curFieldName;
       generateSimpleTypeDef(getMostPointedType(curField->getType()));
@@ -1854,7 +1855,19 @@ std::string CodeGeneratorCTemplate::getNonQualifiedDeclaratorString(const Declar
 
 std::string CodeGeneratorCTemplate::getDeclaratorString(const Declarator* p_decl)
 {
-  return p_decl->getDeclareString();
+  std::string rv { p_decl->getDeclareString() };
+  const TypeItf* declType = getRawType(p_decl->getType());
+  if(declType->isAnonymous())
+  {
+    /*
+     * If the type is anonymous, then we something like
+     * enum
+     * So we must append the generated anonymous type name to it.
+     */
+    rv.append(" ");
+    rv.append(getAnonymousName(declType));
+  }
+  return rv;
 }
 
 bool CodeGeneratorCTemplate::isTypeGenerated(const TypeItf* p_type, bool p_insert)

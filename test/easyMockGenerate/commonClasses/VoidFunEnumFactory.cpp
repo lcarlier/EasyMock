@@ -54,6 +54,16 @@ ElementToMockList VoidFunEnumFactory::functionFactoryArray()
 
     returnedList.push_back(fd);
   }
+  {
+    Enum ee {""};
+    ee.addEnumValue(9, "NINE");
+    ee.addEnumValue(10, "TEN");
+    StructType *s = new StructType { "structTestEmbeddedEnum" , false};
+    s->addField(new ComposableField{ee.clone(), "embeddedEnum"});
+    FunctionDeclaration *fd = new FunctionDeclaration{ "voidFunStructEmbeddedEnunType", VoidReturnValue(false), Parameter::Vector ({new Parameter{s, "s"}})};
+
+    returnedList.push_back(fd);
+  }
   return returnedList;
 }
 
