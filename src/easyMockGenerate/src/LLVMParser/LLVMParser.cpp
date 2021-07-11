@@ -790,7 +790,7 @@ private:
     {
       return std::string(punctuationSpelling);
     }
-    if(isStringLiteral(tokenKind))
+    if(isLiteral(tokenKind))
     {
       const char* lit = tok.getLiteralData();
       auto length = tok.getLength();

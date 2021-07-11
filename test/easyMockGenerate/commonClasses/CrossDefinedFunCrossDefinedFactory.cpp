@@ -46,6 +46,7 @@ ElementToMockContext::MacroDefinitionList CrossDefinedFunCrossDefinedFactory::ge
                  "printf ( \"bar %d\" , b ) ; "
                  "}");
   ml.try_emplace("TM_PRINTF","TM_PRINTF",std::vector<std::string>{"f_","..."},"printf ( ( f_ ) , __VA_ARGS__ )");
+  ml.try_emplace("BIGER_THAN_ZERO", "BIGER_THAN_ZERO", std::vector<std::string>{"x"},"( x > 0 )");
 
   return ml;
 }

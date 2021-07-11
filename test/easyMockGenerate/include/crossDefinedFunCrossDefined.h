@@ -16,6 +16,8 @@ printf("bar %d", b);         \
 
 #define TM_PRINTF(f_, ...) printf((f_), __VA_ARGS__)
 
+#define BIGER_THAN_ZERO(x) (x > 0)
+
   DEF2 crossDefinedFunCrossDefined(DEF1 p);
 
 #ifdef __cplusplus
