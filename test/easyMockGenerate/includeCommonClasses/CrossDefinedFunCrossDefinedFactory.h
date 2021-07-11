@@ -9,7 +9,7 @@ class CrossDefinedFunCrossDefinedFactory: public FunctionFactory<DEF2, std::tupl
 public:
   ElementToMockList functionFactoryArray() override;
   std::string functionGetFunctionName() override;
-  DefinedMacroList getDefinedMacroList() override;
+  ElementToMockContext::MacroDefinitionList getDefinedMacroList() override;
   std::string getFilename() override;
 
 };

@@ -9,13 +9,14 @@ class genGenerate_testCase : public easyMockGenerate_baseTestCase
 public:
   genGenerate_testCase() : easyMockGenerate_baseTestCase(m_factory.functionGetFunctionName(), m_factory.functionGetIncludeDir(), m_factory.functionGetMockDir(), m_factory.getGenerateTypes(), m_factory.getRmDir())
   {
-    for(ElementToMock *f:m_factory.functionFactoryArray())
+    for(const auto f : m_factory.functionFactoryArray())
     {
       m_ctxt.addElementToMock(f->clone());
     }
-    for(const std::pair<const std::string, std::string>& p : m_factory.getDefinedMacroList())
+    for(const auto& p : m_factory.getDefinedMacroList())
     {
-      m_ctxt.addMacroDefine(p.first, p.second);
+      const MacroDefinition& macroDefinition = p.second;
+      m_ctxt.addMacroDefine(macroDefinition.getId(), macroDefinition.getParameters(), macroDefinition.getDefinition());
     }
   }
 

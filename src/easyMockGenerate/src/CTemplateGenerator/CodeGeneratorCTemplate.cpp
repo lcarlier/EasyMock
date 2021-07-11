@@ -122,8 +122,11 @@
 #define GENERATED_MACRO_SECTION "GENERATED_MACRO_SECTION"
 #define GENERATED_MACRO_ID_VAR "GENERATED_MACRO_ID_VAR"
 #define GENERATED_MACRO_ID_TEMPLATE_VAR TEMPLATE_VAR(GENERATED_MACRO_ID_VAR)
-#define GENERATED_MACRO_DEFINITION_VAR "GENERATED_MACRO_DEFINITION_VAR"
+#define GENERATED_MACRO_PARAMETERS_SECTION "GENERATED_MACRO_PARAMETERS_SECTION"
+#define GENERATED_MACRO_PARAMETERS_VAR "GENERATED_MACRO_PARAMETERS_VAR"
+#define GENERATED_MACRO_PARAMETERS_TEMPLATE_VAR TEMPLATE_VAR(GENERATED_MACRO_PARAMETERS_VAR)
 #define GENERATED_MACRO_DEFINITION_SECTION "GENERATED_MACRO_DEFINITION_SECTION"
+#define GENERATED_MACRO_DEFINITION_VAR "GENERATED_MACRO_DEFINITION_VAR"
 #define GENERATED_MACRO_DEFINITION_TEMPLATE_VAR TEMPLATE_VAR(GENERATED_MACRO_DEFINITION_VAR)
 
 #define GENERATED_TYPE_SIMPLE_TYPEDEF_SECTION "GENERATED_TYPE_SIMPLE_TYPEDEF_SECTION"
@@ -616,7 +619,9 @@ const char headerFileTemplate[] =
 
           TEMPLATE_BEG_SECTION(GENERATED_MACRO_SECTION)
           "#ifndef " GENERATED_MACRO_ID_TEMPLATE_VAR CARRIAGE_RETURN
-          "#define " GENERATED_MACRO_ID_TEMPLATE_VAR IF_SECTION_EXISTS(GENERATED_MACRO_DEFINITION_SECTION, " " GENERATED_MACRO_DEFINITION_TEMPLATE_VAR) CARRIAGE_RETURN
+          "#define " GENERATED_MACRO_ID_TEMPLATE_VAR
+          IF_SECTION_EXISTS(GENERATED_MACRO_PARAMETERS_SECTION, GENERATED_MACRO_PARAMETERS_TEMPLATE_VAR " ")
+          IF_SECTION_EXISTS(GENERATED_MACRO_DEFINITION_SECTION, " " GENERATED_MACRO_DEFINITION_TEMPLATE_VAR) CARRIAGE_RETURN
           "#endif //macro " GENERATED_MACRO_ID_TEMPLATE_VAR CARRIAGE_RETURN
           TEMPLATE_END_SECTION(GENERATED_MACRO_SECTION)
 
@@ -925,12 +930,34 @@ void CodeGeneratorCTemplate::fillInMacroDefinition(const ElementToMockContext& p
   {
     return;
   }
-  for(const std::pair<const std::string, std::string>& p : p_elem.getCrossDefinedMap())
+  for(const auto& p : p_elem.getCrossDefinedMap())
   {
-    const std::string& id = p.first;
-    const std::string& definition = p.second;
+    std::string id = p.first;
+    const MacroDefinition& macroDefinition = p.second;
+    const std::string& definition = macroDefinition.getDefinition();
+    const MacroDefinition::ParameterList& parameters = macroDefinition.getParameters();
     ctemplate::TemplateDictionary *macroSection = m_generateMockedTypeSection->AddSectionDictionary(GENERATED_MACRO_SECTION);
+
     macroSection->SetValue(GENERATED_MACRO_ID_VAR, id);
+
+    if(!parameters.empty())
+    {
+      ctemplate::TemplateDictionary *parametersSection = macroSection->AddSectionDictionary(GENERATED_MACRO_PARAMETERS_SECTION);
+      std::string parametersStr{"("};
+      bool first = true;
+      for(const auto& param: parameters)
+      {
+        if(!first)
+        {
+          parametersStr.push_back(',');
+        }
+        parametersStr.append(param);
+        first = false;
+      }
+      parametersStr.push_back(')');
+      parametersSection->SetValue(GENERATED_MACRO_PARAMETERS_VAR, parametersStr);
+    }
+
     if(!definition.empty())
     {
       ctemplate::TemplateDictionary* definitionSection = macroSection->AddSectionDictionary(GENERATED_MACRO_DEFINITION_SECTION);

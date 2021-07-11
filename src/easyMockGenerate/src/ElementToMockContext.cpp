@@ -1,8 +1,14 @@
 #include <ElementToMockContext.h>
 
-void ElementToMockContext::addMacroDefine(const std::string& p_id, const std::string& p_definition)
+void ElementToMockContext::addMacroDefine(std::string p_id, std::string p_definition)
 {
-  m_macroDefinition[p_id] = p_definition;
+  addMacroDefine(std::move(p_id), std::vector{std::string{}}, std::move(p_definition));
+}
+
+void ElementToMockContext::addMacroDefine(std::string p_id, std::vector<std::string> p_parameters, std::string p_definition)
+{
+  std::string copy_id = p_id;
+  m_macroDefinition.try_emplace(std::move(p_id), std::move(copy_id), std::move(p_parameters), std::move(p_definition));
 }
 
 void ElementToMockContext::deleteMacroDefine(const std::string &p_id)
@@ -15,17 +21,17 @@ bool ElementToMockContext::hasMacroDefine(const std::string& p_id) const
   return m_macroDefinition.find(p_id) != m_macroDefinition.end();
 }
 
-const std::string& ElementToMockContext::getMacroDefinition(const std::string& p_id)
+const MacroDefinition& ElementToMockContext::getMacroDefinition(const std::string& p_id)
 {
-  static std::string emptyString("");
+  static MacroDefinition emptyString{"", {}, ""};
   if(m_macroDefinition.find(p_id) != m_macroDefinition.end())
   {
-    return m_macroDefinition[p_id];
+    return m_macroDefinition.at(p_id);
   }
   return emptyString;
 }
 
-const std::unordered_map<std::string, std::string>& ElementToMockContext::getCrossDefinedMap() const
+const std::unordered_map<std::string, MacroDefinition>& ElementToMockContext::getCrossDefinedMap() const
 {
   return m_macroDefinition;
 }

@@ -6,6 +6,7 @@
 #define FUNCTIONFACTORY_H
 
 #include <FunctionDeclaration.h>
+#include <ElementToMockContext.h>
 #include <string>
 #include <cstdint>
 #include <deque>
@@ -136,7 +137,6 @@ template<typename ...>
 class FunctionFactory;
 
 using ElementToMockList = AutoCleanVectorPtr<FunctionDeclaration>;
-using DefinedMacroList = std::unordered_map<std::string, std::string>;
 
 // Specialisation of the template. Out of the n parameters, the first is RV, second is std::tuple<Params...>, and third is std::tuple<Compare ...>
 /*!
@@ -174,7 +174,7 @@ public:
   /*!
    * \brief Returns the list of macro to be generated
    */
-  virtual DefinedMacroList getDefinedMacroList() {DefinedMacroList ml; return ml;}
+  virtual ElementToMockContext::MacroDefinitionList getDefinedMacroList() {ElementToMockContext::MacroDefinitionList  ml; return ml;}
   /*!
    * \brief Returns the name of the function to be tested.
    */

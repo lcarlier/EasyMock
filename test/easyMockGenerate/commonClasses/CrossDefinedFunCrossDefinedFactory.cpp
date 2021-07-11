@@ -28,12 +28,24 @@ std::string CrossDefinedFunCrossDefinedFactory::functionGetFunctionName()
   return std::string("crossDefinedFunCrossDefined");
 }
 
-DefinedMacroList CrossDefinedFunCrossDefinedFactory::getDefinedMacroList()
+ElementToMockContext::MacroDefinitionList CrossDefinedFunCrossDefinedFactory::getDefinedMacroList()
 {
-  DefinedMacroList ml;
+  ElementToMockContext::MacroDefinitionList  ml;
 
-  ml.insert({"DEF1", "int"});
-  ml.insert({"DEF2", "float"});
+  ml.try_emplace("DEF1","DEF1", "int");
+  ml.try_emplace("DEF2","DEF2", "float");
+  /*
+   * When defining complex macros, spaces are added in between each token, for that reason
+   * some extra space may appear in this definition (e.g. after a parenthesis), while it
+   * is not in the original macro definition. However this is acceptable because it doesn't
+   * change the semantic of the macro.
+   */
+  ml.try_emplace("FUN_TYPE_MACRO","FUN_TYPE_MACRO",std::vector<std::string>{"a", "b"},
+                 "do { "
+                 "printf ( \"foo %d\" , a ) ; "
+                 "printf ( \"bar %d\" , b ) ; "
+                 "}");
+  ml.try_emplace("TM_PRINTF","TM_PRINTF",std::vector<std::string>{"f_","..."},"printf ( ( f_ ) , __VA_ARGS__ )");
 
   return ml;
 }

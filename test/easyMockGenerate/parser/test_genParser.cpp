@@ -47,12 +47,12 @@ TYPED_TEST(GenericParser_testCase, parser)
     ASSERT_STREQ(factorySs.str().c_str(), parserSs.str().c_str()) << std::endl << "factoryStr" << factorySs.str() << std::endl << "parserStr" << parserSs.str();
     ASSERT_EQ(funFromFactory, funFromParser) << "funIdx: " << funIdx;
   }
-  DefinedMacroList ml = funFactory.getDefinedMacroList();
-  for(const std::pair<const std::string, std::string>& elem : ml)
+  const auto& ml = funFactory.getDefinedMacroList();
+  for(const auto& elem : ml)
   {
     const std::string& id = elem.first;
-    const std::string& definition = elem.second;
+    const std::string& definition = elem.second.getDefinition();
     ASSERT_TRUE(ctxt.hasMacroDefine(id)) << "cross defined ID: " << id;
-    ASSERT_STREQ(definition.c_str(), ctxt.getMacroDefinition(id).c_str()) << "cross defined ID: " << id;
+    ASSERT_STREQ(definition.c_str(), ctxt.getMacroDefinition(id).getDefinition().c_str()) << "cross defined ID: " << id;
   }
 }

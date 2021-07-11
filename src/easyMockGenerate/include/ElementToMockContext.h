@@ -6,6 +6,7 @@
 #define ELEMENTTOMOCKCONTEXT_H
 
 #include "ElementToMock.h"
+#include "MacroDefinition.h"
 
 #include <unordered_map>
 #include <string>
@@ -17,6 +18,7 @@
 class ElementToMockContext
 {
 public:
+  using MacroDefinitionList = std::unordered_map<std::string, MacroDefinition>;
   /*!
    * \brief Adds an ::ElementToMock into the context.
    *
@@ -37,7 +39,19 @@ public:
    * \param p_id The id of the <tt>\#define</tt> to be added.
    * \param p_definition The definition of the <tt>\#define</tt> to be added.
    */
-  void addMacroDefine(const std::string& p_id, const std::string& p_definition);
+  void addMacroDefine(std::string p_id, std::string p_definition);
+
+  /*!
+   * \brief Adds a function like macro definition (i.e <tt>\#define p_id(a, b) p_definition</tt>) into the context.
+   *
+   * \param p_id The id of the <tt>\#define</tt> to be added.
+   * \param p_parameters The parameters of the function like macro.
+   * \param p_definition The definition of the <tt>\#define</tt> to be added.
+   *
+   * Variadic macro accepts "..." as last parameter. However no check is done to ensure that
+   * "..." is actually the last parameter.
+   */
+  void addMacroDefine(std::string p_id, std::vector<std::string> p_parameters, std::string p_definition);
 
   /*!
    * \brief Deletes the macro definition with <tt>id == p_id</tt> from the context.
@@ -63,10 +77,10 @@ public:
    *
    * \param p_id The id of the <tt>\#define</tt>..
    *
-   * \return The definition of the macro if the id exists.
-   * \return An empty std::string if the id doesn't exists.
+   * \return A ::MacroDefinition object if the id exists.
+   * \return An empty ::MacroDefinition object if the id doesn't exists.
    */
-  const std::string& getMacroDefinition(const std::string& p_id);
+  const MacroDefinition& getMacroDefinition(const std::string& p_id);
 
   /*!
    * \brief Returns the unordered_map containing all the macro definitions
@@ -75,10 +89,10 @@ public:
    * \return Returns the unordered_map containing all the macro definitions
    * defined in this context.
    */
-  const std::unordered_map<std::string, std::string>& getCrossDefinedMap() const;
+  const std::unordered_map<std::string, MacroDefinition>& getCrossDefinedMap() const;
 
 private:
-  std::unordered_map<std::string, std::string> m_macroDefinition;
+  MacroDefinitionList m_macroDefinition;
   ElementToMock::Vector m_elementToMock;
 
 };

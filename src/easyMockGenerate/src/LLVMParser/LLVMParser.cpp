@@ -720,22 +720,36 @@ public:
   void MacroDefined (const clang::Token &p_macroIdentifierTok, const clang::MacroDirective *p_macroDirective) override
   {
     std::string id;
+    MacroDefinition::ParameterList parameters{};
     std::string definition("");
     id = getTokenString(p_macroIdentifierTok);
     if(id.empty())
     {
       return;
     }
-    unsigned numToken = p_macroDirective->getMacroInfo()->getNumTokens();
+    const clang::MacroInfo* macroInfo = p_macroDirective->getMacroInfo();
+    if(macroInfo->isFunctionLike())
+    {
+      const auto &params = macroInfo->params();
+      for(const auto &param: params)
+      {
+        const std::string& paramStr = param->getName().str();
+        if(paramStr.compare("__VA_ARGS__") == 0)
+        {
+          parameters.emplace_back("...");
+        }
+        else
+        {
+          parameters.emplace_back(paramStr);
+        }
+      }
+    }
+    unsigned numToken = macroInfo->getNumTokens();
     for(unsigned i = 0; i < numToken; i++)
     {
       std::string strToAdd;
-      const clang::Token& tok = p_macroDirective->getMacroInfo()->getReplacementToken(i);
+      const clang::Token& tok = macroInfo->getReplacementToken(i);
       strToAdd = getTokenString(tok);
-      if(strToAdd.empty())
-      {
-        return;
-      }
       if(!definition.empty())
       {
         definition.push_back(' ');
@@ -746,7 +760,7 @@ public:
     {
       fprintf(stderr, "Warning: Redefining %s\n", id.c_str());
     }
-    m_ctxt.addMacroDefine(id, definition);
+    m_ctxt.addMacroDefine(std::move(id), std::move(parameters), std::move(definition));
   }
 
   virtual void MacroUndefined(const clang::Token &p_macroIdentifierTok, const clang::MacroDefinition &p_macroDefinition, const clang::MacroDirective *p_macroDirective) override
@@ -765,10 +779,22 @@ private:
 
   std::string getTokenString(const clang::Token &tok)
   {
-    clang::IdentifierInfo* identifierInfo;
-    if((identifierInfo = tok.getIdentifierInfo()) != nullptr && identifierInfo->getBuiltinID() == 0)
+    const clang::IdentifierInfo* identifierInfo = tok.getIdentifierInfo();
+    const clang::tok::TokenKind& tokenKind = tok.getKind();
+    if(identifierInfo != nullptr)
     {
-      return identifierInfo->getName().str();
+      return std::string(identifierInfo->getName().str());
+    }
+    const char* punctuationSpelling = getPunctuatorSpelling(tokenKind);
+    if(punctuationSpelling)
+    {
+      return std::string(punctuationSpelling);
+    }
+    if(isStringLiteral(tokenKind))
+    {
+      const char* lit = tok.getLiteralData();
+      auto length = tok.getLength();
+      return std::string{lit, length};
     }
     return std::string("");
   }
