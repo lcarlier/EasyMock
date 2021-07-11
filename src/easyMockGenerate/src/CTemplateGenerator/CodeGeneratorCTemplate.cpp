@@ -603,6 +603,7 @@ const char headerFileTemplate[] =
         IF_SECTION_EXISTS(INCLUDE_MOCKED_HEADER_SECTION,
           "#include \"" TEMPLATE_VAR(MOCKED_HEADER_FILENAME) "\"" CARRIAGE_RETURN
         )
+        "#include <stdarg.h>" CARRIAGE_RETURN
         "#include <" MOCK_FRAMEWORK_NAME ".h>" CARRIAGE_RETURN
         CARRIAGE_RETURN
         "#ifdef __cplusplus" CARRIAGE_RETURN
