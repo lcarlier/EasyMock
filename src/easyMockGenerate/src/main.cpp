@@ -48,7 +48,8 @@ int main(int argc, char *argv[])
   of.setFlags(opt.m_extraArgs);
 
   CodeGeneratorCTemplate cg;
-  cg.setMockOnlyFunction(opt.m_mockOnlyList);
+  cg.setMockOnlyFunction(std::move(opt.m_mockOnlyList));
+  cg.setGenerateAttrList(std::move(opt.m_generateAttrList));
   cg.setGenerateUsedType(opt.m_generateTypes);
 
   MainCodeGenerator cp(opt.m_inputHeaderFile, of, cg);

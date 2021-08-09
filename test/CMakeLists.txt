@@ -117,6 +117,7 @@ add_library(${TEST_FACTORIES_COMMON_OBJ}
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/ConstVoidPtrFunConstVoidPtrFactory.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/VoidFunMultilineFactory.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/VoidFunStructCompleteFieldFactory.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/VoidFunAttrFunFactory.cpp
 )
 
 set(EASYMOCK_TEST_LIBRARY easyMockTestLibrary)
@@ -142,5 +143,6 @@ add_subdirectory(FunctionPointer)
 add_subdirectory(ConstQualifiedType)
 add_subdirectory(Parameter)
 add_subdirectory(TypedefType)
+add_subdirectory(FunctionAttributeGen)
 add_subdirectory(easyMockGenerate)
 add_subdirectory(end2end)

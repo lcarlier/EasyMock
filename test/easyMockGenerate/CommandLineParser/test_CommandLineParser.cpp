@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
+
 #include <CmdLineParser.h>
 
 #define ARRAY_SIZE(arr) ((sizeof(arr)/sizeof(arr[0])))
@@ -254,4 +256,53 @@ TYPED_TEST(CommandLineParser_testCase, CwdMoreThanOnce)
   ASSERT_FALSE(opt.m_errorMessage.empty());
   ASSERT_TRUE(opt.m_changeWorkingDir.empty());
   ASSERT_STREQ(opt.m_errorMessage.c_str(), g_errorCwdMoreThanOnce.c_str());
+}
+
+TYPED_TEST(CommandLineParser_testCase, GenerateAttrWithoutParameter)
+{
+  TypeParam parser;
+  CommandLineParserItf& parserItf = parser;
+  const char * parsedArgs[] = {"./test", "-i", "foo", "-o", "bar", "--generate-attribute", NULL};
+  EasyMockOptions opt = parserItf.getParsedArguments(ARRAY_SIZE(parsedArgs) - 1, parsedArgs);
+
+  ASSERT_FALSE(opt.m_errorMessage.empty());
+  ASSERT_TRUE(opt.m_changeWorkingDir.empty());
+  ASSERT_STREQ(opt.m_errorMessage.c_str(), g_errorGenerateAttrAttrMissing.c_str());
+}
+
+TYPED_TEST(CommandLineParser_testCase, GenerateAttrInvalidParameter)
+{
+  TypeParam parser;
+  CommandLineParserItf& parserItf = parser;
+  const char * parsedArgs[] = {"./test", "-i", "foo", "-o", "bar", "--generate-attribute", "-notValid", NULL};
+  EasyMockOptions opt = parserItf.getParsedArguments(ARRAY_SIZE(parsedArgs) - 1, parsedArgs);
+
+  ASSERT_FALSE(opt.m_errorMessage.empty());
+  ASSERT_STREQ(opt.m_errorMessage.c_str(), g_errorGenerateAttrAttrMissing.c_str());
+}
+
+TYPED_TEST(CommandLineParser_testCase, GenerateAttrOK)
+{
+  TypeParam parser;
+  CommandLineParserItf& parserItf = parser;
+  const char * parsedArgs[] = {"./test", "-i", "foo", "-o", "bar", "--generate-attribute", "format", NULL};
+  EasyMockOptions opt = parserItf.getParsedArguments(ARRAY_SIZE(parsedArgs) - 1, parsedArgs);
+
+  ASSERT_TRUE(opt.m_errorMessage.empty()) << opt.m_errorMessage;
+  ASSERT_TRUE(opt.m_helpMessage.empty()) << opt.m_helpMessage;
+  ASSERT_TRUE(std::find(opt.m_generateAttrList.begin(),opt.m_generateAttrList.end(), "format") != opt.m_generateAttrList.end());
+}
+
+
+TYPED_TEST(CommandLineParser_testCase, GenerateAttrOKMultipleUse)
+{
+  TypeParam parser;
+  CommandLineParserItf& parserItf = parser;
+  const char * parsedArgs[] = {"./test", "-i", "foo", "--generate-attribute", "inline", "-o", "bar", "--generate-attribute", "format", NULL};
+  EasyMockOptions opt = parserItf.getParsedArguments(ARRAY_SIZE(parsedArgs) - 1, parsedArgs);
+
+  ASSERT_TRUE(opt.m_errorMessage.empty()) << opt.m_errorMessage;
+  ASSERT_TRUE(opt.m_helpMessage.empty()) << opt.m_helpMessage;
+  ASSERT_TRUE(std::find(opt.m_generateAttrList.begin(),opt.m_generateAttrList.end(), "format") != opt.m_generateAttrList.end());
+  ASSERT_TRUE(std::find(opt.m_generateAttrList.begin(),opt.m_generateAttrList.end(), "inline") != opt.m_generateAttrList.end());
 }

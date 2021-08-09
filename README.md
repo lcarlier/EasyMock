@@ -7,7 +7,7 @@ value to verify that the code calling them gives the correct parameters to the
 mock.
 
 Mocks are very useful when writing unit tests. Thanks to the mocks, the build
-of the unit tests remains very small because it cuts the dependecies as soon as
+of the unit tests remains very small because it cuts the dependencies as soon as
 possible. Also, mocks can be used to validate that a specific functions calls
 the dependencies with the correct parameters. Then, mocks can be used to check
 that the function you are testing processes correctly the data returned by
@@ -257,17 +257,29 @@ Generate mocks to be used into a unit test inside a specific directory
 Parameters not recognised by EasyMock (e.g. -I, -D) are given to the parser
 responsible for parsing the header file.
 Usage:
-  ./EasyMockGenerate [OPTION...]
+./EasyMockGenerate [OPTIONS...]
 
-  -i, arg              Input header file
-  -o, arg              Output directory
-      --mock-only arg  Mock only the function specified in this parameter.
-                       Can be used several times
-  -h, --help           Print usage
+OPTIONS are:
+-i <header>            Input header file.
+-o <directory>         Output directory.
+--cwd <directory>      Change to the directory passed on this parameter before running the parser.
+--mock-only <function> Mock only the function specified in this parameter.
+--generate-types       Generate the used type instead of including the original header.
+                       When using this option, the original header (i.e. the header given to -i) doesn't
+                       need to be used when compiling the mock.
+                       The generated functions signature will not contain any function attribute unless
+                       the --generate-attribute option is used.
+                       Can be used several times.
+--generate-attribute   Generate the function attribute if the function has been declared with it.
+                       E.G. if a function has been declared with the format attribute, give the parameter
+                       "--generate-attribute format" will generate the code __attribute__((format(x, y, z))) where
+                       x, y and z are the parameters given to the format attribute.
+                       Can be used several times.
+-h, --help             Print usage.
 ```
 
 As stated in the help, the parameters not recognised by EasyMock will be passed
-to the parser responsible of parsing the header file. Currently, the parser is
+to the parser responsible for parsing the header file. Currently, the parser is
 LLVM. Typically, the same compile flags (such as `-I` and `-D`) that are given
 to compile the source file including the header that is being mocked in the
 production code should be given as extra parameters to EasyMock.
@@ -284,9 +296,9 @@ needed to fake its behaviour.
 The `*_ExpectAndReturn` family is used to configure the mock for expecting
 a set of parameters (if any) as well as the return value (if any).
 
-The `*_ExpectReturnAndOutput` family does the same as `*_ExpectAndReturn` family
-but it also allows to specify values that copied onto parameters that are pointer
-to represent the fact that the mocked function is using those parameter as
+The `*_ExpectReturnAndOutput` family does the same as `*_ExpectAndReturn` family,
+but it also allows specifying values that copied onto parameters that are pointer
+to represent the fact that the mocked function is using those parameters as
 output parameter.
 
 For instance, considering the following function
@@ -354,8 +366,8 @@ matching. The name of the generated struct matcher is in the form of
 cmp_<structName>
 ```
 
-A user can implements its own version of EasyMock matchers by creating
-functions that matche the `EasyMock_Matcher` type.
+A user can implement its own version of EasyMock matchers by creating
+functions that matches the `EasyMock_Matcher` type.
 
 ## <a name="user-content-utm"></a>Using the mock
 Once the mocks have been generated, the unit test must call the
@@ -367,9 +379,9 @@ i.e. which value it must return, which parameter to expects.
 
 Simply put:
 * The first call to `*_ExpectAndReturn` or `*_ExpectReturnAndOutput` configures
-how the mock will be behave when the mock is call the first time.
+how the mock will be behaving when the mock is call the first time.
 * The second call to `*_ExpectAndReturn` or `*_ExpectReturnAndOutput` configures
-how the mock will be behave when the mock is call the second time.
+how the mock will be behaving when the mock is call the second time.
 * ...
 
 A complete example on how to use the mock is present in the
@@ -386,19 +398,19 @@ to run the massive amount of test cases implemented.
 That's great! A good place to start is by reading the [architecture][arch] of EasyMock.
 
 ## <a name="user-content-restriction"></a> Restriction
-Currently EasyMock only supports mocking of C functions.
+Currently, EasyMock only supports mocking of C functions.
 Mocking of C++ functions and classes is planned.
 
 ## <a name="user-content-br"></a> Bug report
-If you find a bug, it is very appreciated to create a [bug report](issues).
+If you find a bug, it is very appreciated creating a [bug report](issues).
 Please attach into the bug report, the command that you gave to
 EasyMockGenerate and also the header file (or the relevant part of it) which
 was used to generate the mock.
 
 ## <a name="user-content-tfn"></a> The final note
 The best of care and attention was given to implement and document EasyMock.
-If something is unclear or is not correct, it is very much appreciated to
-contact the author and ask for further explanation or fix.
+If something is unclear or is not correct, it is very much appreciated contacting
+the author and asking for further explanation or fix.
 
 ## <a name="user-content-thanks"></a> Thanks
 EasyMock's principle is based on [opmock](https://sourceforge.net/p/opmock/wiki/Home/)

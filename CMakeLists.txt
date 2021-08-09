@@ -116,7 +116,12 @@ find_package(Boost 1.65 REQUIRED system filesystem)
 set(LLVM_DEFAULT_VERSION 10)
 
 message(STATUS "LLVM_PATH: ${LLVM_PATH}")
-find_program(LLVM_CONFIG NAMES llvm-config-${LLVM_DEFAULT_VERSION} llvm-config PATHS ${LLVM_PATH})
+if(EXISTS ${LLVM_PATH})
+    message(STATUS "Forcing finding llvm-config in ${LLVM_PATH}")
+    find_program(LLVM_CONFIG NAMES llvm-config-${LLVM_DEFAULT_VERSION} llvm-config PATHS ${LLVM_PATH}/bin NO_DEFAULT_PATH)
+else()
+    find_program(LLVM_CONFIG NAMES llvm-config-${LLVM_DEFAULT_VERSION} llvm-config PATHS ${LLVM_PATH})
+endif()
 if (NOT LLVM_CONFIG OR NOT EXISTS ${LLVM_CONFIG})
     message (FATAL_ERROR "llvm-config command not found (${LLVM_CONFIG}). Please install llvm-config-${LLVM_DEFAULT_VERSION} or use -DLLVM_PATH=<path-to_llvm-install>")
 else()
@@ -169,9 +174,9 @@ if(CMAKE_BUILD_TYPE STREQUAL build_debug)
 endif()
 
 # In the following list, some of the libraries are repeated on purpose because
-# the linker discards too soon some function used by subsquent libraries and then
+# the linker discards too soon some symbols used by subsequent libraries and then
 # fails with undefined symbol. By repeating the libraries, the linker is able to
-# find the symbols he has missed the first time.
+# find the symbols it has missed the first time.
 set(LINK_LIB
   ${CTEMPLATE_LIBRARIES}
   ${Boost_FILESYSTEM_LIBRARY}

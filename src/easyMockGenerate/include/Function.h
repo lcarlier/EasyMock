@@ -8,6 +8,7 @@
 #include "ElementToMock.h"
 #include "ReturnValue.h"
 #include "EasyMock_Hashable.h"
+#include "FunctionAttribute.h"
 
 #include <string>
 
@@ -20,7 +21,8 @@
 class Function : virtual public EasyMock::Hashable
 {
 public:
-  typedef AutoCleanVectorPtr<Function> Vector;
+  using Vector = AutoCleanVectorPtr<Function>;
+  using AttributesList = std::vector<FunctionAttribute>;
 
   /*!
    * \brief Creates a new Function object
@@ -108,10 +110,23 @@ public:
    */
   std::size_t getHash() const override;
 
+  /*!
+   * \brief Adds a function attribute to the function.
+   * \param p_attribute The ::FunctionAttribute object to add.
+   */
+  void addAttribute(FunctionAttribute p_attribute);
+
+  /*!
+   * \brief Gets the function attributes the function has.
+   * \return The function attributes the function has.
+   */
+  const AttributesList& getAttributes() const;
+
 protected:
   std::string m_name;
   Parameter::Vector m_parameters;
   ReturnValue m_returnType;
+  AttributesList  m_attributes;
   bool m_isVariadic;
   bool m_isInlined;
 };

@@ -92,6 +92,15 @@
 #define FUNCTION_PARAM_PTR_LIST_SECTION "FUNCTION_PARAM_PTR_LIST_SECTION"
 #define NON_TYPED_DEF_COMPOSED_TYPE_SECTION "NON_TYPED_DEF_COMPOSED_TYPE_SECTION"
 
+#define FUNCTION_ATTR_LIST_SECTION "FUNCTION_ATTR_LIST_SECTION"
+#define FUNCTION_ATTR_LIST_SECTION_SEPARATOR FUNCTION_ATTR_LIST_SECTION "_separator"
+#define FUNCTION_ATTR_NAME_VAR "FUNCTION_ATTR_NAME_VAR"
+#define FUNCTION_ATTR_NAME_TEMPLATE_VAR TEMPLATE_VAR(FUNCTION_ATTR_NAME_VAR)
+
+#define FUNCTION_ATTR_PARAMETER_SECTION "FUNCTION_ATTR_PARAMETER_SECTION"
+#define FUNCTION_ATTR_PARAMETER_LIST "FUNCTION_ATTR_PARAMETER_LIST"
+#define FUNCTION_ATTR_PARAMETER_LIST_SEPARATOR FUNCTION_ATTR_PARAMETER_LIST "_separator"
+
 #define COMPOSED_TYPE_VAR "COMPOSED_TYPE_VAR" //struct or union
 #define COMPOSED_TYPE_TEMPLATE_VAR TEMPLATE_VAR(COMPOSED_TYPE_VAR)
 
@@ -250,6 +259,17 @@ PARAMETER_NON_QUALIFIED_TYPE " " PARAMETER_NAME(PREFIX) TEMPLATE_INCL_SECTION(EX
     TEMPLATE_END_SECTION(SECTION ## _SEPARATOR) \
   TEMPLATE_END_SECTION(SECTION)
 
+#define FUNCTION_ATTRIBUTE_DECLARATION_LIST \
+  TEMPLATE_BEG_SECTION(FUNCTION_ATTR_LIST_SECTION) \
+    "__attribute__((" \
+    FUNCTION_ATTR_NAME_TEMPLATE_VAR \
+    IF_SECTION_EXISTS(FUNCTION_ATTR_PARAMETER_SECTION, "(" FUNCTION_PARAM_CALL(FUNCTION_ATTR_PARAMETER_LIST, "") ")") \
+    ")) " \
+    TEMPLATE_BEG_SECTION(FUNCTION_ATTR_LIST_SECTION_SEPARATOR) \
+      " " \
+    TEMPLATE_END_SECTION(FUNCTION_ATTR_LIST_SECTION_SEPARATOR) \
+  TEMPLATE_END_SECTION(FUNCTION_ATTR_LIST_SECTION)
+
 /*!
  * \brief Helper macro to print the parameters of a call to a
  * *_expectReturnAndOutput function with harcoded output values.
@@ -345,7 +365,7 @@ TEMPLATE_VAR(FUNCTION_STACK_VARIABLE_NAME) "_match_" PARAMETER_NAME("")
 #define MOCKED_DATA_MEMBER(member) MOCKED_DATA "." member
 
 #define FUNCTION_PARAMETERS "("  FUNCTION_PARAM_LIST(FUNCTION_PARAM_SECTION, "") IF_SECTION_EXISTS(VARIADIC_SECTION, VARIADIC_TEMPLATE_VAR) ")"
-#define TEMPLATE_FUNCTION_TO_BE_MOCKED FUNCTION_RETURN_VALUE_TYPE " " TEMPLATE_VAR(FUNCTION_STACK_VARIABLE_NAME) FUNCTION_PARAMETERS TEMPLATE_INCL_SECTION(EXTRA_TOP_LEVEL_DECL_SECTION)
+#define TEMPLATE_FUNCTION_TO_BE_MOCKED FUNCTION_ATTRIBUTE_DECLARATION_LIST FUNCTION_RETURN_VALUE_TYPE " " TEMPLATE_VAR(FUNCTION_STACK_VARIABLE_NAME) FUNCTION_PARAMETERS TEMPLATE_INCL_SECTION(EXTRA_TOP_LEVEL_DECL_SECTION)
 #define MOCKED_FUN_CLASS(F_NAME) "mocked_" F_NAME
 #define TEMPLATE_MOCKED_FUN_CLASS MOCKED_FUN_CLASS(TEMPLATE_VAR(FUNCTION_STACK_VARIABLE_NAME))
 
@@ -360,10 +380,10 @@ TEMPLATE_VAR(FUNCTION_STACK_VARIABLE_NAME) "_match_" PARAMETER_NAME("")
 "int cmp_" COMPOSED_TYPED_COMPARE_SECTION_UNIQUE_NAME_VAR "(const void *currentCall_ptr, const void *expectedCall_ptr, const char *paramName, char *errorMessage )"
 
 #define GENERATE_COMMENT \
-"//------------------- GENERATING '" TEMPLATE_FUNCTION_TO_BE_MOCKED "' -------------------"
+"/*------------------- GENERATING '" TEMPLATE_FUNCTION_TO_BE_MOCKED "' -------------------*/"
 
 #define END_GENERATE_COMMENT \
-"//----------------- END GENERATION '" TEMPLATE_FUNCTION_TO_BE_MOCKED "' -----------------"
+"/*----------------- END GENERATION '" TEMPLATE_FUNCTION_TO_BE_MOCKED "' -----------------*/"
 
 namespace
 {
@@ -616,7 +636,7 @@ const char headerFileTemplate[] =
            * and includes them all together we must make sure we pick only one
            * definition.
            */
-          "//------------------ GENERATING USED TYPE -------------------"  CARRIAGE_RETURN
+          "/*------------------ GENERATING USED TYPE -------------------*/"  CARRIAGE_RETURN
 
           TEMPLATE_BEG_SECTION(GENERATED_MACRO_SECTION)
           "#ifndef " GENERATED_MACRO_ID_TEMPLATE_VAR CARRIAGE_RETURN
@@ -664,20 +684,20 @@ const char headerFileTemplate[] =
           "#endif //" GENERATED_TYPE_DECLARE_MACRO_GUARD_NAME CARRIAGE_RETURN
           TEMPLATE_END_SECTION(GENERATED_TYPE_SECTION)
 
-          "//---------------- END GENERATING USED TYPE -----------------"  CARRIAGE_RETURN
+          "/*----------------- END GENERATING USED TYPE -----------------*/"  CARRIAGE_RETURN
         ) //IF_SECTION_EXISTS(GENERATE_USED_TYPE_SECTION,
         CARRIAGE_RETURN
         TEMPLATE_BEG_SECTION(COMPOSED_TYPE_COMPARE_SECTION)
         COMPOSED_TYPED_COMPARE_FUNCTION_SIGNATURE ";" CARRIAGE_RETURN
         TEMPLATE_END_SECTION(COMPOSED_TYPE_COMPARE_SECTION)
         TEMPLATE_BEG_SECTION(FUNCTION_SECTION)
-        "//------------------- GENERATING '" TEMPLATE_FUNCTION_TO_BE_MOCKED "' -------------------" CARRIAGE_RETURN
+        "/*------------------- GENERATING '" TEMPLATE_FUNCTION_TO_BE_MOCKED "' -------------------*/" CARRIAGE_RETURN
         IF_SECTION_EXISTS(GENERATE_MOCKED_TYPE_SECTION,
           TEMPLATE_FUNCTION_TO_BE_MOCKED ";" CARRIAGE_RETURN
         )
         FUNCTION_EXPECT_AND_RETURN_SIGNATURE ";" CARRIAGE_RETURN
         IF_SECTION_EXISTS(FUNCTION_PARAM_PTR_LIST_SECTION, FUNCTION_EXPECT_RETURN_AND_OUTPUT_SIGNATURE ";" CARRIAGE_RETURN)
-        "//----------------- END GENERATION '" TEMPLATE_FUNCTION_TO_BE_MOCKED "' -----------------" CARRIAGE_RETURN
+        "/*----------------- END GENERATION '" TEMPLATE_FUNCTION_TO_BE_MOCKED "' -----------------*/" CARRIAGE_RETURN
         CARRIAGE_RETURN
         TEMPLATE_END_SECTION(FUNCTION_SECTION)
         "#ifdef __cplusplus" CARRIAGE_RETURN
@@ -1013,17 +1033,43 @@ void CodeGeneratorCTemplate::fillInTemplateVariables(const std::string &p_mocked
   }
 }
 
+void CodeGeneratorCTemplate::generateFunctionAttributes(const FunctionDeclaration *f, ctemplate::TemplateDictionary *functionSectionDict)
+{
+  const auto& functionAttributeList = f->getAttributes();
+  for(const FunctionAttribute& funAttr : functionAttributeList)
+  {
+    if(std::find(m_generateAttrList.begin(), m_generateAttrList.end(), funAttr.getName()) == m_generateAttrList.end())
+    {
+      continue;
+    }
+    ctemplate::TemplateDictionary *funAttrSectionDict = functionSectionDict->AddSectionDictionary(FUNCTION_ATTR_LIST_SECTION);
+    const std::string& name = funAttr.getName();
+    funAttrSectionDict->SetValue(FUNCTION_ATTR_NAME_VAR, name);
+    const auto& funAttrParams = funAttr.getParameters();
+    if(!funAttrParams.empty())
+    {
+      ctemplate::TemplateDictionary *funAttrParamsList = funAttrSectionDict->AddSectionDictionary(FUNCTION_ATTR_PARAMETER_SECTION);
+      for(const std::string& funAttrParam : funAttrParams)
+      {
+        ctemplate::TemplateDictionary *funAttrParamDict = funAttrParamsList->AddSectionDictionary(FUNCTION_ATTR_PARAMETER_LIST);
+        funAttrParamDict->SetValue(FUNCTION_PARAM_NAME, funAttrParam);
+      }
+    }
+  }
+}
+
 void CodeGeneratorCTemplate::generateFunctionSection(const FunctionDeclaration *p_elemToMock)
 {
   ctemplate::TemplateDictionary *functionSectionDict = m_rootDictionary->AddSectionDictionary(FUNCTION_SECTION);
   if(m_generateUsedType)
   {
     /*
-     * We do not need to fill in any value in this section because the variable in in are the same
+     * We do not need to fill in any value in this section because the variable in this section are the same
      * as for the parent and the value is propagated automatically over there
      */
     functionSectionDict->AddSectionDictionary(GENERATE_MOCKED_TYPE_SECTION);
   }
+  generateFunctionAttributes(p_elemToMock, functionSectionDict);
   functionSectionDict->SetValue(FUNCTION_STACK_VARIABLE_NAME, *p_elemToMock->getName());
   std::string upperString(*p_elemToMock->getName());
   std::transform(upperString.begin(), upperString.end(), upperString.begin(), ::toupper);

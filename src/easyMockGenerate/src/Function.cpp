@@ -3,7 +3,7 @@
 #include <boost/functional/hash.hpp>
 
 Function::Function(std::string p_functionName, ReturnValue p_functionReturnType, Parameter::Vector p_functionParameters):
-m_name(p_functionName), m_parameters(p_functionParameters), m_returnType(p_functionReturnType), m_isVariadic(false), m_isInlined(false) { }
+m_name(p_functionName), m_parameters(p_functionParameters), m_returnType(p_functionReturnType), m_attributes{}, m_isVariadic(false), m_isInlined(false) { }
 
 Function* Function::clone() const
 {
@@ -58,8 +58,19 @@ std::size_t Function::getHash() const
   boost::hash_combine(seed, m_name);
   boost::hash_combine(seed, m_parameters);
   boost::hash_combine(seed, m_returnType);
+  boost::hash_combine(seed, m_attributes);
 
   return seed;
+}
+
+void Function::addAttribute(FunctionAttribute p_attribute)
+{
+  m_attributes.push_back(std::move(p_attribute));
+}
+
+const Function::AttributesList & Function::getAttributes() const
+{
+  return m_attributes;
 }
 
 bool Function::operator==(const Function& other) const
@@ -69,8 +80,9 @@ bool Function::operator==(const Function& other) const
   const bool nameEq = this->m_name == other.m_name;
   const bool paramEq = this->m_parameters == other.m_parameters;
   const bool returnTypeEq = this->m_returnType == other.m_returnType;
+  const bool attributesEq = this->m_attributes == other.m_attributes;
 
-  return isInlineEq && isVariadicEq && nameEq && paramEq && returnTypeEq;
+  return isInlineEq && isVariadicEq && nameEq && paramEq && returnTypeEq && attributesEq;
 }
 
 bool Function::operator!=(const Function& other) const
@@ -84,6 +96,28 @@ std::string Function::getFunctionPrototype() const
   if(m_isInlined)
   {
       rv_funcProto.append("inline ");
+  }
+  for(const auto& attr : this->m_attributes)
+  {
+    rv_funcProto.append("__attributes__((");
+    rv_funcProto.append(attr.getName());
+    bool firstParam = true;
+    const auto& attrParams = attr.getParameters();
+    if(!attrParams.empty())
+    {
+      rv_funcProto.push_back('(');
+      for(const auto& attrParam : attrParams)
+      {
+        if(!firstParam)
+        {
+          rv_funcProto.push_back(',');
+        }
+        rv_funcProto.append(attrParam);
+        firstParam = false;
+      }
+      rv_funcProto.push_back(')');
+    }
+    rv_funcProto.append(")) ");
   }
   rv_funcProto.append(m_returnType.getDeclareString());
   rv_funcProto.push_back(' ');

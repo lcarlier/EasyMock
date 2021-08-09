@@ -23,27 +23,16 @@
 
 #include <boost/algorithm/string.hpp>
 
-#include <iostream>
 #include <string>
 #include <vector>
-#include <boost/filesystem/path.hpp>
 #include <unordered_map>
-#include <string>
-#include <sstream>
+#include <regex>
 
 namespace
 {
-void removeTrailingSpace(std::string& declareString)
-{
-  std::replace(declareString.begin(), declareString.end(),'\t',' ');
-  std::replace(declareString.begin(), declareString.end(),'\r',' ');
-  std::replace(declareString.begin(), declareString.end(),'\n',' ');
-  while(!declareString.empty() &&
-        declareString.back() == ' '
-      )
-  {
-    declareString.pop_back();
-  }
+std::string trim(const std::string &s) {
+  static std::regex removeSpaceRegex{"^[[:space:]]*|[[:space:]]*$"};
+  return std::regex_replace(s, removeSpaceRegex, "");
 }
 }
 
@@ -86,6 +75,7 @@ public:
     FunctionDeclaration *f = new FunctionDeclaration(funName, rv, param);
     f->setVariadic(func->isVariadic());
     f->setInlined(isInline);
+    setFunctionAttribute(func, f);
 
     return f;
   }
@@ -108,6 +98,109 @@ private:
     UNION
   };
 
+  void setFunctionAttribute(const clang::FunctionDecl* clangFunc, FunctionDeclaration* easyMockFun)
+  {
+    for(const auto& attr : clangFunc->attrs())
+    {
+      const clang::IdentifierInfo* identifierInfo = attr->getAttrName();
+      if(!identifierInfo)
+      {
+        fprintf(stderr, "Warning: couldn't get the identifier info for an attribute.\n"
+                        "         The mock will be missing a function attribute.");
+        attr->getRange().dump(*m_SM);
+        continue;
+      }
+      std::string attrName = identifierInfo->getName().str();
+      FunctionAttribute::ParametersList parametersList = getFunAttrParamList(clangFunc, attr);
+      FunctionAttribute functionAttribute{std::move(attrName), std::move(parametersList)};
+
+      easyMockFun->addAttribute(std::move(functionAttribute));
+    }
+  }
+
+  FunctionAttribute::ParametersList getFormatAttrParamList(const clang::FormatAttr *formatAttr)
+  {
+    FunctionAttribute::ParametersList parametersList{};
+    parametersList.emplace_back(formatAttr->getType()->getName().str());
+    parametersList.emplace_back(std::to_string(formatAttr->getFormatIdx()));
+    parametersList.emplace_back(std::to_string(formatAttr->getFirstArg()));
+    return parametersList;
+  }
+
+  FunctionAttribute::ParametersList getSectionAttrParamList(const clang::SectionAttr *sectionAttr)
+  {
+    FunctionAttribute::ParametersList parametersList{};
+    parametersList.emplace_back(sectionAttr->getName().str());
+    return parametersList;
+  }
+
+  FunctionAttribute::ParametersList getFunAttrParamList(const clang::FunctionDecl* clangFunc, const clang::Attr *attr)
+  {
+    FunctionAttribute::ParametersList parametersList{};
+    /*
+     * Clang defines a specific class for each possible function attribute.
+     * Currently, only the following are supported:
+     * - format
+     * - section
+     *
+     * The fallback case attempt to parse the string to determine the attribute name
+     * and its parameter. If something more precise is needed, a new else case must be added
+     * to the code.
+     * This fallback case works for the majority of the case we have seen so far.
+     */
+    const clang::FormatAttr *formatAttr = attr->getKind() == clang::attr::Kind::Format ? clangFunc->getAttr<clang::FormatAttr>() : nullptr;
+    const clang::SectionAttr *sectionAttr = attr->getKind() == clang::attr::Kind::Section ? clangFunc->getAttr<clang::SectionAttr>() : nullptr;
+    if(formatAttr)
+    {
+      parametersList = getFormatAttrParamList(formatAttr);
+    }
+    else if(sectionAttr)
+    {
+      parametersList = getSectionAttrParamList(sectionAttr);
+    }
+    else
+    {
+      clang::SourceRange sourceRange = attr->getRange();
+      clang::SourceLocation sourceBegin = sourceRange.getBegin();
+      clang::SourceLocation sourceEnd = sourceRange.getEnd();
+      if(sourceBegin.isMacroID())
+      {
+        sourceBegin = m_SM->getSpellingLoc(sourceBegin);
+      }
+      if(sourceEnd.isMacroID())
+      {
+        sourceEnd = m_SM->getSpellingLoc(sourceEnd);
+      }
+      clang::CharSourceRange charSourceRange{};
+      charSourceRange.setBegin(sourceBegin);
+      charSourceRange.setEnd(sourceEnd);
+      clang::StringRef attributeStringRef = clang::Lexer::getSourceText(charSourceRange, *m_SM, *m_LO);
+      std::string attributeString = attributeStringRef.str();
+      size_t curPos = attributeString.find_first_of('(');
+      while(curPos != std::string::npos)
+      {
+        curPos += 1;
+        size_t commaPos = attributeString.find_first_of(',', curPos);
+        if(commaPos != std::string::npos)
+        {
+          size_t paramLen = commaPos - curPos;
+          std::string curParam = attributeString.substr(curPos,paramLen);
+          curPos += paramLen; //Put the position on the comma
+          curParam = trim(curParam);
+          parametersList.push_back(curParam);
+        }
+        else
+        {
+          std::string curParam = attributeString.substr(curPos);
+          curParam = trim(curParam);
+          parametersList.push_back(curParam);
+          curPos = std::string::npos;
+        }
+      }
+    }
+    return parametersList;
+  }
+
   ReturnValue getFunctionReturnValue(const clang::FunctionDecl* func)
   {
     const std::string funName = getFunctionName(func);
@@ -116,7 +209,9 @@ private:
 
     TypeItf *type = getEasyMocktype(rvQualType, structKnownType, false);
     ReturnValue rv(type);
-    std::string declString = getDeclareString(func->getBeginLoc(), func->getEndLoc(), false);
+
+    clang::SourceLocation beginSourceLocation = func->getBeginLoc();
+    std::string declString = getDeclareString(beginSourceLocation, func->getEndLoc(), false);
     size_t funNamePos = declString.find(funName);
     if(funNamePos != std::string::npos)
     {
@@ -126,8 +221,53 @@ private:
     {
       declString.pop_back();
     }
+    /*
+     * Loop through all the function attributes and determine whether they are declared using a macro.
+     * If they are declared using a macro, just remove the macro call from the declString.
+     */
+    for(const auto& attr : func->attrs())
+    {
+      clang::SourceLocation sourceBegin = attr->getLocation();
+      if(sourceBegin.isMacroID())
+      {
+        clang::CharSourceRange charSourceRange = m_SM->getImmediateExpansionRange(sourceBegin);
+        clang::StringRef attributeStringRef = clang::Lexer::getSourceText(charSourceRange, *m_SM, *m_LO);
+        std::string macroStr = attributeStringRef.str();
+        /*
+         * If the immediateExpansionRange is empty, try to get it after getting the immediateMacroCallerLoc.
+         *
+         * The assumption is that whenever a macro is defining 2 function attributes e.g.
+         * #define __section(S) __attribute__ ((section(#S)))
+         * #define __cold       __attribute__((cold))
+         * #define __multiAttr  __section(.multiAttr.text) __cold
+         *
+         * Then it is needed to go on the immediateMacroCallerLoc.
+         *
+         * This isn't working in all the cases though. Not sure why...
+         */
+        if(macroStr.empty())
+        {
+          sourceBegin = m_SM->getImmediateMacroCallerLoc(sourceBegin);
+          charSourceRange = m_SM->getImmediateExpansionRange(sourceBegin);
+          attributeStringRef = clang::Lexer::getSourceText(charSourceRange, *m_SM, *m_LO);
+          macroStr = attributeStringRef.str();
+        }
+        /*
+         * It is needed to escape "(" and ")" in case there are some so that they are not taken as group inside the
+         * std::regex
+         */
+        static std::regex leftParentRegex{"\\("};
+        static std::regex rightParentRegex{"\\)"};
+        macroStr = std::regex_replace(macroStr, leftParentRegex, "\\(");
+        macroStr = std::regex_replace(macroStr, rightParentRegex, "\\)");
+        declString = std::regex_replace(declString, std::regex{macroStr}, "");
+      }
+    }
+    static std::regex removeAttrRegex{"__attribute__[[:space:]]*\\([[:space:]]*\\(.*\\)[[:space:]]*\\)"};
+    declString = std::regex_replace(declString, removeAttrRegex, "");
     eraseInString(declString, "inline ");
     eraseInString(declString, "extern ");
+    declString = trim(declString);
     setDeclaratorDeclareString(rvQualType, &rv, declString);
     type = nullptr; //We lost the ownership
 
@@ -183,7 +323,7 @@ private:
           if (commaPos != std::string::npos)
           {
             declareString.erase(declareString.begin() + commaPos, declareString.end());
-            removeTrailingSpace(declareString);
+            declareString = trim(declareString);
           }
         };
         trimToFirstInstanceOf(',');
@@ -200,7 +340,7 @@ private:
         declareString.pop_back();
       }
     }
-    removeTrailingSpace(declareString);
+    declareString = trim(declareString);
 
     return declareString;
   }

@@ -1,13 +1,18 @@
 #include <CodeGeneratorItf.h>
 
-void CodeGeneratorItf::setMockOnlyFunction(const MockOnlyList& list)
+void CodeGeneratorItf::setMockOnlyFunction(MockOnlyList p_list)
 {
-  this->m_mockOnlyList = list;
+  this->m_mockOnlyList = std::move(p_list);
 }
 
-void CodeGeneratorItf::setGenerateUsedType(bool value)
+void CodeGeneratorItf::setGenerateAttrList(GenerateAttrList p_list)
 {
-  this->m_generateUsedType = value;
+  this->m_generateAttrList = std::move(p_list);
+}
+
+void CodeGeneratorItf::setGenerateUsedType(bool p_value)
+{
+  this->m_generateUsedType = p_value;
 }
 
 bool CodeGeneratorItf::generateCode(const std::string& p_outDir, const std::string &p_fullPathToHeaderToMock, const ElementToMockContext& p_elem)

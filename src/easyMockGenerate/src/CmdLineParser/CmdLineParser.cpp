@@ -2,6 +2,19 @@
 
 #include <string>
 
+namespace
+{
+bool hasOneMoreArgument(int argIdx, int argc)
+{
+  return argIdx+1 < argc;
+}
+
+bool nextArgumentValid(int argIdx, const char* argv[])
+{
+  return argv[argIdx+1][0] != '-';
+}
+}
+
 EasyMockOptions CmdLineParser::getParsedArguments(int argc,const char* argv[]) const
 {
   EasyMockOptions opt;
@@ -11,7 +24,7 @@ EasyMockOptions CmdLineParser::getParsedArguments(int argc,const char* argv[]) c
   for(argIdx = 1; argv[argIdx] != nullptr && argIdx < argc; argIdx++)
   {
     const std::string currentParam(argv[argIdx]);
-    if(currentParam == g_inputHeaderParam && (argIdx+1) < argc)
+    if(currentParam == g_inputHeaderParam && hasOneMoreArgument(argIdx, argc))
     {
       opt.m_inputHeaderFile = std::string(argv[argIdx+1]);
       if(opt.m_inputHeaderFile[0] == '-')
@@ -23,7 +36,7 @@ EasyMockOptions CmdLineParser::getParsedArguments(int argc,const char* argv[]) c
         argIdx++;
       }
     }
-    else if(currentParam == g_outputDirParam && (argIdx+1) < argc)
+    else if(currentParam == g_outputDirParam && hasOneMoreArgument(argIdx, argc))
     {
       opt.m_outputDir = std::string(argv[argIdx+1]);
       if(opt.m_outputDir[0] == '-')
@@ -37,7 +50,7 @@ EasyMockOptions CmdLineParser::getParsedArguments(int argc,const char* argv[]) c
     }
     else if(currentParam == g_mockOnlyParam)
     {
-      if(argIdx+1 < argc)
+      if(hasOneMoreArgument(argIdx, argc))
       {
         if(argv[argIdx+1][0] == '-')
         {
@@ -66,9 +79,9 @@ EasyMockOptions CmdLineParser::getParsedArguments(int argc,const char* argv[]) c
         opt.m_errorMessage = g_errorCwdMoreThanOnce;
         return opt;
       }
-      if(argIdx+1 < argc)
+      if(hasOneMoreArgument(argIdx, argc))
       {
-        if(argv[argIdx+1][0] == '-')
+        if(!nextArgumentValid(argIdx, argv))
         {
           opt.m_errorMessage = g_errorCwdMissing;
           return opt;
@@ -79,6 +92,24 @@ EasyMockOptions CmdLineParser::getParsedArguments(int argc,const char* argv[]) c
       else
       {
         opt.m_errorMessage = g_errorCwdMissing;
+        return opt;
+      }
+    }
+    else if(currentParam == g_generateAttribute)
+    {
+      if(hasOneMoreArgument(argIdx, argc))
+      {
+        if(!nextArgumentValid(argIdx, argv))
+        {
+          opt.m_errorMessage = g_errorGenerateAttrAttrMissing;
+          return opt;
+        }
+        opt.m_generateAttrList.emplace(argv[argIdx+1]);
+        argIdx++;
+      }
+      else
+      {
+        opt.m_errorMessage = g_errorGenerateAttrAttrMissing;
         return opt;
       }
     }

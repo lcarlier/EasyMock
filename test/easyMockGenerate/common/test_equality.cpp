@@ -755,3 +755,57 @@ TEST(equality, TypeItf)
   typeEq(tt1, tt2);
   typeNe(tt1, tt3);
 }
+
+TEST(equality, FunctionAttributeEqual)
+{
+  Function f1{"foo", VoidReturnValue(), Parameter::Vector{}};
+  Function f2{"foo", VoidReturnValue(), Parameter::Vector{}};
+
+  FunctionAttribute fa1{"printf", FunctionAttribute::ParametersList {"1", "2"}};
+  f1.addAttribute(std::move(fa1));
+
+  FunctionAttribute fa2{"printf", FunctionAttribute::ParametersList {"1", "2"}};
+  f2.addAttribute(std::move(fa2));
+
+  ASSERT_EQ(f1, f2);
+}
+
+
+TEST(equality, FunctionAttributeDifferent)
+{
+  Function f1{"foo", VoidReturnValue(), Parameter::Vector{}};
+  Function f2{"foo", VoidReturnValue(), Parameter::Vector{}};
+
+  FunctionAttribute fa1{"printf", FunctionAttribute::ParametersList {"1", "2"}};
+  f1.addAttribute(std::move(fa1));
+
+  FunctionAttribute fa2{"printf2", FunctionAttribute::ParametersList {"1", "2"}};
+  f2.addAttribute(std::move(fa2));
+
+  ASSERT_NE(f1, f2);
+}
+
+TEST(equality, FunctionAttributeParamDifferent)
+{
+  Function f1{"foo", VoidReturnValue(), Parameter::Vector{}};
+  Function f2{"foo", VoidReturnValue(), Parameter::Vector{}};
+
+  FunctionAttribute fa1{"printf", FunctionAttribute::ParametersList {"1", "2"}};
+  f1.addAttribute(std::move(fa1));
+
+  FunctionAttribute fa2{"printf", FunctionAttribute::ParametersList {"2", "3"}};
+  f2.addAttribute(std::move(fa2));
+
+  ASSERT_NE(f1, f2);
+}
+
+TEST(equality, FunctionAttributeAgainstFunctionNoAttribute)
+{
+  FunctionDeclaration f1{"foo", VoidReturnValue(), Parameter::Vector{}};
+  FunctionAttribute fa1{"printf", FunctionAttribute::ParametersList {"1", "2"}};
+  f1.addAttribute(std::move(fa1));
+
+  FunctionDeclaration f2{"foo", VoidReturnValue(), Parameter::Vector{}};
+
+  ASSERT_NE(f1, f2);
+}

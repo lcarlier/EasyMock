@@ -29,6 +29,26 @@ std::ostream& printFunction(std::ostream& os, const T& fun)
   os << "isVariadic: " << (fun.isVariadic() ? "yes" : "no") << ", ";
   os << "isInline: " << (fun.isInlined() ? "yes" : "no") << std::endl;
 
+  const Function::AttributesList & attributesList = fun.getAttributes();
+  os << gs_indentation << "Attributes:" << std::endl;
+  gs_indentation.push_back('\t');
+  for(const auto& attr: attributesList)
+  {
+    os << gs_indentation << attr.getName();
+    const FunctionAttribute::ParametersList& parametersList = attr.getParameters();
+    if(!parametersList.empty())
+    {
+      os << "(";
+      for(const auto& param : attr.getParameters())
+      {
+        os << " " << param << ",";
+      }
+      os << ")";
+    }
+    os << std::endl;
+  }
+  gs_indentation.pop_back();
+
   const ReturnValue *rv = fun.getReturnType();
   os << gs_indentation << "Return value:";
   gs_indentation.push_back('\t');
