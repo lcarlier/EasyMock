@@ -292,8 +292,19 @@ private:
       Parameter *p = new Parameter(type, paramName);
       type = nullptr; //We lost the ownership
       clang::SourceLocation beginLoc = param->getBeginLoc();
-      std::string declareString = getDeclareString(std::move(beginLoc), param->getEndLoc(), false);
-      setDeclaratorDeclareString(paramQualType, p, declareString);
+      const TypeItf* parameterRawType = p->getType()->getRawType();
+      /*
+       * Get the declared string if this is a macro, typedef or an implicit type. Else it is possible that
+       * the declared string we set misses some information while the default one is correct.
+       *
+       * See VoidFunUnnamedPtrParam test for reproduction scenario.
+       * See VoidFunEnumFactory (unnamed param) test for reproduction scenario.
+       */
+      if(beginLoc.isMacroID() || parameterRawType->isTypedDef() || parameterRawType->isImplicit())
+      {
+        std::string declareString = getDeclareString(beginLoc, param->getEndLoc(), false);
+        setDeclaratorDeclareString(paramQualType, p, declareString);
+      }
       vectParam.push_back(p);
       p = nullptr; //We lost the ownership
     }
@@ -303,15 +314,9 @@ private:
 
   std::string getDeclareString(const clang::SourceLocation& startLoc, const clang::SourceLocation& endLoc, bool fieldDecl)
   {
-    clang::CharSourceRange sourceRange = clang::Lexer::getAsCharRange(startLoc, *m_SM, *m_LO);
-    /*
-     * Get the end location with an offset of 1 because otherwise the * might be missed in case
-     * that the parameter doesn't have any name.
-     *
-     * See VoidFunUnnamedPtrParam test for reproduction scenario.
-     */
-    sourceRange.setEnd(endLoc.getLocWithOffset(1));
-    clang::StringRef strRef = clang::Lexer::getSourceText(sourceRange, *m_SM, *m_LO);
+    clang::CharSourceRange charSourceRange = clang::Lexer::getAsCharRange(startLoc, *m_SM, *m_LO);
+    charSourceRange.setEnd(endLoc);
+    clang::StringRef strRef = clang::Lexer::getSourceText(charSourceRange, *m_SM, *m_LO);
     std::string declareString = strRef.str();
     /*
      * When a declaration is inlined, we ignore the whole declaration in this way

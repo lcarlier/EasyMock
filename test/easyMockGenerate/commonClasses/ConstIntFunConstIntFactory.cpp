@@ -17,11 +17,6 @@ FunctionDeclaration ConstIntFunConstIntFactory::functionFactory()
   ConstQualifiedType* constCurType = new ConstQualifiedType(curType);
   curType = nullptr; //We lost the ownership
   Parameter *param = new Parameter(constCurType, "i");
-  /*
-   * We use setDeclareString because rv.getFullDeclareString() generates
-   * "int const" by default
-   */
-  param->setDeclareString("const int");
   constCurType = nullptr; //We lost the ownership
 
   FunctionDeclaration f(functionGetFunctionName(), rv, Parameter::Vector({param}));

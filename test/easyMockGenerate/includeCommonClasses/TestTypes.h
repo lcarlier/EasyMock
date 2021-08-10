@@ -222,7 +222,8 @@ typedef ::testing::BigTypes
         VOID_FUN_COMPOSABLE_TYPE_WITH_COMPOSABLE_TYPE_TYPES,
         COMPILE_ONLY_TYPES,
         IntFunStructPtrIntCharPtrFactory,
-        VoidFunIntArrayFactory
+        VoidFunIntArrayFactory,
+        VoidFunIntArrayGenerateTypeFactory
 > ParserTestTypes;
 
 typedef ::testing::Types

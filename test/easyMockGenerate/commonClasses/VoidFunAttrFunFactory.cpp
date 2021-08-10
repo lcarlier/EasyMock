@@ -10,7 +10,6 @@ ElementToMockList VoidFunAttrFunFactory::functionFactoryArray()
   ElementToMockList returnedList;
   {
     Parameter *p = new Parameter{new Pointer{new ConstQualifiedType{new CType{CTYPE_CHAR}}}, "fmt"};
-    p->setDeclareString("const char *");
     FunctionDeclaration *f = new FunctionDeclaration{functionGetFunctionName(), TypedReturnValue(CTYPE_VOID),
                                                      Parameter::Vector({p})};
     p = nullptr; //We lost the ownership
@@ -21,7 +20,6 @@ ElementToMockList VoidFunAttrFunFactory::functionFactoryArray()
   }
   {
     Parameter *p2 = new Parameter{new Pointer{new ConstQualifiedType{new CType{CTYPE_CHAR}}}, "fmt"};
-    p2->setDeclareString("const char *");
     Parameter *p1 = new Parameter{ new CType {CTYPE_INT}, "a"};
     FunctionDeclaration *f = new FunctionDeclaration{"voidFunAttrFunMacro", TypedReturnValue(CTYPE_VOID),
                                                      Parameter::Vector({p1, p2})};
@@ -33,7 +31,6 @@ ElementToMockList VoidFunAttrFunFactory::functionFactoryArray()
   }
   {
     Parameter *p = new Parameter{new Pointer{new ConstQualifiedType{new CType{CTYPE_CHAR}}}, "fmt"};
-    p->setDeclareString("const char *");
     FunctionDeclaration *f = new FunctionDeclaration{"voidFunAttrFunAlwaysInline", TypedReturnValue(CTYPE_VOID),
                                                      Parameter::Vector({p})};
     p = nullptr; //We lost the ownership

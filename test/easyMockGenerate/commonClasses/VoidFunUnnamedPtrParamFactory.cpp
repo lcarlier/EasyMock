@@ -11,8 +11,6 @@ ElementToMockList VoidFunUnnamedPtrParamFactory::functionFactoryArray()
   {
     Parameter *p1 = new Parameter{new CType{CTYPE_INT}, "a"};
     Parameter *p2 = new Parameter{new Pointer{new ConstQualifiedType{new CType{CTYPE_CHAR}}}, ""};
-    //We put some space in between the char and the * to make sure the code is able to code with that
-    p2->setDeclareString("const char      *");
     Parameter *p3 = new Parameter{new CType{CTYPE_INT}, "b"};
     FunctionDeclaration *f = new FunctionDeclaration{functionGetFunctionName(), TypedReturnValue(CTYPE_VOID),
                                                      Parameter::Vector({p1, p2, p3})};

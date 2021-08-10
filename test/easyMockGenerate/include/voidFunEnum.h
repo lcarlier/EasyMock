@@ -53,7 +53,9 @@ extern "C" {
     } embeddedEnum;
   };
 
-  void voidFunStructEmbeddedEnunType(struct structTestEmbeddedEnum s);
+  void voidFunStructEmbeddedEnumType(struct structTestEmbeddedEnum s);
+
+  void voidFunUnnamedEnumParam(enum enumTestParam);
 
 #ifdef __cplusplus
 }

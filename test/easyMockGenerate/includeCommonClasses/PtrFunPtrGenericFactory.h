@@ -38,7 +38,6 @@ class PtrFunPtrGenericFactory : public FunctionFactory<PTR_TYPE *, std::tuple<PT
 
     Parameter *p = new Parameter(paramType, "ptr");
     paramType = nullptr; //We lost the ownership
-    p->setDeclareString(declString);
     ReturnValue rv { rvType };
     rvType = nullptr; //We lost the ownership
     rv.setDeclareString(declString);

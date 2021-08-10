@@ -18,7 +18,6 @@ ElementToMockList VariadicFunctionsFactory::functionFactoryArray()
 
   Pointer *constCtype = new Pointer(new ConstQualifiedType(new CType(CTYPE_CHAR)));
   param = new Parameter(constCtype, "fmt");
-  param->setDeclareString("const char*");
   FunctionDeclaration* f2 = new FunctionDeclaration("variadicFunctions2", rv, Parameter::Vector({param}));
   param = nullptr;
   f2->setVariadic(true);
