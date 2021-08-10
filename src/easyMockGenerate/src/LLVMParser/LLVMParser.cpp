@@ -291,7 +291,9 @@ private:
 
       Parameter *p = new Parameter(type, paramName);
       type = nullptr; //We lost the ownership
-      setDeclaratorDeclareString(paramQualType, p, getDeclareString(param->getBeginLoc(), param->getEndLoc(), false));
+      clang::SourceLocation beginLoc = param->getBeginLoc();
+      std::string declareString = getDeclareString(std::move(beginLoc), param->getEndLoc(), false);
+      setDeclaratorDeclareString(paramQualType, p, declareString);
       vectParam.push_back(p);
       p = nullptr; //We lost the ownership
     }
@@ -302,7 +304,13 @@ private:
   std::string getDeclareString(const clang::SourceLocation& startLoc, const clang::SourceLocation& endLoc, bool fieldDecl)
   {
     clang::CharSourceRange sourceRange = clang::Lexer::getAsCharRange(startLoc, *m_SM, *m_LO);
-    sourceRange.setEnd(endLoc);
+    /*
+     * Get the end location with an offset of 1 because otherwise the * might be missed in case
+     * that the parameter doesn't have any name.
+     *
+     * See VoidFunUnnamedPtrParam test for reproduction scenario.
+     */
+    sourceRange.setEnd(endLoc.getLocWithOffset(1));
     clang::StringRef strRef = clang::Lexer::getSourceText(sourceRange, *m_SM, *m_LO);
     std::string declareString = strRef.str();
     /*

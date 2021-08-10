@@ -67,6 +67,7 @@
 #include <VoidFunMultilineFactory.h>
 #include <VoidFunStructCompleteFieldFactory.h>
 #include <VoidFunAttrFunFactory.h>
+#include <VoidFunUnnamedPtrParamFactory.h>
 
 // TestTypesInclude.h is generated
 #include "TestTypesInclude.h"
@@ -189,7 +190,9 @@
         VoidFunStructCompleteFieldFactory, \
         VoidFunStructCompleteFieldGenerateTypeFactory, \
         VoidFunAttrFunFactory, \
-        VoidFunAttrFunGenerateTypeFactory
+        VoidFunAttrFunGenerateTypeFactory, \
+        VoidFunUnnamedPtrParamFactory,    \
+        VoidFunUnnamedPtrParamGenerateTypeFactory
 
 typedef ::testing::Types
 <
