@@ -57,6 +57,9 @@ extern "C" {
 
   void voidFunUnnamedEnumParam(enum enumTestParam);
 
+  //The name of the enum is a substring of the function name. This trigger a bug sometimes and needs to be tested
+  enum enumTestParam enumTest();
+
 #ifdef __cplusplus
 }
 #endif

@@ -209,18 +209,15 @@ private:
 
     TypeItf *type = getEasyMocktype(rvQualType, structKnownType, false);
     ReturnValue rv(type);
+    type = nullptr; //We lost the ownership
 
+    /*
+     * clang::QualType doesn't have any SourceRange information. The source range is approximated by taking
+     * the very beginning of the function declaration and the begin position of the function name.
+     */
     clang::SourceLocation beginSourceLocation = func->getBeginLoc();
-    std::string declString = getDeclareString(beginSourceLocation, func->getEndLoc(), false);
-    size_t funNamePos = declString.find(funName);
-    if(funNamePos != std::string::npos)
-    {
-      declString.erase(declString.begin() + funNamePos, declString.end());
-    }
-    while(!declString.empty() && declString.back() == ' ')
-    {
-      declString.pop_back();
-    }
+    clang::SourceLocation startOfFunNameLocation = func->getNameInfo().getBeginLoc();
+    std::string declString = getDeclareString(beginSourceLocation, startOfFunNameLocation, false);
     /*
      * Loop through all the function attributes and determine whether they are declared using a macro.
      * If they are declared using a macro, just remove the macro call from the declString.
@@ -269,7 +266,6 @@ private:
     eraseInString(declString, "extern ");
     declString = trim(declString);
     setDeclaratorDeclareString(rvQualType, &rv, declString);
-    type = nullptr; //We lost the ownership
 
     return rv;
   }

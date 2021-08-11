@@ -66,6 +66,12 @@ ElementToMockList VoidFunEnumFactory::functionFactoryArray()
 
     returnedList.push_back(fd);
   }
+  {
+    ReturnValue rv{e.clone()};
+    FunctionDeclaration *fd = new FunctionDeclaration{ "enumTest", rv, Parameter::Vector ({})};
+
+    returnedList.push_back(fd);
+  }
   return returnedList;
 }
 
