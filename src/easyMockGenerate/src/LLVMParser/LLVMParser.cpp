@@ -295,7 +295,8 @@ private:
       const TypeItf* parameterRawType = p->getType()->getRawType();
       /*
        * Get the declared string if this is a macro, typedef or an implicit type. Else it is possible that
-       * the declared string we set misses some information while the default one is correct.
+       * the declared string we try to parse misses some information while the default one coming from the
+       * framework is correct.
        *
        * See VoidFunUnnamedPtrParam test for reproduction scenario.
        * See VoidFunEnumFactory (unnamed param) test for reproduction scenario.
@@ -310,6 +311,23 @@ private:
     }
 
     return vectParam;
+  }
+
+  std::string removeComments(std::string declareString)
+  {
+    static std::regex oneLineCommentRegex{"//.*\n"};
+    declareString = std::regex_replace(declareString, oneLineCommentRegex, "");
+    for(auto& c : declareString)
+    {
+      if(c == '\n')
+      {
+        c = ' ';
+      }
+    }
+    static std::regex commentRegex{"/\\*.*\\*/"};
+    declareString = std::regex_replace(declareString, commentRegex, "");
+
+    return declareString;
   }
 
   std::string getDeclareString(const clang::SourceLocation& startLoc, const clang::SourceLocation& endLoc, bool fieldDecl)
@@ -353,7 +371,8 @@ private:
         declareString.pop_back();
       }
     }
-    declareString = trim(declareString);
+    declareString = removeComments(std::move(declareString));
+    declareString = trim(std::move(declareString));
 
     return declareString;
   }
