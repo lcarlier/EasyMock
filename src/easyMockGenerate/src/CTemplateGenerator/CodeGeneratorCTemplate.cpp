@@ -1726,7 +1726,7 @@ ctemplate::TemplateDictionary* CodeGeneratorCTemplate::generateDeclarationOfComp
 
     if(composableType)
     {
-      const std::string& curFieldName = curField->getName();
+      std::string curFieldName = curField->getName();
       int nextNbLevelToGenerate = p_nbLevelToGenerate == 0 ? 0 : p_nbLevelToGenerate - 1;
       GenerateDeclarationOfComposableTypeOrigin nextOrigin =
               p_origin == GenerateDeclarationOfComposableTypeOrigin::GENERATE_TOP_LEVEL_USED_TYPE ?
@@ -1738,6 +1738,13 @@ ctemplate::TemplateDictionary* CodeGeneratorCTemplate::generateDeclarationOfComp
       ctemplate::TemplateDictionary* subAnonymousDeclDict = generateDeclarationOfComposableType(curFieldDict, composableType, nextNbLevelToGenerate, nextOrigin);
       if(!curFieldName.empty())
       {
+        const ComposableField* curCompField = dynamic_cast<const ComposableField*>(curField);
+        if(curCompField && curCompField->isBoundSpecifiedArray())
+        {
+          curFieldName.push_back('[');
+          curFieldName.append(std::to_string(curCompField->getArraySize()));
+          curFieldName.push_back(']');
+        }
         subAnonymousDeclDict->AddSectionDictionary(COMPOSABLE_TYPE_INLINE_DECL_FIELD_NAME_SECTION)->SetValue(COMPOSABLE_TYPE_INLINE_DECL_FIELD_NAME_VAR, curFieldName);
       }
     }

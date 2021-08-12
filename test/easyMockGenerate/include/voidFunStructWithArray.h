@@ -8,12 +8,18 @@ extern "C"
 
 #define ARRAYS_SIZE_MACRO 3
 
+  struct fieldArray
+  {
+    int a;
+  };
+
   struct structWithArray
   {
     int a[10];
     int c[ARRAYS_SIZE_MACRO + 1];
     int d[ARRAYS_SIZE_MACRO + 1], e[4], g[ARRAYS_SIZE_MACRO + 1];
     float f;
+    struct fieldArray fieldStructArray[2];
     int b[0];
   };
 
