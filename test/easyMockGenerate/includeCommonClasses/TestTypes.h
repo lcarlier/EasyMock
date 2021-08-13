@@ -69,6 +69,7 @@
 #include <VoidFunAttrFunFactory.h>
 #include <VoidFunUnnamedPtrParamFactory.h>
 #include <VoidFunEmbeddedCommentsFactory.h>
+#include <VoidFunStructWithAnonymousUnionFieldWithStructFactory.h>
 
 // TestTypesInclude.h is generated
 #include "TestTypesInclude.h"
@@ -149,7 +150,9 @@
         VoidFunStructBitfieldFactory, \
         VoidFunStructBitfieldGenerateTypeFactory, \
         VoidFunStructWithSecondLevelAnonymousFactory, \
-        VoidFunStructWithSecondLevelAnonymousGenerateTypeFactory
+        VoidFunStructWithSecondLevelAnonymousGenerateTypeFactory, \
+        VoidFunStructWithAnonymousUnionFieldWithStructFactory, \
+        VoidFunStructWithAnonymousUnionFieldWithStructGenerateTypeFactory
 
 #define COMPILE_ONLY_TYPES \
         CompileTwoFunctionsFactory, \

@@ -1346,11 +1346,13 @@ void CodeGeneratorCTemplate::generateBodyStructCompare(ctemplate::TemplateDictio
   static unsigned int s_nbAnonymousField = 0;
 
   const TypeItf* curFieldType = p_curField->getType();
+  const TypeItf* unqualType = curFieldType->unqualify();
+  const bool isPointer = unqualType->isPointer();
   const TypeItf* rawCurFieldType = getRawType(curFieldType);
   const ComposableType* curFieldComposableType = rawCurFieldType->asComposableType();
   const IncompleteType* incompleteType = rawCurFieldType->asIncompleteType();
 
-  if(curFieldComposableType || (incompleteType && !curFieldType->isPointer()))
+  if((curFieldComposableType  && !isPointer) || (incompleteType && !isPointer))
   {
     const bool isFieldAnonymous = p_curField->isAnonymous();
     if(isFieldAnonymous)
@@ -1422,7 +1424,7 @@ void CodeGeneratorCTemplate::generateBodyStructCompare(ctemplate::TemplateDictio
     rawCurFieldType->isCType()
     || rawCurFieldType->isFunctionType()
     || rawCurFieldType->isEnum()
-    || rawCurFieldType->isPointer()
+    || isPointer
     || rawCurFieldType->isIncompleteType()
     || rawCurFieldType->isConst()
           )
@@ -1729,7 +1731,8 @@ ctemplate::TemplateDictionary* CodeGeneratorCTemplate::generateDeclarationOfComp
       std::string curFieldName = curField->getName();
       int nextNbLevelToGenerate = p_nbLevelToGenerate == 0 ? 0 : p_nbLevelToGenerate - 1;
       GenerateDeclarationOfComposableTypeOrigin nextOrigin =
-              p_origin == GenerateDeclarationOfComposableTypeOrigin::GENERATE_TOP_LEVEL_USED_TYPE ?
+              p_origin == GenerateDeclarationOfComposableTypeOrigin::GENERATE_TOP_LEVEL_USED_TYPE ||
+              p_origin == GenerateDeclarationOfComposableTypeOrigin::GENERATE_COMPARE_FUNCTION ?
               GenerateDeclarationOfComposableTypeOrigin::GENERATE_SUB_LEVEL_USED_TYPE : p_origin;
       if(fieldType->isAnonymous())
       {
