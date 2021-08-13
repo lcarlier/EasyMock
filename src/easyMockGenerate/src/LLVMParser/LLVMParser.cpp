@@ -297,7 +297,7 @@ private:
        * See VoidFunUnnamedPtrParam test for reproduction scenario.
        * See VoidFunEnumFactory (unnamed param) test for reproduction scenario.
        */
-      if(beginLoc.isMacroID() || parameterRawType->isTypedDef() || parameterRawType->isImplicit())
+      if(beginLoc.isMacroID() || parameterRawType->isImplicit())
       {
         std::string declareString = getDeclareString(beginLoc, param->getEndLoc(), false);
         setDeclaratorDeclareString(paramQualType, p, declareString);

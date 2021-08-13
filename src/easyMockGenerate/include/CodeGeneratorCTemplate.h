@@ -102,7 +102,7 @@ private:
 
   const TypeItf* getMostPointedType(const TypeItf* p_type);
 
-  EasyMock::HashablePointerUnordereddSet<const ComposableType*> m_generatedComparator;
+  std::unordered_set<std::string> m_generatedComparator;
   unsigned int m_nbUnamedParam;
   ctemplate::TemplateDictionary *m_rootDictionary;
   ctemplate::TemplateDictionary *m_generateMockedTypeSection;

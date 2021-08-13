@@ -30,6 +30,8 @@ public:
    * \code{.cpp}
    * TypedefType t("t_int", new CType(CTYPE_INT));
    * \endcode
+   *
+   * \heapPointer
    */
   TypedefType(const std::string& p_typedefName, TypeItf* p_typeeType);
 

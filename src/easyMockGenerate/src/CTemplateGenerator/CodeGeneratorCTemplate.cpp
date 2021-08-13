@@ -825,9 +825,11 @@ const TypeItf* CodeGeneratorCTemplate::getRawType(const TypeItf* p_type)
 void CodeGeneratorCTemplate::registerTypeDef(const TypeItf *p_type)
 {
   const TypedefType* typeDefType = getTypeDefType(p_type);
-  if(typeDefType && m_typeToTypedef.find(p_type) == m_typeToTypedef.end())
+  if(typeDefType)
   {
-    m_typeToTypedef.insert({typeDefType->getTypee(), typeDefType});
+    const TypeItf* typeeType = typeDefType->getTypee();
+    if(m_typeToTypedef.find(typeeType) == m_typeToTypedef.end())
+      m_typeToTypedef.insert({typeeType, typeDefType});
   }
 }
 
@@ -1565,7 +1567,7 @@ void CodeGeneratorCTemplate::generateDeclarationOfUsedType(ctemplate::TemplateDi
           if (!isParentRoot && composableFieldType->isAnonymous() && composableFieldType->isComposableType())
           {
             /*
-             * For anonymous composable type generate the code inline because it
+             * For anonymous composable type generate the code inline because
              * it doesn't make sense to create the anonymous type outside.
              */
             generateDeclarationOfComposableType(p_parentDictionary,
@@ -1791,14 +1793,15 @@ ctemplate::TemplateDictionary* CodeGeneratorCTemplate::generateDeclarationOfComp
 
 void CodeGeneratorCTemplate::generateComposedTypedCompareSection(const ComposableType *p_composedType, std::string p_uniquePrepend, std::string p_declPrepend)
 {
+
+  std::string uniqueName {getComparatorName(p_composedType) };
+
   //Generate each comparator only once.
-  if(m_generatedComparator.find(p_composedType) != m_generatedComparator.end())
+  if(m_generatedComparator.find(uniqueName) != m_generatedComparator.end())
   {
     return;
   }
-  m_generatedComparator.insert(p_composedType);
-
-  std::string uniqueName {getComparatorName(p_composedType) };
+  m_generatedComparator.insert(uniqueName);
 
   if(p_composedType->isDeclarationEmbeddedInOtherType())
   {

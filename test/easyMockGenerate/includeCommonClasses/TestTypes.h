@@ -70,6 +70,7 @@
 #include <VoidFunUnnamedPtrParamFactory.h>
 #include <VoidFunEmbeddedCommentsFactory.h>
 #include <VoidFunStructWithAnonymousUnionFieldWithStructFactory.h>
+#include <VoidFunTypeAndTypeDefUsedFactory.h>
 
 // TestTypesInclude.h is generated
 #include "TestTypesInclude.h"
@@ -198,7 +199,9 @@
         VoidFunUnnamedPtrParamFactory, \
         VoidFunUnnamedPtrParamGenerateTypeFactory, \
         VoidFunEmbeddedCommentsFactory, \
-        VoidFunEmbeddedCommentsGenerateTypeFactory
+        VoidFunEmbeddedCommentsGenerateTypeFactory, \
+        VoidFunTypeAndTypeDefUsedFactory, \
+        VoidFunTypeAndTypeDefUsedGenerateTypeFactory
 
 typedef ::testing::Types
 <
