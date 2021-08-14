@@ -541,8 +541,7 @@ public:
   bool prefix ## isImplicit; \
   bool prefix ## isIncompleteType; \
   bool prefix ## isTypedefType; \
-  bool prefix ## isQualifiedType; \
-  std::string prefix ## typedefName;
+  bool prefix ## isQualifiedType;
 protected:
   TypeItf();
   explicit TypeItf(const std::string p_name);
@@ -655,8 +654,6 @@ protected:
   virtual bool isEqual(const TypeItf &p_other) const;
 
 private:
-
-  friend class TypedefType;
 
   typedef struct
   {

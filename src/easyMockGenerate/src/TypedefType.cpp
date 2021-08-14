@@ -7,7 +7,6 @@ TypedefType::TypedefType(const std::string& p_typedefName, TypeItf* p_typeeType)
 TypeItf { p_typedefName }, m_typeeType { p_typeeType }
 {
   setTypedefType(true);
-  m_typeeType->getRawType()->m_typedefName = p_typedefName;
 }
 
 TypedefType::TypedefType(const TypedefType &other):

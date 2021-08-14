@@ -1943,16 +1943,31 @@ std::string CodeGeneratorCTemplate::getNonQualifiedDeclaratorString(const Declar
 std::string CodeGeneratorCTemplate::getDeclaratorString(const Declarator* p_decl)
 {
   std::string rv { p_decl->getDeclareString() };
-  const TypeItf* declType = getRawType(p_decl->getType());
-  if(declType->isAnonymous())
+  const TypeItf* declType = p_decl->getType();
+  const TypeItf* declRawType = getRawType(declType);
+  /*
+   * Only generate an anonymous type if the initial type wasn't a typedef.
+   *
+   * It is possible that a raw type is anonymous while it has been declared with a typedef.
+   * e.g.
+   * typedef struct
+   * {
+   *   int a;
+   * }foo;
+   *
+   * void fun(foo a);
+   *
+   * The struct is anonymous, but it has been used using a typedef.
+   */
+  if(declRawType->isAnonymous() && !declType->isTypedDef())
   {
     /*
-     * If the type is anonymous, then we something like
+     * If the type is anonymous, then we need something like
      * enum
      * So we must append the generated anonymous type name to it.
      */
     rv.append(" ");
-    rv.append(getAnonymousName(declType));
+    rv.append(getAnonymousName(declRawType));
   }
   return rv;
 }
