@@ -71,6 +71,7 @@
 #include <VoidFunEmbeddedCommentsFactory.h>
 #include <VoidFunStructWithAnonymousUnionFieldWithStructFactory.h>
 #include <VoidFunTypeAndTypeDefUsedFactory.h>
+#include <VoidFunStructWithOutsideDeclaredAnonymousTypeStructFieldFactory.h>
 
 // TestTypesInclude.h is generated
 #include "TestTypesInclude.h"
@@ -201,7 +202,9 @@
         VoidFunEmbeddedCommentsFactory, \
         VoidFunEmbeddedCommentsGenerateTypeFactory, \
         VoidFunTypeAndTypeDefUsedFactory, \
-        VoidFunTypeAndTypeDefUsedGenerateTypeFactory
+        VoidFunTypeAndTypeDefUsedGenerateTypeFactory, \
+        VoidFunStructWithOutsideDeclaredAnonymousTypeStructFieldFactory, \
+        VoidFunStructWithOutsideDeclaredAnonymousTypeStructFieldGenerateTypeFactory
 
 typedef ::testing::Types
 <

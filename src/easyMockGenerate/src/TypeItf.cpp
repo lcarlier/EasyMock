@@ -169,6 +169,23 @@ TypedefType* TypeItf::asTypedefType()
   return const_cast<TypedefType*>(static_cast<const TypeItf*>(this)->asTypedefType());
 }
 
+bool TypeItf::containsTypeDef() const
+{
+  if(this->m_isTypedefType)
+  {
+    return true;
+  }
+  if(this->m_isPointer)
+  {
+    return static_cast<const Pointer*>(this)->getPointedType()->containsTypeDef();
+  }
+  if(this->m_isQualifiedType)
+  {
+    return static_cast<const QualifiedType*>(this)->getUnqualifiedType()->containsTypeDef();
+  }
+  return false;
+}
+
 //Protected
 void TypeItf::setCType(bool value)
 {

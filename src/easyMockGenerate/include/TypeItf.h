@@ -227,6 +227,22 @@ public:
   TypedefType* asTypedefType();
 
   /*!
+   * \brief Returns whether a ::TypeItf has a ::TypedefType in its hierarchy.
+   *
+   * When having code such as
+   * \code{.c}
+   *
+   * typedef unsigned u_int;
+   *
+   * void foo(const u_int*);
+   * \endcode
+   * this function can be used to determine that the top ::ConstQualifiedType has a typedef in its hierarchy
+   *
+   * \return if the ::TypeItf has a ::TypedefType in its hierarchy. False instead.
+   */
+  bool containsTypeDef() const;
+
+  /*!
    * \brief Returns if the type is anonymous.
    *
    * An anonymous type is a type which doesn't have a name or any typedef name

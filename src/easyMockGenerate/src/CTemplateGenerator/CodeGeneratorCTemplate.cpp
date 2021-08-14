@@ -1719,9 +1719,8 @@ ctemplate::TemplateDictionary* CodeGeneratorCTemplate::generateDeclarationOfComp
   const ComposableFieldItf::Vector& vectField = p_composedType->getContainedFields();
   ctemplate::TemplateDictionary* typeBodyDictionnary { nullptr };
   typeBodyDictionnary = anonymousDeclDict->AddSectionDictionary(COMPOSABLE_TYPE_BODY_SECTION);
-  for (ComposableFieldItf::Vector::const_iterator it = vectField.begin(); it != vectField.end(); ++it)
+  for (const auto& curField : vectField)
   {
-    const ComposableFieldItf *curField = *it;
     const TypeItf* fieldType = curField->getType();
     const ComposableType* composableType = fieldType->asComposableType();
 
@@ -1958,8 +1957,11 @@ std::string CodeGeneratorCTemplate::getDeclaratorString(const Declarator* p_decl
    * void fun(foo a);
    *
    * The struct is anonymous, but it has been used using a typedef.
+   *
+   * containsTypeDef is used because it is needed to check the case where pointer to typedef
+   * (or qualified typedef) are being used.
    */
-  if(declRawType->isAnonymous() && !declType->isTypedDef())
+  if(declRawType->isAnonymous() && !declType->containsTypeDef())
   {
     /*
      * If the type is anonymous, then we need something like
