@@ -3,7 +3,8 @@
 #include <boost/functional/hash.hpp>
 
 Function::Function(std::string p_functionName, ReturnValue p_functionReturnType, Parameter::Vector p_functionParameters):
-m_name(p_functionName), m_parameters(p_functionParameters), m_returnType(p_functionReturnType), m_attributes{}, m_isVariadic(false), m_isInlined(false) { }
+m_name(p_functionName), m_parameters(p_functionParameters), m_returnType(p_functionReturnType), m_attributes{}, m_isVariadic(false), m_isInlined(false), m_isStatic{false}, m_originFile{}
+{ }
 
 Function* Function::clone() const
 {
@@ -45,6 +46,26 @@ bool Function::isInlined() const
   return m_isInlined;
 }
 
+bool Function::isStatic() const noexcept
+{
+  return m_isStatic;
+}
+
+void Function::setIsStatic(bool value) noexcept
+{
+  m_isStatic = value;
+}
+
+const std::string& Function::getOriginFile() const noexcept
+{
+  return m_originFile;
+}
+
+void Function::setOriginFile(std::string originFile) noexcept
+{
+  m_originFile = std::move(originFile);
+}
+
 void Function::setInlined(bool value)
 {
   m_isInlined = value;
@@ -59,6 +80,23 @@ std::size_t Function::getHash() const
   boost::hash_combine(seed, m_parameters);
   boost::hash_combine(seed, m_returnType);
   boost::hash_combine(seed, m_attributes);
+  boost::hash_combine(seed, m_isStatic);
+
+  return seed;
+}
+
+std::size_t Function::getRawHash() const noexcept
+{
+  std::size_t seed { 0 };
+  boost::hash_combine(seed, m_isVariadic);
+  boost::hash_combine(seed, m_name);
+  for(const auto& param: m_parameters)
+  {
+    auto detypedTypedef = deTypeDef(*param->getType());
+    boost::hash_combine(seed, detypedTypedef->getHash());
+  }
+  auto detypedTypedef = deTypeDef(*m_returnType.getType());
+  boost::hash_combine(seed, detypedTypedef->getHash());
 
   return seed;
 }
@@ -81,8 +119,9 @@ bool Function::operator==(const Function& other) const
   const bool paramEq = this->m_parameters == other.m_parameters;
   const bool returnTypeEq = this->m_returnType == other.m_returnType;
   const bool attributesEq = this->m_attributes == other.m_attributes;
+  const bool isStaticEq = this->m_isStatic == other.m_isStatic;
 
-  return isInlineEq && isVariadicEq && nameEq && paramEq && returnTypeEq && attributesEq;
+  return isInlineEq && isVariadicEq && nameEq && paramEq && returnTypeEq && attributesEq && isStaticEq;
 }
 
 bool Function::operator!=(const Function& other) const
@@ -93,9 +132,13 @@ bool Function::operator!=(const Function& other) const
 std::string Function::getFunctionPrototype() const
 {
   std::string rv_funcProto;
+  if(m_isStatic)
+  {
+    rv_funcProto.append("static ");
+  }
   if(m_isInlined)
   {
-      rv_funcProto.append("inline ");
+    rv_funcProto.append("inline ");
   }
   for(const auto& attr : this->m_attributes)
   {

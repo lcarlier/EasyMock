@@ -39,8 +39,8 @@ public:
   /*!
    * \brief Compare ::Pointer object
    */
-  bool operator==(const Pointer &other) const;
-  bool operator!=(const Pointer &other) const;
+  bool operator==(const TypeItf &other) const;
+  bool operator!=(const TypeItf &other) const;
 
   Pointer(Pointer &&other);
   //With elision pattern no need for move assignment

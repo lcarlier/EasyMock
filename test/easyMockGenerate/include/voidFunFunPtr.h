@@ -46,6 +46,13 @@ extern "C" {
    */
   int (* const constFunPtrFunInt(int ))(int, float );
 
+  struct constPtrFunFieldStruct
+  {
+    int (* const constFunPtr)(int, float);
+  };
+
+  int voidFunConstPtrFunField(struct constPtrFunFieldStruct p);
+
 #ifdef __cplusplus
 }
 #endif

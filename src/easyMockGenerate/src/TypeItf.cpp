@@ -253,7 +253,7 @@ ComposableType* TypeItf::asComposableType()
 
 bool TypeItf::isPointer() const
 {
-  return !m_isIncompleteType && unqualify()->m_isPointer;
+  return !m_isIncompleteType && m_isPointer;
 }
 
 const Pointer* TypeItf::asPointer() const
@@ -262,7 +262,7 @@ const Pointer* TypeItf::asPointer() const
   {
     return nullptr;
   }
-  return static_cast<const Pointer*>(unqualify());
+  return static_cast<const Pointer*>(this);
 }
 
 Pointer* TypeItf::asPointer()
@@ -447,4 +447,28 @@ bool TypeItf::isEqual(const TypeItf& other) const
 bool TypeItf::operator!=(const TypeItf& other) const
 {
   return (*this == other) == false;
+}
+
+std::unique_ptr<TypeItf> deTypeDef(const TypeItf& typeItf)
+{
+  const Pointer *ptr = typeItf.asPointer();
+  if(ptr)
+  {
+    auto deTypedPointedType = deTypeDef(*ptr->getPointedType());
+    return std::make_unique<Pointer>(deTypedPointedType->clone());
+  }
+  const QualifiedType* qualifiedType = typeItf.asQualifiedType();
+  if(qualifiedType)
+  {
+    auto deTypedQualifiedType = deTypeDef(*qualifiedType->getUnqualifiedType());
+    TypeItf* copyQualifiedType = qualifiedType->clone();
+    copyQualifiedType->asQualifiedType()->setUnqualifiedType(deTypedQualifiedType->clone());
+    return std::unique_ptr<TypeItf>(copyQualifiedType);
+  }
+  const TypedefType* typedefType = typeItf.asTypedefType();
+  if(typedefType)
+  {
+    return deTypeDef(*typedefType->getTypee());
+  }
+  return std::unique_ptr<TypeItf>(typeItf.clone());
 }

@@ -66,11 +66,11 @@ TEST(Pointer, constVoidPointer)
 TEST(Pointer, constPtr_isPointer)
 {
   ConstQualifiedType cqt{new Pointer(new CType(CTYPE_VOID)) };
-  ASSERT_TRUE(cqt.isPointer());
+  ASSERT_FALSE(cqt.isPointer());
 }
 
 TEST(Pointer, constPtr_asPointer)
 {
   ConstQualifiedType cqt{new Pointer(new CType(CTYPE_VOID)) };
-  ASSERT_TRUE(cqt.asPointer());
+  ASSERT_FALSE(cqt.asPointer());
 }

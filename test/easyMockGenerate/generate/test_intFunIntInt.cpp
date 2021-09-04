@@ -16,7 +16,7 @@ typedef void (*funExpectPtr)(int a, int b, int rv, EasyMock_Matcher match_a, Eas
 class intFunIntInt_testCase : public easyMockGenerate_baseTestCase
 {
 public:
-  intFunIntInt_testCase() : easyMockGenerate_baseTestCase("intFunIntInt", "include/intFunIntInt.h", "mockIntFunIntInt", false)
+  intFunIntInt_testCase() : easyMockGenerate_baseTestCase("intFunIntInt", "include/intFunIntInt.h", "mockIntFunIntInt", false, true)
   {
     IntFunIntIntFactory factory;
     ElementToMock *f = factory.newFunctionFactory();

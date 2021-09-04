@@ -24,11 +24,11 @@
 
 static void readStdoutStderrUntilEnd(int fdStdOut, int fdStdErr, std::string &stdOut, std::string &stdErr);
 static void appendReadIntoString(int fd, std::string &str, const char *strName, bool *noMoreToRead);
-static void loadSo(const char *pathToSo, const char *functionToLoad, const char *comparatorToMatch, void **funcPtr, void **functExpectPtr, void **functMatcherPtr, void **functOutputPtr, void **handle, bool & m_rmDir);
+static void loadSo(const char *pathToSo, const char *functionToLoad, const char *comparatorToMatch, void **funcPtr, void **functExpectPtr, void **functMatcherPtr, void **functOutputPtr, void **handle, bool & m_rmDir, bool& m_load_function);
 static void cleanTest(void **handle, const std::string &mockDir, bool rmDirectory);
 static void dumpToFile(const std::string& dir, const std::string& file, std::string& data, bool append);
 
-easyMockGenerate_baseTestCase::easyMockGenerate_baseTestCase(const std::string functionToMock, const std::string pathToFileToMock, const std::string mockDir, bool generateTypes, bool rmDir) :
+easyMockGenerate_baseTestCase::easyMockGenerate_baseTestCase(const std::string functionToMock, const std::string pathToFileToMock, const std::string mockDir, bool generateTypes, bool loadFunction, bool rmDir) :
 ::testing::Test {} ,
 m_functionToMock {functionToMock },
 m_comparatorToMatch {"" },
@@ -41,6 +41,7 @@ m_fptr_expect { nullptr },
 m_fptr_matcher { nullptr },
 m_fptr_output_ptr { nullptr },
 m_generate_types { generateTypes },
+m_load_function {loadFunction },
 m_finalMockDir { "" }
 {
 }
@@ -244,7 +245,7 @@ void easyMockGenerate_baseTestCase::prepareTest(const ElementToMockContext &elem
   executeCmd(fileLibFile, &status);
   ASSERT_EQ(status, 0);
 
-  loadSo(pathToLib.c_str(), functionToMock.c_str(), comparatorToMatch.c_str(), fptr, fptr_expect, fptr_matcher, fptr_output_ptr, handle, m_rmDir);
+  loadSo(pathToLib.c_str(), functionToMock.c_str(), comparatorToMatch.c_str(), fptr, fptr_expect, fptr_matcher, fptr_output_ptr, handle, m_rmDir, m_load_function);
 }
 
 static void cleanTest(void **handle, const std::string &mockDir, bool rmDirectory)
@@ -455,7 +456,7 @@ void easyMockGenerate_baseTestCase::executeCmd(const char * const aArguments[], 
   }
 }
 
-static void loadSo(const char *pathToSo, const char *functionToLoad, const char *comparatorToMatch, void **funcPtr, void **funcPtr_expect, void **funcPtr_matcher, void **funcPtr_output_ptr, void **handle, bool& m_rmDir)
+static void loadSo(const char *pathToSo, const char *functionToLoad, const char *comparatorToMatch, void **funcPtr, void **funcPtr_expect, void **funcPtr_matcher, void **funcPtr_output_ptr, void **handle, bool& m_rmDir, bool& m_load_function)
 {
   char *error;
 
@@ -468,27 +469,30 @@ static void loadSo(const char *pathToSo, const char *functionToLoad, const char 
   }
   ASSERT_NE(*handle, nullptr) << "couldn't open shared library " << pathToSo << ": " << error;
 
-  dlerror(); /* Clear any existing error */
+  if(m_load_function)
+  {
+    dlerror(); /* Clear any existing error */
 
-  *funcPtr = dlsym(*handle, functionToLoad);
-  error = dlerror();
-  ASSERT_EQ(error, nullptr) << "couldn't load function " << functionToLoad << ": " << error;
+    *funcPtr = dlsym(*handle, functionToLoad);
+    error = dlerror();
+    ASSERT_EQ(error, nullptr) << "couldn't load function " << functionToLoad << ": " << error;
 
-  std::string expectStr(functionToLoad);
-  expectStr.append("_ExpectAndReturn");
+    std::string expectStr(functionToLoad);
+    expectStr.append("_ExpectAndReturn");
 
-  dlerror(); /* Clear any existing error */
+    dlerror(); /* Clear any existing error */
 
-  *funcPtr_expect = dlsym(*handle, expectStr.c_str());
-  error = dlerror();
-  ASSERT_EQ(error, nullptr) << "couldn't load expect function " << functionToLoad << ": " << error;
+    *funcPtr_expect = dlsym(*handle, expectStr.c_str());
+    error = dlerror();
+    ASSERT_EQ(error, nullptr) << "couldn't load expect function " << functionToLoad << ": " << error;
 
-  std::string matchStr(comparatorToMatch);
-  *funcPtr_matcher = dlsym(*handle, matchStr.c_str());
+    std::string matchStr(comparatorToMatch);
+    *funcPtr_matcher = dlsym(*handle, matchStr.c_str());
 
-  std::string funPtrOutPtr(functionToLoad);
-  funPtrOutPtr.append("_ExpectReturnAndOutput");
-  *funcPtr_output_ptr = dlsym(*handle, funPtrOutPtr.c_str());
+    std::string funPtrOutPtr(functionToLoad);
+    funPtrOutPtr.append("_ExpectReturnAndOutput");
+    *funcPtr_output_ptr = dlsym(*handle, funPtrOutPtr.c_str());
+  }
 }
 
 static void dumpToFile(const std::string& p_dir, const std::string& p_file, std::string& p_data, bool append)

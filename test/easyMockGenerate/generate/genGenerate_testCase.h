@@ -7,7 +7,8 @@ template<class T>
 class genGenerate_testCase : public easyMockGenerate_baseTestCase
 {
 public:
-  genGenerate_testCase() : easyMockGenerate_baseTestCase(m_factory.functionGetFunctionName(), m_factory.functionGetIncludeDir(), m_factory.functionGetMockDir(), m_factory.getGenerateTypes(), m_factory.getRmDir())
+  genGenerate_testCase() : easyMockGenerate_baseTestCase(m_factory.functionGetFunctionName(), m_factory.functionGetIncludeDir(), m_factory.functionGetMockDir(), m_factory.getGenerateTypes(),
+                                                         m_factory.loadFunction(), m_factory.getRmDir())
   {
     for(const auto f : m_factory.functionFactoryArray())
     {

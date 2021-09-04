@@ -36,6 +36,21 @@ public:
   bool operator==(const FunctionDeclaration &other) const;
   bool operator!=(const FunctionDeclaration &other) const;
 
+  /*!
+   * \brief Returns whether the function is declared with its body.
+   */
+  bool doesThisDeclarationHasABody() const noexcept;
+
+  /*!
+   * \brief Sets whether the function is declared with its body.
+   */
+  void setDoesThisDeclarationHasABody(bool val) noexcept;
+
+  /*!
+   * \copydoc ::EasyMock::Hashable::getHash()
+   */
+  std::size_t getHash() const override;
+
   virtual FunctionDeclaration* clone() const override;
   virtual ~FunctionDeclaration();
   static const FunctionDeclaration& toFunctionDeclaration(const ElementToMock& elem)
@@ -43,7 +58,7 @@ public:
     return dynamic_cast<const FunctionDeclaration&>(elem);
   }
 private:
-
+  bool m_doesThisDeclarationHasBody;
 };
 
 #endif /* FUNCTIONDECLARATION_H */

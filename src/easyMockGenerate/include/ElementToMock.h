@@ -39,6 +39,11 @@ public:
   virtual ElementToMock_Type getMockType() const = 0;
 
   /*!
+   * \copydoc ::EasyMock::Hashable::getHash()
+   */
+  virtual size_t getHash() const override;
+
+  /*!
    * \copydoc ::TypeItf::clone
    */
   virtual ElementToMock* clone() const = 0;

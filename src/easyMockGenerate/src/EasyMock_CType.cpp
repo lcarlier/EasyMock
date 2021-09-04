@@ -145,12 +145,17 @@ std::size_t CType::getHash() const
   return seed;
 }
 
-bool CType::operator==(const CType& other) const
+bool CType::operator==(const TypeItf& other) const
 {
-  return this->isEqual(other);
+  if(!other.isCType())
+  {
+    return false;
+  }
+  const CType& otherCType = static_cast<const CType&>(other);
+  return this->isEqual(otherCType);
 }
 
-bool CType::operator!=(const CType& other) const
+bool CType::operator!=(const TypeItf& other) const
 {
   return (*this == other) == false;
 }

@@ -127,6 +127,19 @@ FunctionDeclaration* getFunPtrDeclaration(unsigned int n, const char *functionNa
 
       return fd;
     }
+    case 7:
+    {
+      StructType* constPtrFunFieldStruct = new StructType{"constPtrFunFieldStruct", false};
+
+      FunctionType* functionType = new FunctionType{TypedReturnValue(CTYPE_INT), Parameter::Vector({NamedParameter(CTYPE_INT, ""), NamedParameter(CTYPE_FLOAT, "")})};
+      Pointer *pft = new Pointer{functionType};
+      ConstQualifiedType* cpft = new ConstQualifiedType{pft};
+      constPtrFunFieldStruct->addField(new ComposableField{cpft, "constFunPtr"});
+
+      FunctionDeclaration* fd = new FunctionDeclaration{functionName, TypedReturnValue(CTYPE_INT), Parameter::Vector({new Parameter{constPtrFunFieldStruct, "p"}})};
+
+      return fd;
+    }
   }
   assert(false);
 }

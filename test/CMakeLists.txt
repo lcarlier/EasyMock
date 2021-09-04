@@ -123,6 +123,8 @@ add_library(${TEST_FACTORIES_COMMON_OBJ}
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/VoidFunStructWithAnonymousUnionFieldWithStructFactory.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/VoidFunTypeAndTypeDefUsedFactory.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/VoidFunStructWithOutsideDeclaredAnonymousTypeStructFieldFactory.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/VoidFunDeclAndDefFactory.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/VoidFunAliasedFunFactory.cpp
 )
 
 set(EASYMOCK_TEST_LIBRARY easyMockTestLibrary)
@@ -148,6 +150,7 @@ add_subdirectory(FunctionPointer)
 add_subdirectory(ConstQualifiedType)
 add_subdirectory(Parameter)
 add_subdirectory(TypedefType)
+add_subdirectory(TypeItf)
 add_subdirectory(FunctionAttributeGen)
 add_subdirectory(easyMockGenerate)
 add_subdirectory(end2end)

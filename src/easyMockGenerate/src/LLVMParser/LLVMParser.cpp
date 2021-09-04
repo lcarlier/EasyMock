@@ -69,12 +69,18 @@ public:
   {
     const std::string funName = getFunctionName(func);
     bool isInline = func->isInlined();
+    bool doesThisDeclHasABody = func->doesThisDeclarationHaveABody();
+    bool isStatic = func->isStatic();
+    std::string originFile = func->getSourceRange().printToString(*m_SM);
 
     ReturnValue rv = getFunctionReturnValue(func);
     Parameter::Vector param = getFunctionParameters(func);
     FunctionDeclaration *f = new FunctionDeclaration(funName, rv, param);
     f->setVariadic(func->isVariadic());
     f->setInlined(isInline);
+    f->setIsStatic(isStatic);
+    f->setDoesThisDeclarationHasABody(doesThisDeclHasABody);
+    f->setOriginFile(originFile);
     setFunctionAttribute(func, f);
 
     return f;
@@ -264,6 +270,7 @@ private:
     declString = std::regex_replace(declString, removeAttrRegex, "");
     eraseInString(declString, "inline ");
     eraseInString(declString, "extern ");
+    eraseInString(declString, "static ");
     declString = trim(declString);
     setDeclaratorDeclareString(rvQualType, &rv, declString);
 
@@ -928,7 +935,8 @@ public:
     {
       fprintf(stderr, "Warning: Redefining %s\n", id.c_str());
     }
-    m_ctxt.addMacroDefine(std::move(id), std::move(parameters), std::move(definition));
+    std::string sourceLocation = p_macroIdentifierTok.getLocation().printToString(m_sm);
+    m_ctxt.addMacroDefine(std::move(id), std::move(parameters), std::move(definition), std::move(sourceLocation));
   }
 
   virtual void MacroUndefined(const clang::Token &p_macroIdentifierTok, const clang::MacroDefinition &p_macroDefinition, const clang::MacroDirective *p_macroDirective) override

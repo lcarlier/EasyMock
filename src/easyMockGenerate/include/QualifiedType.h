@@ -26,6 +26,16 @@ public:
   const TypeItf* getUnqualifiedType() const;
 
   /*!
+   * \brief Sets the unqualified type of this qualified type.
+   *
+   * This function is meant to replace an existing unqualified type of an existing qualified one.
+   * For instance by replacing the typedef type with its non typedef equivalent.
+   *
+   * \heapPointer
+   */
+  void setUnqualifiedType(TypeItf* p_newUnqualifiedType);
+
+  /*!
    * \brief Returns the type being qualified
    */
   TypeItf* getUnqualifiedType();

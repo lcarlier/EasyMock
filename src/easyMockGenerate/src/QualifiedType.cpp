@@ -30,6 +30,12 @@ const TypeItf* QualifiedType::getUnqualifiedType() const
   return m_type;
 }
 
+void QualifiedType::setUnqualifiedType(TypeItf *p_newUnqualifiedType)
+{
+  delete m_type;
+  m_type = p_newUnqualifiedType;
+}
+
 TypeItf* QualifiedType::getUnqualifiedType()
 {
   return const_cast<TypeItf*>(static_cast<const QualifiedType &>(*this).getUnqualifiedType());

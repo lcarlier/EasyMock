@@ -240,6 +240,11 @@ public:
     return m_generate_types;
   }
 
+  bool loadFunction()
+  {
+    return m_load_function;
+  }
+
   bool getRmDir()
   {
     return m_rm_dir;
@@ -423,8 +428,9 @@ public:
 
 protected:
   FunctionFactory() :
-    m_generate_types(false),
-    m_rm_dir(true)
+      m_generate_types(false),
+      m_load_function(true),
+      m_rm_dir(true)
     {}
   EasyMock_Matcher m_user_matcher;
 
@@ -433,6 +439,7 @@ protected:
   std::deque<std::tuple<Params...>> m_expects;
   std::deque<std::tuple<Compare...>> m_compare;
   bool m_generate_types;
+  bool m_load_function;
   bool m_rm_dir;
 
 private:

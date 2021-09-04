@@ -163,6 +163,9 @@
 #define TYPE_NAME_VAR "TYPE_NAME_VAR"
 #define TYPE_NAME_TEMPLATE_VAR TEMPLATE_VAR(TYPE_NAME_VAR)
 
+#define ORIGIN_FILE_VAR "ORIGIN_FILE_VAR"
+#define ORIGIN_FILE_TEMPLATE_VAR TEMPLATE_VAR(ORIGIN_FILE_VAR)
+
 #define CFILE_TEMPLATE "CFILE_TEMPLATE"
 #define HFILE_TEMPLATE "HFILE_TEMPLATE"
 #define GENERATED_TYPE_DECLARE_TYPE_OR_COMPOSABLE_TYPE_TEMPLATE_NAME "GENERATED_TYPE_DECLARE_TYPE_OR_COMPOSABLE_TYPE_TEMPLATE_NAME"
@@ -380,7 +383,8 @@ TEMPLATE_VAR(FUNCTION_STACK_VARIABLE_NAME) "_match_" PARAMETER_NAME("")
 "int cmp_" COMPOSED_TYPED_COMPARE_SECTION_UNIQUE_NAME_VAR "(const void *currentCall_ptr, const void *expectedCall_ptr, const char *paramName, char *errorMessage )"
 
 #define GENERATE_COMMENT \
-"/*------------------- GENERATING '" TEMPLATE_FUNCTION_TO_BE_MOCKED "' -------------------*/"
+"/*------------------- GENERATING '" TEMPLATE_FUNCTION_TO_BE_MOCKED "' -------------------*/" CARRIAGE_RETURN \
+"// from: " ORIGIN_FILE_TEMPLATE_VAR CARRIAGE_RETURN
 
 #define END_GENERATE_COMMENT \
 "/*----------------- END GENERATION '" TEMPLATE_FUNCTION_TO_BE_MOCKED "' -----------------*/"
@@ -640,10 +644,12 @@ const char headerFileTemplate[] =
 
           TEMPLATE_BEG_SECTION(GENERATED_MACRO_SECTION)
           "#ifndef " GENERATED_MACRO_ID_TEMPLATE_VAR CARRIAGE_RETURN
+          "// from: " ORIGIN_FILE_TEMPLATE_VAR CARRIAGE_RETURN
           "#define " GENERATED_MACRO_ID_TEMPLATE_VAR
           IF_SECTION_EXISTS(GENERATED_MACRO_PARAMETERS_SECTION, GENERATED_MACRO_PARAMETERS_TEMPLATE_VAR " ")
           IF_SECTION_EXISTS(GENERATED_MACRO_DEFINITION_SECTION, " " GENERATED_MACRO_DEFINITION_TEMPLATE_VAR) CARRIAGE_RETURN
           "#endif //macro " GENERATED_MACRO_ID_TEMPLATE_VAR CARRIAGE_RETURN
+          CARRIAGE_RETURN
           TEMPLATE_END_SECTION(GENERATED_MACRO_SECTION)
 
           TEMPLATE_BEG_SECTION(GENERATED_TYPE_FORWARD_DECLARATION_SECTION)
@@ -692,6 +698,7 @@ const char headerFileTemplate[] =
         TEMPLATE_END_SECTION(COMPOSED_TYPE_COMPARE_SECTION)
         TEMPLATE_BEG_SECTION(FUNCTION_SECTION)
         "/*------------------- GENERATING '" TEMPLATE_FUNCTION_TO_BE_MOCKED "' -------------------*/" CARRIAGE_RETURN
+        "// from: " ORIGIN_FILE_TEMPLATE_VAR CARRIAGE_RETURN
         IF_SECTION_EXISTS(GENERATE_MOCKED_TYPE_SECTION,
           TEMPLATE_FUNCTION_TO_BE_MOCKED ";" CARRIAGE_RETURN
         )
@@ -899,7 +906,6 @@ std::string CodeGeneratorCTemplate::getAnonymousTypedefUniqueName(const TypeItf*
 CodeGeneratorCTemplate::CodeGeneratorCTemplate():
 CodeGeneratorItf{} , m_nbUnamedParam { 0 }
 {
-  m_generatedComparator.clear();
 }
 
 bool CodeGeneratorCTemplate::generateCodeImplementation(const std::string& p_outDir, const std::string &p_fullPathToHeaderToMock, const ElementToMockContext& p_ctxt)
@@ -918,10 +924,11 @@ bool CodeGeneratorCTemplate::generateCodeImplementation(const std::string& p_out
   m_generatedTypeTypedDefSection.clear();
   m_generatedTypeEnumSection.clear();
   m_typeToTypedef.clear();
+  m_generatedComparator.clear();
 
   std::string filenameToMock = boost::filesystem::path(p_fullPathToHeaderToMock).filename().string();
   fillInMacroDefinition(p_ctxt);
-  fillInTemplateVariables(filenameToMock, p_ctxt.getElementToMock());
+  fillInTemplateVariables(filenameToMock, p_ctxt);
 
   ctemplate::StringToTemplateCache(CFILE_TEMPLATE, templateText, ctemplate::DO_NOT_STRIP);
   ctemplate::StringToTemplateCache(HFILE_TEMPLATE, headerFileTemplate, ctemplate::DO_NOT_STRIP);
@@ -962,6 +969,7 @@ void CodeGeneratorCTemplate::fillInMacroDefinition(const ElementToMockContext& p
     ctemplate::TemplateDictionary *macroSection = m_generateMockedTypeSection->AddSectionDictionary(GENERATED_MACRO_SECTION);
 
     macroSection->SetValue(GENERATED_MACRO_ID_VAR, id);
+    macroSection->SetValue(ORIGIN_FILE_VAR, macroDefinition.getOriginFile());
 
     if(!parameters.empty())
     {
@@ -989,39 +997,51 @@ void CodeGeneratorCTemplate::fillInMacroDefinition(const ElementToMockContext& p
   }
 }
 
-void CodeGeneratorCTemplate::fillInTemplateVariables(const std::string &p_mockedHeader, const ElementToMock::Vector &p_fList)
+void CodeGeneratorCTemplate::fillInTemplateVariables(const std::string &p_mockedHeader, const ElementToMockContext &p_ctxt)
 {
   m_generateTypes.clear();
   m_generateForwardTypes.clear();
   m_lateDeclaration.clear();
   m_rootDictionary->SetValue(MOCKED_HEADER_FILENAME, p_mockedHeader);
 
+  const auto& fList = p_ctxt.getElementToMock();
   std::string fileNameWithoutExtUpper = p_mockedHeader.substr(0, p_mockedHeader.find_last_of("."));
   std::transform(fileNameWithoutExtUpper.begin(), fileNameWithoutExtUpper.end(), fileNameWithoutExtUpper.begin(), ::toupper);
   m_rootDictionary->SetValue(MOCKED_FILE_NAME_WITHOUT_EXT_UPPER, fileNameWithoutExtUpper);
-  std::unordered_set<std::string> generatedElements;
-  for (ElementToMock::Vector::const_iterator it = p_fList.begin(); it != p_fList.end(); ++it)
+  std::unordered_set<std::size_t> generatedElements;
+  for (const auto& elemToMock: fList)
   {
-    const ElementToMock *elemToMock = *it;
     switch (elemToMock->getMockType())
     {
       case ETS_function:
       {
         const FunctionDeclaration* fun = dynamic_cast<const FunctionDeclaration*>(elemToMock);
-        if(fun->isInlined())
-        {
-            continue;
-        }
-        if(m_mockOnlyList.size() > 0 && m_mockOnlyList.find(*fun->getName()) == m_mockOnlyList.end())
-        {
-          continue;
-        }
-        std::string functionPrototype = fun->getFunctionPrototype();
-        if(generatedElements.find(functionPrototype) != generatedElements.end())
+        /*
+         * In the case where the used types are generated, it is ok to create a mock for the function
+         * since the original header is not used by the mock.
+         */
+        if((fun->isInlined() || fun->doesThisDeclarationHasABody() || fun->isStatic()) && !m_generateUsedType)
         {
           break;
         }
-        generatedElements.insert(functionPrototype);
+        if(m_mockOnlyList.size() > 0 && m_mockOnlyList.find(*fun->getName()) == m_mockOnlyList.end())
+        {
+          break;
+        }
+        /*
+         * Sometimes, functions are aliased to other functions using macro. That creates double generation
+         * of function. This ignores the generation of the aliased function.
+         */
+        if(p_ctxt.hasMacroDefine(*fun->getName()))
+        {
+          break;
+        }
+        std::size_t rawHash = fun->getRawHash();
+        if(generatedElements.find(rawHash) != generatedElements.end())
+        {
+          break;
+        }
+        generatedElements.insert(rawHash);
         generateFunctionSection(fun);
         break;
       }
@@ -1071,6 +1091,7 @@ void CodeGeneratorCTemplate::generateFunctionSection(const FunctionDeclaration *
      */
     functionSectionDict->AddSectionDictionary(GENERATE_MOCKED_TYPE_SECTION);
   }
+  functionSectionDict->SetValue(ORIGIN_FILE_VAR, p_elemToMock->getOriginFile());
   generateFunctionAttributes(p_elemToMock, functionSectionDict);
   functionSectionDict->SetValue(FUNCTION_STACK_VARIABLE_NAME, *p_elemToMock->getName());
   std::string upperString(*p_elemToMock->getName());
@@ -1089,11 +1110,11 @@ void CodeGeneratorCTemplate::generateFunctionSection(const FunctionDeclaration *
    */
   registerTypeDef(rvType);
   generateDeclarationOfUsedType(m_rootDictionary, rvType, false);
-  const Pointer *returnValuePointer = rvType->asPointer();
+  const Pointer *nonQualifiedReturnValuePointer = rvType->unqualify()->asPointer();
   functionSectionDict->SetValue(FUNCTION_NON_QUALIFIED_RETURN_VALUE, nonQualRetTypeStr);
-  if(returnValuePointer)
+  if(nonQualifiedReturnValuePointer)
   {
-    const TypeItf *returnValuePointerPointedType = getRawType(returnValuePointer);
+    const TypeItf *returnValuePointerPointedType = getRawType(nonQualifiedReturnValuePointer);
     const FunctionType *functionType = returnValuePointerPointedType->asFunctionType();
     if(functionType)
     {
@@ -1102,14 +1123,14 @@ void CodeGeneratorCTemplate::generateFunctionSection(const FunctionDeclaration *
     }
   }
 
-  bool isRvVoid = rvType->isCType() && rvType->getCType() == CTYPE_VOID && !rvType->isPointer();
+  bool isRvVoid = rvType->isCType() && rvType->getCType() == CTYPE_VOID && !rvType->unqualify()->isPointer();
   if (!isRvVoid)
   {
     ctemplate::TemplateDictionary *returnValParamDict = functionSectionDict->AddSectionDictionary(FUNCTION_RETURN_VALUE_PARAM_SECTION);
     returnValParamDict->SetValue(FUNCTION_NON_QUALIFIED_RETURN_VALUE, nonQualRetTypeStr);
-    if(returnValuePointer)
+    if(nonQualifiedReturnValuePointer)
     {
-      const TypeItf *returnValuePointerPointedType = getRawType(returnValuePointer);
+      const TypeItf *returnValuePointerPointedType = getRawType(nonQualifiedReturnValuePointer);
       const FunctionType *functionType = returnValuePointerPointedType->asFunctionType();
       if(functionType)
       {
@@ -1145,10 +1166,10 @@ void CodeGeneratorCTemplate::generateExtraDecl(ctemplate::TemplateDictionary *di
 
   const ReturnValue *rv = functionType->getReturnType();
   const TypeItf *returnValueType = rv->getType();
-  const Pointer *returnValueTypePointer = returnValueType->asPointer();
-  if(returnValueTypePointer)
+  const Pointer *nonQualifiedReturnValueTypePointer = returnValueType->unqualify()->asPointer();
+  if(nonQualifiedReturnValueTypePointer)
   {
-    const TypeItf *returnValuePointedType = getRawType(returnValueTypePointer);
+    const TypeItf *returnValuePointedType = getRawType(nonQualifiedReturnValueTypePointer);
     const FunctionType *recursiveFunctionType = returnValuePointedType->asFunctionType();
     if(recursiveFunctionType)
     {
@@ -1172,11 +1193,11 @@ void CodeGeneratorCTemplate::generateFunctionParamSection(ctemplate::TemplateDic
     const Parameter *fParam = *it;
     const TypeItf *paramType = fParam->getType();
     generateDeclarationOfUsedType(m_rootDictionary, paramType, false);
-    //For the rest of this function paramPtrType tells whether we are dealing with a pointer parameter or not
+    //For the rest of this function nonQualifiedParamPtrType tells whether we are dealing with a pointer parameter or not
     const std::string argType = getDeclaratorString(fParam);
     const std::string nonQualifiedArgType = getNonQualifiedDeclaratorString(fParam);
     const TypeItf* rawType = getRawType(paramType);
-    const Pointer* paramPtrType = paramType->asPointer();
+    const Pointer* nonQualifiedParamPtrType = paramType->unqualify()->asPointer();
     const ComposableType* composableType = rawType->asComposableType();
     if(composableType && !rawType->isImplicit())
     {
@@ -1186,14 +1207,14 @@ void CodeGeneratorCTemplate::generateFunctionParamSection(ctemplate::TemplateDic
       generateComposedTypedCompareSection(composableType, prepend, declare);
     }
     newTypedefParamSection->SetValue(FUNCTION_PARAM_TYPE, argType);
-    if(!paramPtrType)
+    if(!nonQualifiedParamPtrType)
     {
       newTypedefParamSection->SetValue(FUNCTION_PARAM_NON_QUALIFIED_TYPE, nonQualifiedArgType);
     }
     else
     {
       newTypedefParamSection->SetValue(FUNCTION_PARAM_NON_QUALIFIED_TYPE, argType);
-      const TypeItf *paramPtrPointedType = getRawType(paramPtrType);
+      const TypeItf *paramPtrPointedType = getRawType(nonQualifiedParamPtrType);
       const FunctionType *ft = paramPtrPointedType->asFunctionType();
       if(ft)
       {
@@ -1214,14 +1235,14 @@ void CodeGeneratorCTemplate::generateFunctionParamSection(ctemplate::TemplateDic
     /*
      * Do not generate the output parameter for pointers to const value.
      * Do not generate the output parameter for implicit type (i.e. va_args).
-     *    I can't possibly think why it would be useful and I'm not even
+     *    I can't possibly think why it would be useful, and I'm not even
      *    sure that it is even possible or sensible.
      * Do not generate the output parameter for function type.
      *    Output function pointer doesn't make sense.
      */
-    if(paramPtrType)
+    if(nonQualifiedParamPtrType)
     {
-      const TypeItf* pointedType = paramPtrType->getMostPointedType();
+      const TypeItf* pointedType = nonQualifiedParamPtrType->getMostPointedType();
       if(!pointedType->isConst() &&
          !pointedType->isImplicit() &&
          !pointedType->isFunctionType())
@@ -1445,7 +1466,7 @@ void CodeGeneratorCTemplate::setStructCompareStringFormat(ctemplate::TemplateDic
 {
   p_curFieldType = getUnqualifiedAndUntypedefType(p_curFieldType);
 
-  if(p_curFieldType->isPointer() || p_curFieldType->isIncompleteType() || p_curFieldType->isFunctionType())
+  if(p_curFieldType->unqualify()->isPointer() || p_curFieldType->isIncompleteType() || p_curFieldType->isFunctionType())
   {
     p_errorDict->SetValue(STRUCT_COMPARE_PRINTF_FORMAT, "p");
   }
@@ -1774,10 +1795,10 @@ ctemplate::TemplateDictionary* CodeGeneratorCTemplate::generateDeclarationOfComp
         fieldName.append(std::to_string(curComposableBitfield->getSize()));
       }
       curFieldValDict->SetValue(TYPE_NAME_VAR, fieldName);
-      const Pointer* fieldPtrType = fieldType->asPointer();
-      if(fieldPtrType)
+      const Pointer* nonQualifiedFieldPtrType = fieldType->unqualify()->asPointer();
+      if(nonQualifiedFieldPtrType)
       {
-        const FunctionType *ft = getRawType(fieldPtrType)->asFunctionType();
+        const FunctionType *ft = getRawType(nonQualifiedFieldPtrType)->asFunctionType();
         if (ft)
         {
           generateDeclarationOfUsedType(m_rootDictionary, ft, false);

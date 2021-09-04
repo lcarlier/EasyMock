@@ -45,8 +45,8 @@ public:
   ConstQualifiedType& operator=(ConstQualifiedType p_other);
   ConstQualifiedType(ConstQualifiedType&& p_other);
 
-  bool operator==(const ConstQualifiedType& p_other) const;
-  bool operator!=(const ConstQualifiedType& p_other) const;
+  bool operator==(const TypeItf& p_other) const;
+  bool operator!=(const TypeItf& p_other) const;
 
   /*!
    * \copydoc ::QualifiedType::isConst()

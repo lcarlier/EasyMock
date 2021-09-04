@@ -14,10 +14,12 @@ ElementToMockList InlineVoidFactory::functionFactoryArray()
   ReturnValue rv2(new CType(CTYPE_INT));
   FunctionDeclaration* f2 = new FunctionDeclaration("inline1", rv2, Parameter::Vector());
   f2->setInlined(true);
+  f2->setDoesThisDeclarationHasABody(true);
   returnedList.push_back(f2);
 
   FunctionDeclaration* f3 = new FunctionDeclaration("inline2", rv2, Parameter::Vector());
   f3->setInlined(true);
+  f3->setDoesThisDeclarationHasABody(true);
   returnedList.push_back(f3);
 
   return returnedList;

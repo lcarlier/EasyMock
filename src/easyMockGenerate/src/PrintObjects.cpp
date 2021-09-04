@@ -27,7 +27,8 @@ std::ostream& printFunction(std::ostream& os, const T& fun)
 {
   os << "funPrototype: " << fun.getFunctionPrototype() << ", ";
   os << "isVariadic: " << (fun.isVariadic() ? "yes" : "no") << ", ";
-  os << "isInline: " << (fun.isInlined() ? "yes" : "no") << std::endl;
+  os << "isInline: " << (fun.isInlined() ? "yes" : "no") << ", ";
+  os << "isInline: " << (fun.isStatic() ? "yes" : "no") << std::endl;
 
   const Function::AttributesList & attributesList = fun.getAttributes();
   os << gs_indentation << "Attributes:" << std::endl;
@@ -82,6 +83,9 @@ std::ostream& operator<<(std::ostream& os, const FunctionType& fun)
 
 std::ostream& operator<<(std::ostream& os, const FunctionDeclaration& fun)
 {
+  gs_indentation.push_back('\t');
+  os << std::endl << gs_indentation << "HasThisDeclABody: " << (fun.doesThisDeclarationHasABody() ?  "yes": "no") << std::endl;
+  gs_indentation.pop_back();
   return printFunction(os, fun);
 }
 

@@ -91,11 +91,37 @@ public:
   bool isInlined() const;
 
   /*!
-   * \brief Returns whether a function is inlined.
+   * \brief Sets whether a function is inlined.
    *
    * \see ::Function::isInlined() const
    */
   void setInlined(bool value);
+
+  /*!
+   * \brief Returns whether a function is static.
+   */
+  bool isStatic() const noexcept;
+
+  /*!
+   * \brief Sets whether a function is static.
+   *
+   * \see ::Function::isStatic() const
+   */
+  void setIsStatic(bool value) noexcept;
+
+  /*!
+   * \brief Returns the place where the function has been declared.
+   *
+   * If nothing has been set by ::Function:setOriginFile(std::string), this function returns an empty string.
+   */
+  const std::string& getOriginFile() const noexcept;
+
+  /*!
+   * \brief Sets the place where the function has been declared.
+   *
+   * \see ::Function::getOriginFile() const
+   */
+  void setOriginFile(std::string originFile) noexcept;
 
   bool operator==(const Function &other) const;
   bool operator!=(const Function &other) const;
@@ -109,6 +135,23 @@ public:
    * \copydoc ::EasyMock::Hashable::getHash()
    */
   std::size_t getHash() const override;
+
+  /*!
+   * \brief Returns the hash of the function where all typedefs of the return value and parameter have been removed.
+   *
+   * In the following example
+   *
+   * \code{.cpp}
+   *
+   * typedef int int_t;
+   *
+   * void foo(int_t a);
+   * void foo(int a);
+   * \endcode
+   *
+   * both version of foo returns the same raw hash while the ::Function::getHash() returns different values
+   */
+  std::size_t getRawHash() const noexcept;
 
   /*!
    * \brief Adds a function attribute to the function.
@@ -129,6 +172,8 @@ protected:
   AttributesList  m_attributes;
   bool m_isVariadic;
   bool m_isInlined;
+  bool m_isStatic;
+  std::string m_originFile;
 };
 
 #endif /* FUNCTION_H */

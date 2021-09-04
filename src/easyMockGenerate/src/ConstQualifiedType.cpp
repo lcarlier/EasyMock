@@ -43,12 +43,12 @@ std::size_t ConstQualifiedType::getHash() const
   return seed;
 }
 
-bool ConstQualifiedType::operator==(const ConstQualifiedType& p_other) const
+bool ConstQualifiedType::operator==(const TypeItf& p_other) const
 {
   return isEqual(p_other);
 }
 
-bool ConstQualifiedType::operator!=(const ConstQualifiedType& p_other) const
+bool ConstQualifiedType::operator!=(const TypeItf& p_other) const
 {
   return !(*this == p_other);
 }

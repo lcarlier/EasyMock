@@ -26,6 +26,11 @@ public:
   MacroDefinition(std::string name, std::vector<std::string> parameters, std::string definition);
 
   /*!
+   * \copydoc ElementToMockContext::addMacroDefine(std::string, std::vector<std::string>, std::string, std::string)
+   */
+  MacroDefinition(std::string name, std::vector<std::string> parameters, std::string definition, std::string originFile);
+
+  /*!
    * \brief Returns the ID of the macro
    */
   const std::string& getId() const noexcept;
@@ -41,10 +46,16 @@ public:
    * \brief Returns the string definition of the macro.
    */
   const std::string& getDefinition() const noexcept;
+
+  /*!
+   * \brief Return the place where the macro is defined in the mocked header.
+   */
+   const std::string& getOriginFile() const noexcept;
 private:
   std::string m_name;
   ParameterList m_parameters;
   std::string m_definition;
+  std::string m_originFile;
 };
 
 #endif //EASYMOCK_MACRODEFINITION_H

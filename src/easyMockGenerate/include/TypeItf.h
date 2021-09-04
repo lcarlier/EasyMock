@@ -6,6 +6,7 @@
 #define TYPEITF_H
 
 #include <string>
+#include <memory>
 #include "AutoCleanVectorPtr.h"
 #include "ComposableFieldItf.h"
 #include "EasyMockGenerateTypes.h"
@@ -333,14 +334,6 @@ public:
    *
    * When this function return true, a pointer or reference holding this type
    * can be safely downcasted to a ::Pointer instance using ::TypeItf::asPointer only.
-   *
-   * \warning When having a const pointer, all of the following functions
-   * - ::TypeItf::isConst
-   * - ::TypeItf::isQualified
-   * - ::TypeItf::isPointer
-   *
-   * \warning return true at the same time. This is because this function unqualify the type under the hood to verify
-   * if it is a pointer or not.
    *
    * Use the function ::Pointer::getPointedType() to know the type on which
    * the pointer points
@@ -679,5 +672,29 @@ private:
 
 #undef TYPEITF_COMMON_CLASS_MEMBERS
 };
+
+/*!
+ * \brief Returns a copy of the type with all of its typedefs removed.
+ * \param p_typeItf The Type to remove the typedef.
+ *
+ * For instance:
+ * \code{.cpp}
+ * TEST(deTypeDef, PointerToTypeDef)
+ * {
+ *   CType iType{CTYPE_INT};
+ *   TypedefType int_t{"int_t", iType.clone()};
+ *   Pointer p{int_t.clone()};
+ *
+ *   auto detyped = deTypeDef(p);
+ *
+ *   Pointer pExpected{iType.clone()};
+ *
+ *   ASSERT_EQ(pExpected, *detyped);
+ * }
+ * \endcode
+ * 
+ * \return A copy of the type with all of its typedefs removed.
+ */
+std::unique_ptr<TypeItf> deTypeDef(const TypeItf& p_typeItf);
 
 #endif /* TYPEITF_H */

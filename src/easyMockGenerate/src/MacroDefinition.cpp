@@ -5,7 +5,11 @@ MacroDefinition(std::move(name), std::vector<std::string>{}, std::move(definitio
 {}
 
 MacroDefinition::MacroDefinition(std::string name, ParameterList parameters, std::string definition):
-m_name(std::move(name)), m_parameters(std::move(parameters)), m_definition(std::move(definition))
+MacroDefinition{std::move(name), std::move(parameters), std::move(definition), std::string{}}
+{}
+
+MacroDefinition::MacroDefinition(std::string name, ParameterList parameters, std::string definition, std::string fromFile):
+m_name(std::move(name)), m_parameters(std::move(parameters)), m_definition(std::move(definition)), m_originFile{std::move(fromFile)}
 {}
 
 const std::string& MacroDefinition::getId() const noexcept
@@ -21,4 +25,9 @@ const MacroDefinition::ParameterList& MacroDefinition::getParameters() const noe
 const std::string& MacroDefinition::getDefinition() const noexcept
 {
   return m_definition;
+}
+
+const ::std::string& MacroDefinition::getOriginFile() const noexcept
+{
+  return m_originFile;
 }

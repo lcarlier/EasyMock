@@ -30,12 +30,12 @@ Pointer& Pointer::operator=(Pointer other)
   return *this;
 }
 
-bool Pointer::operator==(const Pointer& other) const
+bool Pointer::operator==(const TypeItf& other) const
 {
   return this->isEqual(other);
 }
 
-bool Pointer::operator!=(const Pointer& other) const
+bool Pointer::operator!=(const TypeItf& other) const
 {
   return !(*this == other);
 }

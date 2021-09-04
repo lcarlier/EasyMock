@@ -809,3 +809,81 @@ TEST(equality, FunctionAttributeAgainstFunctionNoAttribute)
 
   ASSERT_NE(f1, f2);
 }
+
+TEST(equality, FunctionDeclHasBodySame)
+{
+  FunctionDeclaration f1{"foo", VoidReturnValue(), Parameter::Vector({})};
+  FunctionDeclaration f2{f1};
+
+  f1.setDoesThisDeclarationHasABody(true);
+  f2.setDoesThisDeclarationHasABody(true);
+
+  ASSERT_EQ(f1, f2);
+  ASSERT_EQ(f1.getHash(), f2.getHash());
+
+  f1.setDoesThisDeclarationHasABody(false);
+  f2.setDoesThisDeclarationHasABody(false);
+
+  ASSERT_EQ(f1, f2);
+  ASSERT_EQ(f1.getHash(), f2.getHash());
+}
+
+TEST(equality, FunctionDeclHasBodyDifferent)
+{
+  FunctionDeclaration f1{"foo", VoidReturnValue(), Parameter::Vector({})};
+  FunctionDeclaration f2{f1};
+
+  f1.setDoesThisDeclarationHasABody(true);
+  f2.setDoesThisDeclarationHasABody(false);
+
+  ASSERT_NE(f1, f2);
+  ASSERT_NE(f1.getHash(), f2.getHash());
+
+  f1.setDoesThisDeclarationHasABody(false);
+  f2.setDoesThisDeclarationHasABody(true);
+
+  ASSERT_NE(f1, f2);
+  ASSERT_NE(f1.getHash(), f2.getHash());
+}
+
+TEST(equality, FunctionRawHash_typedef_SameOnParam)
+{
+  CType intType{CTYPE_INT};
+  TypedefType tInt{"tint", intType.clone()};
+  Parameter f1p{intType.clone(), "p"};
+  Parameter f2p{tInt.clone(), "p"};
+
+  FunctionDeclaration f1{"foo", VoidReturnValue(), Parameter::Vector({f1p.clone()})};
+  FunctionDeclaration f2{"foo", VoidReturnValue(), Parameter::Vector({f2p.clone()})};
+
+  ASSERT_NE(f1, f2);
+  ASSERT_EQ(f1.getRawHash(), f2.getRawHash());
+}
+
+TEST(equality, FunctionRawHash_typedef_SameOnReturnValue)
+{
+  CType intType{CTYPE_INT};
+  TypedefType tInt{"tint", intType.clone()};
+  ReturnValue frv1{intType.clone()};
+  ReturnValue frv2{tInt.clone()};
+
+  FunctionDeclaration f1{"foo", frv1, Parameter::Vector({})};
+  FunctionDeclaration f2{"foo", frv2, Parameter::Vector({})};
+
+  ASSERT_NE(f1, f2);
+  ASSERT_EQ(f1.getRawHash(), f2.getRawHash());
+}
+
+TEST(equality, FunctionRawHash_pointer_differentParam)
+{
+  CType intType{CTYPE_INT};
+  Pointer pInt{intType.clone()};
+  Parameter f1p{intType.clone(), "p"};
+  Parameter f2p{pInt.clone(), "p"};
+
+  FunctionDeclaration f1{"foo", VoidReturnValue(), Parameter::Vector({f1p.clone()})};
+  FunctionDeclaration f2{"foo", VoidReturnValue(), Parameter::Vector({f2p.clone()})};
+
+  ASSERT_NE(f1, f2);
+  ASSERT_NE(f1.getRawHash(), f2.getRawHash());
+}

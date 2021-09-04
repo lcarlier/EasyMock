@@ -72,12 +72,9 @@ public:
 
   /*!
    * \brief Checks the equality in between 2 CType.
-   *
-   * A CType is said to be equal if its type (from getCType()) and its
-   * type def (from getTypedDefName()), if any, are equals.
    */
-  bool operator==(const CType &other) const;
-  bool operator!=(const CType &other) const;
+  bool operator==(const TypeItf &other) const;
+  bool operator!=(const TypeItf &other) const;
 
   /*!
    * \copydoc TypeItf::clone

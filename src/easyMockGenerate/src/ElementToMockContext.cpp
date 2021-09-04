@@ -7,8 +7,13 @@ void ElementToMockContext::addMacroDefine(std::string p_id, std::string p_defini
 
 void ElementToMockContext::addMacroDefine(std::string p_id, std::vector<std::string> p_parameters, std::string p_definition)
 {
+  addMacroDefine(std::move(p_id), std::move(p_parameters), std::move(p_definition), std::string{});
+}
+
+void ElementToMockContext::addMacroDefine(std::string p_id, std::vector<std::string> p_parameters, std::string p_definition, std::string p_originFile)
+{
   std::string copy_id = p_id;
-  m_macroDefinition.try_emplace(std::move(p_id), std::move(copy_id), std::move(p_parameters), std::move(p_definition));
+  m_macroDefinition.try_emplace(std::move(p_id), std::move(copy_id), std::move(p_parameters), std::move(p_definition), std::move(p_originFile));
 }
 
 void ElementToMockContext::deleteMacroDefine(const std::string &p_id)

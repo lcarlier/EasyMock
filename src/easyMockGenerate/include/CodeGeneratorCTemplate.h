@@ -70,7 +70,7 @@ protected:
    */
   bool generateCodeImplementation(const std::string& p_outDir, const std::string &p_fullPathToHeaderToMock, const ElementToMockContext& p_elem) override;
 private:
-  void fillInTemplateVariables(const std::string &mockedHeader, const ElementToMock::Vector &fList);
+  void fillInTemplateVariables(const std::string &mockedHeader, const ElementToMockContext &p_ctxt);
   void fillInMacroDefinition(const ElementToMockContext& p_elem);
   void generateFunctionSection(const FunctionDeclaration *f);
   void generateFunctionAttributes(const FunctionDeclaration *f, ctemplate::TemplateDictionary *functionSectionDict);

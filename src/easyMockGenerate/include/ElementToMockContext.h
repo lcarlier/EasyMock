@@ -54,6 +54,19 @@ public:
   void addMacroDefine(std::string p_id, std::vector<std::string> p_parameters, std::string p_definition);
 
   /*!
+   * \brief Adds a function like macro definition (i.e <tt>\#define p_id(a, b) p_definition</tt>) into the context.
+   *
+   * \param p_id The id of the <tt>\#define</tt> to be added.
+   * \param p_parameters The parameters of the function like macro.
+   * \param p_definition The definition of the <tt>\#define</tt> to be added.
+   * \param p_originFile The place where the macro has been declared.
+   *
+   * Variadic macro accepts "..." as last parameter. However no check is done to ensure that
+   * "..." is actually the last parameter.
+   */
+  void addMacroDefine(std::string p_id, std::vector<std::string> p_parameters, std::string p_definition, std::string p_originFile);
+
+  /*!
    * \brief Deletes the macro definition with <tt>id == p_id</tt> from the context.
    *
    * \param p_id The id of the <tt>\#define</tt> to be removed
