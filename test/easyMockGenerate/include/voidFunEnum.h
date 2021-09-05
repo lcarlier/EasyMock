@@ -60,6 +60,14 @@ extern "C" {
   //The name of the enum is a substring of the function name. This trigger a bug sometimes and needs to be tested
   enum enumTestParam enumTest();
 
+  /*
+   * C++ doesn't accept function declared with non defined enum while C is ok with that.
+   */
+#ifdef __cplusplus
+  enum nonDefinedEnum{};
+#endif
+  enum nonDefinedEnum nonDefinedEnumFunVoid();
+
 #ifdef __cplusplus
 }
 #endif

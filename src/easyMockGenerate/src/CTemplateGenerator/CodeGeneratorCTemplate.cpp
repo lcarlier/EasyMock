@@ -797,6 +797,24 @@ bool isComposableTypeComplete(const ComposableType* composableType)
   return true;
 }
 
+bool doesFunctionUsesEmptyEnum(const FunctionDeclaration& fd)
+{
+  const Enum* rv = fd.getReturnType()->getType()->unqualify()->asEnum();
+  if(rv && rv->getValues().empty())
+  {
+    return true;
+  }
+  for(const auto& param: fd.getFunctionsParameters())
+  {
+    const Enum* p = param->getType()->unqualify()->asEnum();
+    if(p && p->getValues().empty())
+    {
+      return true;
+    }
+  }
+  return false;
+}
+
 } //namespace
 
 const TypeItf* CodeGeneratorCTemplate::getRawType(const TypeItf* p_type)
@@ -1015,7 +1033,7 @@ void CodeGeneratorCTemplate::fillInTemplateVariables(const std::string &p_mocked
     {
       case ETS_function:
       {
-        const FunctionDeclaration* fun = dynamic_cast<const FunctionDeclaration*>(elemToMock);
+        const FunctionDeclaration* fun = static_cast<const FunctionDeclaration*>(elemToMock);
         /*
          * In the case where the used types are generated, it is ok to create a mock for the function
          * since the original header is not used by the mock.
@@ -1033,6 +1051,15 @@ void CodeGeneratorCTemplate::fillInTemplateVariables(const std::string &p_mocked
          * of function. This ignores the generation of the aliased function.
          */
         if(p_ctxt.hasMacroDefine(*fun->getName()))
+        {
+          break;
+        }
+        /*
+         * Abort the generation of the function if the used type aren't created.
+         *
+         * In the case of generated type, a dummy enum value is created.
+         */
+        if(doesFunctionUsesEmptyEnum(*fun) && !m_generateUsedType)
         {
           break;
         }
@@ -1560,6 +1587,7 @@ void CodeGeneratorCTemplate::generateDeclarationOfUsedType(ctemplate::TemplateDi
   const ComposableType* composableType = p_type->asComposableType();
   const TypedefType *typedefType = p_type->asTypedefType();
   const FunctionType* functionType = p_type->asFunctionType();
+  const Enum* enumType = p_type->asEnum();
   if((!incompleteType && !pointerType && !qualifiedType && !functionType) && isTypeGenerated(p_type, true))
   {
     return;
@@ -1629,7 +1657,7 @@ void CodeGeneratorCTemplate::generateDeclarationOfUsedType(ctemplate::TemplateDi
     generateSimpleTypeDef(typedefType);
     generateDeclarationOfUsedType(p_parentDictionary, typedefType->getTypee(), false);
   }
-  else if(p_type->isEnum())
+  else if(enumType)
   {
     generateEnum(p_type);
   }
@@ -2071,9 +2099,14 @@ void CodeGeneratorCTemplate::generateEnum(const TypeItf* p_type)
   {
     return;
   }
+  std::unique_ptr<Enum> copyEnum = std::make_unique<Enum>(*enumType);
   if(enumType->getValues().empty())
   {
-    return;
+    std::string dummyAttr = enumType->getName();
+    dummyAttr.push_back('_');
+    dummyAttr.append("dummy");
+    copyEnum->addEnumValue(0, dummyAttr);
+    enumType = copyEnum.get();
   }
 
   /*

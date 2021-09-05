@@ -72,6 +72,13 @@ ElementToMockList VoidFunEnumFactory::functionFactoryArray()
 
     returnedList.push_back(fd);
   }
+  {
+    Enum onlyRv{"nonDefinedEnum"};
+
+    FunctionDeclaration *fd = new FunctionDeclaration{ "nonDefinedEnumFunVoid", ReturnValue{onlyRv.clone()}, Parameter::Vector({})};
+
+    returnedList.push_back(fd);
+  }
   return returnedList;
 }
 
