@@ -82,7 +82,6 @@ public:
     f->setDoesThisDeclarationHasABody(doesThisDeclHasABody);
     f->setOriginFile(originFile);
     setFunctionAttribute(func, f);
-
     return f;
   }
 
@@ -121,6 +120,11 @@ private:
       FunctionAttribute functionAttribute{std::move(attrName), std::move(parametersList)};
 
       easyMockFun->addAttribute(std::move(functionAttribute));
+    }
+    if(clangFunc->isNoReturn())
+    {
+      std::string noreturn{"noreturn"};
+      easyMockFun->addAttribute(std::move(noreturn));
     }
   }
 
@@ -207,6 +211,50 @@ private:
     return parametersList;
   }
 
+  void removeFromString(std::string &declString, std::string macroStr)
+  {
+    /*
+     * It is needed to escape "(" and ")" in case there are some so that they are not taken as group inside the
+     * std::regex
+     */
+    static std::regex leftParentRegex{"\\("};
+    static std::regex rightParentRegex{"\\)"};
+    macroStr = std::regex_replace(macroStr, leftParentRegex, "\\(");
+    macroStr = std::regex_replace(macroStr, rightParentRegex, "\\)");
+    declString = std::regex_replace(declString, std::regex{macroStr}, "");
+  }
+
+  void removeAttr(std::string &declString, const clang::Attr* attr)
+  {
+    clang::SourceLocation sourceBegin = attr->getLocation();
+    if(sourceBegin.isMacroID())
+    {
+      clang::CharSourceRange charSourceRange = m_SM->getImmediateExpansionRange(sourceBegin);
+      clang::StringRef attributeStringRef = clang::Lexer::getSourceText(charSourceRange, *m_SM, *m_LO);
+      std::string macroStr = attributeStringRef.str();
+      /*
+       * If the immediateExpansionRange is empty, try to get it after getting the immediateMacroCallerLoc.
+       *
+       * The assumption is that whenever a macro is defining 2 function attributes e.g.
+       * #define __section(S) __attribute__ ((section(#S)))
+       * #define __cold       __attribute__((cold))
+       * #define __multiAttr  __section(.multiAttr.text) __cold
+       *
+       * Then it is needed to go on the immediateMacroCallerLoc.
+       *
+       * This isn't working in all the cases though. Not sure why...
+       */
+      if(macroStr.empty())
+      {
+        sourceBegin = m_SM->getImmediateMacroCallerLoc(sourceBegin);
+        charSourceRange = m_SM->getImmediateExpansionRange(sourceBegin);
+        attributeStringRef = clang::Lexer::getSourceText(charSourceRange, *m_SM, *m_LO);
+        macroStr = attributeStringRef.str();
+      }
+      removeFromString(declString, std::move(macroStr));
+    }
+  }
+
   ReturnValue getFunctionReturnValue(const clang::FunctionDecl* func)
   {
     const std::string funName = getFunctionName(func);
@@ -219,7 +267,7 @@ private:
 
     /*
      * clang::QualType doesn't have any SourceRange information. The source range is approximated by taking
-     * the very beginning of the function declaration and the begin position of the function name.
+     * the very beginning of the function declaration and the beginning position of the function name.
      */
     clang::SourceLocation beginSourceLocation = func->getBeginLoc();
     clang::SourceLocation startOfFunNameLocation = func->getNameInfo().getBeginLoc();
@@ -230,43 +278,39 @@ private:
      */
     for(const auto& attr : func->attrs())
     {
-      clang::SourceLocation sourceBegin = attr->getLocation();
-      if(sourceBegin.isMacroID())
-      {
-        clang::CharSourceRange charSourceRange = m_SM->getImmediateExpansionRange(sourceBegin);
-        clang::StringRef attributeStringRef = clang::Lexer::getSourceText(charSourceRange, *m_SM, *m_LO);
-        std::string macroStr = attributeStringRef.str();
-        /*
-         * If the immediateExpansionRange is empty, try to get it after getting the immediateMacroCallerLoc.
-         *
-         * The assumption is that whenever a macro is defining 2 function attributes e.g.
-         * #define __section(S) __attribute__ ((section(#S)))
-         * #define __cold       __attribute__((cold))
-         * #define __multiAttr  __section(.multiAttr.text) __cold
-         *
-         * Then it is needed to go on the immediateMacroCallerLoc.
-         *
-         * This isn't working in all the cases though. Not sure why...
-         */
-        if(macroStr.empty())
-        {
-          sourceBegin = m_SM->getImmediateMacroCallerLoc(sourceBegin);
-          charSourceRange = m_SM->getImmediateExpansionRange(sourceBegin);
-          attributeStringRef = clang::Lexer::getSourceText(charSourceRange, *m_SM, *m_LO);
-          macroStr = attributeStringRef.str();
-        }
-        /*
-         * It is needed to escape "(" and ")" in case there are some so that they are not taken as group inside the
-         * std::regex
-         */
-        static std::regex leftParentRegex{"\\("};
-        static std::regex rightParentRegex{"\\)"};
-        macroStr = std::regex_replace(macroStr, leftParentRegex, "\\(");
-        macroStr = std::regex_replace(macroStr, rightParentRegex, "\\)");
-        declString = std::regex_replace(declString, std::regex{macroStr}, "");
-      }
+      removeAttr(declString, attr);
     }
     static std::regex removeAttrRegex{"__attribute__[[:space:]]*\\([[:space:]]*\\(.*\\)[[:space:]]*\\)"};
+
+    /*
+     * Loop through all the token of the declaration and verifies if it expands to __attribute((<something>)).
+     * If so, remove the token.
+     * This is needed because some attribute like "noreturn" aren't part of the function attribute list for
+     * LLVM.
+     */
+    clang::SourceLocation itrSource = beginSourceLocation;
+    while(m_SM->isBeforeInTranslationUnit(itrSource,startOfFunNameLocation))
+    {
+      //itrSource = clang::Lexer::GetBeginningOfToken(itrSource, *m_SM, *m_LO);
+      clang::Token rawToken;
+      clang::Lexer::getRawToken(itrSource, rawToken, *m_SM, *m_LO, true);
+
+      clang::CharSourceRange dumpSourceRange = clang::Lexer::getAsCharRange(rawToken.getLocation(), *m_SM, *m_LO);
+      dumpSourceRange.setEnd(rawToken.getEndLoc());
+      clang::StringRef dumpStrRef = clang::Lexer::getSourceText(dumpSourceRange, *m_SM, *m_LO);
+      const std::string currentTokenStr{dumpStrRef.str()};
+      if(m_ctxt.hasMacroDefine(currentTokenStr))
+      {
+        std::string macroStr = m_ctxt.getMacroDefinition(currentTokenStr).getDefinition();
+        std::smatch match;
+        if(std::regex_match(macroStr, match, removeAttrRegex))
+        {
+          removeFromString(declString, std::move(currentTokenStr));
+        }
+      }
+      itrSource = itrSource.getLocWithOffset(currentTokenStr.length());
+    }
+
     declString = std::regex_replace(declString, removeAttrRegex, "");
     eraseInString(declString, "inline ");
     eraseInString(declString, "extern ");

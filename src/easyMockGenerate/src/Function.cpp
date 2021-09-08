@@ -142,7 +142,7 @@ std::string Function::getFunctionPrototype() const
   }
   for(const auto& attr : this->m_attributes)
   {
-    rv_funcProto.append("__attributes__((");
+    rv_funcProto.append("__attribute__((");
     rv_funcProto.append(attr.getName());
     bool firstParam = true;
     const auto& attrParams = attr.getParameters();

@@ -1063,6 +1063,17 @@ void CodeGeneratorCTemplate::fillInTemplateVariables(const std::string &p_mocked
         {
           break;
         }
+        /*
+         * Function with attribute "noreturn" cannot be mocked when using the original header.
+         * However, if the original header isn't used (m_generateUsedType == false), the mock can
+         * be generated because the mock remove all the attributes.
+         */
+        const auto& funAttr = fun->getAttributes();
+        const FunctionAttribute noReturnAttr{"noreturn"};
+        if((std::find(funAttr.begin(), funAttr.end(), noReturnAttr) != std::end(funAttr)) && !m_generateUsedType)
+        {
+          break;
+        }
         std::size_t rawHash = fun->getRawHash();
         if(generatedElements.find(rawHash) != generatedElements.end())
         {

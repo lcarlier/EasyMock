@@ -13,4 +13,7 @@ extern __printf(2, 3) void voidFunAttrFunMacro(int a, const char * fmt, ...);
 extern __attribute__ ((format(printf,1 ,2))) __attribute__((noinline)) void voidFunAttrFunAlwaysInline(const char * fmt, ...);
 extern void __multiAttr voidFunAttrMultiAttr();
 
+#define __noreturn __attribute__((__noreturn__))
+extern __noreturn void voidFunNoReturn();
+
 #endif //EASYMOCK_VOIDFUNATTRFUN_H

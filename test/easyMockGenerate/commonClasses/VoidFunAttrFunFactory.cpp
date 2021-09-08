@@ -50,6 +50,12 @@ ElementToMockList VoidFunAttrFunFactory::functionFactoryArray()
     f->addAttribute(std::move(fa2));
     returnedList.push_back(f);
   }
+  {
+    FunctionDeclaration *f = new FunctionDeclaration{"voidFunNoReturn", VoidReturnValue(), Parameter::Vector({})};
+    f->addAttribute(FunctionAttribute{"noreturn"});
+
+    returnedList.push_back(f);
+  }
   return returnedList;
 }
 
