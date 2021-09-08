@@ -56,6 +56,11 @@ ElementToMockList VoidFunAttrFunFactory::functionFactoryArray()
 
     returnedList.push_back(f);
   }
+  {
+    FunctionDeclaration *f = new FunctionDeclaration{ "__bad_copy_from", VoidReturnValue(), Parameter::Vector ({})};
+
+    returnedList.push_back(f);
+  }
   return returnedList;
 }
 

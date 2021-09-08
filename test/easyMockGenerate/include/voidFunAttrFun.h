@@ -16,4 +16,12 @@ extern void __multiAttr voidFunAttrMultiAttr();
 #define __noreturn __attribute__((__noreturn__))
 extern __noreturn void voidFunNoReturn();
 
+#if defined(__clang__) || defined(__llvm__)
+#define __compiletime_error(message)
+#elif defined(__GNUC__)
+#define __compiletime_error(message) __attribute__((error(message)))
+#endif
+extern void __compiletime_error("copy source size is too small")
+__bad_copy_from(void);
+
 #endif //EASYMOCK_VOIDFUNATTRFUN_H

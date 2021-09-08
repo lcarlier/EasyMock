@@ -211,7 +211,7 @@ private:
     return parametersList;
   }
 
-  void removeFromString(std::string &declString, std::string macroStr)
+  void removeFromString(std::string &declString, std::string macroStr, bool hasParameter)
   {
     /*
      * It is needed to escape "(" and ")" in case there are some so that they are not taken as group inside the
@@ -221,6 +221,13 @@ private:
     static std::regex rightParentRegex{"\\)"};
     macroStr = std::regex_replace(macroStr, leftParentRegex, "\\(");
     macroStr = std::regex_replace(macroStr, rightParentRegex, "\\)");
+    /*
+     * The macro string doesn't contain any parameter. Matching any parameter is added by hand.
+     */
+    if(hasParameter)
+    {
+      macroStr.append("\\(.*\\)");
+    }
     declString = std::regex_replace(declString, std::regex{macroStr}, "");
   }
 
@@ -251,7 +258,7 @@ private:
         attributeStringRef = clang::Lexer::getSourceText(charSourceRange, *m_SM, *m_LO);
         macroStr = attributeStringRef.str();
       }
-      removeFromString(declString, std::move(macroStr));
+      removeFromString(declString, std::move(macroStr), false);
     }
   }
 
@@ -301,11 +308,12 @@ private:
       const std::string currentTokenStr{dumpStrRef.str()};
       if(m_ctxt.hasMacroDefine(currentTokenStr))
       {
-        std::string macroStr = m_ctxt.getMacroDefinition(currentTokenStr).getDefinition();
+        const MacroDefinition& md = m_ctxt.getMacroDefinition(currentTokenStr);
+        std::string macroStr = md.getDefinition();
         std::smatch match;
-        if(std::regex_match(macroStr, match, removeAttrRegex))
+        if(macroStr.empty() || std::regex_match(macroStr, match, removeAttrRegex))
         {
-          removeFromString(declString, std::move(currentTokenStr));
+          removeFromString(declString, std::move(currentTokenStr), md.hasParameters());
         }
       }
       itrSource = itrSource.getLocWithOffset(currentTokenStr.length());

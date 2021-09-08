@@ -22,6 +22,11 @@ const MacroDefinition::ParameterList& MacroDefinition::getParameters() const noe
   return m_parameters;
 }
 
+const bool MacroDefinition::hasParameters() const noexcept
+{
+  return !m_parameters.empty();
+}
+
 const std::string& MacroDefinition::getDefinition() const noexcept
 {
   return m_definition;

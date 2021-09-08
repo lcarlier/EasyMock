@@ -43,6 +43,11 @@ public:
   const ParameterList& getParameters() const noexcept;
 
   /*!
+   * \brief Returns whether the macro definition has a parameter.
+   */
+  const bool hasParameters() const noexcept;
+
+  /*!
    * \brief Returns the string definition of the macro.
    */
   const std::string& getDefinition() const noexcept;
