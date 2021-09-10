@@ -8,6 +8,7 @@
 #include <vector>
 #include <functional>
 
+#include "CommonParserGenerator.h"
 #include "ComposableType.h"
 
 class ElementToMockContext;
@@ -60,9 +61,18 @@ public:
    * \return cp_OK if no error occurred.
    */
   virtual CodeParser_errCode getElementToMockContext(ElementToMockContext& p_ctxt) const = 0;
+
+  /*!
+   * \brief Sets the list of functions to be parsed.
+   * \param p_list The list of function to parse.
+   *
+   * Only the list of functions provided into the parameter will be parsed. The rest will be ignored.
+   */
+  void setMockOnlyFunction(MockOnlyList p_list) { m_mockOnlyList = std::move(p_list); };
 protected:
   std::string m_filename;
   ParserExtraArgs m_flags;
+  MockOnlyList m_mockOnlyList;
 };
 
 #endif /* CODEPARSERITF_H */

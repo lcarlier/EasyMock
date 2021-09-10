@@ -31,8 +31,16 @@
 namespace
 {
 std::string trim(const std::string &s) {
-  static std::regex removeSpaceRegex{"^[[:space:]]*|[[:space:]]*$"};
-  return std::regex_replace(s, removeSpaceRegex, "");
+  std::string rs{s};
+  while(!rs.empty() && std::isspace(rs.front()))
+  {
+    rs.erase(0, 1);
+  }
+  while(!rs.empty() && std::isspace(rs.back()))
+  {
+    rs.pop_back();
+  }
+  return rs;
 }
 }
 
@@ -45,8 +53,8 @@ private:
   typedef std::unordered_map<std::string, const IncompleteType> structKnownTypeMap;
 public:
 
-  explicit FunctionDeclASTVisitor(clang::SourceManager& sm, ElementToMockContext& ctxt)
-  : m_sourceManager(sm), m_ctxt(ctxt), m_context(nullptr)
+  explicit FunctionDeclASTVisitor(clang::SourceManager& sm, ElementToMockContext& ctxt, const MockOnlyList& mockOnlyList)
+  : m_sourceManager(sm), m_ctxt(ctxt), m_context(nullptr), m_mockOnlyList{mockOnlyList}
   {
     (void)m_sourceManager;
   }
@@ -60,7 +68,10 @@ public:
   bool VisitFunctionDecl(clang::FunctionDecl* func)
   {
     FunctionDeclaration* f = getFunctionDeclaration(func);
-    m_ctxt.addElementToMock(f);
+    if(f)
+    {
+      m_ctxt.addElementToMock(f);
+    }
 
     return true;
   }
@@ -68,6 +79,10 @@ public:
   FunctionDeclaration* getFunctionDeclaration(const clang::FunctionDecl* func)
   {
     const std::string funName = getFunctionName(func);
+    if(!m_mockOnlyList.empty() && std::find(std::begin(m_mockOnlyList), std::end(m_mockOnlyList), funName) == std::end(m_mockOnlyList))
+    {
+      return nullptr;
+    }
     bool isInline = func->isInlined();
     bool doesThisDeclHasABody = func->doesThisDeclarationHaveABody();
     bool isStatic = func->isStatic();
@@ -97,6 +112,7 @@ private:
   const clang::ASTContext *m_context;
   const clang::SourceManager *m_SM;
   const clang::LangOptions *m_LO;
+  const MockOnlyList& m_mockOnlyList;
 
   enum ContainerType {
     STRUCT,
@@ -917,8 +933,8 @@ class FunctionDeclASTConsumer : public clang::ASTConsumer
 public:
   // override the constructor in order to pass CI
 
-  explicit FunctionDeclASTConsumer(clang::CompilerInstance& ci, ElementToMockContext& ctxt)
-  : clang::ASTConsumer(), m_visitor(ci.getSourceManager(), ctxt) { }
+  explicit FunctionDeclASTConsumer(clang::CompilerInstance& ci, ElementToMockContext& ctxt, const MockOnlyList& mockOnlyList)
+  : clang::ASTConsumer(), m_visitor(ci.getSourceManager(), ctxt, mockOnlyList) { }
 
   virtual void HandleTranslationUnit(clang::ASTContext& astContext) override
   {
@@ -1031,8 +1047,8 @@ private:
 class FunctionDeclFrontendAction : public clang::ASTFrontendAction
 {
 public:
-  FunctionDeclFrontendAction(ElementToMockContext& ctxt) :
-  clang::ASTFrontendAction(), m_ctxt(ctxt)
+  FunctionDeclFrontendAction(ElementToMockContext& ctxt, const MockOnlyList& mockOnlyList) :
+  clang::ASTFrontendAction(), m_ctxt(ctxt), m_mockOnlyList{mockOnlyList}
   {
   }
 
@@ -1041,26 +1057,28 @@ public:
     clang::Preprocessor& PP = CI.getPreprocessor();
     clang::SourceManager& sm = CI.getSourceManager();
     PP.addPPCallbacks(std::make_unique<MacroBrowser>(m_ctxt, sm));
-    return std::make_unique<FunctionDeclASTConsumer>(CI, m_ctxt);
+    return std::make_unique<FunctionDeclASTConsumer>(CI, m_ctxt, m_mockOnlyList);
   }
 private:
   ElementToMockContext& m_ctxt;
+  const MockOnlyList& m_mockOnlyList;
 };
 
-std::unique_ptr<clang::tooling::FrontendActionFactory> newFunctionDeclFrontendAction(ElementToMockContext& ctxt) {
+std::unique_ptr<clang::tooling::FrontendActionFactory> newFunctionDeclFrontendAction(ElementToMockContext& ctxt, const MockOnlyList& mockOnlyList) {
   class FunctionDeclFrontendActionFactory : public clang::tooling::FrontendActionFactory {
   public:
-    FunctionDeclFrontendActionFactory(ElementToMockContext& ctxt) :
-    clang::tooling::FrontendActionFactory(), m_ctxt(ctxt)
+    FunctionDeclFrontendActionFactory(ElementToMockContext& ctxt, const MockOnlyList& mockOnlyList) :
+    clang::tooling::FrontendActionFactory(), m_ctxt(ctxt), m_mockOnlyList{mockOnlyList}
     {
     }
-    std::unique_ptr<clang::FrontendAction> create() override { return std::make_unique<FunctionDeclFrontendAction>(m_ctxt); }
+    std::unique_ptr<clang::FrontendAction> create() override { return std::make_unique<FunctionDeclFrontendAction>(m_ctxt, m_mockOnlyList); }
   private:
     ElementToMockContext& m_ctxt;
+    const MockOnlyList& m_mockOnlyList;
   };
 
   return std::unique_ptr<clang::tooling::FrontendActionFactory>(
-      new FunctionDeclFrontendActionFactory(ctxt));
+      new FunctionDeclFrontendActionFactory(ctxt, mockOnlyList));
 }
 
 LLVMParser::LLVMParser() : CodeParserItf()
@@ -1097,7 +1115,7 @@ CodeParser_errCode LLVMParser::getElementToMockContext(ElementToMockContext& p_c
   clang::tooling::FixedCompilationDatabase db(twineDir, LLVMExtraArgs);
   std::vector<std::string> arRef({m_filename});
   clang::tooling::ClangTool tool(db, arRef);
-  tool.run(newFunctionDeclFrontendAction(p_ctxt).get());
+  tool.run(newFunctionDeclFrontendAction(p_ctxt, m_mockOnlyList).get());
   return cp_OK;
 }
 

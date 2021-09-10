@@ -8,8 +8,8 @@
 #include <string>
 #include <unordered_set>
 #include "ElementToMockContext.h"
+#include "CommonParserGenerator.h"
 
-using MockOnlyList = std::unordered_set<std::string>;
 using GenerateAttrList = std::unordered_set<std::string>;
 
 /*!
