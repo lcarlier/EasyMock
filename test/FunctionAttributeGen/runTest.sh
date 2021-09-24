@@ -51,7 +51,7 @@ for testType in "${TestTypeList[@]}"; do
   echo -e "Error message is\n${err_msg}"
 
   # Check that the expected error is generated
-  grep "\-Werror=format=" "${TEST_DIR}/${testType}/error.txt"
+  grep "\-Werror.*format" "${TEST_DIR}/${testType}/error.txt"
 
   #Expect a compilation error because the format string doesn't match the arguments
   test "${ret}" -eq "1"

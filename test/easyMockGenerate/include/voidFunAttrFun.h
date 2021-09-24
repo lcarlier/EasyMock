@@ -1,11 +1,27 @@
 #ifndef EASYMOCK_VOIDFUNATTRFUN_H
 #define EASYMOCK_VOIDFUNATTRFUN_H
 
+#ifndef __printf
 #define __printf(a,b)  __attribute__ ((format(printf,a ,b)))
+#endif
 
-#define __section(S) __attribute__ ((section(#S)))
+#ifndef __section
+#define __section(S) __attribute__ ((section(S)))
+#endif
+
+#ifndef __cold
 #define __cold       __attribute__((cold))
-#define __multiAttr __section(.multiAttr.text) __cold
+#endif
+
+#ifndef __multiAttr
+#ifdef __clang__
+#define __multiAttr __section("__DATA__,.multiAttr.text") __cold
+#elif __GNUC__
+#define __multiAttr __section(".multiAttr.text") __cold
+#else
+#error "Compiler not supported"
+#endif
+#endif
 
 //Do not remove the extern as it actually test a bug fix.
 extern __attribute__ ((format(printf,1 ,2))) void voidFunAttrFun(const char * fmt, ...);

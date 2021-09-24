@@ -44,7 +44,7 @@ ElementToMockList VoidFunAttrFunFactory::functionFactoryArray()
   {
     FunctionDeclaration *f = new FunctionDeclaration{"voidFunAttrMultiAttr", TypedReturnValue(CTYPE_VOID),
                                                      Parameter::Vector({})};
-    FunctionAttribute fa1{"section", FunctionAttribute::ParametersList{".multiAttr.text"}};
+    FunctionAttribute fa1{"section", FunctionAttribute::ParametersList{"__DATA__,.multiAttr.text"}};
     FunctionAttribute fa2{"cold"};
     f->addAttribute(std::move(fa1));
     f->addAttribute(std::move(fa2));
