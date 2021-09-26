@@ -16,6 +16,8 @@ add_test(NAME test_end2endIntFunIntInt COMMAND
         ${EasyMock_SOURCE_DIR}
         ${EasyMock_BINARY_DIR}
         ${END_2_END_DEBUG}
+        ${CMAKE_C_COMPILER}
+        ${CMAKE_CXX_COMPILER}
         )
 
 #TEST STDIO
@@ -31,4 +33,6 @@ add_test(NAME test_end2endStdio COMMAND
         ${EasyMock_SOURCE_DIR}
         ${EasyMock_BINARY_DIR}
         ${END_2_END_DEBUG}
+        ${CMAKE_C_COMPILER}
+        ${CMAKE_CXX_COMPILER}
         )

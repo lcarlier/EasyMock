@@ -1,0 +1,19 @@
+name: 'Validate native'
+description: 'All the steps needed to validate Easymock in a native environment (as opposed to docker)'
+inputs:
+  c_compiler:
+    description: 'C compiler to use to run the test'
+    required: true
+  cxx_compiler:
+    description: 'CXX compiler to use to run the test'
+    required: true
+  build_type:
+    description: 'Build type'
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Run test
+      run:  |-
+        ./test/ci/validate.sh ${{ inputs.c_compiler }} ${{ inputs.cxx_compiler }} ${{ inputs.build_type }}
+      shell: bash

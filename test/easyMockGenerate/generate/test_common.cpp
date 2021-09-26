@@ -64,17 +64,17 @@ std::stringstream &operator<<(std::stringstream &out, const EasyMock_ErrorArrayP
 
 bool isFifoCallEmpty()
 {
-  return easyMock.m_fifoCall.empty();
+  return easyMock.isCurrentCallEmpty();
 }
 
-std::string getCurrentFifoCall()
+const std::string& getCurrentFifoCall()
 {
-  return easyMock.m_fifoCall.front();
+  return easyMock.getCurrentFifoCall();
 }
 
-int fifoCallSize()
+size_t fifoCallSize()
 {
-  return easyMock.m_fifoCall.size();
+  return easyMock.getFifoCallSize();
 }
 
 void easyMockGenerate_baseTestCase::SetUp()

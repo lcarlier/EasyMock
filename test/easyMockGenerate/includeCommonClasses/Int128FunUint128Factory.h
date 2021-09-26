@@ -17,6 +17,7 @@ public:
 
 class Int128FunUint128FactoryGenTypeFactory: public Int128FunUint128Factory
 {
+public:
   Int128FunUint128FactoryGenTypeFactory() : Int128FunUint128Factory()
   {
     this->m_generate_types = true;
@@ -24,4 +25,3 @@ class Int128FunUint128FactoryGenTypeFactory: public Int128FunUint128Factory
 };
 
 #endif /* INT128FUNUINT128FACTORY_H */
-

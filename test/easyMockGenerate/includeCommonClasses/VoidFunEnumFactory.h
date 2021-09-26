@@ -15,9 +15,10 @@ public:
 
 };
 
-class VoidFunEnumGenerateTypeFactory : public VoidFunEnumFactory{
+class VoidFunEnumGenerateTypeFactory : public VoidFunEnumFactory
+{
+public:
   VoidFunEnumGenerateTypeFactory() { m_generate_types = true; }
 };
 
 #endif /* VOIDFUNENUMFACTORY_H */
-

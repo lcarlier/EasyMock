@@ -91,6 +91,6 @@ TEST_F(voidFunVoid_testCase, NotEnoughCall)
 
   ASSERT_FALSE(isFifoCallEmpty());
   ASSERT_EQ(fifoCallSize(), 1);
-  std::string curCall = getCurrentFifoCall();
+  const std::string& curCall = getCurrentFifoCall();
   ASSERT_STREQ(curCall.c_str(), "void voidFunVoid()");
 }

@@ -17,8 +17,8 @@ public:
 
 class VoidFunStructWithConstMemberGenerateTypeFactory : public VoidFunStructWithConstMemberFactory
 {
+public:
   VoidFunStructWithConstMemberGenerateTypeFactory() { m_generate_types = true; }
 };
 
 #endif /* VOIDFUNSTRUCTWITHCONSTMEMBERFACTORY_H */
-

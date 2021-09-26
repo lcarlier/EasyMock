@@ -123,6 +123,8 @@ public:
    */
   std::size_t getHash() const override;
 
+  virtual ~Declarator();
+
 protected:
 
   /*!
@@ -151,7 +153,6 @@ protected:
    * \param p_typeItf The TypeItf object which is hold by this declarator.
    */
   explicit Declarator(TypeItf* p_typeItf);
-  virtual ~Declarator();
 
   friend void swap(Declarator &first, Declarator &second);
 private:

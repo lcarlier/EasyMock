@@ -16,8 +16,8 @@ public:
 
 class VoidFunIntArrayGenerateTypeFactory : public VoidFunIntArrayFactory
 {
+public:
   VoidFunIntArrayGenerateTypeFactory() { m_generate_types = true; }
 };
 
 #endif /* VOIDFUNINTARRAYFACTORY_H */
-

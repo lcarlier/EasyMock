@@ -132,7 +132,7 @@ TYPED_TEST(genGenerate_testCase, NotEnoughCall)
 
   ASSERT_FALSE(isFifoCallEmpty());
   ASSERT_EQ(fifoCallSize(), 1);
-  std::string curCall = getCurrentFifoCall();
+  const std::string& curCall = getCurrentFifoCall();
   ASSERT_STREQ(curCall.c_str(), f.getFunctionPrototype().c_str());
   genGenerate_testCase<TypeParam>::m_factory.clear_all_queues();
 }

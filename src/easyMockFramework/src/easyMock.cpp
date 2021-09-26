@@ -133,6 +133,21 @@ public:
     m_fifoCall.push(name);
   }
 
+  bool isCurrentCallEmpty()
+  {
+    return m_fifoCall.empty();
+  }
+
+  const std::string& getCurrentFifoCall()
+  {
+    return m_fifoCall.front();
+  }
+
+  size_t getFifoCallSize()
+  {
+    return m_fifoCall.size();
+  }
+
   const std::string popCurrentCall()
   {
     if (m_fifoCall.empty())

@@ -15,6 +15,7 @@ public:
 
 class ConstVoidPtrFunConstVoidPtrGenerateTypeFactory : public ConstVoidPtrFunConstVoidPtrFactory
 {
+public:
   ConstVoidPtrFunConstVoidPtrGenerateTypeFactory() : ConstVoidPtrFunConstVoidPtrFactory()
   {
     m_generate_types = true;

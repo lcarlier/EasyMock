@@ -67,7 +67,7 @@ inline void typeEq(T1& t1, T2& t2)
   ASSERT_EQ(t1, t2);
   if constexpr(std::is_base_of<TypeItf, T1>::value)
   {
-    ASSERT_TRUE(t1.isEqual(t2));
+    ASSERT_TRUE(t1.operator==(t2));
   }
   ASSERT_EQ(t1.getHash(), t2.getHash());
 }
@@ -78,7 +78,7 @@ inline void typeNe(T1& t1, T2& t2)
   ASSERT_NE(t1, t2);
   if constexpr(std::is_base_of<TypeItf, T1>::value)
   {
-    ASSERT_FALSE(t1.isEqual(t2));
+    ASSERT_FALSE(t1.operator==(t2));
   }
   ASSERT_NE(t1.getHash(), t2.getHash());
 }

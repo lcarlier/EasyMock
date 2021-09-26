@@ -13,8 +13,8 @@
 void createDir(const std::string &dir);
 void rmDir(const std::string &dir);
 bool isFifoCallEmpty();
-std::string getCurrentFifoCall();
-int fifoCallSize();
+const std::string& getCurrentFifoCall();
+size_t fifoCallSize();
 #define EASYMOCK_ASSERT_NO_ERROR \
 { \
   const char *error = easyMock_getErrorStr(); \
@@ -77,4 +77,3 @@ private:
 };
 
 #endif /* TEST_COMMON_H */
-
