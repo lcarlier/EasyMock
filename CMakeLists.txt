@@ -268,5 +268,5 @@ if(CMAKE_BUILD_TYPE STREQUAL build_debug OR CMAKE_BUILD_TYPE STREQUAL build_rele
     enable_testing()
     add_subdirectory(test)
 
-    add_custom_target(check COMMAND GTEST_COLOR=1 ${CMAKE_CTEST_COMMAND} --output-on-failure --verbose)
+    add_custom_target(check COMMAND GTEST_COLOR=1 ${CMAKE_CTEST_COMMAND} --output-on-failure)
 endif()
