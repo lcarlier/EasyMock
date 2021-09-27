@@ -1,0 +1,21 @@
+name: Linux Ubuntu 18.04 arm64 Clang
+
+on: [push, pull_request]
+
+jobs:
+  ubuntu-18-04-arm-clang:
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        build_type: [Debug, ReleaseWithTest]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Validate
+        uses: ./.github/actions/validate-arm64
+        with:
+          c_compiler: clang
+          cxx_compiler: clang++
+          build_type: ${{ matrix.build_type}}
+          docker_image: ubuntu:18.04

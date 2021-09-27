@@ -225,8 +225,9 @@ private:
    * Thanks to https://gist.github.com/banthar/1343977
    * for stack trace print
    */
-  void debugInfo(std::string &error, const void* ip)
+  int debugInfo(std::string &error, const void* ip)
   {
+    int rv = 0;
 #ifdef BACKTRACE_SUPPORT
     char *debuginfo_path = NULL;
 
@@ -235,21 +236,45 @@ private:
     callbacks.find_debuginfo = dwfl_standard_find_debuginfo;
     callbacks.debuginfo_path = &debuginfo_path;
 
+    Dwfl_Module* module = nullptr;
+    Dwfl_Line *line = nullptr;
+    const char* function_name = nullptr;
+    Dwarf_Addr addr = 0;
+
     Dwfl* dwfl = dwfl_begin(&callbacks);
+    if(dwfl == nullptr)
+    {
+      append_string(error, "<Backtrace unavailable: No callback available>");
+      return -1;
+    }
 
     assert(dwfl_linux_proc_report(dwfl, getpid()) == 0);
     assert(dwfl_report_end(dwfl, NULL, NULL) == 0);
 
-    Dwarf_Addr addr = (uintptr_t) ip;
+    addr = (uintptr_t) ip;
 
-    Dwfl_Module* module = dwfl_addrmodule(dwfl, addr);
+    module = dwfl_addrmodule(dwfl, addr);
+    if(module == nullptr)
+    {
+      append_string(error, "<Backtrace unavailable: No module available>");
+      rv = -1;
+      goto cleanup_dwfl;
+    }
 
-    const char* function_name = dwfl_module_addrname(module, addr);
+    function_name = dwfl_module_addrname(module, addr);
 
-    append_string(error, "%s(", boost::core::demangle(function_name).c_str());
+    if(function_name != nullptr)
+    {
+      append_string(error, "%s(", boost::core::demangle(function_name).c_str());
+    }
+    else
+    {
+      append_string(error, "<Backtrace unavailable: Unkown function name>");
+      rv = -1;
+    }
 
-    Dwfl_Line *line = dwfl_getsrc(dwfl, addr);
-    if (line != NULL)
+    line = dwfl_getsrc(dwfl, addr);
+    if (line != nullptr)
     {
       int nline;
       Dwarf_Addr addr;
@@ -258,12 +283,22 @@ private:
     }
     else
     {
+      rv = -1;
       const char *module_name = dwfl_module_info(module,
               NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-      append_string(error, "in %s", module_name);
+      if(module_name != nullptr)
+      {
+        append_string(error, "in <Backtrace unavailable: %s>", module_name);
+      }
+      else
+      {
+        append_string(error, "in <Backtrace unavailable: unkown_module>");
+      }
     }
+cleanup_dwfl:
     dwfl_end(dwfl);
 #endif
+    return rv;
   }
 
   void append_backtrace(std::string &error)
@@ -271,16 +306,29 @@ private:
 #ifdef BACKTRACE_SUPPORT
     int skip = 0;
     unw_context_t uc;
-    unw_getcontext(&uc);
+    int errcode;
+    if((errcode = unw_getcontext(&uc)) == -1)
+    {
+      append_string(error, "<Backtrace unavailable: no context>\n");
+      return;
+    }
 
     unw_cursor_t cursor;
-    unw_init_local(&cursor, &uc);
+    if((errcode = unw_init_local(&cursor, &uc)) != 0)
+    {
+      append_string(error, "<Backtrace unavailable: Couldn't initialise local curser (errcode: %d). Backtrace won't work>\n", errcode);
+      return;
+    }
 
     while (unw_step(&cursor) > 0)
     {
 
       unw_word_t ip;
-      unw_get_reg(&cursor, UNW_REG_IP, &ip);
+      if((errcode = unw_get_reg(&cursor, UNW_REG_IP, &ip)) != 0)
+      {
+        append_string(error, "<Backtrace unavailable: Couldn't get the register (errcode: %d). Backtrace won't work>\n", errcode);
+        break;
+      }
 
       //unw_word_t offset;
       //char name[32];
@@ -289,7 +337,10 @@ private:
       if (skip <= 0)
       {
         append_string(error, "\tat ");
-        debugInfo(error, (void*) (ip - 4));
+        if(debugInfo(error, (void*) (ip - 4)) == -1)
+        {
+          break;
+        }
         append_string(error, ")\n");
       }
 

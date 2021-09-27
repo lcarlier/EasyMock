@@ -1,0 +1,46 @@
+name: 'Validate arm64'
+description: 'All the steps needed to validate Easymock in a docker arm64 environment (as opposed to native)'
+inputs:
+  c_compiler:
+    description: 'C compiler to use to run the test'
+    required: true
+  cxx_compiler:
+    description: 'CXX compiler to use to run the test'
+    required: true
+  build_type:
+    description: 'Build type'
+    required: true
+  docker_image:
+    description: 'The docker image to use'
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v1
+
+    - name: Set up Docker Buildx
+      id: buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Build docker
+      run: |-
+        echo -e "FROM ${{inputs.docker_image}}\n" \
+                "RUN apt update -y\n" \
+                "RUN apt install sudo -y\n" \
+                "RUN ln -snf /usr/share/zoneinfo/Europe/London /etc/localtime && echo Europe/London > /etc/timezone\n" \
+                 | /usr/bin/docker buildx build --tag arm64_ubuntu --platform linux/arm64  --load -
+      shell: bash
+    - name: Prepare Command
+      run: |-
+        echo -e "bash -c \"./test/ci/validate.sh " \
+                                       "${{ inputs.c_compiler }} " \
+                                       "${{ inputs.cxx_compiler }} " \
+                                       "${{ inputs.build_type }} " \
+                                       "'-DENABLE_ASAN=0'\"" \
+        > docker_cmd_f
+      shell: bash
+    - name: Run test
+      run:  |-
+        docker run -i --rm -w /project -v $PWD:/project arm64_ubuntu < docker_cmd_f
+      shell: bash
