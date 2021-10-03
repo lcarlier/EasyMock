@@ -15,8 +15,23 @@ ElementToMockList FunctionVaArgsFactory::functionFactoryArray()
   Parameter *param1 = new Parameter(new CType(CTYPE_UINT), "a");
 
 #if defined(__APPLE__)
+#if defined(__aarch64__)
   TypedefType *va_list_pointer = new TypedefType("va_list", new Pointer(new CType(CTYPE_CHAR)));
   Parameter* param2 = new Parameter(va_list_pointer, "args");
+#elif defined(__x86_64__)
+  StructType* vaListArg = new StructType("__va_list_tag", false);
+  vaListArg->addField(new ComposableField(new CType(CTYPE_UINT), "gp_offset"));
+  vaListArg->addField(new ComposableField(new CType(CTYPE_UINT), "fp_offset"));
+  vaListArg->addField(new ComposableField(new Pointer(new CType(CTYPE_VOID)), "overflow_arg_area"));
+  vaListArg->addField(new ComposableField(new Pointer(new CType(CTYPE_VOID)), "reg_save_area"));
+  vaListArg->setImplicit(true);
+
+  Parameter* param2 = new Parameter(new Pointer(vaListArg), "args");
+  param2->setDeclareString("va_list");
+  vaListArg = nullptr;
+#else
+  #error "Architecture not supported on MacOS"
+#endif
 #elif defined(__linux__)
 
 #if defined(__aarch64__)
@@ -45,7 +60,7 @@ ElementToMockList FunctionVaArgsFactory::functionFactoryArray()
   vaListArg = nullptr;
 #else //defined(__arch64__)
 #error "Architecture not supported on Linux"
-#endif //defined(__arch64__)
+#endif //defined(__APPLE__)
 
 #else
 #error "OS not supported"

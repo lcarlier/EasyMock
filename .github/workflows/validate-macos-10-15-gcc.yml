@@ -1,0 +1,22 @@
+name: MacOS 10.15 GCC
+
+on: [push, pull_request]
+
+jobs:
+  macos-10-15-gcc:
+    runs-on: macos-10.15
+    strategy:
+      matrix:
+        # Debug isn't yet tested because it failed with ASAN
+        # The first analysis is that it is a bug in ASAN itself
+        build_type: [Debug, ReleaseWithTest]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Validate
+        uses: ./.github/actions/validate-native
+        with:
+          c_compiler: gcc
+          cxx_compiler: g++
+          build_type: ${{ matrix.build_type}}

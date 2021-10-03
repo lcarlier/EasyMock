@@ -43,9 +43,16 @@ if [ "$OS" = "Linux" ]; then
     doxygen \
     graphviz
 elif [ "$OS" = "Darwin" ]; then
-  brew install gcc
-  brew install llvm
-  brew install ctemplate
+  brew install \
+    cmake \
+    pkgconfig \
+    ncurses \
+    gcc \
+    llvm \
+    ctemplate \
+    doxygen \
+    boost
+  echo 'export PATH="/usr/local/opt/llvm/bin:$PATH"' >> /Users/runner/.bash_profile
 fi
 
 export LSAN_OPTIONS=verbosity=1:log_threads=1
