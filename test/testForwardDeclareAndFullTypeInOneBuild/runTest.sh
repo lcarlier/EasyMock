@@ -7,10 +7,13 @@ set -x
 
 EASYMOCK_GENERATE=$1
 EASYMOCK_SRC_DIR=$2
-CURRENT_BINARY_DIR=$3
-CURRENT_SOURCE_DIR=$4
+EASYMOCK_LIB_DIR=$3
+EASYMOCK_LIB_FILE=$4
+CURRENT_BINARY_DIR=$5
+CURRENT_SOURCE_DIR=$6
+CC_COMMAND=$7
 
-declare -a TestTypeList=("generatedType")
+declare -a TestTypeList=("usedType" "generatedType")
 
 declare -a FileToGenerateList=("forwardDeclare" "fullDeclaration")
 
@@ -37,7 +40,7 @@ for testType in "${TestTypeList[@]}"; do
     fi
 
     ret=0
-    gcc \
+    ${CC_COMMAND} \
       -Wall \
       -Werror \
       -I "${type_current_binary_dir}" \
@@ -55,11 +58,12 @@ for testType in "${TestTypeList[@]}"; do
   done
 
   ret=0
-  gcc \
+  ${CC_COMMAND} \
     -Wall \
     -Werror \
     -c "${CURRENT_SOURCE_DIR}/main.c" \
     -I "${type_current_binary_dir}" \
+    -I "${CURRENT_SOURCE_DIR}" \
     -I "${EASYMOCK_SRC_DIR}/src/easyMockFramework/include" \
     -I "${EASYMOCK_SRC_DIR}/test/easyMockGenerate/include" \
     -o "${type_current_binary_dir}/main.o" 2> "${type_current_binary_dir}/error.txt" || ret=$?
@@ -69,14 +73,14 @@ for testType in "${TestTypeList[@]}"; do
   echo -e "Error message is\n${err_msg}"
   test "${ret}" -eq "0"
 
-  gcc \
+  ${CC_COMMAND} \
     -g \
     "${type_current_binary_dir}/easyMock_forwardDeclare.o" \
     "${type_current_binary_dir}/easyMock_fullDeclaration.o" \
     "${type_current_binary_dir}/main.o" \
-    -o testForwardDeclareAndFullTypeInOneBuild \
-    -Wl,-rpath,"${EASYMOCK_SRC_DIR}/src/easyMockFramework/src" \
-    src/libEasyMockFramework.so
+    -o "${type_current_binary_dir}/testForwardDeclareAndFullTypeInOneBuild" \
+    -Wl,-rpath,"${EASYMOCK_LIB_DIR}" \
+    "${EASYMOCK_LIB_DIR}/${EASYMOCK_LIB_FILE}"
 
   ${type_current_binary_dir}/testForwardDeclareAndFullTypeInOneBuild
 

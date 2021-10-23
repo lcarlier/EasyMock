@@ -1301,7 +1301,8 @@ void CodeGeneratorCTemplate::generateFunctionParamSection(ctemplate::TemplateDic
         newPtrParamSection->SetValue(FUNCTION_PARAM_TYPE, argType);
         newPtrParamSection->SetValue(FUNCTION_PARAM_NAME, paramName);
         ctemplate::TemplateDictionary* subdict = nullptr;
-        if(pointedType->getCType() == CTYPE_VOID)
+        const ComposableType* composableTypeField = pointedType->asComposableType();
+        if(pointedType->getCType() == CTYPE_VOID || (composableTypeField && composableTypeField->getContainedFields().size() == 0))
         {
           subdict = newPtrParamSection->AddSectionDictionary(FUNCTION_VOID_PTR_OUT_SECTION);
         }
@@ -1620,6 +1621,10 @@ void CodeGeneratorCTemplate::generateDeclarationOfUsedType(ctemplate::TemplateDi
     {
       generateForwardDeclaration(composableType);
 
+      if(composableType->getContainedFields().size() == 0)
+      {
+        return;
+      }
       /*
        * 1. Generate the contained field's type
        */
@@ -1858,7 +1863,10 @@ ctemplate::TemplateDictionary* CodeGeneratorCTemplate::generateDeclarationOfComp
 
 void CodeGeneratorCTemplate::generateComposedTypedCompareSection(const ComposableType *p_composedType, std::string p_uniquePrepend, std::string p_declPrepend)
 {
-
+  if(p_composedType->getContainedFields().size() == 0)
+  {
+    return;
+  }
   std::string uniqueName {getComparatorName(p_composedType) };
 
   //Generate each comparator only once.

@@ -6,6 +6,6 @@ struct myStruct
   int a;
 };
 
-void useFullDeclaration(struct myStruct);
+void useFullDeclaration(struct myStruct*);
 
 #endif //EASYMOCK_FULLDECLARATION_H
