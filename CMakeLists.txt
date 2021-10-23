@@ -7,6 +7,12 @@ set(build_debug "Debug")
 set(build_release "Release")
 set(build_release_with_test "ReleaseWithTest")
 set(default_build_type ${build_release})
+get_directory_property(hasParent PARENT_DIRECTORY)
+if(hasParent)
+    set(EASYMOCK_FORCE_BUILD_TYPE "" PARENT_SCOPE)
+else()
+    set(EASYMOCK_FORCE_BUILD_TYPE "")
+endif()
 
 function(printallvar)
     get_cmake_property(_variableNames VARIABLES)
@@ -50,13 +56,15 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/.hg")
     set(default_build_type ${build_debug})
 endif()
 
-if("${CMAKE_BUILD_TYPE}" STREQUAL "")
+if("${EASYMOCK_FORCE_BUILD_TYPE}" STREQUAL "")
     message(STATUS "Setting build type to '${default_build_type}' as none was specified.")
     set(CMAKE_BUILD_TYPE "${default_build_type}" CACHE
         STRING "Choose the type of build." FORCE)
     # Set the possible values of build type for cmake-gui
     set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
       ${build_debug} ${build_release} ${build_release_with_test})
+else()
+    set(CMAKE_BUILD_TYPE ${EASYMOCK_FORCE_BUILD_TYPE})
 endif()
 
 message(STATUS "Building for ${CMAKE_BUILD_TYPE}.")
@@ -119,8 +127,13 @@ message(STATUS "LIBNCURSES_LDFLAGS: ${LIBNCURSES_LDFLAGS}")
 
 find_package(Boost 1.65 REQUIRED system filesystem)
 
-set(LLVM_DEFAULT_VERSION 10)
+if(hasParent)
+    set(LLVM_DEFAULT_VERSION 10 PARENT_SCOPE)
+else()
+    set(LLVM_DEFAULT_VERSION 10 CACHE STRING "Default LLVM version to use")
+endif()
 
+message(STATUS "LLVM_DEFAULT_VERSION: ${LLVM_DEFAULT_VERSION}")
 message(STATUS "LLVM_PATH: ${LLVM_PATH}")
 if(EXISTS ${LLVM_PATH})
     message(STATUS "Forcing finding llvm-config in ${LLVM_PATH}")
