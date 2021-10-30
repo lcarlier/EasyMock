@@ -172,16 +172,22 @@ This project was the opportunity to improve my C++ skills. One part that I
 wanted to experience was the implementation and maintenance of copy/move
 constructor/operator.
 
-As such, I decided not to use smart pointer. This is obviously arguable but
-that's the choice I've made and I'm pretty happy with how the code turned out
-to implemented though I recognise that my implementation is probably not the
-best regarding the memory usage since deep copies of objects are made.
+This is obviously arguable but that's the choice I've made and I'm pretty happy
+with how the code turned out to implemented though I recognise that my implementation
+is probably not the best regarding the memory usage since deep copies of objects are made.
+
+I banned myself using shared pointer, arguing that having a shared pointer is no better
+than having a global variable that can be access a from wherever it happens to be. 
+I however use unique ptr. I came to realise that my implementation of AutoCleanVectorPtr
+is doing exactly the same as having an std::vector<std::unqique_ptr<T>>.
+A mix of both is currently in use and eventually I should remove my implementation
+of AutoCleanVectorPtr.
 ```
 
 An important concept explained in the next section is the concept of
 `ownership of pointer`.
 
-### <a name="user-content-memory-management">Memory management
+### <a name="user-content-memory-management"></a>Memory management
 Since the choice was made not to use smart pointers, the obvious question is how
 to cleanup the dynamically allocated objects without creating a memory leak
 when a class as a pointer to another class. The solution to this is that each

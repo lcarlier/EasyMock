@@ -27,6 +27,7 @@
 #include <vector>
 #include <unordered_map>
 #include <regex>
+#include <memory>
 
 namespace
 {
@@ -50,13 +51,14 @@ std::string trim(const std::string &s) {
 class FunctionDeclASTVisitor : public clang::RecursiveASTVisitor<FunctionDeclASTVisitor>
 {
 private:
-  typedef std::unordered_map<std::string, const IncompleteType> structKnownTypeMap;
+  using structKnownTypeMap = std::unordered_map<std::string, const IncompleteType>;
 public:
 
   explicit FunctionDeclASTVisitor(clang::SourceManager& sm, ElementToMockContext& ctxt, const MockOnlyList& mockOnlyList)
   : m_sourceManager(sm), m_ctxt(ctxt), m_context(nullptr), m_mockOnlyList{mockOnlyList}
   {
     (void)m_sourceManager;
+    m_cachedStruct.clear();
   }
 
   /*!
@@ -113,6 +115,7 @@ private:
   const clang::SourceManager *m_SM;
   const clang::LangOptions *m_LO;
   const MockOnlyList& m_mockOnlyList;
+  std::unordered_map<std::string, std::unique_ptr<TypeItf>> m_cachedStruct;
 
   enum ContainerType {
     STRUCT,
@@ -649,13 +652,16 @@ private:
   TypeItf* getFromContainerType(const clang::Type &p_type, ContainerType contType, structKnownTypeMap &structKnownType, bool p_isEmbeddedInOtherType)
   {
     const clang::RecordType *RT = nullptr;
+    std::string contTypeDecl;
     switch(contType)
     {
       case STRUCT:
         RT = p_type.getAsStructureType();
+        contTypeDecl.append("struct ");
         break;
       case UNION:
         RT = p_type.getAsUnionType();
+        contTypeDecl.append("union ");
         break;
     }
 
@@ -670,6 +676,15 @@ private:
     if(structKnownType.find(typeName) != structKnownType.end())
     {
       return structKnownType.at(typeName).clone();
+    }
+
+    std::string declToCheck = typeName + std::string{"_"} + typedDefName;
+    if(declToCheck.compare("_") != 0)
+    {
+      if(m_cachedStruct.find(declToCheck) != m_cachedStruct.end())
+      {
+        return m_cachedStruct[declToCheck]->clone();
+      }
     }
 
     const clang::TypedefType* TDT = p_type.getAs<clang::TypedefType>();
@@ -761,6 +776,15 @@ private:
     if(!typeName.empty())
     {
       structKnownType.erase(typeName);
+    }
+
+    if(declToCheck.compare("_") != 0)
+    {
+      if(m_cachedStruct.find(declToCheck) == m_cachedStruct.end())
+      {
+        std::unique_ptr<TypeItf> up(toReturn->clone());
+        m_cachedStruct.insert({declToCheck, std::move(up)});
+      }
     }
 
     return toReturn;
