@@ -44,7 +44,10 @@ class EasyMock
 public:
 
   EasyMock() :
-  m_checkCallsOrder(false), m_printCallStack(true)
+  m_checkCallsOrder(false)
+#if defined(BACKTRACE_SUPPORT)
+  , m_printCallStack(true)
+#endif
   {
   }
 
@@ -176,7 +179,11 @@ public:
 
   void setPrintCallStack(bool val)
   {
+#if defined(BACKTRACE_SUPPORT)
     m_printCallStack = val;
+#else
+    std::fprintf(stderr, "Warning: Call to setPrintCallStack will be ignored because this binary is linked against a libEasyMockFramework.so library compiled without BACKTRACE_SUPPORT\n");
+#endif
   }
 
   void setCheckCallsOrder(bool val)
@@ -354,7 +361,9 @@ cleanup_dwfl:
   }
 
   bool m_checkCallsOrder;
+#if defined(BACKTRACE_SUPPORT)
   bool m_printCallStack;
+#endif
   MockMap_t m_registeredMock;
   FifoCall_t m_fifoCall;
   FifoError_t m_error;
