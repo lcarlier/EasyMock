@@ -1302,7 +1302,7 @@ void CodeGeneratorCTemplate::generateFunctionParamSection(ctemplate::TemplateDic
         newPtrParamSection->SetValue(FUNCTION_PARAM_NAME, paramName);
         ctemplate::TemplateDictionary* subdict = nullptr;
         const ComposableType* composableTypeField = pointedType->asComposableType();
-        if(pointedType->getCType() == CTYPE_VOID || (composableTypeField && composableTypeField->getContainedFields().size() == 0))
+        if(pointedType->getCType() == CTYPE_VOID || (composableTypeField && composableTypeField->isForwardDeclared()))
         {
           subdict = newPtrParamSection->AddSectionDictionary(FUNCTION_VOID_PTR_OUT_SECTION);
         }
@@ -1621,7 +1621,7 @@ void CodeGeneratorCTemplate::generateDeclarationOfUsedType(ctemplate::TemplateDi
     {
       generateForwardDeclaration(composableType);
 
-      if(composableType->getContainedFields().size() == 0)
+      if(composableType->isForwardDeclared())
       {
         return;
       }
@@ -1863,7 +1863,7 @@ ctemplate::TemplateDictionary* CodeGeneratorCTemplate::generateDeclarationOfComp
 
 void CodeGeneratorCTemplate::generateComposedTypedCompareSection(const ComposableType *p_composedType, std::string p_uniquePrepend, std::string p_declPrepend)
 {
-  if(p_composedType->getContainedFields().size() == 0)
+  if(p_composedType->isForwardDeclared())
   {
     return;
   }

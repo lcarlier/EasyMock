@@ -70,6 +70,21 @@ public:
   bool isDeclarationEmbeddedInOtherType() const;
 
   /*!
+   * \brief Returns whether the type corresponds to a forward declared type or not.
+   *
+   * \return True if the type corresponds to a forward declared type.
+   *         False instead
+   */
+  bool isForwardDeclared() const;
+
+  /*!
+   * \brief Sets whether the composable type is forward declared or not.
+   *
+   * \param p_value True to set the composable type as forward declared. False instead.
+   */
+  void setForwardDecl(bool p_value);
+
+  /*!
    * \brief Returns the keyword to declare the composable type.
    *
    * i.e. return "struct" for struct and "union" for union
@@ -111,6 +126,7 @@ protected:
 private:
   ComposableFieldItf::Vector m_elem;
   bool m_is_declaration_embedded_in_other_type;
+  bool m_is_forward_declared;
 };
 
 #endif /* COMPOSABLETYPE_H */

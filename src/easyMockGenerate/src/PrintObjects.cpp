@@ -220,6 +220,7 @@ static void printComposableTypeToOstream(std::ostream& os, const T& composableTy
   os << "name: '" << composableType.getName() << "'" << ", ";
   os << "anonymous: " << (composableType.isAnonymous() ? "yes" : " no") << ", ";
   os << "DeclEmbedded: " << (composableType.isDeclarationEmbeddedInOtherType() ? "yes" : " no");
+  os << "ForwardDeclared: " << (composableType.isForwardDeclared() ? "yes" : " no");
   os << ")" << std::endl;
 
   const ComposableFieldItf::Vector& structFields = composableType.getContainedFields();

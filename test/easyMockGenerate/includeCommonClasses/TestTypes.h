@@ -74,6 +74,7 @@
 #include <VoidFunStructWithOutsideDeclaredAnonymousTypeStructFieldFactory.h>
 #include <VoidFunDeclAndDefFactory.h>
 #include <VoidFunAliasedFunFactory.h>
+#include <VoidFunStructForwardDeclAndEmptyStructFactory.h>
 
 // TestTypesInclude.h is generated
 #include "TestTypesInclude.h"
@@ -212,7 +213,9 @@
 
 #define COMPILE_ONLY_TYPES_50_99 \
         VoidFunAliasedFunFactory, \
-        VoidFunAliasedFunGenerateTypeFactory
+        VoidFunAliasedFunGenerateTypeFactory, \
+        VoidFunStructForwardDeclAndEmptyStructFactory, \
+        VoidFunStructForwardDeclAndEmptyStructGenerateTypeFactory
 
 typedef ::testing::Types
 <

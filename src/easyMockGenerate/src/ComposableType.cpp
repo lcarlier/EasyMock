@@ -1,6 +1,5 @@
 #include "ComposableType.h"
 
-#include <boost/algorithm/string/replace.hpp>
 #include <boost/functional/hash.hpp>
 
 ComposableType::ComposableType(const std::string p_name, bool p_is_embedded_in_other_type) :
@@ -9,12 +8,12 @@ ComposableType(p_name, ComposableFieldItf::Vector({}), p_is_embedded_in_other_ty
 }
 
 ComposableType::ComposableType(const std::string p_name, const ComposableFieldItf::Vector p_elem, bool p_is_embedded_in_other_type) :
-TypeItf(p_name), m_elem(p_elem), m_is_declaration_embedded_in_other_type(p_is_embedded_in_other_type)
+TypeItf(p_name), m_elem(p_elem), m_is_declaration_embedded_in_other_type(p_is_embedded_in_other_type), m_is_forward_declared(false)
 {
 }
 
 ComposableType::ComposableType(const ComposableType& other) :
-TypeItf(other), m_elem(other.m_elem), m_is_declaration_embedded_in_other_type(other.m_is_declaration_embedded_in_other_type)
+TypeItf(other), m_elem(other.m_elem), m_is_declaration_embedded_in_other_type(other.m_is_declaration_embedded_in_other_type), m_is_forward_declared(other.m_is_forward_declared)
 {}
 
 ComposableType & ComposableType::operator=(const ComposableType& other)
@@ -22,6 +21,7 @@ ComposableType & ComposableType::operator=(const ComposableType& other)
   TypeItf::operator=(other);
   m_elem = other.m_elem;
   m_is_declaration_embedded_in_other_type = other.m_is_declaration_embedded_in_other_type;
+  m_is_forward_declared = other.m_is_forward_declared;
 
   return *this;
 }
@@ -31,6 +31,7 @@ TypeItf(static_cast<TypeItf&&>(other))
 {
   m_elem = std::move(other.m_elem);
   m_is_declaration_embedded_in_other_type = std::move(other.m_is_declaration_embedded_in_other_type);
+  m_is_forward_declared = std::move(other.m_is_forward_declared);
 }
 
 bool ComposableType::isDeclarationEmbeddedInOtherType() const
@@ -38,11 +39,22 @@ bool ComposableType::isDeclarationEmbeddedInOtherType() const
   return m_is_declaration_embedded_in_other_type;
 }
 
+bool ComposableType::isForwardDeclared() const
+{
+  return m_is_forward_declared;
+}
+
+void ComposableType::setForwardDecl(bool p_value)
+{
+  m_is_forward_declared = p_value;
+}
+
 std::size_t ComposableType::getHash() const
 {
   std::size_t seed { TypeItf::getHash() };
   boost::hash_combine(seed, m_elem);
   boost::hash_combine(seed, m_is_declaration_embedded_in_other_type);
+  boost::hash_combine(seed, m_is_forward_declared);
 
   return seed;
 }
@@ -62,7 +74,8 @@ bool ComposableType::isEqual(const TypeItf& p_other) const
   }
   bool elemEq = this->m_elem == other->m_elem;
   bool embedEq = this->m_is_declaration_embedded_in_other_type == other->m_is_declaration_embedded_in_other_type;
-  return parentEq && elemEq && embedEq;
+  bool isForwardDecl = this->m_is_forward_declared == other->m_is_forward_declared;
+  return parentEq && elemEq && embedEq && isForwardDecl;
 }
 
 std::string ComposableType::getDeclarationPrefix(bool p_naked) const

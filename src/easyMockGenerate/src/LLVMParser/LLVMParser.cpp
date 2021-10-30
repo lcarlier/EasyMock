@@ -725,6 +725,10 @@ private:
     {
       structKnownType.insert({typeName, IncompleteType(*sType, incType)});
     }
+
+    // If the type doesn't have a complete definition, it is forward declared.
+    sType->setForwardDecl(!RD->isCompleteDefinition());
+
     for (clang::FieldDecl *FD :
           RD->fields()) {
       const clang::QualType &qualType = FD->getType();
