@@ -56,7 +56,7 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/.hg")
     set(default_build_type ${build_debug})
 endif()
 
-if("${EASYMOCK_FORCE_BUILD_TYPE}" STREQUAL "")
+if("${EASYMOCK_FORCE_BUILD_TYPE}" STREQUAL "" AND "${CMAKE_BUILD_TYPE}" STREQUAL "")
     message(STATUS "Setting build type to '${default_build_type}' as none was specified.")
     set(CMAKE_BUILD_TYPE "${default_build_type}" CACHE
         STRING "Choose the type of build." FORCE)
