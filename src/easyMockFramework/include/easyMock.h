@@ -36,7 +36,7 @@ extern "C"
    *
    * \see EasyMock_Matcher
    */
-#define EASYMOCK_MATCHER_PARAM void *currentCall_ptr, void *expectedCall_ptr, const char *paramName, char *errorMessage
+#define EASYMOCK_MATCHER_PARAM const void *currentCall_ptr, const void *expectedCall_ptr, const char *paramName, char *errorMessage
 
   /*!
    * \brief Aliases the type of a function pointer to a comparator.
@@ -44,10 +44,16 @@ extern "C"
   typedef int(*EasyMock_Matcher)(EASYMOCK_MATCHER_PARAM);
 
   /*!
-   * \brief Helper macro used to declare a function of a specific type.
+   * \brief Helper macro used to declare a matcher.
    */
 #define DECLARE_MATCHER(typeName) \
   int cmp_ ## typeName (EASYMOCK_MATCHER_PARAM)
+
+  /*!
+   * \brief Helper macro used to declare a dereference pointer matcher.
+   */
+#define DECLARE_DEREF_PTR_MATCHER(typeName) \
+  int cmp_deref_ptr_ ## typeName (EASYMOCK_MATCHER_PARAM)
 
   /*!
    * \brief Initialises EasyMock.
@@ -178,17 +184,17 @@ extern "C"
   /*!
    * \brief Comparator to be used to compare C string/
    */
-  int cmp_str( void *currentCall_ptr, void *expectedCall_ptr, const char *paramName, char *errorMessage );
+  int cmp_str(const void *currentCall_ptr, const void *expectedCall_ptr, const char *paramName, char *errorMessage );
 
   /*!
    * \brief Comparator to be used to compare __int128 type.
    */
-  int cmp_int128(void *currentCall_ptr, void *expectedCall_ptr, const char *paramName, char *errorMessage );
+  int cmp_int128(const void *currentCall_ptr, const void *expectedCall_ptr, const char *paramName, char *errorMessage );
 
   /*!
    * \brief Comparator to be used to compare unsigned  __int128 type.
    */
-  int cmp_uint128(void *currentCall_ptr, void *expectedCall_ptr, const char *paramName, char *errorMessage );
+  int cmp_uint128(const void *currentCall_ptr, const void *expectedCall_ptr, const char *paramName, char *errorMessage );
 
 #ifdef __cplusplus
 }

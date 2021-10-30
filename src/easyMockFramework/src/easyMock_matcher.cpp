@@ -16,7 +16,15 @@
      "Parameter '%s' has value '" printFormat "', was expecting '" printFormat "'", \
            paramName, currentCall_val, expectedCall_val); \
     return -1; \
+  } \
+  \
+  extern "C" DECLARE_DEREF_PTR_MATCHER(typeName) \
+  { \
+    cType **currentCall_val = (cType **)currentCall_ptr; \
+    cType **expectedCall_val = (cType **)expectedCall_ptr; \
+    return cmp_ ## typeName ((const void*)*currentCall_val, (const void*)*expectedCall_val, paramName, errorMessage); \
   }
+
 
 IMPLEMENT_MATCHER(char, char, "%c");
 IMPLEMENT_MATCHER(u_char, unsigned char, "%c");
@@ -33,7 +41,7 @@ IMPLEMENT_MATCHER(double, double, "%lf");
 IMPLEMENT_MATCHER(long_double, long double, "%Lf");
 IMPLEMENT_MATCHER(pointer, void *, "%p");
 
-extern "C" int cmp_str(void *currentCall_ptr, void *expectedCall_ptr, const char *paramName, char *errorMessage )
+extern "C" int cmp_str(const void *currentCall_ptr, const void *expectedCall_ptr, const char *paramName, char *errorMessage )
 {
   char* currentCall_val = *((char **)currentCall_ptr);
   char* expectedCall_val = *((char **)expectedCall_ptr);
@@ -47,7 +55,7 @@ extern "C" int cmp_str(void *currentCall_ptr, void *expectedCall_ptr, const char
   return -1;
 }
 
-extern "C" int cmp_int128(void *currentCall_ptr, void *expectedCall_ptr, const char *paramName, char *errorMessage )
+extern "C" int cmp_int128(const void *currentCall_ptr, const void *expectedCall_ptr, const char *paramName, char *errorMessage )
 {
   __int128_t currentCall_val = *((__int128_t *)currentCall_ptr);
   __int128_t expectedCall_val = *((__int128_t *)expectedCall_ptr);
@@ -64,7 +72,7 @@ extern "C" int cmp_int128(void *currentCall_ptr, void *expectedCall_ptr, const c
         paramName, highDigitCurrent, lowDigitCurrent, highDigitExpected, lowDigitExpected);
   return -1;
 }
-extern "C" int cmp_uint128(void *currentCall_ptr, void *expectedCall_ptr, const char *paramName, char *errorMessage )
+extern "C" int cmp_uint128(const void *currentCall_ptr, const void *expectedCall_ptr, const char *paramName, char *errorMessage )
 {
   __uint128_t currentCall_val = *((__uint128_t *)currentCall_ptr);
   __uint128_t expectedCall_val = *((__uint128_t *)expectedCall_ptr);
