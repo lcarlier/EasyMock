@@ -394,6 +394,21 @@ to begin to debug the mocking framework when writing test code. When
 configured to build the Debug version, the command `make check` is available
 to run the massive amount of test cases implemented.
 
+See all the badges:
+
+| Test results |
+| :----------: |
+| ![Ubuntu 18.04 x86 gcc](https://github.com/lcarlier/EasyMock/actions/workflows/validate-ubuntu-18-04-x86-gcc.yml/badge.svg?branch=master) |
+| ![Ubuntu 18.04 x86 clang](https://github.com/lcarlier/EasyMock/actions/workflows/validate-ubuntu-18-04-x86-clang.yml/badge.svg?branch=master) |
+| ![Ubuntu 20.04 x86 gcc](https://github.com/lcarlier/EasyMock/actions/workflows/validate-ubuntu-20-04-x86-gcc.yml/badge.svg?branch=master) |
+| ![Ubuntu 20.04 x86 clang](https://github.com/lcarlier/EasyMock/actions/workflows/validate-ubuntu-20-04-x86-clang.yml/badge.svg?branch=master) |
+| ![Ubuntu 18.04 arm64 gcc](https://github.com/lcarlier/EasyMock/actions/workflows/validate-ubuntu-18-04-arm64-gcc.yml/badge.svg?branch=master) |
+| ![Ubuntu 18.04 arm64 gcc](https://github.com/lcarlier/EasyMock/actions/workflows/validate-ubuntu-18-04-arm64-clang.yml/badge.svg?branch=master) |
+| ![Ubuntu 20.04 arm64 gcc](https://github.com/lcarlier/EasyMock/actions/workflows/validate-ubuntu-20-04-arm64-gcc.yml/badge.svg?branch=master) |
+| ![Ubuntu 20.04 arm64 clang](https://github.com/lcarlier/EasyMock/actions/workflows/validate-ubuntu-20-04-arm64-clang.yml/badge.svg?branch=master) |
+| ![MacOS 10.15 gcc](https://github.com/lcarlier/EasyMock/actions/workflows/validate-macos-10-15-gcc.yml/badge.svg?branch=master) |
+| ![MacOS 10.15 clang](https://github.com/lcarlier/EasyMock/actions/workflows/validate-macos-10-15-clang.yml/badge.svg?branch=master) |
+
 ## <a name="user-content-iwtpttdoe"></a> I want to participate to the development of EasyMock
 That's great! A good place to start is by reading the [architecture][arch] of EasyMock.
 
