@@ -29,7 +29,7 @@ flexibility of configuring the mocks.
 * [Generated functions][genFun]
 * [Using the mocks][usingMock]
 * [Unit tested][ut]
-* [I want to participate to the development of EasyMock][participate]
+* [I want to participate in the development of EasyMock][participate]
 * [Restriction][restriction]
 * [Bug report][bugReport]
 * [The final note][finalNote]
@@ -37,17 +37,17 @@ flexibility of configuring the mocks.
 
 ## <a name="user-content-htce"></a> How to compile EasyMock ?
 
-EasyMock can be compiled on Linux or MacOS x86_64/arm.
+EasyMock can be compiled on Linux or macOS x86_64/arm.
 
 ### <a name="user-content-dependencies"></a> Dependencies
 
-EasyMock depends uses the following mandatory libraries:
+EasyMock uses the following mandatory libraries:
 * libclang/llvm
 * libctemplate
 * libncurse
 * liboost (system, filesystem)
 
-Additionnally, the following optional libraries can be installed to enable printing the
+Additionally, the following optional libraries can be installed to enable printing the
 backtrace in the error messages:
 * libunwind
 * libdw
@@ -84,8 +84,8 @@ sudo apt install \
 
 #### <a name="user-content-macos"></a> MacOS
 
-libunwind and libdw are not available in MacOS, as such the backtrace support
-is not supported in MacOS.
+libunwind and libdw are not available in macOS, as such the backtrace support
+is not supported in macOS.
 
 libclang/llvm and libncurse libraries as well as pkg-config and cmake tool can
 be installed via brew.
@@ -98,7 +98,7 @@ brew install doxygen
 brew install graphviz
 ```
 
-Note: At the time of writing, brew is not officially supported on the Apple silicon (M1)
+Note: At the time of writing, brew is not officially supported on the Apple Silicon (M1)
 but the brew command can be executed with the `-s` option to compile and install from source.
 
 libctemplate must be compiled and installed from [source](https://github.com/OlafvdSpek/ctemplate).
@@ -119,7 +119,7 @@ make install
 ### <a name="user-content-compilation-steps"></a> Compilation steps
 
 EasyMock uses CMake as software build management. The commands below can be
-used to compile the tool. Before copy pasting those lines in your terminal,
+used to compile the tool. Before copying and pasting those lines in your terminal,
 make sure first to set the EASYMOCK_SOURCE environment variable to the place
 where the EasyMock's code is installed.
 ```sh
@@ -130,13 +130,13 @@ cmake ..
 make -j $(nproc)
 ```
 
-On MacOS, the path to `libctemplate` must be given to cmake by using the `CTEMPLATE_LIB_INSTALL` cache entries.
+On macOS, the path to `libctemplate` must be given to cmake by using the `CTEMPLATE_LIB_INSTALL` cache entries.
 I.E:
 ```sh
 cmake ../ -DDCTEMPLATE_LIB_INSTALL=${LIBCTEMPLATE_INSTALL}
 ```
 
-Note: On MacOS, the following command `cmake ../ -GXcode <rest of parameters>` can be used to generate the
+Note: On macOS, the following command `cmake ../ -GXcode <rest of parameters>` can be used to generate the
 Xcode project to be opened with [Xcode IDE](https://developer.apple.com/xcode/), but the Makefiles
 work just fine.
 
@@ -147,7 +147,7 @@ under `$EASYMOCK_BUILDDIR/src/easyMockGenerate/src/EasyMockGenerate`
     * the shared library to be linked to the unit test called
 [libEasyMockFramework.so][libEasyAPI]
 is under `$EASYMOCK_BUILDDIR/src/easyMockFramework/src/libEasyMockFramework.so`
-* on MacOS:
+* on macOS:
     * the binary to generate the mock called [EasyMockGenerate][createAMock] is
 under `$EASYMOCK_BUILDDIR/src/easyMockGenerate/src/<buildType>/EasyMockGenerate`
     * the shared library to be linked to the unit test called
@@ -175,7 +175,7 @@ built, use the command `make check` to run all the tests.
 
 ## <a name="user-content-libeasyapi"></a> libEasyMockFramework's API
 
-The unit test which is using libEasyMockFramework.so should include
+The unit test which is using `libEasyMockFramework.so` should include
 `easyMock.h` which is in `$EASYMOCK_SOURCE/src/easyMockFramework/include/`.
 A good practice to allow your code to be able to include that header
 is to use the `-I` option to point to that directory.
@@ -202,7 +202,7 @@ void easyMock_init();
 /*
  * Checks that EasyMock has reported at least one error.
  *
- * This must called at the end of a unit test after the function being tested
+ * This must be called at the end of a unit test after the function being tested
  * has been called. If an error has happened, the API easyMock_getError* can be
  * used to retrieve the error messages.
  *
@@ -214,7 +214,7 @@ int easyMock_check();
 /*
  * Returns all the errors in a single buffer.
  *
- * The buffer can directly printed to the standard output if needed.
+ * The buffer can directly be printed to the standard output if needed.
  *
  * The returned buffer must not be freed by the caller.
  */
@@ -409,7 +409,7 @@ See all the badges:
 | ![MacOS 10.15 gcc](https://github.com/lcarlier/EasyMock/actions/workflows/validate-macos-10-15-gcc.yml/badge.svg?branch=master) |
 | ![MacOS 10.15 clang](https://github.com/lcarlier/EasyMock/actions/workflows/validate-macos-10-15-clang.yml/badge.svg?branch=master) |
 
-## <a name="user-content-iwtpttdoe"></a> I want to participate to the development of EasyMock
+## <a name="user-content-iwtpttdoe"></a> I want to participate in the development of EasyMock
 That's great! A good place to start is by reading the [architecture][arch] of EasyMock.
 
 ## <a name="user-content-restriction"></a> Restriction

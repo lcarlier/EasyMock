@@ -33,7 +33,7 @@ This page is not going over the specific of the classes, interfaces and the
 implementation since all of this information is available in the doxygen
 documentation.
 
-To generate the the doxygen documentation, you can use the following line
+To generate the doxygen documentation, you can use the following line
 ```sh
 cd $EASYMOCK_SOURCE
 doxygen docs/doxygen/Doxyfile
@@ -83,7 +83,7 @@ mocked header file.
 * `easyMock_framework.h`: Defines the API which is called by the mocked header
 code.
 * `MockedFunction.h`: Defines the MockedFunction class which is a templated
-class used by the mocked header code to help mocking a specific function.
+class used by the mocked header code to help to mock a specific function.
 
 Consult the Doxygen documentation for more details about those APIs. The
 documentation of `easyMock.h` is also available in the main documentation
@@ -91,7 +91,7 @@ page.
 
 ### <a name="user-content-romtl"></a>Registration of mocks to libEasyMockFramework.so
 
-When libEasyMockFramework.so is loaded, all the static object are initialised.
+When `libEasyMockFramework.so` is loaded, all the static object are initialised.
 One of the static object is the EasyMock class. It is initialised with the
 following attribute `__attribute ((init_priority(101)))`.
 
@@ -108,10 +108,10 @@ is properly initialised before the mocks can register themselves.
 The logic of the main code is actually very simple and written to be modular.
 
 There are 2 modules:
-- the parser: responsible of parsing the C code and to return a representation
+- the parser: responsible for parsing the C code and to return a representation
 of the functions that are parsed in a specific header file. The parsed function
 are represented using the [EasyMock internal objects](#user-content-eio).
-- the code generator: responsible of taking the representation given by the parser
+- the code generator: responsible for taking the representation given by the parser
 and to generate the code that mocks the functions.
 
 Each of those modules is instantiated and executed as needed by the main
@@ -154,7 +154,7 @@ the following class diagram.
 Again, a complete explanation of those classes is available in the doxygen documentation.
 
 [All the care has been taken][iotcamc] to make sure that all the internal
-objects of Easymock are copyable and moveable.
+objects of Easymock are copyable and movable.
 
 ### <a name="user-content-clp"></a> Command line parsing
 The command line parsing functionality is done with the help of
@@ -189,9 +189,9 @@ An important concept explained in the next section is the concept of
 
 ### <a name="user-content-memory-management"></a>Memory management
 Since the choice was made not to use smart pointers, the obvious question is how
-to cleanup the dynamically allocated objects without creating a memory leak
+to clean up the dynamically allocated objects without creating a memory leak
 when a class as a pointer to another class. The solution to this is that each
-class is responsible to free it's own data member when they are pointers.
+class is responsible to free its own data member when they are pointers.
 Unless stated otherwise in the doxygen documentation, each pointer given to
 a constructor or method of any [EasyMock internal objects][eio] must be
 allocated on the heap and cannot be used by the calling function after
@@ -202,13 +202,13 @@ For instance, whenever a function allocates a CType object with the new
 operator, it gets the ownership of that pointer. Afterwards, whenever the
 function gives this pointer to a ReturnValue object, it looses the ownership
 of the pointer. This means:
-1. The ReturnValue object is the owner of the pointer. I.e it must clean the
+1. The ReturnValue object is the owner of the pointer. I.e. it must clean the
 pointer in its destructor.
 2. The calling function is not responsible to free that pointer anymore.
 3. The calling function is not allowed to access or modify the value pointed
 by this pointer.
 
-The best practice is to nullify the pointer just after loosing the ownership
+The best practice is to nullify the pointer just after losing the ownership
 to avoid tricky behaviour.
 
 ### <a name="iotcamc"></a> Implementation of the copy and move constructor/operator
@@ -234,14 +234,14 @@ implemented.
 Validates the specific interface re-implementation of the CType class.
 
 ### <a name="user-content-easyMockGenerate"></a> easyMockGenerate
-This folders contains all the logic to validate EasyMockGenerate.
-libEasyMockFramework.so is also validated here because the generated mocks
+This folder contains all the logic to validate EasyMockGenerate.
+`libEasyMockFramework.so` is also validated here because the generated mocks
 uses libEasyMockFramework.so.
 
 The sub-directories are organised as followed:
 * CommandLineParser: Contains the code which test the command line parser of
 EasyMockGenerate.
-* common: Contains the UT which tests the copyability and moveability of all
+* common: Contains the UT which tests the copyability and movability of all
 the [EasyMock internal objects][eio].
 * commonClasses: Implementation of all the function factories test code.
 * generate: Contains the tests that verifies that the generated mocks compiles
@@ -256,7 +256,7 @@ The tests present in this folder are divided in 2 categories
 2. [Test of generated mocks][togm]
 
 #### <a name="user-content-fatc"></a>Factories as test classes
-To help testing the parsing of the header file and the generation of the mocks,
+To help to test the parsing of the header file and the generation of the mocks,
 factories are implemented. One factory represents a specific C function to be
 mocked/tested. This gives the flexibility for adding new function to the tests
 easily. If a new function (e.g. taking a specific new specific struct
@@ -270,7 +270,7 @@ factory defined in FunctionFactory.h is described into the doxygen documentation
 Each of the test class which verify the generated mocks perform the following
 actions:
 1. Gets the path to the header file to be parsed from the factory.
-2. Calls the API that parses the the header file.
+2. Calls the API that parses the header file.
 3. Verifies that the set of [EasyMock internal object][eio] returned by the
 parser is as expected.
 
@@ -284,8 +284,8 @@ in step 2. This step actually tests that the generated code can be compiled
 properly.
 4. Load the .so
 5. Calls the mocks. This step is different in each test case within the test
-class and validate that the generate code can be executed without any error.
-6. Verifies the status of EasyMock. I.E Checks whether an error has occured
+class and validate that the generated code can be executed without any error.
+6. Verifies the status of EasyMock. I.E Checks whether an error has occurred
 when it should, etc...
 
 The very generic tests classes are implemented inside `test_genGenerate.cpp`,
@@ -299,7 +299,7 @@ their test cases against a list of factories.
 This folder contains tests to validate that the EasyMockGenerate binary is
 working properly. Rather than separating the call of the parser and the call
 of the generator in 2 different tests (like in the
-[easyMockGenerate directory][easyMockGenerate], those tests call directly the
+[easyMockGenerate directory][easyMockGenerate]), those tests call directly the
 EasyMockGenerate binary to validate that the end user experience is working
 as it is expected. Eventually, some small test cases using the generated
 mocks (as the user would write them) are run.

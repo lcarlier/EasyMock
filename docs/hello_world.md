@@ -12,7 +12,7 @@
 ## <a name="user-content-intro"></a>Introduction
 This page contains an example on how to create a unit test using EasyMock.
 This example does, on purpose, NOT use a unit test framework (such as Catch2
-or Google test) because EasyMock is independent from those frameworks.
+or Google test) because EasyMock is independent of those frameworks.
 Instead, the tests are implemented in the main function using some rudimentary asserts.
 
 The purpose of this example is to show how easy it is to create unit tests without having to compile
@@ -187,7 +187,7 @@ Error: For function 'unsigned char u8rand()' bad number of call. Expected 4, got
 ```
 
 The output tells 2 information:
-1. The `average` function failed to return the expected value. I.e the implementation is not working properly.
+1. The `average` function failed to return the expected value. I.e. the implementation is not working properly.
 2. The expected number of calls to the mocked function was not the expected one. In this particular case,
    not enough call has been made to `u8rand`.
 
@@ -282,7 +282,7 @@ assert failed: av == 160
 ```
 
 It shows that the second test is not passing. The number of calls to `u8rand` is correct but the
-average sum is not correctly computed. The reason is because the `average` function stores the counter into
+average sum is not correctly computed. The reason is that the `average` function stores the counter into
 an `unsigned char` and it overflows. The fix for this bug is to fix the `average` function like so:
 
 ```c
