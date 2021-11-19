@@ -32,6 +32,8 @@ flexibility of configuring the mocks.
 * [I want to participate in the development of EasyMock][participate]
 * [Restriction][restriction]
 * [Bug report][bugReport]
+* [License of the tool][loft]
+* [License of the generated code][logc]
 * [The final note][finalNote]
 * [Thanks][thanks]
 
@@ -422,6 +424,35 @@ Please attach into the bug report, the command that you gave to
 EasyMockGenerate and also the header file (or the relevant part of it) which
 was used to generate the mock.
 
+## <a name="user-loft"></a> License of the tool
+This project is released under the GPL-v3 license.
+
+## <a name="user-logc"></a> License of the generated code
+The code that the tool generates is under the MIT license as followed
+```
+MIT License
+
+Copyright (c) 2021 Laurent Carlier
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
 ## <a name="user-content-tfn"></a> The final note
 The best of care and attention was given to implement and document EasyMock.
 If something is unclear or is not correct, it is very much appreciated contacting
@@ -447,6 +478,8 @@ implemented it from scratch without looking at the source code of opmock.
 [participate]: #user-content-iwtpttdoe
 [restriction]: #user-content-restriction
 [bugReport]: #user-content-br
+[loft]: #user-loft
+[logc]: #user-logc
 [finalNote]: #user-content-tfn
 [thanks]: #user-content-thanks
 
