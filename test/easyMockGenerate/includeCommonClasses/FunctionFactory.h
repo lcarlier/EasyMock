@@ -260,8 +260,7 @@ public:
   std::string functionGetIncludeDir()
   {
     std::string includeDir("include/");
-    includeDir.append(functionGetFunctionName());
-    includeDir.append(".h");
+    includeDir.append(getFilename());
 
     return includeDir;
   }
@@ -504,4 +503,3 @@ private:
 };
 
 #endif /* FUNCTIONFACTORY_H */
-

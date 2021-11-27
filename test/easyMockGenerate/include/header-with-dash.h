@@ -1,0 +1,6 @@
+#ifndef EASYMOCK_HEADER_WITH_DASH_H
+#define EASYMOCK_HEADER_WITH_DASH_H
+
+void header_with_dash();
+
+#endif //EASYMOCK_HEADER_WITH_DASH_H

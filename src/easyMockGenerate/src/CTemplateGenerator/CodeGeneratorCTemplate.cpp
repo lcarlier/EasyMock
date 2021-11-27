@@ -1086,6 +1086,7 @@ void CodeGeneratorCTemplate::fillInTemplateVariables(const std::string &p_mocked
   const auto& fList = p_ctxt.getElementToMock();
   std::string fileNameWithoutExtUpper = p_mockedHeader.substr(0, p_mockedHeader.find_last_of("."));
   std::transform(fileNameWithoutExtUpper.begin(), fileNameWithoutExtUpper.end(), fileNameWithoutExtUpper.begin(), ::toupper);
+  std::replace( fileNameWithoutExtUpper.begin(), fileNameWithoutExtUpper.end(), '-', '_');
   m_rootDictionary->SetValue(MOCKED_FILE_NAME_WITHOUT_EXT_UPPER, fileNameWithoutExtUpper);
   std::unordered_set<std::size_t> generatedElements;
   for (const auto& elemToMock: fList)

@@ -75,6 +75,7 @@
 #include <VoidFunDeclAndDefFactory.h>
 #include <VoidFunAliasedFunFactory.h>
 #include <VoidFunStructForwardDeclAndEmptyStructFactory.h>
+#include <Header-With-Dash-Factory.h>
 
 // TestTypesInclude.h is generated
 #include "TestTypesInclude.h"
@@ -215,7 +216,9 @@
         VoidFunAliasedFunFactory, \
         VoidFunAliasedFunGenerateTypeFactory, \
         VoidFunStructForwardDeclAndEmptyStructFactory, \
-        VoidFunStructForwardDeclAndEmptyStructGenerateTypeFactory
+        VoidFunStructForwardDeclAndEmptyStructGenerateTypeFactory, \
+        HeaderWithDashFactory, \
+        HeaderWithDashGenerateTypeFactory
 
 typedef ::testing::Types
 <
