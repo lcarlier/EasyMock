@@ -19,6 +19,7 @@ const std::string g_mockOnlyParam("--mock-only");
 const std::string g_changeWorkingDir("--cwd");
 const std::string g_generateTypes("--generate-types");
 const std::string g_generateAttribute("--generate-attribute");
+const std::string g_ignoreFieldGenerationOfParam("--ignore-field-generation-of");
 
 const std::string g_errorInputMissing("Error: The input header file is not provided");
 const std::string g_errorOutputMissing("Error: The output directory is not provided");
@@ -26,6 +27,7 @@ const std::string g_errorMockOnlyParamMissing("Error: Argument to --mock-only is
 const std::string g_errorCwdMissing("Error: Argument to --cwd is missing");
 const std::string g_errorCwdMoreThanOnce("Error: Argument to --cwd is given more than once");
 const std::string g_errorGenerateAttrAttrMissing("Error: Argument --generate-attribute needs a value");
+const std::string g_errorIgnoreFieldGenerationOfArgumentMissing("Error: Argument --ignore-field-generation-of needs a value");
 
 const std::string g_helpMessage =
   "Generate mocks to be used into a unit test inside a specific directory\n\r"
@@ -35,22 +37,26 @@ const std::string g_helpMessage =
   "./EasyMockGenerate [OPTIONS...]\n\r"
   "\n\r"
   "OPTIONS are:\n\r"
-  "-i <header>            Input header file.\n\r"
-  "-o <directory>         Output directory.\n\r"
-  "--cwd <directory>      Change to the directory passed on this parameter before running the parser.\n\r"
-  "--mock-only <function> Mock only the function specified in this parameter.\n\r"
-  "--generate-types       Generate the used type instead of including the original header.\n\r"
-  "                       When using this option, the original header (i.e. the header given to -i) doesn't\n\r"
-  "                       need to be used when compiling the mock.\n\r"
-  "                       The generated functions signature will not contain any function attribute unless\n\r"
-  "                       the --generate-attribute option is used.\n\r"
-  "                       Can be used several times.\n\r"
-  "--generate-attribute   Generate the function attribute if the function has been declared with it.\n\r"
-  "                       E.G. if a function has been declared with the format attribute, give the parameter\n\r"
-  "                       \"--generate-attribute format\" will generate the code __attribute__((format(x, y, z))) where\n\r"
-  "                       x, y and z are the parameters given to the format attribute.\n\r"
-  "                       Can be used several times.\n\r"
-  "-h, --help             Print usage.\n\r";
+  "\t-i <header>                    Input header file.\n\r"
+  "\t-o <directory>                 Output directory.\n\r"
+  "\t--cwd <directory>              Change to the directory passed on this parameter before running the parser.\n\r"
+  "\t--mock-only <function>         Mock only the function specified in this parameter.\n\r"
+  "\t--generate-types               Generate the used type instead of including the original header.\n\r"
+  "\t                               When using this option, the original header (i.e. the header given to -i) doesn't\n\r"
+  "\t                               need to be used when compiling the mock.\n\r"
+  "\t                               The generated functions signature will not contain any function attribute unless\n\r"
+  "\t                               the --generate-attribute option is used.\n\r"
+  "\t                               Can be used several times.\n\r"
+  "\t--generate-attribute           Generate the function attribute if the function has been declared with it.\n\r"
+  "\t                               E.G. if a function has been declared with the format attribute, give the parameter\n\r"
+  "\t                               \"--generate-attribute format\" will generate the code __attribute__((format(x, y, z))) where\n\r"
+  "\t                               x, y and z are the parameters given to the format attribute.\n\r"
+  "\t                               Can be used several times.\n\r"
+  "\t--ignore-field-generation-of   Ignore the field generation of the given struct or union type.\n\r"
+  "\t                               Consider using this option if mocking some types takes too much time.\n\r"
+  "\t                               The list is given to the parser which ignores the reporting the fields of\n\r"
+  "\t                               the given types.\n\r"
+  "\t-h, --help                     Print usage.\n\r";
 
 using ExtraArgsList = std::vector<std::string>;
 
@@ -100,6 +106,10 @@ struct EasyMockOptions
    * \brief All the function attributes to generate.
    */
   GenerateAttrList m_generateAttrList;
+  /*!
+   * \brief The values given to the `--ignore-field-generation-of` parameter.
+   */
+  MockOnlyList m_ignoreTypeList;
 };
 
 /*!

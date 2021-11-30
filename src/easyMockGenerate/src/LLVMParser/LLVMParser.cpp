@@ -54,8 +54,8 @@ private:
   using structKnownTypeMap = std::unordered_map<std::string, const IncompleteType>;
 public:
 
-  explicit FunctionDeclASTVisitor(clang::SourceManager& sm, ElementToMockContext& ctxt, const MockOnlyList& mockOnlyList)
-  : m_sourceManager(sm), m_ctxt(ctxt), m_context(nullptr), m_mockOnlyList{mockOnlyList}
+  explicit FunctionDeclASTVisitor(clang::SourceManager& sm, ElementToMockContext& ctxt, const MockOnlyList& mockOnlyList, const IgnoreTypeFieldList& ignoreTypeFieldList)
+  : m_sourceManager(sm), m_ctxt(ctxt), m_context(nullptr), m_mockOnlyList{mockOnlyList}, m_ignoreTypeFieldList{ignoreTypeFieldList}
   {
     (void)m_sourceManager;
     m_cachedStruct.clear();
@@ -115,6 +115,7 @@ private:
   const clang::SourceManager *m_SM;
   const clang::LangOptions *m_LO;
   const MockOnlyList& m_mockOnlyList;
+  const IgnoreTypeFieldList& m_ignoreTypeFieldList;
   std::unordered_map<std::string, std::unique_ptr<TypeItf>> m_cachedStruct;
 
   enum ContainerType {
@@ -729,47 +730,49 @@ private:
     // If the type doesn't have a complete definition, it is forward declared.
     sType->setForwardDecl(!RD->isCompleteDefinition());
 
-    for (clang::FieldDecl *FD :
-          RD->fields()) {
-      const clang::QualType &qualType = FD->getType();
-      const clang::Type *typePtr = qualType.getTypePtr();
-      std::string fName = FD->getNameAsString();
-      TypeItf *fieldType = getEasyMocktype(qualType, structKnownType, true);
+    if(m_ignoreTypeFieldList.find(typeName) == m_ignoreTypeFieldList.end())
+    {
+      for (clang::FieldDecl *FD:
+          RD->fields())
+      {
+        const clang::QualType &qualType = FD->getType();
+        const clang::Type *typePtr = qualType.getTypePtr();
+        std::string fName = FD->getNameAsString();
+        TypeItf *fieldType = getEasyMocktype(qualType, structKnownType, true);
 
-      ComposableFieldItf *sf = nullptr;
-      if(FD->isBitField())
-      {
-        TypedefType *typedefFieldType = fieldType->asTypedefType();
-        if(!fieldType->isCType() && (typedefFieldType && !typedefFieldType->getMostDefinedTypee()->isCType()))
+        ComposableFieldItf *sf = nullptr;
+        if (FD->isBitField())
         {
-          fprintf(stderr, "Type must be CType for bitfields");
-          typePtr->dump();
-          assert(false);
-        }
-        unsigned bitWidth = FD->getBitWidthValue(*m_context);
-        assert(bitWidth < 256);
-        if(typedefFieldType)
+          TypedefType *typedefFieldType = fieldType->asTypedefType();
+          if (!fieldType->isCType() && (typedefFieldType && !typedefFieldType->getMostDefinedTypee()->isCType()))
+          {
+            fprintf(stderr, "Type must be CType for bitfields");
+            typePtr->dump();
+            assert(false);
+          }
+          unsigned bitWidth = FD->getBitWidthValue(*m_context);
+          assert(bitWidth < 256);
+          if (typedefFieldType)
+          {
+            sf = new ComposableBitfield(typedefFieldType, fName, static_cast<uint8_t>(bitWidth));
+          } else
+          {
+            CType *cTypePtr = fieldType->asCType();
+            assert(cTypePtr);
+            sf = new ComposableBitfield(cTypePtr, fName, static_cast<uint8_t>(bitWidth));
+          }
+        } else
         {
-          sf = new ComposableBitfield(typedefFieldType, fName, static_cast<uint8_t>(bitWidth));
-        }
-        else
-        {
-          CType* cTypePtr = fieldType->asCType();
-          assert(cTypePtr);
-          sf = new ComposableBitfield(cTypePtr, fName, static_cast<uint8_t>(bitWidth));
-        }
-      }
-      else
-      {
-        int64_t arraySize = getArraySize(*typePtr);
-        if(!typePtr->isArrayType())
-        {
+          int64_t arraySize = getArraySize(*typePtr);
+          if (!typePtr->isArrayType())
+          {
             arraySize = -1;
+          }
+          sf = new ComposableField(fieldType, fName, {.arraySize = arraySize});
+          setDeclaratorDeclareString(qualType, sf, getDeclareString(FD->getBeginLoc(), FD->getEndLoc(), true));
         }
-        sf = new ComposableField(fieldType, fName, { .arraySize = arraySize });
-        setDeclaratorDeclareString(qualType, sf, getDeclareString(FD->getBeginLoc(), FD->getEndLoc(), true));
+        sType->addField(sf);
       }
-      sType->addField(sf);
     }
     TypeItf* toReturn = sType;
     if(!typedDefName.empty())
@@ -961,8 +964,8 @@ class FunctionDeclASTConsumer : public clang::ASTConsumer
 public:
   // override the constructor in order to pass CI
 
-  explicit FunctionDeclASTConsumer(clang::CompilerInstance& ci, ElementToMockContext& ctxt, const MockOnlyList& mockOnlyList)
-  : clang::ASTConsumer(), m_visitor(ci.getSourceManager(), ctxt, mockOnlyList) { }
+  FunctionDeclASTConsumer(clang::CompilerInstance& ci, ElementToMockContext& ctxt, const MockOnlyList& mockOnlyList, const IgnoreTypeFieldList& ignoreTypeFieldList)
+  : clang::ASTConsumer(), m_visitor(ci.getSourceManager(), ctxt, mockOnlyList, ignoreTypeFieldList) { }
 
   virtual void HandleTranslationUnit(clang::ASTContext& astContext) override
   {
@@ -1075,8 +1078,8 @@ private:
 class FunctionDeclFrontendAction : public clang::ASTFrontendAction
 {
 public:
-  FunctionDeclFrontendAction(ElementToMockContext& ctxt, const MockOnlyList& mockOnlyList) :
-  clang::ASTFrontendAction(), m_ctxt(ctxt), m_mockOnlyList{mockOnlyList}
+  FunctionDeclFrontendAction(ElementToMockContext& ctxt, const MockOnlyList& mockOnlyList, const IgnoreTypeFieldList& ignoreTypeFieldList) :
+  clang::ASTFrontendAction(), m_ctxt(ctxt), m_mockOnlyList{mockOnlyList}, m_ignoreTypeFieldList{ignoreTypeFieldList}
   {
   }
 
@@ -1085,28 +1088,30 @@ public:
     clang::Preprocessor& PP = CI.getPreprocessor();
     clang::SourceManager& sm = CI.getSourceManager();
     PP.addPPCallbacks(std::make_unique<MacroBrowser>(m_ctxt, sm));
-    return std::make_unique<FunctionDeclASTConsumer>(CI, m_ctxt, m_mockOnlyList);
+    return std::make_unique<FunctionDeclASTConsumer>(CI, m_ctxt, m_mockOnlyList, m_ignoreTypeFieldList);
   }
 private:
   ElementToMockContext& m_ctxt;
   const MockOnlyList& m_mockOnlyList;
+  const IgnoreTypeFieldList& m_ignoreTypeFieldList;
 };
 
-std::unique_ptr<clang::tooling::FrontendActionFactory> newFunctionDeclFrontendAction(ElementToMockContext& ctxt, const MockOnlyList& mockOnlyList) {
+std::unique_ptr<clang::tooling::FrontendActionFactory> newFunctionDeclFrontendAction(ElementToMockContext& ctxt, const MockOnlyList& mockOnlyList, const IgnoreTypeFieldList& ignoreTypeFieldList) {
   class FunctionDeclFrontendActionFactory : public clang::tooling::FrontendActionFactory {
   public:
-    FunctionDeclFrontendActionFactory(ElementToMockContext& ctxt, const MockOnlyList& mockOnlyList) :
-    clang::tooling::FrontendActionFactory(), m_ctxt(ctxt), m_mockOnlyList{mockOnlyList}
+    FunctionDeclFrontendActionFactory(ElementToMockContext& ctxt, const MockOnlyList& mockOnlyList, const IgnoreTypeFieldList& ignoreTypeFieldList) :
+    clang::tooling::FrontendActionFactory(), m_ctxt(ctxt), m_mockOnlyList{mockOnlyList}, m_ignoreTypeFieldList{ignoreTypeFieldList}
     {
     }
-    std::unique_ptr<clang::FrontendAction> create() override { return std::make_unique<FunctionDeclFrontendAction>(m_ctxt, m_mockOnlyList); }
+    std::unique_ptr<clang::FrontendAction> create() override { return std::make_unique<FunctionDeclFrontendAction>(m_ctxt, m_mockOnlyList, m_ignoreTypeFieldList); }
   private:
     ElementToMockContext& m_ctxt;
     const MockOnlyList& m_mockOnlyList;
+    const IgnoreTypeFieldList& m_ignoreTypeFieldList;
   };
 
   return std::unique_ptr<clang::tooling::FrontendActionFactory>(
-      new FunctionDeclFrontendActionFactory(ctxt, mockOnlyList));
+      new FunctionDeclFrontendActionFactory(ctxt, mockOnlyList, ignoreTypeFieldList));
 }
 
 LLVMParser::LLVMParser() : CodeParserItf()
@@ -1143,7 +1148,7 @@ CodeParser_errCode LLVMParser::getElementToMockContext(ElementToMockContext& p_c
   clang::tooling::FixedCompilationDatabase db(twineDir, LLVMExtraArgs);
   std::vector<std::string> arRef({m_filename});
   clang::tooling::ClangTool tool(db, arRef);
-  tool.run(newFunctionDeclFrontendAction(p_ctxt, m_mockOnlyList).get());
+  tool.run(newFunctionDeclFrontendAction(p_ctxt, m_mockOnlyList, m_ignoreTypeFieldList).get());
   return cp_OK;
 }
 

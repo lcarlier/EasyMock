@@ -306,3 +306,42 @@ TYPED_TEST(CommandLineParser_testCase, GenerateAttrOKMultipleUse)
   ASSERT_TRUE(std::find(opt.m_generateAttrList.begin(),opt.m_generateAttrList.end(), "format") != opt.m_generateAttrList.end());
   ASSERT_TRUE(std::find(opt.m_generateAttrList.begin(),opt.m_generateAttrList.end(), "inline") != opt.m_generateAttrList.end());
 }
+
+TYPED_TEST(CommandLineParser_testCase, TypeIgnoreField)
+{
+  TypeParam parser;
+  CommandLineParserItf& parserItf = parser;
+  const char * parsedArgs[] = {"./test", "-i", "foo", "-o", "bar", "--ignore-field-generation-of", "type1", "--ignore-field-generation-of", "type2", "--ignore-field-generation-of", "type3", NULL};
+  EasyMockOptions opt = parserItf.getParsedArguments(ARRAY_SIZE(parsedArgs) - 1, parsedArgs);
+
+  IgnoreTypeFieldList ignoreTypeListExpect = {"type1", "type2", "type3"};
+  ASSERT_TRUE(opt.m_errorMessage.empty()) << opt.m_errorMessage;
+  ASSERT_TRUE(opt.m_helpMessage.empty()) << opt.m_helpMessage;
+  ASSERT_EQ(opt.m_inputHeaderFile, "foo");
+  ASSERT_EQ(opt.m_outputDir, "bar");
+  ASSERT_EQ(opt.m_extraArgs, std::vector<std::string>());
+  ASSERT_EQ(opt.m_ignoreTypeList, ignoreTypeListExpect);
+  ASSERT_FALSE(opt.m_generateTypes);
+}
+
+TYPED_TEST(CommandLineParser_testCase, TypeIgnoreFieldMissingArgBegin)
+{
+  TypeParam parser;
+  CommandLineParserItf& parserItf = parser;
+  const char * parsedArgs[] = {"./test", "--ignore-field-generation-of", "-i", "foo", "-o", "bar", "--ignore-field-generation-of", "type1", "--ignore-field-generation-of", "type2", "--ignore-field-generation-of", "type3", NULL};
+  EasyMockOptions opt = parserItf.getParsedArguments(ARRAY_SIZE(parsedArgs) - 1, parsedArgs);
+
+  ASSERT_FALSE(opt.m_errorMessage.empty());
+  ASSERT_STREQ(opt.m_errorMessage.c_str(), g_errorIgnoreFieldGenerationOfArgumentMissing.c_str());
+}
+
+TYPED_TEST(CommandLineParser_testCase, TypeIgnoreFieldMissingArgEnd)
+{
+  TypeParam parser;
+  CommandLineParserItf& parserItf = parser;
+  const char * parsedArgs[] = {"./test", "-i", "foo", "-o", "bar", "--ignore-field-generation-of", "type1", "--ignore-field-generation-of", "type2", "--ignore-field-generation-of", "type3", "--ignore-field-generation-of", NULL};
+  EasyMockOptions opt = parserItf.getParsedArguments(ARRAY_SIZE(parsedArgs) - 1, parsedArgs);
+
+  ASSERT_FALSE(opt.m_errorMessage.empty());
+  ASSERT_STREQ(opt.m_errorMessage.c_str(), g_errorIgnoreFieldGenerationOfArgumentMissing.c_str());
+}

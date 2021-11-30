@@ -47,6 +47,7 @@ int main(int argc, char *argv[])
   LLVMParser of;
   of.setFlags(opt.m_extraArgs);
   of.setMockOnlyFunction(opt.m_mockOnlyList);
+  of.setIgnoreTypeFieldList(std::move(opt.m_ignoreTypeList));
 
   CodeGeneratorCTemplate cg;
   cg.setMockOnlyFunction(std::move(opt.m_mockOnlyList));

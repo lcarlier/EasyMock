@@ -34,9 +34,10 @@ class CodeParserItf
 {
 public:
   CodeParserItf() :
-  m_filename(""), m_flags({}) {}
+  m_filename(""), m_flags({}), m_mockOnlyList{}, m_ignoreTypeFieldList{}
+  {}
   CodeParserItf(std::string& filename, ParserExtraArgs& flags) :
-  m_filename(filename), m_flags(flags)
+  m_filename(filename), m_flags(flags), m_mockOnlyList{}, m_ignoreTypeFieldList{}
   {}
 
   /*!
@@ -69,10 +70,19 @@ public:
    * Only the list of functions provided into the parameter will be parsed. The rest will be ignored.
    */
   void setMockOnlyFunction(MockOnlyList p_list) { m_mockOnlyList = std::move(p_list); };
+
+  /*!
+   * \brief Sets the list of types whose field parsing must be ignored.
+   * \param p_list The list of types whose field parsing must be ignored.
+   *
+   * Set the parser to ignore parsing the field of specific types.
+   */
+  void setIgnoreTypeFieldList(MockOnlyList p_list) { m_ignoreTypeFieldList = std::move(p_list); };
 protected:
   std::string m_filename;
   ParserExtraArgs m_flags;
   MockOnlyList m_mockOnlyList;
+  IgnoreTypeFieldList m_ignoreTypeFieldList;
 };
 
 #endif /* CODEPARSERITF_H */
