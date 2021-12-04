@@ -53,14 +53,21 @@ TYPED_TEST(genGenerate_testCase, OneExpect)
   ASSERT_TRUE(isFifoCallEmpty());
 }
 
-TYPED_TEST(genGenerate_testCase, NoExpect)
+template<typename TypeParam>
+void genericExpectTest(const unsigned int nbCall, const unsigned int nbExpect, void *fptr, void *fptr_expect, EasyMockTestCase::TestCase tcToSetup)
 {
-  void *fptr;
-  void *fptr_expect;
 
-  easyMockGenerate_baseTestCase::getFunPtr(&fptr, &fptr_expect);
-  genGenerate_testCase<TypeParam>::m_factory.setupTestCase(EasyMockTestCase::NoExpect);
-  genGenerate_testCase<TypeParam>::m_factory.call_fptr(fptr);
+  genGenerate_testCase<TypeParam>::m_factory.setupTestCase(tcToSetup);
+  for(unsigned int expectIdx = 0; expectIdx < nbExpect; ++expectIdx)
+  {
+    genGenerate_testCase<TypeParam>::m_factory.call_fptr_expect(fptr_expect);
+  }
+  for(unsigned int callIdx = 0; callIdx < nbCall; ++callIdx)
+  {
+    auto expectedRv = genGenerate_testCase<TypeParam>::m_factory.get_expected_rv();
+    auto rv = genGenerate_testCase<TypeParam>::m_factory.call_fptr(fptr);
+    EXPECT_EQ(rv, expectedRv) << "call Idx " << callIdx;
+  }
   int check = easyMock_check();
   EXPECT_EQ(check, 0);
 
@@ -68,32 +75,62 @@ TYPED_TEST(genGenerate_testCase, NoExpect)
   unsigned int size;
   const char **errorArr = easyMock_getErrorArr(&size);
   ASSERT_NE(errorArr, nullptr);
-  ASSERT_EQ(size, 2) << EasyMock_ErrorArrayPrinter(errorArr);
+  const unsigned int nbErrors = nbCall - nbExpect + 1;
+  ASSERT_EQ(size, nbErrors) << EasyMock_ErrorArrayPrinter(errorArr);
 
-  //E.g: "Error : unexpected call of 'void voidFunVoid()'.\n\r\tat "
-  std::string errorMessage1("Error : unexpected call of '");
-  errorMessage1.append(f.getFunctionPrototype());
-  errorMessage1.append("'");
-  //E.g: "intFunIntInt is returning a random value
-  if(*f.getReturnType() != VoidReturnValue())
+  for(unsigned int msgErrIdx = 0; msgErrIdx < nbErrors - 1; ++msgErrIdx)
   {
-    errorMessage1.append(". ");
-    errorMessage1.append(*f.getName());
-    errorMessage1.append(" is returning a random value");
-  }
+    //E.g: "Error : unexpected call of 'void voidFunVoid()'.\n\r\tat "
+    std::string errorMessage1("Error : unexpected call of '");
+    errorMessage1.append(f.getFunctionPrototype());
+    errorMessage1.append("'");
+    //E.g: "intFunIntInt is returning a random value
+    if (*f.getReturnType() != VoidReturnValue())
+    {
+      errorMessage1.append(". ");
+      errorMessage1.append(*f.getName());
+      errorMessage1.append(" is returning a random value");
+    }
 #if defined(BACKTRACE_SUPPORT)
-  errorMessage1.append(".\n\r\tat ");
+      errorMessage1.append(".\n\r\tat ");
 #endif
-  ASSERT_TRUE(boost::algorithm::starts_with(errorArr[0], errorMessage1)) << "errorArr[0]: " << errorArr[0] << std::endl << "errorMessage1: " << errorMessage1;
+    EXPECT_TRUE(boost::algorithm::starts_with(errorArr[msgErrIdx], errorMessage1))
+            << "errorArr[" << msgErrIdx << "]: " << errorArr[msgErrIdx] << std::endl << "errorMessage1: " << errorMessage1;
+  }
 
   //E.g: "Error: For function 'void voidFunVoid()' bad number of call. Expected 0, got 1"
   std::string errorMessage2("Error: For function '");
   errorMessage2.append(f.getFunctionPrototype());
-  errorMessage2.append("' bad number of call. Expected 0, got 1");
-  ASSERT_STREQ(errorArr[1], errorMessage2.c_str()) << "errorArr[1]: " << errorArr[1] << std::endl << "errorMessage2: " << errorMessage2;
-  ASSERT_EQ(errorArr[2], nullptr);
+  errorMessage2.append("' bad number of call. Expected ");
+  errorMessage2.append(std::to_string(nbExpect));
+  errorMessage2.append(", got ");
+  errorMessage2.append(std::to_string(nbCall));
+  const unsigned int lastErrorIdx = nbErrors - 1;
+  EXPECT_STREQ(errorArr[lastErrorIdx], errorMessage2.c_str()) << "errorArr[" << lastErrorIdx << "]: " << errorArr[lastErrorIdx] << std::endl << "errorMessage2: " << errorMessage2;
+  EXPECT_EQ(errorArr[nbErrors], nullptr);
 
-  ASSERT_TRUE(isFifoCallEmpty());
+  EXPECT_TRUE(isFifoCallEmpty());
+}
+
+TYPED_TEST(genGenerate_testCase, NoExpect)
+{
+  void *fptr;
+  void *fptr_expect;
+  const unsigned int nbCall = 3;
+
+  easyMockGenerate_baseTestCase::getFunPtr(&fptr, &fptr_expect);
+  genericExpectTest<TypeParam>(nbCall, 0, fptr, fptr_expect, EasyMockTestCase::NoExpect);
+}
+
+TYPED_TEST(genGenerate_testCase, NotEnoughExpect)
+{
+  void *fptr;
+  void *fptr_expect;
+  const unsigned int nbExpect = 3;
+  const unsigned int nbCall = 5;
+
+  easyMockGenerate_baseTestCase::getFunPtr(&fptr, &fptr_expect);
+  genericExpectTest<TypeParam>(nbCall, nbExpect, fptr, fptr_expect, EasyMockTestCase::ThreeExpects);
 }
 
 TYPED_TEST(genGenerate_testCase, NotEnoughCall)

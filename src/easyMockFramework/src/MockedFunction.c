@@ -74,7 +74,7 @@ easyMock_bool MockedFunction_addActualCall(MockedFunction *mf)
    * will check the equality of m_actualCall and m_expectedCall
    */
   mf->actualCall++;
-  if ((mf->actualCall - 1) == mf->expectedCall)
+  if ((mf->actualCall - 1) >= mf->expectedCall)
   {
     return false;
   }
