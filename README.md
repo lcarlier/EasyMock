@@ -262,22 +262,26 @@ Usage:
 ./EasyMockGenerate [OPTIONS...]
 
 OPTIONS are:
--i <header>            Input header file.
--o <directory>         Output directory.
---cwd <directory>      Change to the directory passed on this parameter before running the parser.
---mock-only <function> Mock only the function specified in this parameter.
---generate-types       Generate the used type instead of including the original header.
-                       When using this option, the original header (i.e. the header given to -i) doesn't
-                       need to be used when compiling the mock.
-                       The generated functions signature will not contain any function attribute unless
-                       the --generate-attribute option is used.
-                       Can be used several times.
---generate-attribute   Generate the function attribute if the function has been declared with it.
-                       E.G. if a function has been declared with the format attribute, give the parameter
-                       "--generate-attribute format" will generate the code __attribute__((format(x, y, z))) where
-                       x, y and z are the parameters given to the format attribute.
-                       Can be used several times.
--h, --help             Print usage.
+	-i <header>                    Input header file.
+	-o <directory>                 Output directory.
+	--cwd <directory>              Change to the directory passed on this parameter before running the parser.
+	--mock-only <function>         Mock only the function specified in this parameter.
+	--generate-types               Generate the used type instead of including the original header.
+	                               When using this option, the original header (i.e. the header given to -i) doesn't
+	                               need to be used when compiling the mock.
+	                               The generated functions signature will not contain any function attribute unless
+	                               the --generate-attribute option is used.
+	                               Can be used several times.
+	--generate-attribute           Generate the function attribute if the function has been declared with it.
+	                               E.G. if a function has been declared with the format attribute, give the parameter
+	                               "--generate-attribute format" will generate the code __attribute__((format(x, y, z))) where
+	                               x, y and z are the parameters given to the format attribute.
+	                               Can be used several times.
+	--ignore-field-generation-of   Ignore the field generation of the given struct or union type.
+	                               Consider using this option if mocking some types takes too much time.
+	                               The list is given to the parser which ignores the reporting the fields of
+	                               the given types.
+	-h, --help                     Print usage.
 ```
 
 As stated in the help, the parameters not recognised by EasyMock will be passed
