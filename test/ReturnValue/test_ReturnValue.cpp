@@ -13,11 +13,11 @@
  */
 TEST(ReturnValue, CheckPointerToFunction)
 {
-  FunctionType *ft = new FunctionType(TypedReturnValue(CTYPE_INT), Parameter::Vector({NamedParameter(CTYPE_FLOAT, "")}));
-  Pointer *ptf = new Pointer(ft);
-  ft = nullptr;
-  ReturnValue rv(ptf);
-  ptf = nullptr;
+  Parameter::Vector pv{};
+  pv.emplace_back(NamedParameter(CTYPE_FLOAT, ""));
+  auto ft = std::make_shared<FunctionType>(TypedReturnValue(CTYPE_INT), std::move(pv));
+  auto ptf = std::make_shared<Pointer>(std::move(ft));
+  ReturnValue rv(std::move(ptf));
   EXPECT_STRCASEEQ(rv.getDeclareString().c_str(), "int(*");
 }
 
@@ -27,10 +27,11 @@ TEST(ReturnValue, CheckPointerToFunction)
  */
 TEST(ReturnValue, CheckConstPointerToFunction)
 {
-  FunctionType *ft = new FunctionType(TypedReturnValue(CTYPE_INT), Parameter::Vector({NamedParameter(CTYPE_FLOAT, "")}));
-  ConstQualifiedType *cptf = new ConstQualifiedType(new Pointer(ft));
-  ft = nullptr;
-  ReturnValue rv(cptf);
+  Parameter::Vector pvft{};
+  pvft.emplace_back(NamedParameter(CTYPE_FLOAT, ""));
+  auto ft = std::make_shared<FunctionType>(TypedReturnValue(CTYPE_INT), std::move(pvft));
+  auto cptf = std::make_shared<ConstQualifiedType>(std::make_shared<Pointer>(std::move(ft)));
+  ReturnValue rv(std::move(cptf));
   cptf = nullptr;
   EXPECT_STRCASEEQ(rv.getDeclareString().c_str(), "int(* const");
 }
@@ -41,14 +42,15 @@ TEST(ReturnValue, CheckConstPointerToFunction)
  */
 TEST(ReturnValue, CheckPointerToPointerToFunction)
 {
-  FunctionType *ft1 = new FunctionType(TypedReturnValue(CTYPE_DOUBLE), Parameter::Vector({NamedParameter(CTYPE_CHAR, "")}));
-  Pointer *ptf1 = new Pointer(ft1);
-  ft1 = nullptr;
-  FunctionType *ft2 = new FunctionType(ReturnValue(ptf1), Parameter::Vector({NamedParameter(CTYPE_FLOAT, "")}));
-  ptf1 = nullptr;
-  Pointer *ptf2 = new Pointer(ft2);
-  ft2 = nullptr;
-  ReturnValue rv(ptf2);
+  Parameter::Vector pvft1{};
+  pvft1.emplace_back(NamedParameter(CTYPE_CHAR, ""));
+  auto ft1 = std::make_shared<FunctionType>(TypedReturnValue(CTYPE_DOUBLE), std::move(pvft1));
+  auto ptf1 = std::make_shared<Pointer>(std::move(ft1));
+  Parameter::Vector pvft2{};
+  pvft2.emplace_back(NamedParameter(CTYPE_FLOAT, ""));
+  auto ft2 = std::make_shared<FunctionType>(ReturnValue(ptf1), std::move(pvft2));
+  auto ptf2 = std::make_shared<Pointer>(std::move(ft2));
+  ReturnValue rv(std::move(ptf2));
   EXPECT_STRCASEEQ(rv.getDeclareString().c_str(), "double(*(*");
 }
 
@@ -58,13 +60,14 @@ TEST(ReturnValue, CheckPointerToPointerToFunction)
  */
 TEST(ReturnValue, CheckConstPointerToConstPointerToFunction)
 {
-  FunctionType *ft1 = new FunctionType(TypedReturnValue(CTYPE_DOUBLE), Parameter::Vector({NamedParameter(CTYPE_CHAR, "")}));
-  ConstQualifiedType *cptf1 = new ConstQualifiedType(new Pointer(ft1));
-  ft1 = nullptr;
-  FunctionType *ft2 = new FunctionType(ReturnValue(cptf1), Parameter::Vector({NamedParameter(CTYPE_FLOAT, "")}));
-  cptf1 = nullptr;
-  ConstQualifiedType *cptf2 = new ConstQualifiedType(new Pointer(ft2));
-  ft2 = nullptr;
-  ReturnValue rv(cptf2);
+  Parameter::Vector pvft1{};
+  pvft1.emplace_back(NamedParameter(CTYPE_CHAR, ""));
+  auto ft1 = std::make_shared<FunctionType>(TypedReturnValue(CTYPE_DOUBLE), std::move(pvft1));
+  auto cptf1 = std::make_shared<ConstQualifiedType>(std::make_shared<Pointer>(std::move(ft1)));
+  Parameter::Vector pvft2{};
+  pvft2.emplace_back(NamedParameter(CTYPE_FLOAT, ""));
+  auto ft2 = std::make_shared<FunctionType>(ReturnValue(cptf1), std::move(pvft2));
+  auto cptf2 = std::make_shared<ConstQualifiedType>(std::make_shared<Pointer>(std::move(ft2)));
+  ReturnValue rv(std::move(cptf2));
   EXPECT_STRCASEEQ(rv.getDeclareString().c_str(), "double(* const(* const");
 }

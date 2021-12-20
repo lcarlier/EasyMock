@@ -26,8 +26,8 @@ public:
    */
   FunctionType(ReturnValue p_functionReturnType, Parameter::Vector p_functionParameters);
 
-  FunctionType(const FunctionType &other) = default;
-  FunctionType& operator=(const FunctionType &other) = default;
+  FunctionType(const FunctionType &other) = delete;
+  FunctionType& operator=(const FunctionType &other) = delete;
   FunctionType(FunctionType &&other) = default;
   FunctionType& operator=(FunctionType &&other) = default;
 
@@ -45,14 +45,9 @@ public:
   bool operator!=(const FunctionType &p_other) const;
 
   /*!
-   * \copydoc ::TypeItf::clone
-   */
-  virtual FunctionType* clone() const override;
-
-  /*!
    * \copydoc ::EasyMock::Hashable::getHash()
    */
-  std::size_t getHash() const override;
+  std::size_t getHash() const noexcept override;
 
   virtual ~FunctionType();
 

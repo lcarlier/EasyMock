@@ -65,7 +65,7 @@ public:
   /*!
    * \copydoc ::EasyMock::Hashable::getHash()
    */
-  std::size_t getHash() const override;
+  std::size_t getHash() const noexcept override;
 
 private:
   std::string m_name;

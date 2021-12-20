@@ -6,20 +6,14 @@
 
 FunctionDeclaration VoidFunStructPtrFactory::functionFactory()
 {
-  StructType *s2 = newStructS2Type();
-  Parameter *p = new Parameter(new Pointer(s2), "s");
-  s2 = nullptr; //We lost the ownership
-  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), Parameter::Vector({p}));
-  p = nullptr; //We lost the ownership
+  auto s2 = newStructS2Type();
+  Parameter p{std::make_shared<Pointer>(std::move(s2)), "s"};
+  Parameter::Vector pv{};
+  pv.emplace_back(std::move(p));
+  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), std::move(pv));
 
   return f;
 }
-
-FunctionDeclaration* VoidFunStructPtrFactory::newFunctionFactory()
-{
-  return functionFactory().clone();
-}
-
 
 std::string VoidFunStructPtrFactory::functionGetFunctionName()
 {

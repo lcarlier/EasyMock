@@ -8,7 +8,6 @@ class StructFileFromStdioFactory : public FunctionFactory<int, std::tuple<T_MY_I
 {
 public:
   FunctionDeclaration functionFactory() override;
-  FunctionDeclaration* newFunctionFactory() override;
   std::string functionGetFunctionName() override;
   std::string getFilename() override;
 
@@ -21,4 +20,3 @@ public:
 };
 
 #endif /* STRUCTFILEFROMSTDIOFACTORY_H */
-

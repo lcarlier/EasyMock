@@ -67,14 +67,9 @@ public:
   virtual std::string getDeclarationPrefix(bool p_naked = false) const override;
 
   /*!
-   * \copydoc TypeItf::clone
-   */
-  IncompleteType *clone() const override;
-
-  /*!
    * \copydoc ::EasyMock::Hashable::getHash()
    */
-  std::size_t getHash() const override;
+  std::size_t getHash() const noexcept override;
 
   virtual ~IncompleteType();
 

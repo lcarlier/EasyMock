@@ -5,20 +5,13 @@
 
 FunctionDeclaration VoidFunParamNoNameFactory::functionFactory()
 {
-  Parameter* p1 = new Parameter(new CType(CTYPE_INT), "");
-  Parameter* p2 = new Parameter(new CType(CTYPE_FLOAT), "");
-  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), Parameter::Vector({p1, p2}));
-  p1 = nullptr; //We lost the ownership
-  p2 = nullptr; //We lost the ownership
+  Parameter::Vector pv{};
+  pv.emplace_back(Parameter(std::make_shared<CType>(CTYPE_INT), ""));
+  pv.emplace_back(Parameter(std::make_shared<CType>(CTYPE_FLOAT), ""));
+  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), std::move(pv));
 
   return f;
 }
-
-FunctionDeclaration* VoidFunParamNoNameFactory::newFunctionFactory()
-{
-  return functionFactory().clone();
-}
-
 
 std::string VoidFunParamNoNameFactory::functionGetFunctionName()
 {

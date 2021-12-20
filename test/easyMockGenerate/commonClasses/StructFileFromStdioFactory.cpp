@@ -10,34 +10,24 @@
 FunctionDeclaration StructFileFromStdioFactory::functionFactory()
 {
   bool isEmbeddedInOtherType = false;
-  TypedefType *tFILE_T = new TypedefType("T_MY_IO_FILE", new StructType("MY_IO_FILE", isEmbeddedInOtherType));
-  StructType *FILE_T = dynamic_cast<StructType*>(tFILE_T->getTypee());
-  StructType *IO_MARK = new StructType("MY_IO_MARK", isEmbeddedInOtherType);
+  auto tFILE_T = std::make_shared<TypedefType>("T_MY_IO_FILE", std::make_shared<StructType>("MY_IO_FILE", isEmbeddedInOtherType));
+  ComposableType *FILE_T = tFILE_T->getTypee()->asComposableType();
+  auto IO_MARK = std::make_shared<StructType>("MY_IO_MARK", isEmbeddedInOtherType);
 
-  ComposableField* cf = new ComposableField(new Pointer(new IncompleteType(*IO_MARK, IncompleteType::Type::STRUCT)), "_next");
-  IO_MARK->addField(cf);
-  cf = new ComposableField(new Pointer(new IncompleteType(*FILE_T, IncompleteType::Type::STRUCT)), "_sbuf");
-  IO_MARK->addField(cf);
+  IO_MARK->addField(ComposableField(std::make_shared<Pointer>(std::make_shared<IncompleteType>(*IO_MARK, IncompleteType::Type::STRUCT)), "_next"));
+  IO_MARK->addField(ComposableField(std::make_shared<Pointer>(std::make_shared<IncompleteType>(*FILE_T, IncompleteType::Type::STRUCT)), "_sbuf"));
 
-  cf = new ComposableField(new Pointer(IO_MARK), "_markers");
-  FILE_T->addField(cf);
-  cf = new ComposableField(new Pointer(new IncompleteType(*FILE_T, IncompleteType::Type::STRUCT)), "_chain");
+  FILE_T->addField(ComposableField(std::make_shared<Pointer>(std::move(IO_MARK)), "_markers"));
 
-  FILE_T->addField(cf);
+  FILE_T->addField(ComposableField(std::make_shared<Pointer>(std::make_shared<IncompleteType>(*FILE_T, IncompleteType::Type::STRUCT)), "_chain"));
 
-  Parameter *p = new Parameter(new Pointer(tFILE_T), "file");
-  tFILE_T = nullptr; //We lost the ownership
-  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), Parameter::Vector({p}));
-  p = nullptr; //We lost the ownership
+  Parameter p{std::make_shared<Pointer>(std::move(tFILE_T)), "file"};
+  Parameter::Vector pv{};
+  pv.emplace_back(std::move(p));
+  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), std::move(pv));
 
   return f;
 }
-
-FunctionDeclaration* StructFileFromStdioFactory::newFunctionFactory()
-{
-  return functionFactory().clone();
-}
-
 
 std::string StructFileFromStdioFactory::functionGetFunctionName()
 {

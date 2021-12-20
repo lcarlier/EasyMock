@@ -85,7 +85,7 @@ void genericExpectTest(const unsigned int nbCall, const unsigned int nbExpect, v
     errorMessage1.append(f.getFunctionPrototype());
     errorMessage1.append("'");
     //E.g: "intFunIntInt is returning a random value
-    if (*f.getReturnType() != VoidReturnValue())
+    if (*f.getReturnValue() != VoidReturnValue())
     {
       errorMessage1.append(". ");
       errorMessage1.append(*f.getName());
@@ -214,9 +214,8 @@ TYPED_TEST(genGenerate_testCase, OneExpectArgIsBad)
     return; //In case the function that is tested doesn't have any parameters
   }
 
-  Parameter::Vector::const_iterator it = f.getFunctionsParameters().begin();
-  const Parameter *firstParameter = *it;
-  if(!firstParameter->getType()->isCType())
+  const Parameter& firstParameter = f.getFunctionsParameters()[0];
+  if(!firstParameter.getType()->isCType())
   {
     return; //For struct and classes, error message is fine tuned and this generic test case is not used
   }
@@ -247,7 +246,7 @@ TYPED_TEST(genGenerate_testCase, OneExpectArgIsBad)
   std::string errorMessageToExpect("Error : at call 1 of '");
   errorMessageToExpect.append(f.getFunctionPrototype());
   errorMessageToExpect.append("': Parameter '");
-  errorMessageToExpect.append(firstParameter->getName());
+  errorMessageToExpect.append(firstParameter.getName());
   errorMessageToExpect.append("' has value '");
   errorMessageToExpect.append(givenParemeter);
   errorMessageToExpect.append("', was expecting '");
@@ -280,9 +279,8 @@ TYPED_TEST(genGenerate_testCase, SecondExpectArgIsBad)
     return; //In case the function that is tested doesn't have any parameters
   }
 
-  Parameter::Vector::const_iterator it = f.getFunctionsParameters().begin();
-  const Parameter *firstParameter = *it;
-  if(!firstParameter->getType()->isCType())
+  const Parameter &firstParameter = f.getFunctionsParameters()[0];
+  if(!firstParameter.getType()->isCType())
   {
     return; //For struct and classes, error message is fine tuned and this generic test case is not used
   }
@@ -319,7 +317,7 @@ TYPED_TEST(genGenerate_testCase, SecondExpectArgIsBad)
   std::string errorMessageToExpect("Error : at call 2 of '");
   errorMessageToExpect.append(f.getFunctionPrototype());
   errorMessageToExpect.append("': Parameter '");
-  errorMessageToExpect.append(firstParameter->getName());
+  errorMessageToExpect.append(firstParameter.getName());
   errorMessageToExpect.append("' has value '");
   errorMessageToExpect.append(givenParemeter);
   errorMessageToExpect.append("', was expecting '");

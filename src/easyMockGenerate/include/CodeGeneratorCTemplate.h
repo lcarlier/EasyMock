@@ -82,8 +82,8 @@ private:
   ctemplate::TemplateDictionary* generateDeclarationOfComposableType(ctemplate::TemplateDictionary *compareDir, const ComposableType *p_composedType, int p_level, GenerateDeclarationOfComposableTypeOrigin p_origin);
   void generateDeclarationOfUsedType(ctemplate::TemplateDictionary* p_parentDict, const TypeItf* p_type, bool p_generateIncomplete);
   bool generateCodeToFile(const std::string &outDir, const std::string &filename, const std::string &extension, const std::string &generatedCode);
-  std::string getDeclaratorString(const Declarator* p_decl);
-  std::string getNonQualifiedDeclaratorString(const Declarator* p_decl);
+  std::string getDeclaratorString(const Declarator& p_decl);
+  std::string getNonQualifiedDeclaratorString(const Declarator& p_decl);
   void generateBasicTypeField(const ComposableFieldItf *curField, ctemplate::TemplateDictionary *paramSectDict, const ComposableType *p_composedType, std::string p_declPrepend);
   void generateExtraDecl(ctemplate::TemplateDictionary *dict, const char *sectionName, const char *templateFileName, const FunctionType *ft);
   void generateFieldCmp(std::string &p_condition, const ComposableType *p_composedType, const ComposableFieldItf *p_curField, const ComposableFieldItf *p_previousField, std::string p_varName);
@@ -106,11 +106,11 @@ private:
   unsigned int m_nbUnamedParam;
   ctemplate::TemplateDictionary *m_rootDictionary;
   ctemplate::TemplateDictionary *m_generateMockedTypeSection;
-  EasyMock::HashablePointerUnordereddMap<const TypeItf*, const TypedefType*> m_typeToTypedef;
-  EasyMock::HashablePointerUnordereddSet<const TypeItf*> m_generateTypes;
-  EasyMock::HashablePointerUnordereddSet<const TypeItf*> m_generateForwardTypes;
-  EasyMock::HashablePointerUnordereddSet<const TypedefType*> m_generatedTypeTypedDefSection;
-  EasyMock::HashablePointerUnordereddSet<const Enum*> m_generatedTypeEnumSection;
+  EasyMock::HashablePointerUnorderedMap<const TypeItf*, const TypedefType*> m_typeToTypedef;
+  EasyMock::HashablePointerUnorderedSet<const TypeItf*> m_generateTypes;
+  EasyMock::HashablePointerUnorderedSet<const TypeItf*> m_generateForwardTypes;
+  EasyMock::HashablePointerUnorderedSet<const TypedefType*> m_generatedTypeTypedDefSection;
+  EasyMock::HashablePointerUnorderedSet<const Enum*> m_generatedTypeEnumSection;
   std::vector<const ComposableType*> m_lateDeclaration;
 };
 

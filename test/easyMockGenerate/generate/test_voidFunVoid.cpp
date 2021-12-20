@@ -19,8 +19,8 @@ public:
   voidFunVoid_testCase() : easyMockGenerate_baseTestCase("voidFunVoid", "include/voidFunVoid.h", "mockVoidFunVoid", false, true)
   {
     VoidFunVoidFactory factory;
-    ElementToMock *f = factory.newFunctionFactory();
-    m_ctxt.addElementToMock(f);
+    FunctionDeclaration f = factory.functionFactory();
+    m_ctxt.addElementToMock(std::move(f));
   }
 };
 

@@ -6,20 +6,17 @@
 FunctionDeclaration VoidFunStructWithEmbeddedAnonymousStructFactory::functionFactory()
 {
   bool isEmbeddedStruct = true;
-  StructType* top = new StructType("topEmbeddedAnonymous", !isEmbeddedStruct); //NOT EMBEDDED
-  StructType* beingDefined = new StructType("", isEmbeddedStruct);
-  beingDefined->addField(new ComposableField(CTYPE_INT, "a"));
-  top->addField(new ComposableField(beingDefined, "af"));
-  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), Parameter::Vector({new Parameter(top, "s")}));
+  auto top = std::make_shared<StructType>("topEmbeddedAnonymous", !isEmbeddedStruct); //NOT EMBEDDED
+  auto beingDefined = std::make_shared<StructType>("", isEmbeddedStruct);
+  beingDefined->addField(ComposableField(CTYPE_INT, "a"));
+  top->addField(ComposableField(std::move(beingDefined), "af"));
+
+  Parameter::Vector pv{};
+  pv.emplace_back(Parameter(std::move(top), "s"));
+  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), std::move(pv));
 
   return f;
 }
-
-FunctionDeclaration* VoidFunStructWithEmbeddedAnonymousStructFactory::newFunctionFactory()
-{
-  return functionFactory().clone();
-}
-
 
 std::string VoidFunStructWithEmbeddedAnonymousStructFactory::functionGetFunctionName()
 {

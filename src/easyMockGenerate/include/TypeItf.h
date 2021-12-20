@@ -7,8 +7,7 @@
 
 #include <string>
 #include <memory>
-#include "AutoCleanVectorPtr.h"
-#include "ComposableFieldItf.h"
+#include <vector>
 #include "EasyMockGenerateTypes.h"
 #include "EasyMock_Hashable.h"
 
@@ -27,8 +26,6 @@ class CType;
 class TypeItf : virtual public EasyMock::Hashable
 {
 public:
-  typedef AutoCleanVectorPtr<TypeItf> Vector;
-
   TypeItf(const TypeItf &other) = default;
   TypeItf& operator=(const TypeItf &other) = default;
   TypeItf(TypeItf &&other) = default;
@@ -122,18 +119,6 @@ public:
    * \return If this is not a C type, returns easyMock_cTypes_t::CTYPE_INVALID
    */
   virtual easyMock_cTypes_t getCType() const;
-
-  /*!
-   * \brief Returns the fields contained by the type
-   * \warning If this function is called when ::TypeItf::isComposableType() returns false,
-   * the function will abort the execution of the program with an assert.
-   * \warning If ::TypeItf::isComposableType() is false, an assert will be generated
-   * \return A ::ComposableFieldItf::Vector containing the fields contained by the type
-   */
-  virtual ComposableFieldItf::Vector& getContainedFields();
-
-  /*! \copydoc getContainedFields() */
-  virtual const ComposableFieldItf::Vector& getContainedFields() const;
 
   /*!
    * \brief Returns if the type is a struct.
@@ -508,7 +493,25 @@ public:
   /*!
    * \copydoc ::EasyMock::Hashable::getHash()
    */
-  std::size_t getHash() const override;
+  std::size_t getHash() const noexcept override;
+
+  /*!
+   * \brief Returns the hash of the type where all typedefs have been removed.
+   *
+   * For example:
+   *
+   * \code{.cpp}
+   *
+   * CType ctype{CTYPE_INT};
+   * TypeDefType typeDefType{std::make_shared<CType>(CTYPE_INT)};
+   *
+   * assert(ctype.getHash() != typeDefType.getHash());
+   * assert(ctype.getRawHash() == typeDefType.getRawHash());
+   * \endcode
+   *
+   * both version have the same raw hash while the ::TypeItf::getHash() returns different values
+   */
+  virtual std::size_t getRawHash() const noexcept;
 
   /*!
    * \brief Checks if 2 TypeItf instances are equal.
@@ -523,14 +526,6 @@ public:
   bool operator==(const TypeItf &p_other) const;
   bool operator!=(const TypeItf &p_other) const;
 
-  /*!
-   * \brief Creates a deep clone of the object.
-   *
-   * The returned pointer needs to be freed manually with the delete operator or
-   * passed to another class (such as Pointer) that will delete it when that
-   * other class is deleted.
-   */
-  virtual TypeItf* clone() const = 0;
 
   /*!
    * \brief Deletes the object and free all the allocated memory it holds if any.
@@ -553,7 +548,7 @@ public:
   bool prefix ## isQualifiedType;
 protected:
   TypeItf();
-  explicit TypeItf(const std::string p_name);
+  explicit TypeItf(std::string p_name);
 
   TYPEITF_COMMON_CLASS_MEMBERS(m_)
 
@@ -672,29 +667,5 @@ private:
 
 #undef TYPEITF_COMMON_CLASS_MEMBERS
 };
-
-/*!
- * \brief Returns a copy of the type with all of its typedefs removed.
- * \param p_typeItf The Type to remove the typedef.
- *
- * For instance:
- * \code{.cpp}
- * TEST(deTypeDef, PointerToTypeDef)
- * {
- *   CType iType{CTYPE_INT};
- *   TypedefType int_t{"int_t", iType.clone()};
- *   Pointer p{int_t.clone()};
- *
- *   auto detyped = deTypeDef(p);
- *
- *   Pointer pExpected{iType.clone()};
- *
- *   ASSERT_EQ(pExpected, *detyped);
- * }
- * \endcode
- * 
- * \return A copy of the type with all of its typedefs removed.
- */
-std::unique_ptr<TypeItf> deTypeDef(const TypeItf& p_typeItf);
 
 #endif /* TYPEITF_H */

@@ -8,7 +8,6 @@ class UnsLongLongFunUnsLongLongFactory : public FunctionFactory<unsigned long lo
 {
 public:
   FunctionDeclaration functionFactory() override;
-  FunctionDeclaration* newFunctionFactory() override;
   std::string functionGetFunctionName() override;
   std::string getFilename() override;
   void setupTestCase(EasyMockTestCase::TestCase tc) override;
@@ -16,4 +15,3 @@ public:
 };
 
 #endif /* UNSLONGLONGFUNUNSLONGLONGFACTORY_H */
-

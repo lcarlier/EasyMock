@@ -9,17 +9,19 @@
 ElementToMockList VoidFunStructForwardDeclaredFactory::functionFactoryArray()
 {
     ElementToMockList returnedList;
-    StructType *forwardDeclaredParent = new StructType("forwardDeclaredParent", false);
-    Pointer *ptrToForwardDeclaredParent = new Pointer(new IncompleteType(*forwardDeclaredParent, IncompleteType::Type::STRUCT));
+    auto forwardDeclaredParent = std::make_shared<StructType>("forwardDeclaredParent", false);
+    auto ptrToForwardDeclaredParent = std::make_shared<Pointer>(std::make_shared<IncompleteType>(*forwardDeclaredParent, IncompleteType::Type::STRUCT));
 
-    StructType *forwardDeclaredChild = new StructType("forwardDeclaredChild", false);
-    forwardDeclaredChild->addField(new ComposableField(ptrToForwardDeclaredParent, "p"));
+    auto forwardDeclaredChild = std::make_shared<StructType>("forwardDeclaredChild", false);
+    forwardDeclaredChild->addField(ComposableField(std::move(ptrToForwardDeclaredParent), "p"));
 
-    forwardDeclaredParent->addField(new ComposableField(forwardDeclaredChild, "c"));
+    forwardDeclaredParent->addField(ComposableField(std::move(forwardDeclaredChild), "c"));
 
-    FunctionDeclaration *fd = new FunctionDeclaration(functionGetFunctionName(), VoidReturnValue(), Parameter::Vector({new Parameter(forwardDeclaredParent, "p")}));
+    Parameter::Vector pv{};
+    pv.emplace_back(Parameter(std::move(forwardDeclaredParent), "p"));
+    FunctionDeclaration fd (functionGetFunctionName(), VoidReturnValue(), std::move(pv));
 
-    returnedList.push_back(fd);
+    returnedList.push_back(std::move(fd));
 
     return returnedList;
 }

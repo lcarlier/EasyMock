@@ -7,10 +7,8 @@ class IntFunStructPtrIntCharPtrFactory : public FunctionFactory<int, std::tuple<
 {
 public:
   FunctionDeclaration functionFactory() override;
-  FunctionDeclaration* newFunctionFactory() override;
   std::string functionGetFunctionName() override;
   std::string getFilename() override;
 };
 
 #endif /* INTFUNSTRUCTPTRINTCHARPTRFACTORY_H */
-

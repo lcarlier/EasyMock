@@ -6,16 +6,21 @@
 
 FunctionDeclaration StructTypedDefFunStructTypedDefFactory::functionFactory()
 {
+  auto getCommonAField= []()
+  {
+    return ComposableField(CTYPE_INT, "a");
+  };
   bool isEmbeddedInOtherType = false;
-  StructType *st1 = new StructType("foo", isEmbeddedInOtherType);
-  ComposableField *cf = new ComposableField(CTYPE_INT, "a");
-  st1->addField(cf->clone());
+  auto st1 = std::make_shared<StructType>("foo", isEmbeddedInOtherType);
+  st1->addField(getCommonAField());
 
-  TypedefType *trv = new TypedefType("TypedDefStruct", new StructType("foo", isEmbeddedInOtherType));
+  auto trv = std::make_shared<TypedefType>("TypedDefStruct", std::make_shared<StructType>("foo", isEmbeddedInOtherType));
   StructType *rv = dynamic_cast<StructType*>(trv->getTypee());
-  rv->addField(cf);
+  rv->addField(getCommonAField());
 
-  FunctionDeclaration f(functionGetFunctionName(), ReturnValue(trv), Parameter::Vector({new Parameter(st1, "s2")}));
+  Parameter::Vector pv{};
+  pv.emplace_back(Parameter(std::move(st1), "s2"));
+  FunctionDeclaration f(functionGetFunctionName(), ReturnValue(std::move(trv)), std::move(pv));
   return f;
 }
 

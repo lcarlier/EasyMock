@@ -55,7 +55,9 @@ backtrace in the error messages:
 * libdw
 
 The following mandatory tools must be installed:
-* gcc/g++ or clang/clang++
+* A C/C++ compiler:
+  * gcc/g++ 
+  * clang/clang++ (Minimum version 8.0)
 * cmake
 * pkg-config
 
@@ -172,7 +174,7 @@ The debug build is selected when one of the following condition is met
 - the following parameter is given to the cmake command: `-DCMAKE_BUILD_TYPE=Debug`
 
 The debug build passes extra debug compilation flags and takes longer because it
-also compiles all the [tests](#unit-tested). After the debug build has been
+also compiles all the [tests][ut]. After the debug build has been
 built, use the command `make check` to run all the tests.
 
 ## <a name="user-content-libeasyapi"></a> libEasyMockFramework's API
@@ -364,16 +366,25 @@ cmp_pointer
 cmp_str
 ```
 
-Whenever a struct is present in the list of the mocked function's parameters,
-EasyMock will generate the corresponding matcher which will compare the struct
+Whenever a struct is present in the list of the mocked function parameters,
+EasyMock generates the corresponding matcher which compares the struct
 fields one by one and yield an error if one of the field's value is not
 matching. The name of the generated struct matcher is in the form of
 ```
 cmp_<structName>
 ```
 
+If a pointer to a struct is present in the list of mocked function parameters,
+EasyMock generates the corresponding matcher which first dereference the struct pointer
+and call the matcher which compares the struct fields one by one and yield an
+error if one of the field's value is not matching. The name of the generated 
+struct matcher is in the form of
+```
+cmp_deref_ptr_<structName>
+```
+
 A user can implement its own version of EasyMock matchers by creating
-functions that matches the `EasyMock_Matcher` type.
+functions that match the `EasyMock_Matcher` type.
 
 ## <a name="user-content-utm"></a>Using the mock
 Once the mocks have been generated, the unit test must call the

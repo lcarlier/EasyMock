@@ -5,9 +5,7 @@
 #ifndef COMPOSABLEFIELD_H
 #define COMPOSABLEFIELD_H
 
-#include "AutoCleanVectorPtr.h"
 #include "EasyMockGenerateTypes.h"
-
 #include "ComposableFieldItf.h"
 
 #include <string>
@@ -40,18 +38,11 @@ class Pointer;
  * inside the ComposableType class.
  *
  * A ComposableField can also have incomplete type fields.
- * \see ::ComposableField::ComposableField(TypeItf*,std::string,attributes)
+ * \see ::ComposableField::ComposableField(std::shared_ptr<TypeItf>,std::string,attributes)
  */
 class ComposableField : public ComposableFieldItf
 {
 public:
-
-  /*!
-   * \brief A ::AutoCleanVectorPtr containing ::ComposableField objects.
-   *
-   * \heapPointer
-   */
-  typedef AutoCleanVectorPtr<ComposableField> Vector;
 
   /*!
    * \brief The ComposableField's attributes
@@ -69,17 +60,14 @@ public:
     int64_t arraySize;
   } attributes;
   ComposableField(const easyMock_cTypes_t p_ctype, std::string p_name);
-  ComposableField(TypeItf *p_type, std::string p_name);
+  ComposableField(std::shared_ptr<TypeItf> p_type, std::string p_name);
   /*!
    * \brief Creates a new ComposableField
    *
    * It is possible to represent forward declared type or recursively used
    * type by using the ::IncompleteType class
-   *
-   * \heapPointer
-   *
    */
-  ComposableField(TypeItf *p_type, std::string p_name, attributes p_attrib);
+  ComposableField(std::shared_ptr<TypeItf> p_type, std::string p_name, attributes p_attrib);
 
   /*!
    * \brief Returns if the type of the field is an incomplete type
@@ -105,12 +93,10 @@ public:
    */
   bool isIncompleteTypeField() const;
 
-  ComposableField(const ComposableField &other) = default;
-  ComposableField &operator=(const ComposableField& other) = default;
-
+  ComposableField(const ComposableField &other) = delete;
+  ComposableField &operator=(const ComposableField& other) = delete;
   ComposableField(ComposableField &&other) = default;
-  // No move assignment operator whenever using the copy-and-swap idiom.
-
+  ComposableField& operator=(ComposableField &&other) = default;
   /*!
    * \brief Compares 2 ComposableField objects.
    *
@@ -181,14 +167,9 @@ public:
   int64_t getArraySize() const;
 
   /*!
-   * \copydoc TypeItf::clone
-   */
-  ComposableField* clone() const override;
-
-  /*!
    * \copydoc ::EasyMock::Hashable::getHash()
    */
-  std::size_t getHash() const override;
+  std::size_t getHash() const noexcept override;
 
   virtual ~ComposableField() override;
 

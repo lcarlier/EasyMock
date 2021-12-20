@@ -8,12 +8,13 @@
 FunctionDeclaration StructRecursiveMemberPtrTypeFactory::functionFactory()
 {
   bool isEmbeddedInOtherType = false;
-  StructType *recurStruct = new StructType("recurs", isEmbeddedInOtherType);
-  ComposableField *valField = new ComposableField(new Pointer(new IncompleteType(*recurStruct, IncompleteType::Type::STRUCT)), "val");
-  recurStruct->addField(valField);
+  auto recurStruct = std::make_shared<StructType>("recurs", isEmbeddedInOtherType);
+  ComposableField valField{std::make_shared<Pointer>(std::make_shared<IncompleteType>(*recurStruct, IncompleteType::Type::STRUCT)), "val"};
+  recurStruct->addField(std::move(valField));
 
-  FunctionDeclaration f(functionGetFunctionName(), VoidReturnValue(), Parameter::Vector({new Parameter(recurStruct, "rec")}));
-  recurStruct = nullptr; //Invalidate because we lost the ownership
+  Parameter::Vector pv;
+  pv.emplace_back(Parameter(std::move(recurStruct), "rec"));
+  FunctionDeclaration f(functionGetFunctionName(), VoidReturnValue(), std::move(pv));
   return f;
 }
 
@@ -26,4 +27,3 @@ std::string StructRecursiveMemberPtrTypeFactory::getFilename()
 {
   return "structRecursivePtrType.h";
 }
-

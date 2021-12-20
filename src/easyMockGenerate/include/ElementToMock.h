@@ -29,8 +29,6 @@ enum ElementToMock_Type
 class ElementToMock : virtual public EasyMock::Hashable
 {
 public:
-  typedef AutoCleanVectorPtr<ElementToMock> Vector;
-
   /*!
    * \brief Returns the mock type
    *
@@ -41,12 +39,8 @@ public:
   /*!
    * \copydoc ::EasyMock::Hashable::getHash()
    */
-  virtual size_t getHash() const override;
+  virtual size_t getHash() const noexcept override;
 
-  /*!
-   * \copydoc ::TypeItf::clone
-   */
-  virtual ElementToMock* clone() const = 0;
   virtual ~ElementToMock();
 };
 

@@ -8,7 +8,6 @@ class VoidFunStructWithTypedefStructFactory : public FunctionFactory<void, std::
 {
 public:
   FunctionDeclaration functionFactory() override;
-  FunctionDeclaration* newFunctionFactory() override;
   std::string functionGetFunctionName() override;
   std::string getFilename() override;
   std::string getMatcherFunctionName() override;

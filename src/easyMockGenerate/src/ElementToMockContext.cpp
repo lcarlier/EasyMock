@@ -41,12 +41,12 @@ const std::unordered_map<std::string, MacroDefinition>& ElementToMockContext::ge
   return m_macroDefinition;
 }
 
-const ElementToMock::Vector& ElementToMockContext::getElementToMock() const
+const ElementToMockContextList& ElementToMockContext::getElementToMock() const
 {
   return m_elementToMock;
 }
 
-void ElementToMockContext::addElementToMock(ElementToMock* p_elementToMock)
+void ElementToMockContext::addElementToMock(ElementToMockContextElement p_elementToMock)
 {
-  m_elementToMock.push_back(p_elementToMock);
+  m_elementToMock.push_back(std::move(p_elementToMock));
 }

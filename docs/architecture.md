@@ -10,15 +10,13 @@
     * [Command line parsing][clp]
 * [Architecture choices][archChoices]
     * [Memory management][memMgmt]
-    * [Implementation of the copy and move constructor/operator][iotcamc]
 * [Tests][tests]
-    * [CType][ctype]
+    * [EasyMock internal objects tests][eioTests]
     * [easyMockGenerate][easyMockGenerate]
         * [Factories as test classes][fatc]
         * [Test of the parser (parser directory)][totp]
         * [Test of generated mock (generate directory)][togm]
-    * [e2e][e2e]
-    * [structType][structType]
+    * [End-to-end tests][e2e]
 
 ## <a name="user-content-intro"></a> Introduction
 
@@ -48,8 +46,6 @@ Open the file `index.html` with your favorite web browser.
 docs ──────────────────────────────> Contains the MD documentation of the project
 ├── doxygen ───────────────────────> Contains the doxygen documentation of the project
 src
-├── common
-│   └── include
 ├── easyMockFramework ─────────────> Contains the code to generate libEasyMockFramework.so
 │   ├── include
 │   └── src
@@ -59,8 +55,10 @@ src
 │       ├── CTemplateGenerator
 │       ├── CXXOptsCmdLineParser
 │       └── LLVMParser
-test ──────────────────────────────> Contains the code of the unit tests
-├── CType
+test ──────────────────────────────> Contains the code of all the tests
+├── ...
+├── FunctionAttributeGen
+├── ...
 ├── easyMockGenerate
 │   ├── CommandLineParser
 │   ├── common
@@ -69,7 +67,7 @@ test ─────────────────────────
 │   ├── include
 │   ├── includeCommonClasses
 │   └── parser
-├── end2end
+├── ...
 └── StructType
 ```
 
@@ -100,8 +98,8 @@ Afterwards, the mocks can register themselves by calling the
 that, the mock defines a static function with the following attribute
 `__attribute__((constructor(102)))`.
 
-By playing with the loading priorities, it is ensured that the EasyMock object
-is properly initialised before the mocks can register themselves.
+Playing with the loading priorities allows the EasyMock objects
+to be properly initialised before the mocks can register themselves.
 
 ## <a name="user-content-eosa"></a> EasyMockGenerate's overall software architecture
 
@@ -151,87 +149,82 @@ the following class diagram.
 
 ![Declarator class diagram](classDeclarator__inherit__graph.png)
 
-Again, a complete explanation of those classes is available in the doxygen documentation.
+A complete explanation of those classes is available in the doxygen documentation.
 
 [All the care has been taken][iotcamc] to make sure that all the internal
-objects of Easymock are copyable and movable.
+objects of Easymock are movable. Copy is not allowed to ensure that the memory footprint
+remains as small as possible.
 
 ### <a name="user-content-clp"></a> Command line parsing
-The command line parsing functionality is done with the help of
-[ccxopts](https://github.com/jarro2783/cxxopts).
+The command line parsing functionality is a custom-made command line parser library.
+Libraries like [ccxopts](https://github.com/jarro2783/cxxopts) have been considered
+but none of them was flexible enough for EasyMock's use case.
 
 This library is abstracted by the CommandLineParserItf interface. It is defined
-in `$EASYMOCK_SOURCE/src/EasyMockGenerate/include/CommandLineParserItf.h`
+in `$EASYMOCK_SOURCE/src/EasyMockGenerate/include/CommandLineParserItf.h`. 
+Tests validating the `CommandLineParserItf` interface are implemented.
 
-This means that the command line parsing can be replaced easily if the need arises.
+This means that the command line parsing can be swapped if the need arises.
 
 ## <a name="user-content-arch-choices"></a> Architecture choices
 Personal note from the author:
 ```
-This project was the opportunity to improve my C++ skills. One part that I
-wanted to experience was the implementation and maintenance of copy/move
-constructor/operator.
+This project is the opportunity to improve my C++ skills in my own way.
+I first took the choice to implement manually copy and move operators which was a
+valuable learning experience.
 
-This is obviously arguable but that's the choice I've made and I'm pretty happy
-with how the code turned out to implemented though I recognise that my implementation
-is probably not the best regarding the memory usage since deep copies of objects are made.
+However, I learned the hard way that even though it is possible and
+quite easy to implement copy and move constructor/operators using technics like
+copy and swap idiom, it results of doing deep copies of objects which is 
+not memory efficient. Some runs could reach more than 10G of memory
+usage.
 
-I banned myself using shared pointer, arguing that having a shared pointer is no better
-than having a global variable that can be access a from wherever it happens to be. 
-I however use unique ptr. I came to realise that my implementation of AutoCleanVectorPtr
-is doing exactly the same as having an std::vector<std::unqique_ptr<T>>.
-A mix of both is currently in use and eventually I should remove my implementation
-of AutoCleanVectorPtr.
+Up to change 2e147c3170cc5e965a36ced4f8b2e7bde8935682, the old memory management
+system was used and is now replaced by the usage of smart pointers.
 ```
 
-An important concept explained in the next section is the concept of
-`ownership of pointer`.
-
 ### <a name="user-content-memory-management"></a>Memory management
-Since the choice was made not to use smart pointers, the obvious question is how
-to clean up the dynamically allocated objects without creating a memory leak
-when a class as a pointer to another class. The solution to this is that each
-class is responsible to free its own data member when they are pointers.
-Unless stated otherwise in the doxygen documentation, each pointer given to
-a constructor or method of any [EasyMock internal objects][eio] must be
-allocated on the heap and cannot be used by the calling function after
-that pointer was passed. This is called passing the
-**ownership of the pointer**.
+The [EasyMock internal objects][eio] are movable only I.e. the copy constructor/operator
+have been explicitly deleted to avoid accidental copies of objects.
 
-For instance, whenever a function allocates a CType object with the new
-operator, it gets the ownership of that pointer. Afterwards, whenever the
-function gives this pointer to a ReturnValue object, it looses the ownership
-of the pointer. This means:
-1. The ReturnValue object is the owner of the pointer. I.e. it must clean the
-pointer in its destructor.
-2. The calling function is not responsible to free that pointer anymore.
-3. The calling function is not allowed to access or modify the value pointed
-by this pointer.
+All the objects inheriting from the `Declarator` base class have a `std::shared_ptr<TypeItf>`
+member containing the type that the declarator declares. Using a `std::shared_ptr<TypeItf>` is
+a good idea because different declarators (e.g. different function parameters) can declare a variable
+of the same type and having a copy of the type would be a waste of memory. The same applies for
+type objects, I.e. inheriting from `TypeItf`, pointing to other types. Examples of such types are
+`Pointer` and `TypeDefType` objects. They have a `std::shared_ptr<TypeItf>` member as well since having a copy
+of the type would be a waste of memory. For example, `Pointer` and `TypeDefType` objects can refer to
+types that are used by `Parameter` objects directly.
 
-The best practice is to nullify the pointer just after losing the ownership
-to avoid tricky behaviour.
-
-### <a name="iotcamc"></a> Implementation of the copy and move constructor/operator
-
-For objects containing pointer members, the copy and move constructor/operator
-are implemented by using the "copy and swap idiom". This make sure to minimise
-the overhead of copying and moving the objects by only passing the pointer
-from one object to another and not the full object.
-
-Good references to understand the "copy and swap idiom" are:
-- [This stackoverflow post](https://stackoverflow.com/questions/3279543/what-is-the-copy-and-swap-idiom)
-- [cppreference](https://en.cppreference.com/w/cpp/language/operators#Assignment_operator)
+The `ElementToMockContext` objects gets populated by the parser with a vector of `ElementToMockContextElement`
+I.e. an `ElementToMockContextList` object.
+```c++
+using ElementToMockContextList = std::vector<ElementToMockContextElement>;
+```
+Each `ElementToMockContextElement` object is a variant of `FunctionDeclaration`.
+```c++
+using ElementToMockContextElement = std::variant<FunctionDeclaration>;
+```
+A variant is used here for the following reasons:
+* A function declaration is a unique instance, so it is needed to store a full unique copy of the object.
+* To reduce the impact on heap. Indeed, `std::unique_ptr<ElementToMock>` would be possible but inefficient. 
+* When C++ will be supported, new element to mock, such as class declaration, can be added to the variant.
 
 ## <a name="user-content-tests"></a> Tests
 
 EasyMock is thoroughly tested. The test framework chosen is GoogleTests.
 In order to run the tests, the command `make check` can be used.
 
-The rest of this section goes through the different unit tests that are
-implemented.
+There are 3 types of tests implemented:
+* EasyMock internal objects tests
+* easyMockGenerate tests comprising parser and generator tests
+* End-to-end tests
 
-### <a name="user-content-ctype"></a> CType
-Validates the specific interface re-implementation of the CType class.
+### <a name="user-content-eio-tests"></a> EasyMock internal objects tests
+Validates the specific behavior of the EasyMock internal objects works as expected.
+
+The tests are in a folder named after the class name (e.g. StructType) and has a
+single .cpp file containing all the test cases for that particular class.
 
 ### <a name="user-content-easyMockGenerate"></a> easyMockGenerate
 This folder contains all the logic to validate EasyMockGenerate.
@@ -294,9 +287,9 @@ tests classes are implemented in the same directory. The only difference is
 that they will target a specific factory instead of being able of executing
 their test cases against a list of factories.
 
-### <a name="user-content-end2end"></a> end2end
+### <a name="user-content-end2end"></a> End-to-end tests
 
-This folder contains tests to validate that the EasyMockGenerate binary is
+The end-to-end tests validates that the EasyMockGenerate binary is
 working properly. Rather than separating the call of the parser and the call
 of the generator in 2 different tests (like in the
 [easyMockGenerate directory][easyMockGenerate]), those tests call directly the
@@ -304,8 +297,9 @@ EasyMockGenerate binary to validate that the end user experience is working
 as it is expected. Eventually, some small test cases using the generated
 mocks (as the user would write them) are run.
 
-### <a name="user-content-structType"></a> StructType
-Validates the specific interface re-implementation of the StructType class.
+The name of end-to-end tests directories corresponds to the test case name
+(e.g `FunctionAttributeGen`). End-to-end tests have a `runTest.sh` which is called
+by CMake. The validation of the test is done in `runTest.sh`.
 
 [intro]: #user-content-intro
 [sotr]: #user-content-sotr
@@ -318,10 +312,9 @@ Validates the specific interface re-implementation of the StructType class.
 [memMgmt]: #user-content-memory-management
 [iotcamc]: #user-content-iotcamc
 [tests]: #user-content-tests
-[ctype]: #user-content-ctype
+[eioTests]: #user-content-eio-tests
 [easyMockGenerate]: #user-content-easyMockGenerate
 [fatc]: #user-content-fatc
 [totp]: #user-content-totp
 [togm]: #user-content-togm
 [e2e]: #user-content-end2end
-[structType]: #user-content-structType

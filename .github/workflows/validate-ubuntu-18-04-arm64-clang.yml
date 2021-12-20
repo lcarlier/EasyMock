@@ -15,7 +15,7 @@ jobs:
       - name: Validate
         uses: ./.github/actions/validate-arm64
         with:
-          c_compiler: clang
-          cxx_compiler: clang++
+          c_compiler: clang-8
+          cxx_compiler: clang++-8
           build_type: ${{ matrix.build_type}}
           docker_image: ubuntu:18.04

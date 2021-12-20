@@ -2,36 +2,14 @@
 
 #include <boost/functional/hash.hpp>
 
-ComposableType::ComposableType(const std::string p_name, bool p_is_embedded_in_other_type) :
-ComposableType(p_name, ComposableFieldItf::Vector({}), p_is_embedded_in_other_type)
+ComposableType::ComposableType(std::string p_name, bool p_is_embedded_in_other_type) :
+ComposableType(std::move(p_name), {}, p_is_embedded_in_other_type)
 {
 }
 
-ComposableType::ComposableType(const std::string p_name, const ComposableFieldItf::Vector p_elem, bool p_is_embedded_in_other_type) :
-TypeItf(p_name), m_elem(p_elem), m_is_declaration_embedded_in_other_type(p_is_embedded_in_other_type), m_is_forward_declared(false)
+ComposableType::ComposableType(std::string p_name, ComposableFieldTypeVector p_elem, bool p_is_embedded_in_other_type) :
+TypeItf(std::move(p_name)), m_elem(std::move(p_elem)), m_is_declaration_embedded_in_other_type(p_is_embedded_in_other_type), m_is_forward_declared(false)
 {
-}
-
-ComposableType::ComposableType(const ComposableType& other) :
-TypeItf(other), m_elem(other.m_elem), m_is_declaration_embedded_in_other_type(other.m_is_declaration_embedded_in_other_type), m_is_forward_declared(other.m_is_forward_declared)
-{}
-
-ComposableType & ComposableType::operator=(const ComposableType& other)
-{
-  TypeItf::operator=(other);
-  m_elem = other.m_elem;
-  m_is_declaration_embedded_in_other_type = other.m_is_declaration_embedded_in_other_type;
-  m_is_forward_declared = other.m_is_forward_declared;
-
-  return *this;
-}
-
-ComposableType::ComposableType(ComposableType&& other) :
-TypeItf(static_cast<TypeItf&&>(other))
-{
-  m_elem = std::move(other.m_elem);
-  m_is_declaration_embedded_in_other_type = std::move(other.m_is_declaration_embedded_in_other_type);
-  m_is_forward_declared = std::move(other.m_is_forward_declared);
 }
 
 bool ComposableType::isDeclarationEmbeddedInOtherType() const
@@ -49,7 +27,7 @@ void ComposableType::setForwardDecl(bool p_value)
   m_is_forward_declared = p_value;
 }
 
-std::size_t ComposableType::getHash() const
+std::size_t ComposableType::getHash() const noexcept
 {
   std::size_t seed { TypeItf::getHash() };
   boost::hash_combine(seed, m_elem);
@@ -93,19 +71,19 @@ bool ComposableType::operator!=(const TypeItf& other) const
   return (*this == other) == false;
 }
 
-ComposableFieldItf::Vector& ComposableType::getContainedFields()
+ComposableType::ComposableFieldTypeVector& ComposableType::getContainedFields()
 {
-  return const_cast<ComposableFieldItf::Vector &>(static_cast<const ComposableType &>(*this).getContainedFields());
+  return const_cast<std::vector<ComposableFieldType> &>(static_cast<const ComposableType &>(*this).getContainedFields());
 }
 
-const ComposableFieldItf::Vector& ComposableType::getContainedFields() const
+const ComposableType::ComposableFieldTypeVector& ComposableType::getContainedFields() const
 {
   return m_elem;
 }
 
-void ComposableType::addField(ComposableFieldItf* newField)
+void ComposableType::addField(ComposableType::ComposableFieldType newField)
 {
-  m_elem.push_back(newField);
+  m_elem.push_back(std::move(newField));
 }
 
 ComposableType::~ComposableType() { }

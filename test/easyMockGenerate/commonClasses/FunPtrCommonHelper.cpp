@@ -9,26 +9,36 @@
 #include <TypedefType.h>
 #include <ConstQualifiedType.h>
 
-#include <assert.h>
+#include <cassert>
 
-FunctionDeclaration* getFunPtrDeclaration(unsigned int n, const char *functionName, std::string&& structName, std::string&& typedefName)
+#include <memory>
+
+std::shared_ptr<TypeItf> getPointerToFunToTest()
 {
-  ReturnValue ftRv(new CType(CTYPE_INT));
-  FunctionType *ft = new FunctionType(ftRv, Parameter::Vector({NamedParameter(CTYPE_INT, ""), NamedParameter(CTYPE_FLOAT, "")}));
-  Pointer ptrToFun(ft);
+  ReturnValue ftRv(std::make_shared<CType>(CTYPE_INT));
+  Parameter::Vector pv{};
+  pv.emplace_back(NamedParameter(CTYPE_INT, ""));
+  pv.emplace_back(NamedParameter(CTYPE_FLOAT, ""));
+  auto ft = std::make_shared<FunctionType>(std::move(ftRv), std::move(pv));
+  return std::make_shared<Pointer>(std::move(ft));
+};
+
+FunctionDeclaration getFunPtrDeclaration(unsigned int n, const char *functionName, std::string&& structName, std::string&& typedefName)
+{
   switch(n)
   {
     case 0:
     //First function
     {
-      ReturnValue rv(new CType(CTYPE_VOID));
-      TypeItf* paramType = ptrToFun.clone();
+      ReturnValue rv(std::make_shared<CType>(CTYPE_VOID));
+      auto paramType = getPointerToFunToTest();
       if(!typedefName.empty())
       {
-        paramType = new TypedefType(typedefName, paramType);
+        paramType = std::make_shared<TypedefType>(typedefName, paramType);
       }
-      Parameter *p = new Parameter(paramType, "funPtr");
-      FunctionDeclaration* fd = new FunctionDeclaration(functionName, rv, Parameter::Vector({p}));
+      Parameter::Vector pv{};
+      pv.emplace_back(Parameter(std::move(paramType), "funPtr"));
+      FunctionDeclaration fd(functionName, std::move(rv), std::move(pv));
       return fd;
     }
 
@@ -39,23 +49,32 @@ FunctionDeclaration* getFunPtrDeclaration(unsigned int n, const char *functionNa
      * int funPtrFunPtr(double (*(*)(float, float ))(char, char ))
      */
     {
-      FunctionType *ft1 = new FunctionType(TypedReturnValue(CTYPE_DOUBLE), Parameter::Vector({NamedParameter(CTYPE_CHAR, ""), NamedParameter(CTYPE_CHAR, "")}));
-      Pointer *ptf1 = new Pointer(ft1);
-      ft1 = nullptr;
-      ReturnValue rv(ptf1);
-      ptf1 = nullptr;
-      FunctionType* ft2 = new FunctionType(rv, Parameter::Vector({NamedParameter(CTYPE_FLOAT, ""), NamedParameter(CTYPE_FLOAT, "")}));
-      Pointer *ptf2 = new Pointer(ft2);
+      Parameter::Vector pvft1{};
+      pvft1.emplace_back(NamedParameter(CTYPE_CHAR, ""));
+      pvft1.emplace_back(NamedParameter(CTYPE_CHAR, ""));
+      auto ft1 = std::make_shared<FunctionType>(TypedReturnValue(CTYPE_DOUBLE), std::move(pvft1));
+      auto ptf1 = std::make_shared<Pointer>(std::move(ft1));
+      ReturnValue rv(std::move(ptf1));
 
-      FunctionDeclaration *fd = new FunctionDeclaration(functionName, TypedReturnValue(CTYPE_INT), Parameter::Vector({new Parameter(ptf2, "")}));
+      Parameter::Vector pvft2{};
+      pvft2.emplace_back(NamedParameter(CTYPE_FLOAT, ""));
+      pvft2.emplace_back(NamedParameter(CTYPE_FLOAT, ""));
+      auto ft2 = std::make_shared<FunctionType>(std::move(rv), std::move(pvft2));
+      auto ptf2 = std::make_shared<Pointer>(std::move(ft2));
+
+      Parameter::Vector pv{};
+      pv.emplace_back(Parameter(std::move(ptf2), ""));
+      FunctionDeclaration fd(functionName, TypedReturnValue(CTYPE_INT), std::move(pv));
       return fd;
     }
 
     case 2:
     //Third function
     {
-      ReturnValue rv2(ptrToFun.clone());
-      FunctionDeclaration* fd = new FunctionDeclaration(functionName, rv2, Parameter::Vector({NamedParameter(CTYPE_CHAR, "")}));
+      ReturnValue rv(getPointerToFunToTest());
+      Parameter::Vector pv{};
+      pv.emplace_back(NamedParameter(CTYPE_CHAR, ""));
+      FunctionDeclaration fd(functionName, std::move(rv), std::move(pv));
       return fd;
     }
 
@@ -66,15 +85,23 @@ FunctionDeclaration* getFunPtrDeclaration(unsigned int n, const char *functionNa
      * double (* (* funPtrFunToFun(int ))(float ))(char );
      */
     {
-      FunctionType *ft1 = new FunctionType(TypedReturnValue(CTYPE_DOUBLE), Parameter::Vector({NamedParameter(CTYPE_CHAR, ""),NamedParameter(CTYPE_CHAR, "")}));
-      Pointer *ptf1 = new Pointer(ft1);
-      ft1 = nullptr;
-      FunctionType *ft2 = new FunctionType(ReturnValue(ptf1), Parameter::Vector({NamedParameter(CTYPE_FLOAT, ""),NamedParameter(CTYPE_FLOAT, "")}));
-      ptf1 = nullptr;
-      Pointer *ptf2 = new Pointer(ft2);
-      ft2 = nullptr;
-      ReturnValue rv3(ptf2);
-      FunctionDeclaration* fd = new FunctionDeclaration(functionName, rv3, Parameter::Vector({NamedParameter(CTYPE_INT, "")}));
+      Parameter::Vector pvft1{};
+      pvft1.emplace_back(NamedParameter(CTYPE_CHAR, ""));
+      pvft1.emplace_back(NamedParameter(CTYPE_CHAR, ""));
+      auto ft1 = std::make_shared<FunctionType>(TypedReturnValue(CTYPE_DOUBLE), std::move(pvft1));
+      auto ptf1 = std::make_shared<Pointer>(std::move(ft1));
+
+      Parameter::Vector pvft2{};
+      pvft2.emplace_back(NamedParameter(CTYPE_FLOAT, ""));
+      pvft2.emplace_back(NamedParameter(CTYPE_FLOAT, ""));
+      auto ft2 = std::make_shared<FunctionType>(ReturnValue(std::move(ptf1)), std::move(pvft2));
+
+      auto ptf2 = std::make_shared<Pointer>(std::move(ft2));
+      ReturnValue rv(std::move(ptf2));
+
+      Parameter::Vector pv{};
+      pv.emplace_back(NamedParameter(CTYPE_INT, ""));
+      FunctionDeclaration fd(functionName, std::move(rv), std::move(pv));
       return fd;
     }
 
@@ -84,14 +111,17 @@ FunctionDeclaration* getFunPtrDeclaration(unsigned int n, const char *functionNa
      * intFunPtrToFunField
      */
     {
-      StructType *s = new StructType(structName, false);
-      TypeItf* fieldType = ptrToFun.clone();
+      auto s = std::make_shared<StructType>(structName, false);
+      auto fieldType = getPointerToFunToTest();
       if(!typedefName.empty())
       {
-        fieldType = new TypedefType(typedefName, fieldType);
+        fieldType = std::make_shared<TypedefType>(typedefName, fieldType);
       }
-      s->addField(new ComposableField(fieldType, "funPtr"));
-      FunctionDeclaration *fd = new FunctionDeclaration(functionName, TypedReturnValue(CTYPE_INT), Parameter::Vector({new Parameter(s, "ptrToFunField")}));
+      s->addField(ComposableField{fieldType, "funPtr"});
+
+      Parameter::Vector pv{};
+      pv.emplace_back(Parameter(std::move(s), "ptrToFunField"));
+        FunctionDeclaration fd(functionName, TypedReturnValue(CTYPE_INT), std::move(pv));
       return fd;
     }
 
@@ -102,17 +132,20 @@ FunctionDeclaration* getFunPtrDeclaration(unsigned int n, const char *functionNa
      */
     {
       bool isEmbeddedStruct = true;
-      StructType* top = new StructType(structName, !isEmbeddedStruct); //NOT EMBEDDED
-      top->addField(new ComposableField(CTYPE_INT, "a"));
-      StructType* beingDefined = new StructType("", isEmbeddedStruct);
-      TypeItf* fieldType = ptrToFun.clone();
+      auto top = std::make_shared<StructType>(structName, !isEmbeddedStruct); //NOT EMBEDDED
+      top->addField(ComposableField(CTYPE_INT, "a"));
+      auto beingDefined = std::make_shared<StructType>("", isEmbeddedStruct);
+      auto fieldType = getPointerToFunToTest();
       if(!typedefName.empty())
       {
-        fieldType = new TypedefType(typedefName, fieldType);
+        fieldType = std::make_shared<TypedefType>(typedefName, fieldType);
       }
-      beingDefined->addField(new ComposableField(fieldType, "funPtr"));
-      top->addField(new ComposableField(beingDefined, ""));
-      FunctionDeclaration *fd = new FunctionDeclaration(functionName, TypedReturnValue(CTYPE_INT), Parameter::Vector({new Parameter(top, "ptrToStructAnonFunField")}));
+      beingDefined->addField(ComposableField(fieldType, "funPtr"));
+      top->addField(ComposableField(std::move(beingDefined), ""));
+
+      Parameter::Vector pv{};
+      pv.emplace_back(Parameter(std::move(top), "ptrToStructAnonFunField"));
+      FunctionDeclaration fd(functionName, TypedReturnValue(CTYPE_INT), std::move(pv));
 
       return fd;
     }
@@ -121,22 +154,30 @@ FunctionDeclaration* getFunPtrDeclaration(unsigned int n, const char *functionNa
     * cdecl> declare constFunPtrFunInt as function(int) returning const pointer to function(float) returning int
     */
     {
-      ConstQualifiedType* constQualifiedFunPtrTypeType = new ConstQualifiedType { ptrToFun.clone() };
-      ReturnValue rv { constQualifiedFunPtrTypeType };
-      FunctionDeclaration *fd = new FunctionDeclaration{ functionName, rv, Parameter::Vector({new Parameter{new CType {CTYPE_INT}, ""}})};
+      auto constQualifiedFunPtrTypeType = std::make_shared<ConstQualifiedType> (getPointerToFunToTest() );
+      ReturnValue rv { std::move(constQualifiedFunPtrTypeType) };
+
+      Parameter::Vector pv{};
+      pv.emplace_back(Parameter{std::make_shared<CType>(CTYPE_INT), ""});
+      FunctionDeclaration fd{functionName, std::move(rv), std::move(pv)};
 
       return fd;
     }
     case 7:
     {
-      StructType* constPtrFunFieldStruct = new StructType{"constPtrFunFieldStruct", false};
+      auto constPtrFunFieldStruct = std::make_shared<StructType>("constPtrFunFieldStruct", false);
 
-      FunctionType* functionType = new FunctionType{TypedReturnValue(CTYPE_INT), Parameter::Vector({NamedParameter(CTYPE_INT, ""), NamedParameter(CTYPE_FLOAT, "")})};
-      Pointer *pft = new Pointer{functionType};
-      ConstQualifiedType* cpft = new ConstQualifiedType{pft};
-      constPtrFunFieldStruct->addField(new ComposableField{cpft, "constFunPtr"});
+      Parameter::Vector pvFt{};
+      pvFt.emplace_back(NamedParameter(CTYPE_INT, ""));
+      pvFt.emplace_back(NamedParameter(CTYPE_FLOAT, ""));
+      auto functionType = std::make_shared<FunctionType>(TypedReturnValue(CTYPE_INT), std::move(pvFt));
+      auto pft = std::make_shared<Pointer>(std::move(functionType));
+      auto cpft = std::make_shared<ConstQualifiedType>(std::move(pft));
+      constPtrFunFieldStruct->addField(ComposableField{std::move(cpft), "constFunPtr"});
 
-      FunctionDeclaration* fd = new FunctionDeclaration{functionName, TypedReturnValue(CTYPE_INT), Parameter::Vector({new Parameter{constPtrFunFieldStruct, "p"}})};
+      Parameter::Vector pv{};
+      pv.emplace_back(Parameter{std::move(constPtrFunFieldStruct), "p"});
+      FunctionDeclaration fd{functionName, TypedReturnValue(CTYPE_INT), std::move(pv)};
 
       return fd;
     }

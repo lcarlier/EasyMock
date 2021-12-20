@@ -8,25 +8,27 @@
 
 FunctionDeclaration Int128FunUint128Factory::functionFactory()
 {
-  return functionFactoryArray()[0];
+  ElementToMockList returnedList;
+  auto int128Type = std::make_shared<CType>(CTYPE_INT128);
+  ReturnValue rv(int128Type);
+  auto uint128Type = std::make_shared<CType>(CTYPE_UINT128);
+  auto uint128Type_t = std::make_shared<TypedefType>("__uint128_t", std::make_shared<CType>(CTYPE_UINT128));
+  auto int128Type_t = std::make_shared<TypedefType>("__int128_t", std::make_shared<CType>(CTYPE_INT128));
+
+  Parameter::Vector pv{};
+  pv.emplace_back(Parameter(std::move(uint128Type), "u"));
+  pv.emplace_back(Parameter(std::move(uint128Type_t), "ut"));
+  pv.emplace_back(Parameter(std::move(int128Type_t), "it"));
+  FunctionDeclaration fd(functionGetFunctionName(), std::move(rv), std::move(pv));
+
+  return fd;
 }
 
 ElementToMockList Int128FunUint128Factory::functionFactoryArray()
 {
   ElementToMockList returnedList;
-  CType* int128Type = new CType(CTYPE_INT128);
-  ReturnValue rv(int128Type);
-  CType* uint128Type = new CType(CTYPE_UINT128);
-  TypedefType* uint128Type_t = new TypedefType("__uint128_t", new CType(CTYPE_UINT128));
-  TypedefType* int128Type_t = new TypedefType("__int128_t", new CType(CTYPE_INT128));
-  Parameter* uint128Parameter = new Parameter(uint128Type, "u");
-  Parameter* uint128Parameter_t = new Parameter(uint128Type_t, "ut");
-  Parameter* int128Parameter_t = new Parameter(int128Type_t, "it");
 
-  {
-    FunctionDeclaration *fd = new FunctionDeclaration(functionGetFunctionName(), rv, Parameter::Vector({uint128Parameter, uint128Parameter_t, int128Parameter_t}));
-    returnedList.push_back(fd);
-  }
+  returnedList.push_back(functionFactory());
 
   return returnedList;
 }

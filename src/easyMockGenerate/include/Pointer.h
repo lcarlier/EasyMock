@@ -29,21 +29,19 @@ public:
    * \code{.c}
    * typedef ptrInt int*;
    * \endcode
-   *
-   * \heapPointer
    */
-  Pointer(TypeItf *p_type);
-  Pointer(const Pointer &other);
-  Pointer& operator=(Pointer other);
+  Pointer(std::shared_ptr<TypeItf> p_type);
+
+  Pointer(const Pointer &other) = delete;
+  Pointer& operator=(const Pointer& other) = delete;
+  Pointer(Pointer &&other) = default;
+  Pointer& operator=(Pointer &&other) = default;
 
   /*!
    * \brief Compare ::Pointer object
    */
   bool operator==(const TypeItf &other) const;
   bool operator!=(const TypeItf &other) const;
-
-  Pointer(Pointer &&other);
-  //With elision pattern no need for move assignment
 
   /*!
    * \copydoc TypeItf::~TypeItf()
@@ -66,7 +64,7 @@ public:
    *
    * \see ComposableField::ComposableField(TypeItf*,std::string,attributes)
    */
-  bool setPointedType(TypeItf* newPointedType);
+  bool setPointedType(std::shared_ptr<TypeItf> newPointedType);
 
   /*!
    * \copydoc ::TypeItf::getDeclarationPrefix
@@ -81,14 +79,9 @@ public:
   TypeItf* getMostPointedType() const;
 
   /*!
-   * \copydoc TypeItf::clone()
-   */
-  Pointer* clone() const override;
-
-  /*!
    * \copydoc ::EasyMock::Hashable::getHash()
    */
-  std::size_t getHash() const override;
+  std::size_t getHash() const noexcept override;
 
 protected:
   /*!
@@ -97,7 +90,7 @@ protected:
   bool isEqual(const TypeItf& p_other) const override;
 private:
   void swap(Pointer &first, Pointer &second);
-  TypeItf* m_pointedType;
+  std::shared_ptr<TypeItf> m_pointedType;
 };
 
 #endif /* POINTER_H */

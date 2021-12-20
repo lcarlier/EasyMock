@@ -1,6 +1,6 @@
 add_executable(test_easyMockGenerate_common
     ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/PrintObjects.cpp
-    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/common/test_moveCopy.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/common/test_move.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/common/test_equality.cpp
 )
 target_compile_options(test_easyMockGenerate_common PRIVATE ${TEST_COMPILE_FLAGS})

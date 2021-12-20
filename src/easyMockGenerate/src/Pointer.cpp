@@ -2,32 +2,12 @@
 #include "QualifiedType.h"
 #include "FunctionType.h"
 
-#include <cassert>
+#include <boost/functional/hash.hpp>
 
-Pointer::Pointer(TypeItf *p_type):
-TypeItf(""), m_pointedType(p_type)
+Pointer::Pointer(std::shared_ptr<TypeItf> p_type):
+TypeItf(""), m_pointedType(std::move(p_type))
 {
   this->setPointer(true);
-}
-
-Pointer::Pointer(const Pointer& other):
-TypeItf(other)
-{
-  m_pointedType = other.m_pointedType->clone();
-}
-
-Pointer::Pointer(Pointer &&other):
-TypeItf(other), m_pointedType(nullptr)
-{
-  swap(*this, other);
-}
-
-Pointer& Pointer::operator=(Pointer other)
-{
-  TypeItf::operator=(other);
-  swap(*this, other);
-
-  return *this;
 }
 
 bool Pointer::operator==(const TypeItf& other) const
@@ -42,7 +22,7 @@ bool Pointer::operator!=(const TypeItf& other) const
 
 const TypeItf* Pointer::getPointedType() const
 {
-  return m_pointedType;
+  return m_pointedType.get();
 }
 
 TypeItf* Pointer::getPointedType()
@@ -50,14 +30,9 @@ TypeItf* Pointer::getPointedType()
   return const_cast<TypeItf*>(static_cast<const Pointer &>(*this).getPointedType());
 }
 
-bool Pointer::setPointedType(TypeItf* newPointedType)
+bool Pointer::setPointedType(std::shared_ptr<TypeItf> newPointedType)
 {
-  if(m_pointedType)
-  {
-    delete m_pointedType;
-    m_pointedType = nullptr;
-  }
-  m_pointedType = newPointedType;
+  m_pointedType = std::move(newPointedType);
   return true;
 }
 
@@ -66,7 +41,7 @@ void Pointer::swap(Pointer &first, Pointer &second)
   std::swap(first.m_pointedType, second.m_pointedType);
 }
 
-std::size_t Pointer::getHash() const
+std::size_t Pointer::getHash() const noexcept
 {
   std::size_t seed { TypeItf::getHash() };
   boost::hash_combine(seed, *m_pointedType);
@@ -104,15 +79,9 @@ TypeItf* Pointer::getMostPointedType() const
   {
     return ptrType->getMostPointedType();
   }
-  return m_pointedType;
-}
-
-Pointer* Pointer::clone() const
-{
-  return new Pointer(*this);
+  return m_pointedType.get();
 }
 
 Pointer::~Pointer()
 {
-  delete m_pointedType;
 }

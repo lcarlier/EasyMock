@@ -8,7 +8,6 @@ class ConstVoidPtrFunConstVoidPtrFactory : public FunctionFactory<const void*, s
 {
 public:
   FunctionDeclaration functionFactory() override;
-  FunctionDeclaration* newFunctionFactory() override;
   std::string functionGetFunctionName() override;
   std::string getFilename() override;
 };

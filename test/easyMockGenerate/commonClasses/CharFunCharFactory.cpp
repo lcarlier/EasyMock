@@ -2,15 +2,11 @@
 
 FunctionDeclaration CharFunCharFactory::functionFactory()
 {
-  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_CHAR), Parameter::Vector({NamedParameter(CTYPE_CHAR, "c")}));
+  Parameter::Vector pv{};
+  pv.emplace_back(NamedParameter(CTYPE_CHAR, "c"));
+  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_CHAR), std::move(pv));
   return f;
 }
-
-FunctionDeclaration* CharFunCharFactory::newFunctionFactory()
-{
-  return functionFactory().clone();
-}
-
 
 std::string CharFunCharFactory::functionGetFunctionName()
 {

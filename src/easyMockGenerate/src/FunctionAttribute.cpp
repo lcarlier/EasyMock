@@ -28,7 +28,7 @@ bool FunctionAttribute::operator==(const FunctionAttribute& other) const
   return nameEq && paramEq;
 }
 
-std::size_t FunctionAttribute::getHash() const
+std::size_t FunctionAttribute::getHash() const noexcept
 {
   std::size_t seed { 0 };
   boost::hash_combine(seed, m_name);

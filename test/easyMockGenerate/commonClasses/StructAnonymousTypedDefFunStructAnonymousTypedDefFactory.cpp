@@ -6,18 +6,24 @@
 
 FunctionDeclaration StructAnonymousTypedDefFunStructAnonymousTypedDefFactory::functionFactory()
 {
+  auto getTypedDefAnonymousStruct= []()
+  {
+    bool isEmbeddedInOtherType = false;
+    return std::make_shared<TypedefType>("TypedDefAnonymousStruct", std::make_shared<StructType>("", isEmbeddedInOtherType));
+  };
   bool isEmbeddedInOtherType = false;
-  TypedefType *tst1 = new TypedefType("TypedDefAnonymousStruct", new StructType("", isEmbeddedInOtherType));
-  StructType *st1 = dynamic_cast<StructType*>(tst1->getTypee());
-  st1->addField(new ComposableField(CTYPE_INT, "a"));
+  std::shared_ptr<TypedefType> tst1 =getTypedDefAnonymousStruct();
+  ComposableType* st1 = tst1->getTypee()->asComposableType();
+  st1->addField(ComposableField(CTYPE_INT, "a"));
 
-  TypedefType *tst2 = new TypedefType("TypedDefAnonymousStruct2", new StructType("", isEmbeddedInOtherType));
-  StructType *st2 = dynamic_cast<StructType*>(tst2->getTypee());
-  st2->addField(new ComposableField(CTYPE_INT, "a"));
+  auto tst2 = std::make_shared<TypedefType>("TypedDefAnonymousStruct2", std::make_shared<StructType>("", isEmbeddedInOtherType));
+  ComposableType *st2 = tst2->getTypee()->asComposableType();
+  st2->addField(ComposableField(CTYPE_INT, "a"));
 
-  TypeItf *rv = tst1->clone();
-
-  FunctionDeclaration f(functionGetFunctionName(), ReturnValue(rv), Parameter::Vector({new Parameter(tst1, "s1"), new Parameter(tst2, "s2")}));
+  Parameter::Vector pv{};
+  pv.emplace_back(Parameter(tst1, "s1"));
+  pv.emplace_back(Parameter(std::move(tst2), "s2"));
+  FunctionDeclaration f(functionGetFunctionName(), ReturnValue(std::move(tst1)), std::move(pv));
 
   return f;
 }

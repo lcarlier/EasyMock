@@ -8,9 +8,22 @@
 #include "ElementToMock.h"
 #include "MacroDefinition.h"
 
+#include "FunctionDeclaration.h"
+
 #include <unordered_map>
 #include <string>
 #include <vector>
+#include <variant>
+
+/*!
+ * \brief A variant type containing all the possible element to mock classes.
+ */
+using ElementToMockContextElement = std::variant<FunctionDeclaration>;
+
+/*!
+ * \brief A vector of ::ElementToMockContextElement.
+ */
+using ElementToMockContextList = std::vector<ElementToMockContextElement>;
 
 /*!
  * \brief Defines a context for the elements to be mocked.
@@ -20,18 +33,16 @@ class ElementToMockContext
 public:
   using MacroDefinitionList = std::unordered_map<std::string, MacroDefinition>;
   /*!
-   * \brief Adds an ::ElementToMock into the context.
-   *
-   * \heapPointer
+   * \brief Adds an ::ElementToMockContextElement into the context.
    */
-  void addElementToMock(ElementToMock* p_elementToMock);
+  void addElementToMock(ElementToMockContextElement p_elementToMock);
 
   /*!
    * \brief Returns the list of elements to be mocked contained in this context.
    *
    * \return Returns the list of elements to be mocked contained in this context.
    */
-  const ElementToMock::Vector& getElementToMock() const;
+  const ElementToMockContextList& getElementToMock() const;
 
   /*!
    * \brief Adds a macro definition (i.e <tt>\#define p_id p_definition</tt>) into the context.
@@ -106,9 +117,8 @@ public:
 
 private:
   MacroDefinitionList m_macroDefinition;
-  ElementToMock::Vector m_elementToMock;
+  ElementToMockContextList m_elementToMock;
 
 };
 
 #endif /* ELEMENTTOMOCKCONTEXT_H */
-

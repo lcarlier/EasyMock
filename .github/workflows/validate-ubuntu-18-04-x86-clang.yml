@@ -15,6 +15,6 @@ jobs:
       - name: Validate
         uses: ./.github/actions/validate-native
         with:
-          c_compiler: clang
-          cxx_compiler: clang++
+          c_compiler: clang-8
+          cxx_compiler: clang++-8
           build_type: ${{ matrix.build_type}}

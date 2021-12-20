@@ -3,35 +3,10 @@
 
 #include <boost/functional/hash.hpp>
 
-TypedefType::TypedefType(const std::string& p_typedefName, TypeItf* p_typeeType) :
-TypeItf { p_typedefName }, m_typeeType { p_typeeType }
+TypedefType::TypedefType(std::string p_typedefName, std::shared_ptr<TypeItf> p_typeeType) :
+TypeItf { std::move(p_typedefName) }, m_typeeType { std::move(p_typeeType) }
 {
   setTypedefType(true);
-}
-
-TypedefType::TypedefType(const TypedefType &other):
-TypeItf(other)
-{
-  m_typeeType = other.m_typeeType->clone();
-}
-
-TypedefType& TypedefType::operator=(TypedefType other)
-{
-  TypeItf::operator=(other);
-  swap(*this, other);
-
-  return *this;
-}
-
-TypedefType::TypedefType(TypedefType &&other) :
-TypeItf(other), m_typeeType { nullptr }
-{
-  swap(*this, other);
-}
-
-TypeItf* TypedefType::clone() const
-{
-  return new TypedefType(*this);
 }
 
 bool TypedefType::operator==(const TypeItf &other) const
@@ -44,12 +19,17 @@ bool TypedefType::operator!=(const TypeItf &other) const
   return !(*this == other);
 }
 
-std::size_t TypedefType::getHash() const
+std::size_t TypedefType::getHash() const noexcept
 {
   std::size_t seed { TypeItf::getHash() };
-  boost::hash_combine(seed, *m_typeeType);
+  boost::hash_combine(seed, getRawHash());
 
   return seed;
+}
+
+std::size_t TypedefType::getRawHash() const noexcept
+{
+  return m_typeeType->getHash();
 }
 
 bool TypedefType::isEqual(const TypeItf &p_other) const
@@ -67,7 +47,7 @@ bool TypedefType::isEqual(const TypeItf &p_other) const
 
 const TypeItf* TypedefType::getTypee() const
 {
-  return m_typeeType;
+  return m_typeeType.get();
 }
 
 TypeItf* TypedefType::getTypee()
@@ -82,7 +62,7 @@ const TypeItf* TypedefType::getMostDefinedTypee() const
   {
     return typeeTypedef->getMostDefinedTypee();
   }
-  return m_typeeType;
+  return m_typeeType.get();
 }
 
 TypeItf* TypedefType::getMostDefinedTypee()
@@ -102,5 +82,4 @@ void TypedefType::swap(TypedefType &first, TypedefType &second)
 
 TypedefType::~TypedefType()
 {
-  delete m_typeeType;
 }

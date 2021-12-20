@@ -18,17 +18,17 @@ public:
   /*!
    * \copydoc ElementToMockContext::addMacroDefine(std::string, std::string)
    */
-  MacroDefinition(std::string name, std::string definition);
+  MacroDefinition(std::string p_id, std::string p_definition);
 
   /*!
    * \copydoc ElementToMockContext::addMacroDefine(std::string, std::vector<std::string>, std::string)
    */
-  MacroDefinition(std::string name, std::vector<std::string> parameters, std::string definition);
+  MacroDefinition(std::string p_id, std::vector<std::string> p_parameters, std::string p_definition);
 
   /*!
    * \copydoc ElementToMockContext::addMacroDefine(std::string, std::vector<std::string>, std::string, std::string)
    */
-  MacroDefinition(std::string name, std::vector<std::string> parameters, std::string definition, std::string originFile);
+  MacroDefinition(std::string p_id, std::vector<std::string> p_parameters, std::string p_definition, std::string p_originFile);
 
   /*!
    * \brief Returns the ID of the macro

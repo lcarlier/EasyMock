@@ -8,7 +8,6 @@ class IntFunIntIntFactory : public FunctionFactory<int, std::tuple<int, int>, st
 {
 public:
   FunctionDeclaration functionFactory() override;
-  FunctionDeclaration* newFunctionFactory() override;
   std::string functionGetFunctionName() override;
   std::string getFilename() override;
   void setupTestCase(EasyMockTestCase::TestCase tc) override;
@@ -16,4 +15,3 @@ public:
 };
 
 #endif /* INTFUNINTINTFACTORY_H */
-

@@ -21,34 +21,36 @@ class PtrFunPtrGenericFactory : public FunctionFactory<PTR_TYPE *, std::tuple<PT
 
   FunctionDeclaration functionFactory() override
   {
-    TypeItf *rvType = nullptr;
-    std::string declString { "" };
+    auto getRvType = []()
+    {
+      std::shared_ptr<TypeItf>rvType = nullptr;
+
+      if(isConst)
+      {
+        rvType = std::make_shared<Pointer>(std::make_shared<ConstQualifiedType>(std::make_shared<CType>(C_TYPE)));
+      }
+      else
+      {
+        rvType = std::make_shared<Pointer>(std::make_shared<CType>(C_TYPE));
+      }
+      return rvType;
+    };
+
+    std::string declString{};
     if(isConst)
     {
       declString.append("const ");
-      rvType = new Pointer(new ConstQualifiedType(new CType(C_TYPE)));
-    }
-    else
-    {
-      rvType = new Pointer(new CType(C_TYPE));
     }
     declString.append(easyMock_arrayCTypeStr[C_TYPE]);
     declString.push_back('*');
-    TypeItf *paramType = rvType->clone();
 
-    Parameter *p = new Parameter(paramType, "ptr");
-    paramType = nullptr; //We lost the ownership
-    ReturnValue rv { rvType };
-    rvType = nullptr; //We lost the ownership
-    rv.setDeclareString(declString);
-    FunctionDeclaration f(functionGetFunctionName(), rv, Parameter::Vector({p}));
+    ReturnValue rv { getRvType() };
+    rv.setDeclareString(std::move(declString));
+    Parameter::Vector pv{};
+    pv.emplace_back(Parameter(getRvType(), "ptr"));
+    FunctionDeclaration f(functionGetFunctionName(), std::move(rv), std::move(pv));
 
     return f;
-  }
-
-  FunctionDeclaration * newFunctionFactory() override
-  {
-    return functionFactory().clone();
   }
 
   std::string getPointerName()
@@ -198,4 +200,3 @@ class LongDoublePtrFunLongDoublePtrFactory : public PtrFunPtrGenericFactory<long
 class ConstIntPtrFunConstIntPtrFactory : public PtrFunPtrGenericFactory<int, CTYPE_INT, true>{};
 
 #endif /* PTRFUNPTRGENERICFACTORY_H */
-

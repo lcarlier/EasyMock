@@ -12,19 +12,22 @@
 
 FunctionDeclaration VoidFunStructCompleteFieldFactory::functionFactory()
 {
-  StructType *forwardDecl2 = new StructType {"forwardDecl2", false};
-  StructType *completeStruct = new StructType {"completeStruct", false};
-  forwardDecl2->addField(new ComposableField{ new ConstQualifiedType {new IncompleteType { *completeStruct, IncompleteType::Type::STRUCT}}, "c"});
-  Pointer *ftPtr = new Pointer { new FunctionType{VoidReturnValue(), Parameter::Vector {new Parameter { new Pointer{forwardDecl2} , ""}}}};
+  auto forwardDecl2 = std::make_shared<StructType>("forwardDecl2", false);
+  auto completeStruct = std::make_shared<StructType>("completeStruct", false);
+  forwardDecl2->addField(ComposableField{std::make_shared<ConstQualifiedType>(std::make_shared<IncompleteType>( *completeStruct, IncompleteType::Type::STRUCT)), "c"});
+  Parameter::Vector pvFd{};
+  pvFd.emplace_back(Parameter { std::make_shared<Pointer>(forwardDecl2) , ""});
+  auto ftPtr = std::make_shared<Pointer>( std::make_shared<FunctionType>(VoidReturnValue(), std::move(pvFd)));
 
-  StructType *forwardDecl3 = new StructType {"forwardDecl3", false};
-  forwardDecl3->addField(new ComposableField{ftPtr, "fun"});
+  auto forwardDecl3 = std::make_shared<StructType>("forwardDecl3", false);
+  forwardDecl3->addField(ComposableField{std::move(ftPtr), "fun"});
 
-  completeStruct->addField(new ComposableField{new Pointer {forwardDecl3}, "f"});
+  completeStruct->addField(ComposableField{std::make_shared<Pointer>(forwardDecl3), "f"});
 
-  Parameter::Vector p({new Parameter { new Pointer {new ConstQualifiedType{ completeStruct }}, "fp"}});
+  Parameter::Vector pv{};
+  pv.emplace_back(Parameter { std::make_shared<Pointer>(std::make_shared<ConstQualifiedType>(std::move(completeStruct))), "fp"});
 
-  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), p);
+  FunctionDeclaration f(functionGetFunctionName(), VoidReturnValue(), std::move(pv));
   return f;
 }
 
@@ -37,4 +40,3 @@ std::string VoidFunStructCompleteFieldFactory::getFilename()
 {
   return "voidFunStructCompleteField.h";
 }
-

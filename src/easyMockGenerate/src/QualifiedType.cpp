@@ -6,34 +6,20 @@ QualifiedType{ nullptr }
 {
 }
 
-QualifiedType::QualifiedType(TypeItf* p_type) :
-TypeItf { "" }, m_type { p_type }
+QualifiedType::QualifiedType(std::shared_ptr<TypeItf> p_type) :
+TypeItf { "" }, m_type { std::move(p_type) }
 {
   setQualifiedType(true);
 }
 
-QualifiedType::QualifiedType(const QualifiedType& p_other) :
-TypeItf { p_other }, m_type { p_other.m_type->clone() }
-{
-}
-
-QualifiedType& QualifiedType::operator=(QualifiedType p_other)
-{
-  TypeItf::operator=(p_other);
-  swap(*this, p_other);
-
-  return *this;
-}
-
 const TypeItf* QualifiedType::getUnqualifiedType() const
 {
-  return m_type;
+  return m_type.get();
 }
 
-void QualifiedType::setUnqualifiedType(TypeItf *p_newUnqualifiedType)
+void QualifiedType::setUnqualifiedType(std::shared_ptr<TypeItf> p_newUnqualifiedType)
 {
-  delete m_type;
-  m_type = p_newUnqualifiedType;
+  m_type = std::move(p_newUnqualifiedType);
 }
 
 TypeItf* QualifiedType::getUnqualifiedType()
@@ -49,11 +35,6 @@ bool QualifiedType::isConst() const
 const char* QualifiedType::getQualifierString() const
 {
   return "QualifiedType::getString() must be overridden";
-}
-
-TypeItf* QualifiedType::clone() const
-{
-  return new QualifiedType(*this);
 }
 
 void swap(QualifiedType& first, QualifiedType& second)
@@ -72,7 +53,7 @@ bool QualifiedType::operator!=(const QualifiedType& p_other) const
   return !(*this == p_other);
 }
 
-std::size_t QualifiedType::getHash() const
+std::size_t QualifiedType::getHash() const noexcept
 {
   std::size_t seed { TypeItf::getHash() };
   boost::hash_combine(seed, *m_type);
@@ -100,5 +81,4 @@ std::string QualifiedType::getDeclarationPrefix(bool p_naked) const
 
 QualifiedType::~QualifiedType()
 {
-  delete m_type;
 }

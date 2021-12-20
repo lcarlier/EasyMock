@@ -9,17 +9,19 @@
 ElementToMockList VoidFunStructWithConstMemberFactory::functionFactoryArray()
 {
     ElementToMockList returnedList;
-    StructType *structWithConstMember = new StructType("structWithConstMember", false);
+    auto structWithConstMember = std::make_shared<StructType>("structWithConstMember", false);
 
-    Pointer *fieldWithConstQualifiedType = new Pointer(new ConstQualifiedType(new CType(CTYPE_CHAR)));
-    structWithConstMember->addField(new ComposableField(fieldWithConstQualifiedType, "f"));
+    auto fieldWithConstQualifiedType = std::make_shared<Pointer>(std::make_shared<ConstQualifiedType>(std::make_shared<CType>(CTYPE_CHAR)));
+    structWithConstMember->addField(ComposableField(std::move(fieldWithConstQualifiedType), "f"));
 
-    ConstQualifiedType *f2Type = new ConstQualifiedType(new CType(CTYPE_SHORT));
-    structWithConstMember->addField(new ComposableField(f2Type, "f2"));
+    auto f2Type = std::make_shared<ConstQualifiedType>(std::make_shared<CType>(CTYPE_SHORT));
+    structWithConstMember->addField(ComposableField(std::move(f2Type), "f2"));
 
-    FunctionDeclaration *fd = new FunctionDeclaration(functionGetFunctionName(), VoidReturnValue(), Parameter::Vector({new Parameter(structWithConstMember, "s")}));
+    Parameter::Vector pv{};
+    pv.emplace_back(Parameter(std::move(structWithConstMember), "s"));
+    FunctionDeclaration fd(functionGetFunctionName(), VoidReturnValue(), std::move(pv));
 
-    returnedList.push_back(fd);
+    returnedList.push_back(std::move(fd));
 
     return returnedList;
 }

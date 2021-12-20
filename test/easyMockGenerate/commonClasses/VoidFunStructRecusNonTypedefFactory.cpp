@@ -9,24 +9,16 @@
 
 FunctionDeclaration VoidFunStructRecusNonTypedefFactory::functionFactory()
 {
-  TypedefType *tt_struct = new TypedefType("t_s1", new StructType("s_s1", false));
-  StructType *t_struct = dynamic_cast<StructType*>(tt_struct->getTypee());
-  ComposableField* cf = new ComposableField(new Pointer(new IncompleteType(*t_struct, IncompleteType::Type::STRUCT)), "recur");
-  t_struct->addField(cf);
+  auto tt_struct = std::make_shared<TypedefType>("t_s1", std::make_shared<StructType>("s_s1", false));
+  ComposableType *t_struct = tt_struct->getTypee()->asComposableType();
+  t_struct->addField(ComposableField(std::make_shared<Pointer>(std::make_shared<IncompleteType>(*t_struct, IncompleteType::Type::STRUCT)), "recur"));
 
-  Parameter *p = new Parameter(new Pointer(tt_struct), "s");
-  t_struct = nullptr; //We lost the ownership
-  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), Parameter::Vector({p}));
-  p = nullptr; //We lost the ownership
+  Parameter::Vector pv{};
+  pv.emplace_back(Parameter(std::make_shared<Pointer>(std::move(tt_struct)), "s"));
+  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), std::move(pv));
 
   return f;
 }
-
-FunctionDeclaration* VoidFunStructRecusNonTypedefFactory::newFunctionFactory()
-{
-  return functionFactory().clone();
-}
-
 
 std::string VoidFunStructRecusNonTypedefFactory::functionGetFunctionName()
 {

@@ -9,30 +9,27 @@
 ElementToMockList VoidFunTypeDefFactory::functionFactoryArray()
 {
   ElementToMockList returnedList;
-  TypedefType intType { "MyType1", new CType(CTYPE_INT) };
-  ConstQualifiedType cIntType{ new CType(CTYPE_INT) };
-  TypedefType p { "CMyType1", new Pointer(cIntType.clone()) };
-  TypedefType floatType1 { "MyType2", new CType(CTYPE_FLOAT) };
-  TypedefType floatType2 { "MyType3", new CType(CTYPE_FLOAT) };
-  Parameter* typeDefPointerParam = new Parameter(p.clone(), "p4");
-  Pointer* myType4Type = new Pointer(new ConstQualifiedType(new TypedefType("MyType4", new CType(CTYPE_SHORT))));
+  auto cIntType = std::make_shared<ConstQualifiedType>( std::make_shared<CType>(CTYPE_INT) );
+  auto p = std::make_shared<TypedefType>( "CMyType1", std::make_shared<Pointer>(std::move(cIntType)));
   {
-    FunctionDeclaration *fd = new FunctionDeclaration(functionGetFunctionName(), VoidReturnValue(false),
-            Parameter::Vector({
-              new Parameter(intType.clone(), "p1"),
-              new Parameter(floatType1.clone(), "p2"),
-              new Parameter(floatType2.clone(), "p3"),
-              typeDefPointerParam,
-              new Parameter(myType4Type, "p5")
-            }
-    ));
-    returnedList.push_back(fd);
+    auto intType = std::make_shared<TypedefType>( "MyType1", std::make_shared<CType>(CTYPE_INT) );
+    auto floatType1 = std::make_shared<TypedefType>( "MyType2", std::make_shared<CType>(CTYPE_FLOAT) );
+    auto floatType2 = std::make_shared<TypedefType>( "MyType3", std::make_shared<CType>(CTYPE_FLOAT) );
+    auto myType4Type = std::make_shared<Pointer>(std::make_shared<ConstQualifiedType>(std::make_shared<TypedefType>("MyType4", std::make_shared<CType>(CTYPE_SHORT))));
+    Parameter::Vector pv{};
+    pv.emplace_back(Parameter(std::move(intType), "p1"));
+    pv.emplace_back(Parameter(std::move(floatType1), "p2"));
+    pv.emplace_back(Parameter(std::move(floatType2), "p3"));
+    pv.emplace_back(Parameter(p, "p4")); //!! dont move this one! it is used by the second function !!
+    pv.emplace_back(Parameter(std::move(myType4Type), "p5"));
+    FunctionDeclaration fd(functionGetFunctionName(), VoidReturnValue(false), std::move(pv));
+    returnedList.push_back(std::move(fd));
   }
 
   {
-    ReturnValue rv(p.clone());
-    FunctionDeclaration *fd = new FunctionDeclaration("ptypedefFunVoid", rv, Parameter::Vector({}));
-    returnedList.push_back(fd);
+    ReturnValue rv(p);
+    FunctionDeclaration fd("ptypedefFunVoid", std::move(rv), {});
+    returnedList.push_back(std::move(fd));
   }
   return returnedList;
 }

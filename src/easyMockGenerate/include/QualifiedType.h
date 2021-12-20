@@ -14,8 +14,10 @@
 class QualifiedType : public TypeItf
 {
 public:
-  QualifiedType(const QualifiedType& p_other);
-  QualifiedType& operator=(QualifiedType p_other);
+  QualifiedType(const QualifiedType& p_other) = delete;
+  QualifiedType& operator=(QualifiedType &p_other) = delete;
+  QualifiedType(QualifiedType &&other) = default;
+  QualifiedType& operator=(QualifiedType &&other) = default;
 
   bool operator==(const QualifiedType& p_other) const;
   bool operator!=(const QualifiedType& p_other) const;
@@ -30,10 +32,8 @@ public:
    *
    * This function is meant to replace an existing unqualified type of an existing qualified one.
    * For instance by replacing the typedef type with its non typedef equivalent.
-   *
-   * \heapPointer
    */
-  void setUnqualifiedType(TypeItf* p_newUnqualifiedType);
+  void setUnqualifiedType(std::shared_ptr<TypeItf> p_newUnqualifiedType);
 
   /*!
    * \brief Returns the type being qualified
@@ -61,14 +61,9 @@ public:
   virtual std::string getDeclarationPrefix(bool p_naked = false) const override;
 
   /*!
-   * \copydoc ::TypeItf::clone()
-   */
-  virtual TypeItf* clone() const override;
-
-  /*!
    * \copydoc ::EasyMock::Hashable::getHash()
    */
-  std::size_t getHash() const override;
+  std::size_t getHash() const noexcept override;
 
   virtual ~QualifiedType();
 protected:
@@ -83,13 +78,13 @@ protected:
   /*!
    * \copydoc ::QualifiedType::QualifiedType()
    */
-  QualifiedType(TypeItf* p_type);
+  QualifiedType(std::shared_ptr<TypeItf> p_type);
 
   virtual bool isEqual(const TypeItf& p_other) const override;
 
   friend void swap(QualifiedType& first, QualifiedType& second);
 private:
-  TypeItf* m_type;
+  std::shared_ptr<TypeItf> m_type;
 };
 
 #endif /* QUALIFIEDTYPE_H */

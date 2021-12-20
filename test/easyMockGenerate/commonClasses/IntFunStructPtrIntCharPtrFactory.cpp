@@ -7,22 +7,16 @@
 
 FunctionDeclaration IntFunStructPtrIntCharPtrFactory::functionFactory()
 {
-  StructType *s2 = newStructS2Type();
-  Parameter *structParam = new Parameter(new Pointer(s2), "s");
-  Parameter::Vector p = Parameter::Vector({structParam});
-  structParam = nullptr; //We lost the ownership
-  p.push_back(new Parameter(new CType(CTYPE_INT), "a"));
+  std::shared_ptr<TypeItf> s2 = newStructS2Type();
+  Parameter structParam{std::make_shared<Pointer>(std::move(s2)), "s"};
+  Parameter::Vector p{};
+  p.emplace_back(std::move(structParam));
+  p.emplace_back(Parameter(std::make_shared<CType>(CTYPE_INT), "a"));
 
-  p.push_back(new Parameter(new Pointer(new CType(CTYPE_CHAR)), "c"));
-  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_INT), p);
+  p.emplace_back(Parameter(std::make_shared<Pointer>(std::make_shared<CType>(CTYPE_CHAR)), "c"));
+  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_INT), std::move(p));
   return f;
 }
-
-FunctionDeclaration* IntFunStructPtrIntCharPtrFactory::newFunctionFactory()
-{
-  return functionFactory().clone();
-}
-
 
 std::string IntFunStructPtrIntCharPtrFactory::functionGetFunctionName()
 {

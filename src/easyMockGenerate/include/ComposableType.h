@@ -7,6 +7,11 @@
 #define COMPOSABLETYPE_H
 
 #include "TypeItf.h"
+#include "ComposableField.h"
+#include "ComposableBitfield.h"
+
+#include <vector>
+#include <variant>
 
 /*!
  * \brief Represents any types which are composed by other types such as
@@ -19,24 +24,26 @@
 class ComposableType : public TypeItf
 {
 public:
+  using ComposableFieldType = std::variant<ComposableField, ComposableBitfield>;
+  using ComposableFieldTypeVector = std::vector<ComposableFieldType>;
   /*!
-   * \copydoc TypeItf::getContainedFields()
+   * \brief Returns the fields contained by the type
+   *
+   * \return A ::ComposableType::ComposableFieldTypeVector containing the fields contained by the type
    */
-  ComposableFieldItf::Vector& getContainedFields() override;
+  ComposableFieldTypeVector& getContainedFields();
 
   /*!
-   * \copydoc ::TypeItf::getContainedFields()
+   * \copydoc ::ComposableType::getContainedFields()
    */
-  const ComposableFieldItf::Vector& getContainedFields() const override;
+  const ComposableFieldTypeVector& getContainedFields() const;
 
   /*!
    * \brief Add a new field to the composable type.
    *
    * A field is implement by a class inheriting from ::ComposableFieldItf interface.
-   *
-   * \heapPointer
    */
-  void addField(ComposableFieldItf *newField);
+  void addField(ComposableType::ComposableFieldType newField);
 
   /*!
    * \return true if the type declaration is embedded in another type.
@@ -94,7 +101,7 @@ public:
   /*!
    * \copydoc ::EasyMock::Hashable::getHash()
    */
-  std::size_t getHash() const override;
+  std::size_t getHash() const noexcept override;
 
   /*!
    * \copydoc ::TypeItf::getDeclarationPrefix
@@ -105,18 +112,17 @@ public:
   bool operator!=(const TypeItf &other) const;
 
 protected:
-  ComposableType(const std::string p_name, bool p_is_embedded_in_other_type);
-  ComposableType(const std::string p_name, const ComposableFieldItf::Vector p_elem, bool p_is_embedded_in_other_type);
+  ComposableType(std::string p_name, bool p_is_embedded_in_other_type);
+  ComposableType(std::string p_name, ComposableFieldTypeVector p_elem, bool p_is_embedded_in_other_type);
 
   /*
    * There is no pointer to move so I decided not to use the
    * copy-and-swap idiom
    */
-  ComposableType(const ComposableType& other);
-  ComposableType& operator=(const ComposableType& other);
-  ComposableType(ComposableType &&other);
-  //No move operator otherwise the object is not movable anymore (UT fails)
-
+  ComposableType(const ComposableType& other) = delete;
+  ComposableType& operator=(const ComposableType& other) = delete;
+  ComposableType(ComposableType &&other) = default;
+  ComposableType& operator=(ComposableType &&other) = default;
   /*!
    * \copydoc ::TypeItf::isEqual
    */
@@ -124,7 +130,7 @@ protected:
   virtual ~ComposableType() = 0; //pure virtual. ComposableType shouldn't be instantiable
 
 private:
-  ComposableFieldItf::Vector m_elem;
+  ComposableFieldTypeVector m_elem;
   bool m_is_declaration_embedded_in_other_type;
   bool m_is_forward_declared;
 };

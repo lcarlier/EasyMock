@@ -11,11 +11,6 @@ FunctionDeclaration VoidFunVoidFactory::functionFactory()
   return f;
 }
 
-FunctionDeclaration* VoidFunVoidFactory::newFunctionFactory()
-{
-  return functionFactory().clone();
-}
-
 std::string VoidFunVoidFactory::functionGetFunctionName()
 {
   return std::string("voidFunVoid");

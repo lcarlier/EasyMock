@@ -37,17 +37,12 @@ std::string IncompleteType::getDeclarationPrefix(bool) const
   return toReturn;
 }
 
-std::size_t IncompleteType::getHash() const
+std::size_t IncompleteType::getHash() const noexcept
 {
   std::size_t seed { TypeItf::getHash() };
   boost::hash_combine(seed, static_cast<uint32_t>(m_type));
 
   return seed;
-}
-
-IncompleteType* IncompleteType::clone() const
-{
-  return new IncompleteType(*this);
 }
 
 IncompleteType::~IncompleteType()

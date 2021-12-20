@@ -8,7 +8,6 @@ class UnsIntFunUnsIntIntFactory : public FunctionFactory<unsigned int, std::tupl
 {
 public:
   FunctionDeclaration functionFactory() override;
-  FunctionDeclaration* newFunctionFactory() override;
   std::string functionGetFunctionName() override;
   std::string getFilename() override;
   void setupTestCase(EasyMockTestCase::TestCase tc) override;
@@ -16,4 +15,3 @@ public:
 };
 
 #endif /* UNSINTFUNUNSINTINTFACTORY_H */
-

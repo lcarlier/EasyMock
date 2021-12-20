@@ -10,7 +10,7 @@
 
 TEST(Parameter, pointerToConstVoid)
 {
-  Pointer* pointer = new Pointer(new ConstQualifiedType(new CType(CTYPE_VOID)) );
-  Parameter parameter { pointer, "p" };
+  auto pointer = std::make_shared<Pointer>(std::make_shared<ConstQualifiedType>(std::make_shared<CType>(CTYPE_VOID)) );
+  Parameter parameter { std::move(pointer), "p" };
   ASSERT_STREQ(parameter.getDeclareString().c_str(), "void const*");
 }

@@ -5,33 +5,37 @@
 #include <Pointer.h>
 #include <ComposableField.h>
 
-StructType* newStructS1Type()
+std::shared_ptr<StructType> newStructS1Type()
 {
   bool isEmbeddedInOtherType = false;
-  return new StructType("s1", ComposableFieldItf::Vector({new ComposableField(CTYPE_INT, "a"), new ComposableField(CTYPE_FLOAT, "b")}), isEmbeddedInOtherType);
+  ComposableType::ComposableFieldTypeVector fieldVector{};
+  fieldVector.emplace_back(ComposableField(CTYPE_INT, "a"));
+  fieldVector.emplace_back(ComposableField(CTYPE_FLOAT, "b"));
+  return std::make_shared<StructType>("s1", std::move(fieldVector), isEmbeddedInOtherType);
 }
 
-StructType* newStructS2Type()
+std::shared_ptr<StructType> newStructS2Type()
 {
   bool isEmbeddedInOtherType = false;
-  StructType* s1StructType = newStructS1Type();
-  ComposableField *s1 = new ComposableField(s1StructType, "s"); //Transfering the ownership of the StructType pointer to StructField object
-  s1StructType = nullptr; //Invalidate because not usable anymore.
-  ComposableField* floatStructField = new ComposableField(new Pointer(new CType(CTYPE_FLOAT)), "d");
-  StructType *s2 = new StructType("s2", ComposableFieldItf::Vector({new ComposableField(CTYPE_INT, "c"), floatStructField, s1}), isEmbeddedInOtherType);
-  floatStructField = nullptr; //Invalidate because not usable anymore.
-  s1 = nullptr; //Invalidate because not usable anymore.
+  auto s1StructType = newStructS1Type();
+  ComposableField s1 {std::move(s1StructType), "s"};
+  ComposableField floatStructField{std::make_shared<Pointer>(std::make_shared<CType>(CTYPE_FLOAT)), "d"};
+  ComposableType::ComposableFieldTypeVector fieldVector{};
+  fieldVector.emplace_back(ComposableField(CTYPE_INT, "c"));
+  fieldVector.emplace_back(std::move(floatStructField));
+  fieldVector.emplace_back(std::move(s1));
+  auto s2 = std::make_shared<StructType>("s2", std::move(fieldVector), isEmbeddedInOtherType);
 
   return s2;
 }
 
 Parameter::Vector structS2Parameter()
 {
-  StructType* s2 = newStructS2Type();
-  Parameter* p = new Parameter(s2, "s");
-  s2 = nullptr; //Invalidate because not usable anymore
+  auto s2 = newStructS2Type();
+  Parameter p{std::move(s2), "s"};
 
-  Parameter::Vector funParameter({p});
+  Parameter::Vector funParameter{};
+  funParameter.emplace_back(std::move(p));
 
   return funParameter;
 }

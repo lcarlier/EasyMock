@@ -28,8 +28,8 @@ public:
    */
   ElementToMock_Type getMockType() const override;
 
-  FunctionDeclaration(const FunctionDeclaration &other) = default;
-  FunctionDeclaration& operator=(const FunctionDeclaration &other) = default;
+  FunctionDeclaration(const FunctionDeclaration &other) = delete;
+  FunctionDeclaration& operator=(const FunctionDeclaration &other) = delete;
   FunctionDeclaration(FunctionDeclaration &&other) = default;
   FunctionDeclaration& operator=(FunctionDeclaration &&other) = default;
 
@@ -49,9 +49,8 @@ public:
   /*!
    * \copydoc ::EasyMock::Hashable::getHash()
    */
-  std::size_t getHash() const override;
+  std::size_t getHash() const noexcept override;
 
-  virtual FunctionDeclaration* clone() const override;
   virtual ~FunctionDeclaration();
   static const FunctionDeclaration& toFunctionDeclaration(const ElementToMock& elem)
   {
@@ -62,4 +61,3 @@ private:
 };
 
 #endif /* FUNCTIONDECLARATION_H */
-

@@ -11,45 +11,44 @@
 
 FunctionDeclaration VoidFunStructWithSecondLevelAnonymousFactory::functionFactory()
 {
-  TypedefType *ttop = new TypedefType("top_t", new StructType("top", false));
-  StructType *top = dynamic_cast<StructType*>(ttop->getTypee());
+  auto ttop = std::make_shared<TypedefType>("top_t", std::make_shared<StructType>("top", false));
+  ComposableType *top = ttop->getTypee()->asComposableType();
   {
-    StructType *sLevel1 = new StructType("level1", true);
+    auto sLevel1 = std::make_shared<StructType>("level1", true);
     {
-      StructType *anonymousStruct = new StructType("", true);
+      auto anonymousStruct = std::make_shared<StructType>("", true);
       {
         {
-          TypedefType *tsLevel2 = new TypedefType("level2_t", new StructType("level2", false));
-          StructType *sLevel2 = dynamic_cast<StructType*>(tsLevel2->getTypee());
-          sLevel2->addField(new ComposableField(CTYPE_INT, "a"));
-          anonymousStruct->addField(new ComposableField(tsLevel2, "l2"));
+          auto tsLevel2 = std::make_shared<TypedefType>("level2_t", std::make_shared<StructType>("level2", false));
+          ComposableType *sLevel2 = tsLevel2->getTypee()->asComposableType();
+          sLevel2->addField(ComposableField(CTYPE_INT, "a"));
+          anonymousStruct->addField(ComposableField(std::move(tsLevel2), "l2"));
         }
 
         {
-          StructType *anonymousStruct1 = new StructType("", true);
-          anonymousStruct1->addField(new ComposableField(CTYPE_INT, "a"));
-          TypedefType *c = new TypedefType("u8", new CType(CTYPE_UCHAR));
-          anonymousStruct1->addField(new ComposableField(c, "b"));
-          anonymousStruct->addField(new ComposableField(anonymousStruct1, ""));
+          auto anonymousStruct1 = std::make_shared<StructType>("", true);
+          anonymousStruct1->addField(ComposableField(CTYPE_INT, "a"));
+          auto c = std::make_shared<TypedefType>("u8", std::make_shared<CType>(CTYPE_UCHAR));
+          anonymousStruct1->addField(ComposableField(std::move(c), "b"));
+          anonymousStruct->addField(ComposableField(std::move(anonymousStruct1), ""));
         }
 
         {
-          StructType *anonymousStruct2 = new StructType("", true);
-          anonymousStruct2->addField(new ComposableField(CTYPE_INT, "c"));
-          anonymousStruct2->addField(new ComposableField(CTYPE_INT, "d"));
-          anonymousStruct->addField(new ComposableField(anonymousStruct2, ""));
+          auto anonymousStruct2 = std::make_shared<StructType>("", true);
+          anonymousStruct2->addField(ComposableField(CTYPE_INT, "c"));
+          anonymousStruct2->addField(ComposableField(CTYPE_INT, "d"));
+          anonymousStruct->addField(ComposableField(std::move(anonymousStruct2), ""));
         }
       }
 
-      sLevel1->addField(new ComposableField(anonymousStruct, ""));
+      sLevel1->addField(ComposableField(std::move(anonymousStruct), ""));
     }
-    ComposableField* level1Field = new ComposableField(sLevel1, "l1");
-    top->addField(level1Field);
+    top->addField(ComposableField(std::move(sLevel1), "l1"));
   }
 
-  Parameter* p = new Parameter(ttop, "s");
-
-  FunctionDeclaration f(functionGetFunctionName(), VoidReturnValue(), Parameter::Vector({p}));
+  Parameter::Vector pv{};
+  pv.emplace_back(Parameter(std::move(ttop), "s"));
+  FunctionDeclaration f(functionGetFunctionName(), VoidReturnValue(), std::move(pv));
 
   return f;
 }

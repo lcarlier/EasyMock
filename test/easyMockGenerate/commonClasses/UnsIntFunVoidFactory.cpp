@@ -6,12 +6,6 @@ FunctionDeclaration UnsIntFunVoidFactory::functionFactory()
   return f;
 }
 
-FunctionDeclaration* UnsIntFunVoidFactory::newFunctionFactory()
-{
-  return functionFactory().clone();
-}
-
-
 std::string UnsIntFunVoidFactory::functionGetFunctionName()
 {
   return std::string("unsIntFunVoid");

@@ -6,20 +6,17 @@
 FunctionDeclaration VoidFunUnionWithEmbeddedUnionFactory::functionFactory()
 {
   bool isEmbeddedStruct = true;
-  UnionType* top = new UnionType("topEmbeddedUnion", !isEmbeddedStruct); //NOT EMBEDDED
-  UnionType* beingDefined = new UnionType("embeddedUnion", isEmbeddedStruct);
-  beingDefined->addField(new ComposableField(CTYPE_INT, "a"));
-  beingDefined->addField(new ComposableField(CTYPE_FLOAT, "b"));
-  top->addField(new ComposableField(beingDefined, "eu"));
-  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), Parameter::Vector({new Parameter(top, "u")}));
+  auto top = std::make_shared<UnionType>("topEmbeddedUnion", !isEmbeddedStruct); //NOT EMBEDDED
+  auto beingDefined = std::make_shared<UnionType>("embeddedUnion", isEmbeddedStruct);
+  beingDefined->addField(ComposableField(CTYPE_INT, "a"));
+  beingDefined->addField(ComposableField(CTYPE_FLOAT, "b"));
+  top->addField(ComposableField(std::move(beingDefined), "eu"));
+
+  Parameter::Vector pv{};
+  pv.emplace_back(Parameter(std::move(top), "u"));
+  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), std::move(pv));
   return f;
 }
-
-FunctionDeclaration* VoidFunUnionWithEmbeddedUnionFactory::newFunctionFactory()
-{
-  return functionFactory().clone();
-}
-
 
 std::string VoidFunUnionWithEmbeddedUnionFactory::functionGetFunctionName()
 {

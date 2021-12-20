@@ -25,10 +25,10 @@ public:
    * \brief Creates a new StructType.
    *
    * \param p_name See ::StructType::StructType(const std::string p_name,bool p_is_embedded_in_other_type).
-   * \param p_elem A ::ComposableFieldItf::Vector which contains all the fields of the struct.
+   * \param p_elem A ::ComposableType::ComposableFieldTypeVector which contains all the fields of the struct.
    * \param p_is_embedded_in_other_type See ::StructType::StructType(const std::string p_name,bool p_is_embedded_in_other_type).
    */
-  StructType(const std::string p_name, const ComposableFieldItf::Vector p_elem, bool p_is_embedded_in_other_type);
+  StructType(const std::string p_name, ComposableType::ComposableFieldTypeVector p_elem, bool p_is_embedded_in_other_type);
 
   /*!
    * \copydoc ComposableType::getComposableTypeKeyword
@@ -36,15 +36,10 @@ public:
   const char* getComposableTypeKeyword() const override;
   virtual ~StructType();
 
-  /*!
-   * \copydoc ::TypeItf::clone()
-   */
-  StructType* clone() const override;
-
-  StructType(const StructType& other) = default;
-  StructType& operator=(const StructType& other) = default;
+  StructType(const StructType& other) = delete;
+  StructType& operator=(const StructType& other) = delete;
   StructType(StructType &&other) = default;
+  StructType& operator=(StructType &&other) = default;
 };
 
 #endif /* STRUCTTYPE_H */
-

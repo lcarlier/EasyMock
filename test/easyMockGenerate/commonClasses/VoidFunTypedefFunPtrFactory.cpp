@@ -14,29 +14,43 @@ ElementToMockList VoidFunTypedefFunPtrFactory::functionFactoryArray()
 {
   ElementToMockList returnedList;
 
-  FunctionDeclaration *fd = getFunPtrDeclaration(0, functionGetFunctionName().c_str(), "", "funPtrType");
-  Parameter &p = fd->getFunctionsParameters()[0];
+  {
+    FunctionDeclaration fd = getFunPtrDeclaration(0, functionGetFunctionName().c_str(), "", "funPtrType");
+    returnedList.push_back(std::move(fd));
+  }
 
-  returnedList.push_back(fd);
+  {
+    ReturnValue rv{std::make_shared<TypedefType>("funPtrType", getPointerToFunToTest())};
+    FunctionDeclaration fd("TypedefFunPtrVoid", std::move(rv), {});
+    returnedList.push_back(std::move(fd));
+  }
 
-  ReturnValue rv2(p.getType()->clone());
-  FunctionDeclaration *fd2 = new FunctionDeclaration("TypedefFunPtrVoid", rv2, Parameter::Vector({}));
-  returnedList.push_back(fd2);
+  {
+    FunctionDeclaration fd = getFunPtrDeclaration(4, "intFunStructTypeDefPtrFunField", "typeDefPtrFunField",
+                                                  "funPtrType");
+    returnedList.push_back(std::move(fd));
+  }
 
-  FunctionDeclaration *fd3 = getFunPtrDeclaration(4, "intFunStructTypeDefPtrFunField", "typeDefPtrFunField", "funPtrType");
-  returnedList.push_back(fd3);
+  {
+    FunctionDeclaration fd = getFunPtrDeclaration(5, "intFunStructTypeDefPtrAnonFunField",
+                                                  "topAnonymousStructTypeDefPtrFunField", "funPtrType");
+    returnedList.push_back(std::move(fd));
+  }
 
-  FunctionDeclaration *fd4 = getFunPtrDeclaration(5, "intFunStructTypeDefPtrAnonFunField", "topAnonymousStructTypeDefPtrFunField", "funPtrType");
-  returnedList.push_back(fd4);
-
-  StructType* forwardDecl = new StructType {"forwardDecl", false};
-  forwardDecl->addField(new ComposableField {CTYPE_INT, "a"});
-  Pointer* pointerIncompleteStructForwardDecl = new Pointer { forwardDecl };
-  FunctionType* forwardDeclFunType = new FunctionType {VoidReturnValue(), Parameter::Vector {new Parameter {pointerIncompleteStructForwardDecl, ""}}};
-  Pointer* forwardDeclParamFunPtr = new Pointer {forwardDeclFunType};
-  TypedefType* forwardDeclParamFunPtrTypeDef = new TypedefType {"forwardDeclParamFunPtr", forwardDeclParamFunPtr};
-  FunctionDeclaration *fd5 = new FunctionDeclaration{"voidFunForwardDecl", VoidReturnValue(), Parameter::Vector{new Parameter{forwardDeclParamFunPtrTypeDef, "ptr"}}};
-  returnedList.push_back(fd5);
+  {
+    auto forwardDecl = std::make_shared<StructType>("forwardDecl", false);
+    forwardDecl->addField(ComposableField{CTYPE_INT, "a"});
+    auto pointerIncompleteStructForwardDecl = std::make_shared<Pointer>(forwardDecl);
+    Parameter::Vector pvfd{};
+    pvfd.emplace_back(Parameter{std::move(pointerIncompleteStructForwardDecl), ""});
+    auto forwardDeclFunType = std::make_shared<FunctionType>(VoidReturnValue(), std::move(pvfd));
+    auto forwardDeclParamFunPtr = std::make_shared<Pointer>(forwardDeclFunType);
+    auto forwardDeclParamFunPtrTypeDef = std::make_shared<TypedefType>("forwardDeclParamFunPtr", forwardDeclParamFunPtr);
+    Parameter::Vector pv{};
+    pv.emplace_back(Parameter{std::move(forwardDeclParamFunPtrTypeDef), "ptr"});
+    FunctionDeclaration fd5{"voidFunForwardDecl", VoidReturnValue(), std::move(pv)};
+    returnedList.push_back(std::move(fd5));
+  }
 
   return returnedList;
 }

@@ -9,7 +9,6 @@ class VoidFunStructWithArrayFactory : public FunctionFactory<void, std::tuple<st
 {
 public:
   FunctionDeclaration functionFactory() override;
-  FunctionDeclaration* newFunctionFactory() override;
   std::string functionGetFunctionName() override;
   std::string getFilename() override;
 
@@ -22,4 +21,3 @@ public:
 };
 
 #endif /* VOIDFUNSTRUCTWITHARRAYFACTORY_H */
-

@@ -11,6 +11,8 @@
 #include "FunctionAttribute.h"
 
 #include <string>
+#include <memory>
+#include <vector>
 
 /*!
  * \brief Represents a function.
@@ -21,7 +23,6 @@
 class Function : virtual public EasyMock::Hashable
 {
 public:
-  using Vector = AutoCleanVectorPtr<Function>;
   using AttributesList = std::vector<FunctionAttribute>;
 
   /*!
@@ -32,8 +33,8 @@ public:
    */
   Function(std::string p_functionName, ReturnValue p_functionReturnType, Parameter::Vector p_functionParameters);
 
-  Function(const Function &other) = default;
-  Function& operator=(const Function &other) = default;
+  Function(const Function &other) = delete;
+  Function& operator=(const Function &other) = delete;
   Function(Function &&other) = default;
   Function& operator=(Function &&other) = default;
 
@@ -46,7 +47,7 @@ public:
    * \brief Returns a ReturnValue object describing the return value of the
    * function.
    */
-  const ReturnValue *getReturnType() const;
+  const ReturnValue *getReturnValue() const;
 
   /*!
    * \brief Returns the string which represents the prototype of the function.
@@ -127,14 +128,9 @@ public:
   bool operator!=(const Function &other) const;
 
   /*!
-   * \copydoc ::TypeItf::clone
-   */
-  virtual Function* clone() const;
-
-  /*!
    * \copydoc ::EasyMock::Hashable::getHash()
    */
-  std::size_t getHash() const override;
+  std::size_t getHash() const noexcept override;
 
   /*!
    * \brief Returns the hash of the function where all typedefs of the return value and parameter have been removed.

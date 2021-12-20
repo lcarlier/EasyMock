@@ -9,15 +9,12 @@ ElementToMockList VoidFunUnnamedPtrParamFactory::functionFactoryArray()
 {
   ElementToMockList returnedList;
   {
-    Parameter *p1 = new Parameter{new CType{CTYPE_INT}, "a"};
-    Parameter *p2 = new Parameter{new Pointer{new ConstQualifiedType{new CType{CTYPE_CHAR}}}, ""};
-    Parameter *p3 = new Parameter{new CType{CTYPE_INT}, "b"};
-    FunctionDeclaration *f = new FunctionDeclaration{functionGetFunctionName(), TypedReturnValue(CTYPE_VOID),
-                                                     Parameter::Vector({p1, p2, p3})};
-    p1 = nullptr; //We lost the ownership
-    p2 = nullptr; //We lost the ownership
-    p3 = nullptr; //We lost the ownership
-    returnedList.push_back(f);
+    Parameter::Vector pv{};
+    pv.emplace_back(Parameter{std::make_shared<CType>(CTYPE_INT), "a"});
+    pv.emplace_back(Parameter{std::make_shared<Pointer>(std::make_shared<ConstQualifiedType>(std::make_shared<CType>(CTYPE_CHAR))), ""});
+    pv.emplace_back(Parameter{std::make_shared<CType>(CTYPE_INT), "b"});
+    FunctionDeclaration f{functionGetFunctionName(), VoidReturnValue(), std::move(pv)};
+    returnedList.push_back(std::move(f));
   }
   return returnedList;
 }

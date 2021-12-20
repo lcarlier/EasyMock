@@ -6,9 +6,11 @@
 #define PARAMETER_H
 
 #include <string>
+#include <memory>
+#include <vector>
 
 #include "EasyMockGenerateTypes.h"
-#include "ComposableFieldItf.h"
+#include "ComposableType.h"
 #include "Declarator.h"
 
 /*!
@@ -30,21 +32,18 @@ public:
    *
    * \param p_type The type of the parameter
    * \param p_name The name of the parameter
-   *
-   * \heapPointer
    */
-  Parameter(TypeItf *p_type, std::string p_name);
+  Parameter(std::shared_ptr<TypeItf> p_type, std::string p_name);
 
   /*!
-   * \brief An AutoCleanVectorPtr containing Parameter objects
+   * \brief An std::vector containing Parameter objects
    */
-  typedef AutoCleanVectorPtr<Parameter> Vector;
+  typedef std::vector<Parameter> Vector;
 
-  Parameter(const Parameter &other);
-  Parameter& operator=(Parameter other);
-
-  Parameter(Parameter &&other);
-  //With elision pattern no need for move assignment
+  Parameter(const Parameter &other) = delete;
+  Parameter& operator=(const Parameter &other) = delete;
+  Parameter(Parameter &&other) = default;
+  Parameter& operator=(Parameter &&other) = default;
 
   /*!
    * \brief Compare if 2 Parameter objects are equals.
@@ -62,14 +61,9 @@ public:
   virtual ~Parameter();
 
   /*!
-   * \copydoc TypeItf::clone()
-   */
-  virtual Parameter* clone() const override;
-
-  /*!
    * \copydoc ::EasyMock::Hashable::getHash()
    */
-  std::size_t getHash() const override;
+  std::size_t getHash() const noexcept override;
 
 private:
   /*!
@@ -82,9 +76,9 @@ private:
   friend void swap(Parameter &first, Parameter &second);
 };
 
-Parameter *VoidParameter(std::string p_name);
-Parameter *NamedParameter(easyMock_cTypes_t p_type, std::string p_name, bool p_isPointer = false);
-Parameter *StructParameter(std::string type, std::string name, const ComposableFieldItf::Vector elem, bool p_is_embedded_in_other_type);
+Parameter VoidParameter(std::string p_name);
+Parameter NamedParameter(easyMock_cTypes_t p_type, std::string p_name, bool p_isPointer = false);
+Parameter StructParameter(std::string type, std::string name, ComposableType::ComposableFieldTypeVector elem, bool p_is_embedded_in_other_type);
 
 
 #endif /* PARAMETER_H */

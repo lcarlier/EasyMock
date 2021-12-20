@@ -26,8 +26,10 @@ fi
 
 if [ "$OS" = "Linux" ]; then
   sudo apt update -y
+  # The name of the C compiler is also the name of the package in Ubuntu
+  # E.g. by giving clang-7 we install clang-7
   sudo apt install -y \
-    gcc \
+    ${C_COMPILER} \
     g++ \
     clang \
     cmake \
@@ -57,12 +59,13 @@ fi
 
 export LSAN_OPTIONS=verbosity=1:log_threads=1
 ${C_COMPILER} --version
-mkdir -p "build_${BUILD_TYPE}"
-cd build_${BUILD_TYPE}
+BUILD_DIR="build_${C_COMPILER}_${BUILD_TYPE}"
+mkdir -p ${BUILD_DIR}
+cd ${BUILD_DIR}
 cmake -DCMAKE_C_COMPILER=${C_COMPILER} -DCMAKE_CXX_COMPILER=${CXX_COMPILER} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} "${EXTRA_CMAKE_PARAM}" ../ | tee cmake_stdout.txt
 
 # Check cmake has configured in the correct mode
 grep "\-\- Building for ${BUILD_TYPE}" cmake_stdout.txt
 test "$?" -eq "0"
 
-make all check -j ${NPROCS}
+make all check -j ${NPROCS} VERBOSE=1

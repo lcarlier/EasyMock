@@ -9,38 +9,27 @@
 
 #include "Declarator.h"
 
-#include <AutoCleanVectorPtr.h>
-
 #include <string>
+#include <variant>
 
 class TypeItf;
 
 /*!
  * \brief The interface for a field to be added to a ::ComposableType
- *
- * It is a pure virtual class. Subclasser must implement
- * ::ComposableFieldItf::clone
  */
 class ComposableFieldItf : public Declarator
 {
 public:
-  /*!
-   * \brief A ::AutoCleanVectorPtr containing classes inheriting from ::ComposableFieldItf.
-   *
-   * \heapPointer
-   */
-  typedef AutoCleanVectorPtr<ComposableFieldItf> Vector;
 
   /*!
    * \brief Forwards the call to the ::Declarator class constructor
    */
-  ComposableFieldItf(TypeItf* p_type, std::string& p_name);
+  ComposableFieldItf(std::shared_ptr<TypeItf> p_type, std::string p_name);
 
-  ComposableFieldItf(const ComposableFieldItf &other) = default;
-  ComposableFieldItf& operator=(const ComposableFieldItf &other) = default;
-
+  ComposableFieldItf(const ComposableFieldItf &other) = delete;
+  ComposableFieldItf& operator=(const ComposableFieldItf &other) = delete;
   ComposableFieldItf(ComposableFieldItf &&other) = default;
-  //No move assignment operator when using copy and swap idiom
+  ComposableFieldItf& operator=(ComposableFieldItf &&other) = default;
 
   /*!
    * \brief Returns whether the subclasser is a ::ComposableField object
@@ -86,14 +75,9 @@ public:
   virtual bool isEqual(const Declarator& p_other) const override;
 
   /*!
-   * \copydoc ::TypeItf::clone
-   */
-  virtual ComposableFieldItf* clone() const override = 0;
-
-  /*!
    * \copydoc ::EasyMock::Hashable::getHash()
    */
-  std::size_t getHash() const override;
+  std::size_t getHash() const noexcept override;
 
   virtual ~ComposableFieldItf() {}
 private:

@@ -2,15 +2,11 @@
 
 FunctionDeclaration UnsShortFunUnsShortFactory::functionFactory()
 {
-  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_USHORT), Parameter::Vector({NamedParameter(CTYPE_USHORT, "s")}));
+  Parameter::Vector pv{};
+  pv.emplace_back(NamedParameter(CTYPE_USHORT, "s"));
+  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_USHORT), std::move(pv));
   return f;
 }
-
-FunctionDeclaration* UnsShortFunUnsShortFactory::newFunctionFactory()
-{
-  return functionFactory().clone();
-}
-
 
 std::string UnsShortFunUnsShortFactory::functionGetFunctionName()
 {

@@ -8,7 +8,6 @@ class VoidFunStructWithFirstAnonymousStructFieldFactory : public FunctionFactory
 {
 public:
   FunctionDeclaration functionFactory() override;
-  FunctionDeclaration* newFunctionFactory() override;
   std::string functionGetFunctionName() override;
   std::string getFilename() override;
   std::string getMatcherFunctionName() override;
@@ -28,4 +27,3 @@ public:
 };
 
 #endif /* VOIDFUNSTRUCTWITHFIRSTANONYMOUSSTRUCTFIELDFACTORY_H */
-

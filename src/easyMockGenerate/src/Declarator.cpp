@@ -8,8 +8,8 @@
 
 #include <boost/functional/hash.hpp>
 
-Declarator::Declarator(TypeItf* typeItf) :
-m_type { typeItf }, m_declaredString { "" }
+Declarator::Declarator(std::shared_ptr<TypeItf> typeItf) :
+m_type { std::move(typeItf) }, m_declaredString { "" }
 {
   if(m_type)
   {
@@ -17,49 +17,8 @@ m_type { typeItf }, m_declaredString { "" }
   }
 }
 
-Declarator::Declarator(const Declarator& other) :
-m_type(other.m_type ? other.m_type->clone(): nullptr), m_declaredString(other.m_declaredString)
-{
-}
-
-Declarator::Declarator(Declarator&& other) :
-m_type { nullptr }, m_declaredString {}
-{
-  swap(*this, other);
-}
-
-void Declarator::updateDeclareString()
-{
-  if(m_type)
-  {
-    const TypeItf *mostPointedType = m_type;
-    const Pointer* pointerType = mostPointedType->asPointer();
-    if(pointerType)
-    {
-      mostPointedType = pointerType->getMostPointedType();
-    }
-    const FunctionType* ft = dynamic_cast<const FunctionType*>(mostPointedType);
-    if(ft)
-    {
-      m_declaredString = ft->getDeclarationPrefix();
-    }
-    else
-    {
-      m_declaredString = m_type->getFullDeclarationName();
-    }
-  }
-}
-
-Declarator& Declarator::operator=(Declarator other)
-{
-  swap(*this, other);
-
-  return *this;
-}
-
 Declarator::~Declarator()
 {
-  delete m_type;
 }
 
 TypeItf* Declarator::getType()
@@ -67,20 +26,9 @@ TypeItf* Declarator::getType()
   return const_cast<TypeItf*>(static_cast<const Declarator &>(*this).getType());
 }
 
-const TypeItf* Declarator::getType() const
+const TypeItf* Declarator::getType() const noexcept
 {
-  return m_type;
-}
-
-void Declarator::setType(TypeItf* type)
-{
-  if(m_type)
-  {
-    delete m_type;
-  }
-  m_type = type;
-  m_declaredString.clear();
-  updateDeclareString();
+  return m_type.get();
 }
 
 Declarator& Declarator::setDeclareString(const std::string& newString)
@@ -113,17 +61,12 @@ std::string Declarator::getDeclareString() const
   return "";
 }
 
-Declarator* Declarator::clone() const
-{
-  return new Declarator(*this);
-}
-
 bool Declarator::operator==(const Declarator& other) const
 {
   return this->isEqual(other);
 }
 
-std::size_t Declarator::getHash() const
+std::size_t Declarator::getHash() const noexcept
 {
   std::size_t seed { 0 };
   boost::hash_combine(seed, m_declaredString);

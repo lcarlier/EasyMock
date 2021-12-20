@@ -3,13 +3,8 @@
 #include <boost/functional/hash.hpp>
 
 Function::Function(std::string p_functionName, ReturnValue p_functionReturnType, Parameter::Vector p_functionParameters):
-m_name(p_functionName), m_parameters(p_functionParameters), m_returnType(p_functionReturnType), m_attributes{}, m_isVariadic(false), m_isInlined(false), m_isStatic{false}, m_originFile{}
+m_name(p_functionName), m_parameters(std::move(p_functionParameters)), m_returnType(std::move(p_functionReturnType)), m_attributes{}, m_isVariadic(false), m_isInlined(false), m_isStatic{false}, m_originFile{}
 { }
-
-Function* Function::clone() const
-{
-  return new Function(*this);
-}
 
 const std::string* Function::getName() const
 {
@@ -26,7 +21,7 @@ Parameter::Vector& Function::getFunctionsParameters()
   return const_cast<Parameter::Vector&>(static_cast<const Function &>(*this).getFunctionsParameters());
 }
 
-const ReturnValue* Function::getReturnType() const
+const ReturnValue* Function::getReturnValue() const
 {
   return &m_returnType;
 }
@@ -71,7 +66,7 @@ void Function::setInlined(bool value)
   m_isInlined = value;
 }
 
-std::size_t Function::getHash() const
+std::size_t Function::getHash() const noexcept
 {
   std::size_t seed { 0 };
   boost::hash_combine(seed, m_isInlined);
@@ -92,11 +87,11 @@ std::size_t Function::getRawHash() const noexcept
   boost::hash_combine(seed, m_name);
   for(const auto& param: m_parameters)
   {
-    auto detypedTypedef = deTypeDef(*param->getType());
-    boost::hash_combine(seed, detypedTypedef->getHash());
+    const TypeItf* typeItf = param.getType();
+    boost::hash_combine(seed, typeItf->getRawHash());
   }
-  auto detypedTypedef = deTypeDef(*m_returnType.getType());
-  boost::hash_combine(seed, detypedTypedef->getHash());
+  const TypeItf* typeItf = m_returnType.getType();
+  boost::hash_combine(seed, typeItf->getRawHash());
 
   return seed;
 }
@@ -167,15 +162,15 @@ std::string Function::getFunctionPrototype() const
   rv_funcProto.append(m_name);
   rv_funcProto.push_back('(');
   bool firstElem = true;
-  for(Parameter *fParam: m_parameters)
+  for(const auto& fParam: m_parameters)
   {
     if(!firstElem)
     {
       rv_funcProto.append(", ");
     }
-    rv_funcProto.append(fParam->getDeclareString());
+    rv_funcProto.append(fParam.getDeclareString());
     rv_funcProto.push_back(' ');
-    rv_funcProto.append(fParam->getName());
+    rv_funcProto.append(fParam.getName());
     firstElem = false;
   }
   if(m_isVariadic)

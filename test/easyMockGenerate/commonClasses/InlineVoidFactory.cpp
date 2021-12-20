@@ -6,21 +6,25 @@
 ElementToMockList InlineVoidFactory::functionFactoryArray()
 {
   ElementToMockList returnedList;
-  ReturnValue rv(new CType(CTYPE_VOID));
 
-  FunctionDeclaration* f1 = new FunctionDeclaration(functionGetFunctionName(), rv, Parameter::Vector({}));
-  returnedList.push_back(f1);
+  {
+    FunctionDeclaration f1(functionGetFunctionName(), VoidReturnValue(), {});
+    returnedList.push_back(std::move(f1));
+  }
 
-  ReturnValue rv2(new CType(CTYPE_INT));
-  FunctionDeclaration* f2 = new FunctionDeclaration("inline1", rv2, Parameter::Vector());
-  f2->setInlined(true);
-  f2->setDoesThisDeclarationHasABody(true);
-  returnedList.push_back(f2);
+  {
+    FunctionDeclaration f2("inline1", TypedReturnValue(CTYPE_INT, false), {});
+    f2.setInlined(true);
+    f2.setDoesThisDeclarationHasABody(true);
+    returnedList.push_back(std::move(f2));
+  }
 
-  FunctionDeclaration* f3 = new FunctionDeclaration("inline2", rv2, Parameter::Vector());
-  f3->setInlined(true);
-  f3->setDoesThisDeclarationHasABody(true);
-  returnedList.push_back(f3);
+  {
+    FunctionDeclaration f3("inline2", TypedReturnValue(CTYPE_INT, false), {});
+    f3.setInlined(true);
+    f3.setDoesThisDeclarationHasABody(true);
+    returnedList.push_back(std::move(f3));
+  }
 
   return returnedList;
 }

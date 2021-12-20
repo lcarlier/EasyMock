@@ -50,7 +50,7 @@ std::ostream& printFunction(std::ostream& os, const T& fun)
   }
   gs_indentation.pop_back();
 
-  const ReturnValue *rv = fun.getReturnType();
+  const ReturnValue *rv = fun.getReturnValue();
   os << gs_indentation << "Return value:";
   gs_indentation.push_back('\t');
   os << std::endl << gs_indentation;
@@ -223,14 +223,17 @@ static void printComposableTypeToOstream(std::ostream& os, const T& composableTy
   os << "ForwardDeclared: " << (composableType.isForwardDeclared() ? "yes" : " no");
   os << ")" << std::endl;
 
-  const ComposableFieldItf::Vector& structFields = composableType.getContainedFields();
-  const ComposableFieldItf::Vector::size_type nbFields = structFields.size();
-  ComposableFieldItf::Vector::size_type fieldIdx;
+  const ComposableType::ComposableFieldTypeVector & structFields = composableType.getContainedFields();
+  const ComposableType::ComposableFieldTypeVector::size_type nbFields = structFields.size();
+  ComposableType::ComposableFieldTypeVector::size_type fieldIdx;
   for(fieldIdx = 0; fieldIdx < nbFields; fieldIdx++)
   {
-    const ComposableFieldItf& curField = structFields[fieldIdx];
     gs_indentation.push_back('\t');
-    os << gs_indentation << "Field: " << fieldIdx << ": " << curField << std::endl;
+    const auto& curFieldVariant = structFields[fieldIdx];
+    std::visit([&os, &fieldIdx](auto&& curField)
+      {
+        os << gs_indentation << "Field: " << fieldIdx << ": " << curField << std::endl;
+      }, curFieldVariant);
     gs_indentation.pop_back();
   }
 }

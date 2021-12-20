@@ -2,19 +2,12 @@
 
 FunctionDeclaration IntFunIntIntFactory::functionFactory()
 {
-  Parameter::Vector funParam({
-      NamedParameter(CTYPE_INT, "a"),
-      NamedParameter(CTYPE_INT, "b")
-  });
-  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_INT),funParam);
+  Parameter::Vector funParam{};
+  funParam.emplace_back(NamedParameter(CTYPE_INT, "a"));
+  funParam.emplace_back(NamedParameter(CTYPE_INT, "b"));
+  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_INT), std::move(funParam));
   return f;
 }
-
-FunctionDeclaration* IntFunIntIntFactory::newFunctionFactory()
-{
-  return functionFactory().clone();
-}
-
 
 std::string IntFunIntIntFactory::functionGetFunctionName()
 {

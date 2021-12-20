@@ -10,18 +10,14 @@ ElementToMockList VoidFunStructForwardDeclAndEmptyStructFactory::functionFactory
 {
   ElementToMockList returnedList;
   {
-    StructType* fd = new StructType {"funStructForwardDecl", false};
+    auto fd = std::make_shared<StructType>("funStructForwardDecl", false);
     fd->setForwardDecl(true);
-    StructType* es = new StructType { "funStructEmptyStruct", false};
-    Parameter* p_fd = new Parameter{new Pointer{fd}, "fd"};
-    fd = nullptr;
-    Parameter* p_es = new Parameter{es, "es"};
-    es = nullptr;
-    FunctionDeclaration *f = new FunctionDeclaration{functionGetFunctionName(), TypedReturnValue(CTYPE_VOID),
-                                                     Parameter::Vector({p_fd, p_es})};
-    p_fd = nullptr;
-    p_es = nullptr;
-    returnedList.push_back(f);
+    auto es = std::make_shared<StructType>("funStructEmptyStruct", false);
+    Parameter::Vector pv{};
+    pv.emplace_back(Parameter{std::make_shared<Pointer>(std::move(fd)), "fd"});
+    pv.emplace_back(Parameter{std::move(es), "es"});
+    FunctionDeclaration f{functionGetFunctionName(), VoidReturnValue(), std::move(pv)};
+    returnedList.push_back(std::move(f));
   }
   return returnedList;
 }

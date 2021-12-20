@@ -9,6 +9,7 @@
 #include <TypeItf.h>
 
 #include <string>
+#include <memory>
 
 /*!
  * \brief Represents a typedef type.
@@ -30,15 +31,13 @@ public:
    * \code{.cpp}
    * TypedefType t("t_int", new CType(CTYPE_INT));
    * \endcode
-   *
-   * \heapPointer
    */
-  TypedefType(const std::string& p_typedefName, TypeItf* p_typeeType);
+  TypedefType(std::string p_typedefName, std::shared_ptr<TypeItf> p_typeeType);
 
-  TypedefType(const TypedefType &other);
-  TypedefType& operator=(TypedefType other);
-  TypedefType(TypedefType &&other);
-  //With elision pattern, no need for a move constructor
+  TypedefType(const TypedefType &other) = delete;
+  TypedefType& operator=(const TypedefType& other) = delete;
+  TypedefType(TypedefType &&other) = default;
+  TypedefType& operator=(TypedefType &&other) = default;
 
   bool operator==(const TypeItf &other) const;
   bool operator!=(const TypeItf &other) const;
@@ -80,21 +79,21 @@ public:
   TypeItf* getMostDefinedTypee();
 
   /*!
-   * \copydoc ::TypeItf::clone()
-   */
-  virtual TypeItf* clone() const override;
-
-  /*!
    * \copydoc ::EasyMock::Hashable::getHash
    */
-  std::size_t getHash() const override;
+  std::size_t getHash() const noexcept override;
+
+  /*!
+   * \copydoc ::TypeItf::getRawHash()
+   */
+  std::size_t getRawHash() const noexcept override;
 
   virtual ~TypedefType();
 
 protected:
 private:
   void swap(TypedefType &first, TypedefType &second);
-  TypeItf* m_typeeType;
+  std::shared_ptr<TypeItf> m_typeeType;
 };
 
 #endif /* TYPEDEFTYPE_H */

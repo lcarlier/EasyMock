@@ -4,15 +4,19 @@
 
 ElementToMockList MultipleDefinitionsFactory::functionFactoryArray()
 {
+  auto getCommonFunctionDeclaration = [](std::string functionName)
+  {
+    ReturnValue rv(std::make_shared<CType>(CTYPE_VOID));
+
+    Parameter::Vector pv{};
+    pv.emplace_back(Parameter(std::make_shared<CType>(CTYPE_INT), "a"));
+    FunctionDeclaration f1(functionName, std::move(rv), std::move(pv));
+    return f1;
+  };
   ElementToMockList returnedList;
-  ReturnValue rv((new CType(CTYPE_VOID)));
 
-  Parameter *param = new Parameter(new CType(CTYPE_INT), "a");
-
-  FunctionDeclaration* f1 = new FunctionDeclaration(functionGetFunctionName(), rv, Parameter::Vector({param}));
-  param = nullptr;
-  returnedList.push_back(f1->clone());
-  returnedList.push_back(f1);
+  returnedList.push_back(getCommonFunctionDeclaration(functionGetFunctionName()));
+  returnedList.push_back(getCommonFunctionDeclaration(functionGetFunctionName()));
 
   return returnedList;
 }

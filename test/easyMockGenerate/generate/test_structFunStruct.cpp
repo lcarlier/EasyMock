@@ -23,9 +23,9 @@ public:
   structFunStruct_testCase() : easyMockGenerate_baseTestCase("structFunStruct", "include/structFunStruct.h", "mockStructFunStruct", false, true)
   {
     StructFunStructFactory factory;
-    ElementToMock *f = factory.newFunctionFactory();
+    FunctionDeclaration f = factory.functionFactory();
     setComparatorToMatch("cmp_struct_s2");
-    m_ctxt.addElementToMock(f);
+    m_ctxt.addElementToMock(std::move(f));
   }
 };
 

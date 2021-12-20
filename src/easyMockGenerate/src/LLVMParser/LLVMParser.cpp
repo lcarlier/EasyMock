@@ -21,13 +21,13 @@
 #include <clang/Tooling/CompilationDatabase.h>
 #include <clang/Tooling/Tooling.h>
 
-#include <boost/algorithm/string.hpp>
-
 #include <string>
 #include <vector>
 #include <unordered_map>
 #include <regex>
 #include <memory>
+#include <optional>
+#include <sstream>
 
 namespace
 {
@@ -51,7 +51,7 @@ std::string trim(const std::string &s) {
 class FunctionDeclASTVisitor : public clang::RecursiveASTVisitor<FunctionDeclASTVisitor>
 {
 private:
-  using structKnownTypeMap = std::unordered_map<std::string, const IncompleteType>;
+  using structKnownTypeMap = std::unordered_map<std::string, std::shared_ptr<IncompleteType>>;
 public:
 
   explicit FunctionDeclASTVisitor(clang::SourceManager& sm, ElementToMockContext& ctxt, const MockOnlyList& mockOnlyList, const IgnoreTypeFieldList& ignoreTypeFieldList)
@@ -69,21 +69,21 @@ public:
    */
   bool VisitFunctionDecl(clang::FunctionDecl* func)
   {
-    FunctionDeclaration* f = getFunctionDeclaration(func);
+    auto f = getFunctionDeclaration(func);
     if(f)
     {
-      m_ctxt.addElementToMock(f);
+      m_ctxt.addElementToMock(std::move(*f));
     }
 
     return true;
   }
 
-  FunctionDeclaration* getFunctionDeclaration(const clang::FunctionDecl* func)
+  std::optional<FunctionDeclaration> getFunctionDeclaration(const clang::FunctionDecl* func)
   {
     const std::string funName = getFunctionName(func);
     if(!m_mockOnlyList.empty() && std::find(std::begin(m_mockOnlyList), std::end(m_mockOnlyList), funName) == std::end(m_mockOnlyList))
     {
-      return nullptr;
+      return std::nullopt;
     }
     bool isInline = func->isInlined();
     bool doesThisDeclHasABody = func->doesThisDeclarationHaveABody();
@@ -92,14 +92,14 @@ public:
 
     ReturnValue rv = getFunctionReturnValue(func);
     Parameter::Vector param = getFunctionParameters(func);
-    FunctionDeclaration *f = new FunctionDeclaration(funName, rv, param);
-    f->setVariadic(func->isVariadic());
-    f->setInlined(isInline);
-    f->setIsStatic(isStatic);
-    f->setDoesThisDeclarationHasABody(doesThisDeclHasABody);
-    f->setOriginFile(originFile);
+    FunctionDeclaration f(funName, std::move(rv), std::move(param));
+    f.setVariadic(func->isVariadic());
+    f.setInlined(isInline);
+    f.setIsStatic(isStatic);
+    f.setDoesThisDeclarationHasABody(doesThisDeclHasABody);
+    f.setOriginFile(originFile);
     setFunctionAttribute(func, f);
-    return f;
+    return std::make_optional<FunctionDeclaration>(std::move(f));
   }
 
   void setAstContext(const clang::ASTContext &ctx)
@@ -116,14 +116,14 @@ private:
   const clang::LangOptions *m_LO;
   const MockOnlyList& m_mockOnlyList;
   const IgnoreTypeFieldList& m_ignoreTypeFieldList;
-  std::unordered_map<std::string, std::unique_ptr<TypeItf>> m_cachedStruct;
+  std::unordered_map<std::string, std::shared_ptr<TypeItf>> m_cachedStruct;
 
   enum ContainerType {
     STRUCT,
     UNION
   };
 
-  void setFunctionAttribute(const clang::FunctionDecl* clangFunc, FunctionDeclaration* easyMockFun)
+  void setFunctionAttribute(const clang::FunctionDecl* clangFunc, FunctionDeclaration& easyMockFun)
   {
     for(const auto& attr : clangFunc->attrs())
     {
@@ -139,12 +139,12 @@ private:
       FunctionAttribute::ParametersList parametersList = getFunAttrParamList(clangFunc, attr);
       FunctionAttribute functionAttribute{std::move(attrName), std::move(parametersList)};
 
-      easyMockFun->addAttribute(std::move(functionAttribute));
+      easyMockFun.addAttribute(std::move(functionAttribute));
     }
     if(clangFunc->isNoReturn())
     {
       std::string noreturn{"noreturn"};
-      easyMockFun->addAttribute(std::move(noreturn));
+      easyMockFun.addAttribute(std::move(noreturn));
     }
   }
 
@@ -288,9 +288,8 @@ private:
     const clang::QualType &rvQualType = func->getReturnType();
     structKnownTypeMap structKnownType;
 
-    TypeItf *type = getEasyMocktype(rvQualType, structKnownType, false);
-    ReturnValue rv(type);
-    type = nullptr; //We lost the ownership
+    auto type = getEasyMocktype(rvQualType, structKnownType, false);
+    ReturnValue rv(std::move(type));
 
     /*
      * clang::QualType doesn't have any SourceRange information. The source range is approximated by taking
@@ -362,12 +361,11 @@ private:
 
       structKnownTypeMap structKnownType;
       const std::string paramName = param->getNameAsString();
-      TypeItf *type = getEasyMocktype(paramQualType, structKnownType, false);
+      std::shared_ptr<TypeItf> type = getEasyMocktype(paramQualType, structKnownType, false);
 
-      Parameter *p = new Parameter(type, paramName);
-      type = nullptr; //We lost the ownership
+      Parameter p{std::move(type), paramName};
       clang::SourceLocation beginLoc = param->getBeginLoc();
-      const TypeItf* parameterRawType = p->getType()->getRawType();
+      const TypeItf* parameterRawType = p.getType()->getRawType();
       /*
        * Get the declared string if this is a macro, typedef or an implicit type. Else it is possible that
        * the declared string we try to parse misses some information while the default one coming from the
@@ -379,10 +377,9 @@ private:
       if(beginLoc.isMacroID() || parameterRawType->isImplicit())
       {
         std::string declareString = getDeclareString(beginLoc, param->getEndLoc(), false);
-        setDeclaratorDeclareString(paramQualType, p, declareString);
+        setDeclaratorDeclareString(paramQualType, &p, declareString);
       }
-      vectParam.push_back(p);
-      p = nullptr; //We lost the ownership
+      vectParam.push_back(std::move(p));
     }
 
     return vectParam;
@@ -452,11 +449,11 @@ private:
     return declareString;
   }
 
-  TypeItf* getEasyMocktype(const clang::QualType &clangQualType, structKnownTypeMap &structKnownType, bool isEmbeddedInOtherType)
+  std::shared_ptr<TypeItf> getEasyMocktype(const clang::QualType &clangQualType, structKnownTypeMap &structKnownType, bool isEmbeddedInOtherType)
   {
     const clang::Type &clangType = *clangQualType.getTypePtr();
     const std::string& nakedDeclString = clangQualType.getCanonicalType().getAsString();
-    TypeItf *type = nullptr;
+    std::shared_ptr<TypeItf> type;
     if(clangType.isBuiltinType())
     {
       type = getFromBuiltinType(clangType, nakedDeclString);
@@ -493,7 +490,7 @@ private:
     }
     if(clangQualType.isLocalConstQualified())
     {
-      type = new ConstQualifiedType(type);
+      type = std::make_shared<ConstQualifiedType>(std::move(type));
     }
 
     clang::RecordDecl *recDecl = clangType.getAsRecordDecl();
@@ -505,62 +502,62 @@ private:
     return type;
   }
 
-  TypeItf* getFromBuiltinType(const clang::Type &type, const std::string& nakedDeclString)
+  std::shared_ptr<TypeItf> getFromBuiltinType(const clang::Type &type, const std::string& nakedDeclString)
   {
-    CType *cType = nullptr;
+    std::shared_ptr<CType> cType = nullptr;
 
     if(type.isVoidType())
     {
-      cType = new CType(CTYPE_VOID);
+      cType = std::make_shared<CType>(CTYPE_VOID);
     }
     else if(type.isCharType())
     {
 #if IS_CHAR_DEFAULT_UNSIGNED
       if(type.isUnsignedIntegerType() && nakedDeclString.compare("unsigned char") == 0)
       {
-        cType = new CType(CTYPE_UCHAR);
+        cType = std::make_shared<CType>(CTYPE_UCHAR);
       }
       else
 #endif
       {
-        cType = new CType(CTYPE_CHAR);
+        cType = std::make_shared<CType>(CTYPE_CHAR);
       }
     }
     else if(isShortType(type))
     {
-      cType = new CType(CTYPE_SHORT);
+      cType = std::make_shared<CType>(CTYPE_SHORT);
     }
     else if(isLongType(type))
     {
-      cType = new CType(CTYPE_LONG);
+      cType = std::make_shared<CType>(CTYPE_LONG);
     }
     else if(isIntType(type))
     {
-      cType = new CType(CTYPE_INT);
+      cType = std::make_shared<CType>(CTYPE_INT);
     }
     else if(isLongLongType(type))
     {
-      cType = new CType(CTYPE_LONG_LONG);
+      cType = std::make_shared<CType>(CTYPE_LONG_LONG);
     }
     else if(isDoubleType(type))
     {
-      cType = new CType(CTYPE_DOUBLE);
+      cType = std::make_shared<CType>(CTYPE_DOUBLE);
     }
     else if(isLongDoubleType(type))
     {
-      cType = new CType(CTYPE_LONG_DOUBLE);
+      cType = std::make_shared<CType>(CTYPE_LONG_DOUBLE);
     }
     else if(isFloatType(type))
     {
-      cType = new CType(CTYPE_FLOAT);
+      cType = std::make_shared<CType>(CTYPE_FLOAT);
     }
     else if(isBoolType(type))
     {
-      cType = new CType(CTYPE_INT);
+      cType = std::make_shared<CType>(CTYPE_INT);
     }
     else if(isInt128Type(type))
     {
-      cType = new CType(CTYPE_INT128);
+      cType = std::make_shared<CType>(CTYPE_INT128);
     }
     else
     {
@@ -575,66 +572,63 @@ private:
       cType->setUnsigned(true);
     }
     const std::string typedefName = getTypedefName(type);
-    TypeItf* returnedType = cType;
+    std::shared_ptr<TypeItf> returnedType = cType;
     if(!typedefName.empty())
     {
-      returnedType = new TypedefType(typedefName, returnedType);
+      returnedType = std::make_shared<TypedefType>(typedefName, std::move(returnedType));
     }
 
     return returnedType;
   }
 
-  TypeItf* getFromStructType(const clang::Type &type, structKnownTypeMap &structKnownType, bool isEmbeddedInOtherType)
+  std::shared_ptr<TypeItf> getFromStructType(const clang::Type &type, structKnownTypeMap &structKnownType, bool isEmbeddedInOtherType)
   {
     return getFromContainerType(type, STRUCT, structKnownType, isEmbeddedInOtherType);
   }
 
-  TypeItf* getFromUnionType(const clang::Type &type, structKnownTypeMap &structKnownType, bool isEmbeddedInOtherType)
+  std::shared_ptr<TypeItf> getFromUnionType(const clang::Type &type, structKnownTypeMap &structKnownType, bool isEmbeddedInOtherType)
   {
     return getFromContainerType(type, UNION, structKnownType, isEmbeddedInOtherType);
   }
 
   /*
    * This function awfully looks alike with the getFunctionDeclaration
-   * and getFunctionParameters(). However the objects used are a little
-   * different as well as the API. Therefore we need to re-implement the same
+   * and getFunctionParameters(). However, the objects used are a little
+   * different as well as the API. Therefore, we need to re-implement the same
    * kind of logic.
    */
-  TypeItf* getFromFunctionPrototype(const clang::Type &type, structKnownTypeMap &structKnownType)
+  std::shared_ptr<TypeItf> getFromFunctionPrototype(const clang::Type &type, structKnownTypeMap &structKnownType)
   {
     const clang::FunctionProtoType *fp = type.getAs<clang::FunctionProtoType>();
 
     const clang::QualType &rvQualType = fp->getReturnType();
 
-    TypeItf *rvType = getEasyMocktype(rvQualType, structKnownType, false);
-    ReturnValue rv(rvType);
-    rvType = nullptr; //We lost the ownership
+    std::shared_ptr<TypeItf> rvType = getEasyMocktype(rvQualType, structKnownType, false);
+    ReturnValue rv(std::move(rvType));
 
     unsigned nbParams = fp->getNumParams();
     Parameter::Vector vectParam;
     for(unsigned paramIdx = 0; paramIdx < nbParams; paramIdx++)
     {
       const clang::QualType& paramQualType = fp->getParamType(paramIdx);
-      TypeItf *paramType = getEasyMocktype(paramQualType, structKnownType, false);
+      auto paramType = getEasyMocktype(paramQualType, structKnownType, false);
 
-      Parameter *p = new Parameter(paramType, "");
-      paramType = nullptr; //We lost the ownership
-      vectParam.push_back(p);
-      p = nullptr; //We lost the ownership
+      Parameter p = Parameter{std::move(paramType), ""};
+      vectParam.push_back(std::move(p));
     }
-    FunctionType *f = new FunctionType(rv, vectParam);
+    auto f = std::make_shared<FunctionType>(std::move(rv), std::move(vectParam));
 
     return f;
   }
 
-  TypeItf* getFromEnumType(const clang::Type &type, structKnownTypeMap &structKnownType)
+  std::shared_ptr<TypeItf> getFromEnumType(const clang::Type &type, structKnownTypeMap &structKnownType)
   {
     const clang::EnumType *ET = type.getAs<clang::EnumType>();
     const clang::EnumDecl *ED = ET->getDecl();
 
     const std::string name = ED->getNameAsString();
 
-    Enum* enumType = new Enum(name);
+    std::shared_ptr<Enum> enumType = std::make_shared<Enum>(name);
     for(const auto enumConstantDeclaration : ED->enumerators())
     {
       int64_t enumValue = enumConstantDeclaration->getInitVal().getExtValue();
@@ -642,15 +636,15 @@ private:
       enumType->addEnumValue(enumValue, enumName);
     }
     const std::string typedefName = getTypedefName(type);
-    TypeItf *toReturn = enumType;
+    std::shared_ptr<TypeItf> toReturn = enumType;
     if(!typedefName.empty())
     {
-      toReturn = new TypedefType(typedefName, toReturn);
+      toReturn = std::make_shared<TypedefType>(typedefName, std::move(toReturn));
     }
     return toReturn;
   }
 
-  TypeItf* getFromContainerType(const clang::Type &p_type, ContainerType contType, structKnownTypeMap &structKnownType, bool p_isEmbeddedInOtherType)
+  std::shared_ptr<TypeItf> getFromContainerType(const clang::Type &p_type, ContainerType contType, structKnownTypeMap &structKnownType, bool p_isEmbeddedInOtherType)
   {
     const clang::RecordType *RT = nullptr;
     std::string contTypeDecl;
@@ -672,11 +666,11 @@ private:
 
     if(structKnownType.find(typedDefName) != structKnownType.end())
     {
-      return structKnownType.at(typedDefName).clone();
+      return structKnownType.at(typedDefName);
     }
     if(structKnownType.find(typeName) != structKnownType.end())
     {
-      return structKnownType.at(typeName).clone();
+      return structKnownType.at(typeName);
     }
 
     std::string declToCheck = typeName + std::string{"_"} + typedDefName;
@@ -684,7 +678,7 @@ private:
     {
       if(m_cachedStruct.find(declToCheck) != m_cachedStruct.end())
       {
-        return m_cachedStruct[declToCheck]->clone();
+        return m_cachedStruct[declToCheck];
       }
     }
 
@@ -706,25 +700,25 @@ private:
     }
     bool isEmbeddedInOtherType = p_isEmbeddedInOtherType && isBeingDefined;
 
-    ComposableType *sType = nullptr;
+    std::shared_ptr<ComposableType> sType = nullptr;
     IncompleteType::Type incType = IncompleteType::Type::STRUCT;
     switch(contType)
     {
       case STRUCT:
-        sType = new StructType(typeName, isEmbeddedInOtherType);
+        sType = std::make_shared<StructType>(typeName, isEmbeddedInOtherType);
         incType = IncompleteType::Type::STRUCT;
         break;
       case UNION:
-        sType = new UnionType(typeName, isEmbeddedInOtherType);
+        sType = std::make_shared<UnionType>(typeName, isEmbeddedInOtherType);
         incType = IncompleteType::Type::UNION;
     }
     if(!typedDefName.empty())
     {
-      structKnownType.insert({typedDefName,IncompleteType(*sType, incType)});
+      structKnownType.insert({typedDefName,std::make_shared<IncompleteType>(*sType, incType)});
     }
     if(!typeName.empty())
     {
-      structKnownType.insert({typeName, IncompleteType(*sType, incType)});
+      structKnownType.insert({typeName, std::make_shared<IncompleteType>(*sType, incType)});
     }
 
     // If the type doesn't have a complete definition, it is forward declared.
@@ -738,9 +732,8 @@ private:
         const clang::QualType &qualType = FD->getType();
         const clang::Type *typePtr = qualType.getTypePtr();
         std::string fName = FD->getNameAsString();
-        TypeItf *fieldType = getEasyMocktype(qualType, structKnownType, true);
+        auto fieldType = getEasyMocktype(qualType, structKnownType, true);
 
-        ComposableFieldItf *sf = nullptr;
         if (FD->isBitField())
         {
           TypedefType *typedefFieldType = fieldType->asTypedefType();
@@ -752,15 +745,7 @@ private:
           }
           unsigned bitWidth = FD->getBitWidthValue(*m_context);
           assert(bitWidth < 256);
-          if (typedefFieldType)
-          {
-            sf = new ComposableBitfield(typedefFieldType, fName, static_cast<uint8_t>(bitWidth));
-          } else
-          {
-            CType *cTypePtr = fieldType->asCType();
-            assert(cTypePtr);
-            sf = new ComposableBitfield(cTypePtr, fName, static_cast<uint8_t>(bitWidth));
-          }
+          sType->addField(ComposableBitfield{std::move(fieldType), fName, static_cast<uint8_t>(bitWidth)});
         } else
         {
           int64_t arraySize = getArraySize(*typePtr);
@@ -768,16 +753,16 @@ private:
           {
             arraySize = -1;
           }
-          sf = new ComposableField(fieldType, fName, {.arraySize = arraySize});
-          setDeclaratorDeclareString(qualType, sf, getDeclareString(FD->getBeginLoc(), FD->getEndLoc(), true));
+          ComposableField sf{std::move(fieldType), fName, {.arraySize = arraySize}};
+          setDeclaratorDeclareString(qualType, &sf, getDeclareString(FD->getBeginLoc(), FD->getEndLoc(), true));
+          sType->addField(std::move(sf));
         }
-        sType->addField(sf);
       }
     }
-    TypeItf* toReturn = sType;
+    std::shared_ptr<TypeItf> toReturn = sType;
     if(!typedDefName.empty())
     {
-      toReturn = new TypedefType(typedDefName, toReturn);
+      toReturn = std::make_shared<TypedefType>(typedDefName, std::move(toReturn));
       structKnownType.erase(typedDefName);
     }
     if(!typeName.empty())
@@ -789,35 +774,34 @@ private:
     {
       if(m_cachedStruct.find(declToCheck) == m_cachedStruct.end())
       {
-        std::unique_ptr<TypeItf> up(toReturn->clone());
-        m_cachedStruct.insert({declToCheck, std::move(up)});
+        m_cachedStruct.insert({declToCheck, toReturn});
       }
     }
 
     return toReturn;
   }
 
-  TypeItf* getFromPointerType(const clang::Type &type, structKnownTypeMap &structKnownType, bool isEmbeddedInOtherType)
+  std::shared_ptr<TypeItf> getFromPointerType(const clang::Type &type, structKnownTypeMap &structKnownType, bool isEmbeddedInOtherType)
   {
     const clang::QualType &pointeeQualType = type.getPointeeType();
-    TypeItf *rv = getEasyMocktype(pointeeQualType, structKnownType, isEmbeddedInOtherType);
+    auto rv = getEasyMocktype(pointeeQualType, structKnownType, isEmbeddedInOtherType);
 
-    TypeItf *returnedTyped = new Pointer(rv);
+    std::shared_ptr<TypeItf> returnedTyped = std::make_shared<Pointer>(std::move(rv));
     std::string typedDefName = getTypedefName(type);
     if(!typedDefName.empty())
     {
-      returnedTyped = new TypedefType(typedDefName, returnedTyped);
+      returnedTyped = std::make_shared<TypedefType>(typedDefName, std::move(returnedTyped));
     }
 
     return returnedTyped;
   }
 
-  TypeItf* getFromArrayType(const clang::Type &type, structKnownTypeMap &structKnownType, bool isEmbeddedInOtherType)
+  std::shared_ptr<TypeItf> getFromArrayType(const clang::Type &type, structKnownTypeMap &structKnownType, bool isEmbeddedInOtherType)
   {
     const clang::ArrayType &arrayType = *type.getAsArrayTypeUnsafe();
     const clang::QualType &arrayElemQualType = arrayType.getElementType();
 
-    TypeItf *rv = getEasyMocktype(arrayElemQualType, structKnownType, isEmbeddedInOtherType);
+    auto rv = getEasyMocktype(arrayElemQualType, structKnownType, isEmbeddedInOtherType);
 
     return rv;
   }

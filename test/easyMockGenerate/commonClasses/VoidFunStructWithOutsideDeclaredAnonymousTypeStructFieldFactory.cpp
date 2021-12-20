@@ -9,28 +9,32 @@
 
 ElementToMockList VoidFunStructWithOutsideDeclaredAnonymousTypeStructFieldFactory::functionFactoryArray()
 {
+  auto getSwo=[]()
+  {
+    auto ul = std::make_shared<CType>(CTYPE_ULONG);
+    auto sval_t = std::make_shared<TypedefType>("sval_t", ul);
+    auto structAnonymous_val_t = std::make_shared<StructType>("", false);
+    structAnonymous_val_t->addField(ComposableField{std::move(sval_t), "val"});
+    auto val_t = std::make_shared<TypedefType>("val_t", structAnonymous_val_t);
+
+    auto innerAnonymousStruct = std::make_shared<StructType>("", true);
+    innerAnonymousStruct->addField(ComposableField{std::make_shared<Pointer>(val_t), "o"});
+    auto swo = std::make_shared<StructType>("structWithOutsideAnonymousDeclaredStruct", false);
+    swo->addField(ComposableField{std::move(innerAnonymousStruct), ""});
+
+    return swo;
+  };
   ElementToMockList returnedList;
   {
-    CType ul{CTYPE_ULONG};
-    TypedefType sval_t{"sval_t", ul.clone()};
-    StructType structAnonymous_val_t{"", false};
-    structAnonymous_val_t.addField(new ComposableField{sval_t.clone(), "val"});
-    TypedefType val_t{"val_t", structAnonymous_val_t.clone()};
-
-    StructType innerAnonymousStruct{"", true};
-    innerAnonymousStruct.addField(new ComposableField{new Pointer{val_t.clone()}, "o"});
-    StructType swo{"structWithOutsideAnonymousDeclaredStruct", false};
-    swo.addField(new ComposableField{innerAnonymousStruct.clone(), ""});
-    {
-      FunctionDeclaration *f = new FunctionDeclaration{functionGetFunctionName(), TypedReturnValue(CTYPE_VOID),
-                                                       Parameter::Vector({new Parameter{swo.clone(), "s"}})};
-      returnedList.push_back(f);
-    }
-    {
-      FunctionDeclaration *f = new FunctionDeclaration{"structWithOutsideAnonymousDeclaredStructFunVoid", ReturnValue(swo.clone()),
-                                                       Parameter::Vector({})};
-      returnedList.push_back(f);
-    }
+    Parameter::Vector pv{};
+    pv.emplace_back(Parameter{getSwo(), "s"});
+    FunctionDeclaration f{functionGetFunctionName(), VoidReturnValue(), std::move(pv)};
+    returnedList.push_back(std::move(f));
+  }
+  {
+    FunctionDeclaration f{"structWithOutsideAnonymousDeclaredStructFunVoid", ReturnValue(getSwo()),
+                                                     {}};
+    returnedList.push_back(std::move(f));
   }
   return returnedList;
 }
@@ -44,4 +48,3 @@ std::string VoidFunStructWithOutsideDeclaredAnonymousTypeStructFieldFactory::get
 {
   return "voidFunStructWithOutsideDeclaredAnonymousTypeStructField.h";
 }
-

@@ -6,12 +6,6 @@ FunctionDeclaration IntFunVoidFactory::functionFactory()
   return f;
 }
 
-FunctionDeclaration* IntFunVoidFactory::newFunctionFactory()
-{
-  return functionFactory().clone();
-}
-
-
 std::string IntFunVoidFactory::functionGetFunctionName()
 {
   return std::string("intFunVoid");

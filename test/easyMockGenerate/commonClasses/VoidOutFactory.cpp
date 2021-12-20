@@ -9,16 +9,37 @@
 ElementToMockList VoidOutFactory::functionFactoryArray()
 {
   ElementToMockList returnedList;
-  ReturnValue rv(new CType(CTYPE_VOID));
 
-  FunctionDeclaration* f1 = new FunctionDeclaration("voidOut", rv, Parameter::Vector({new Parameter(new Pointer(new CType(CTYPE_VOID)), "")}));
-  returnedList.push_back(f1);
+  {
+    Parameter::Vector pv{};
+    pv.emplace_back(Parameter(std::make_shared<Pointer>(std::make_shared<CType>(CTYPE_VOID)), ""));
+    FunctionDeclaration f1("voidOut", VoidReturnValue(), std::move(pv));
 
-  FunctionDeclaration* f2 = new FunctionDeclaration("voidOutFirst", rv, Parameter::Vector({new Parameter(new Pointer(new CType(CTYPE_VOID)), ""), new Parameter(new CType(CTYPE_INT), ""), new Parameter(new Pointer(new CType(CTYPE_VOID)), ""), new Parameter(new CType(CTYPE_FLOAT), "")}));
-  returnedList.push_back(f2);
+    returnedList.push_back(std::move(f1));
+  }
 
-  FunctionDeclaration* f3 = new FunctionDeclaration("voidOutSecond", rv, Parameter::Vector({new Parameter(new CType(CTYPE_INT), ""), new Parameter(new Pointer(new CType(CTYPE_VOID)), ""), new Parameter(new CType(CTYPE_FLOAT), ""), new Parameter(new Pointer(new CType(CTYPE_VOID)), "")}));
-  returnedList.push_back(f3);
+  {
+    Parameter::Vector pv{};
+    pv.emplace_back(Parameter{std::make_shared<Pointer>(std::make_shared<CType>(CTYPE_VOID)), ""});
+    pv.emplace_back(Parameter{std::make_shared<CType>(CTYPE_INT), ""});
+    pv.emplace_back(Parameter{std::make_shared<Pointer>(std::make_shared<CType>(CTYPE_VOID)), ""});
+    pv.emplace_back(Parameter{std::make_shared<CType>(CTYPE_FLOAT), ""});
+
+    FunctionDeclaration f2("voidOutFirst", VoidReturnValue(), std::move(pv));
+
+    returnedList.push_back(std::move(f2));
+  }
+
+  {
+    Parameter::Vector pv{};
+    pv.emplace_back(Parameter{std::make_shared<CType>(CTYPE_INT), ""});
+    pv.emplace_back(Parameter{std::make_shared<Pointer>(std::make_shared<CType>(CTYPE_VOID)), ""});
+    pv.emplace_back(Parameter{std::make_shared<CType>(CTYPE_FLOAT), ""});
+    pv.emplace_back(Parameter{std::make_shared<Pointer>(std::make_shared<CType>(CTYPE_VOID)), ""});
+
+    FunctionDeclaration f3 = FunctionDeclaration("voidOutSecond", VoidReturnValue(), std::move(pv));
+    returnedList.push_back(std::move(f3));
+  }
 
   return returnedList;
 }

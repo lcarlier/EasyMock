@@ -7,19 +7,27 @@
 
 ElementToMockList CompileTwoFunctionsFactory::functionFactoryArray()
 {
+  auto getCommonParam = []()
+  {
+    auto curType = std::make_shared<StructType>("twoFunStruct", false);
+    curType->addField(ComposableField(std::make_shared<CType>(CTYPE_INT), "a"));
+
+    Parameter::Vector pv{};
+    pv.emplace_back(Parameter{curType, "s"});
+    return pv;
+  };
+
+  auto getRv = []()
+  {
+    return ReturnValue{std::make_shared<CType>(CTYPE_INT)};
+  };
   ElementToMockList returnedList;
-  ReturnValue rv((new CType(CTYPE_INT)));
 
-  StructType* curType = new StructType("twoFunStruct", false);
-  curType->addField(new ComposableField(new CType(CTYPE_INT), "a"));
-  Parameter *param = new Parameter(curType, "s");
+  FunctionDeclaration f1(functionGetFunctionName(), getRv(), getCommonParam());
+  returnedList.push_back(std::move(f1));
 
-  FunctionDeclaration* f1 = new FunctionDeclaration(functionGetFunctionName(), rv, Parameter::Vector({param->clone()}));
-  returnedList.push_back(f1);
-
-  FunctionDeclaration* f2 = new FunctionDeclaration("f2", rv, Parameter::Vector({param}));
-  returnedList.push_back(f2);
-  param = nullptr;
+  FunctionDeclaration f2("f2", getRv(), getCommonParam());
+  returnedList.push_back(std::move(f2));
 
   return returnedList;
 }

@@ -4,15 +4,11 @@
 
 FunctionDeclaration ShortFunShortFactory::functionFactory()
 {
-  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_SHORT), Parameter::Vector({NamedParameter(CTYPE_SHORT, "s")}));
+  Parameter::Vector pv{};
+  pv.emplace_back(NamedParameter(CTYPE_SHORT, "s"));
+  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_SHORT), std::move(pv));
   return f;
 }
-
-FunctionDeclaration* ShortFunShortFactory::newFunctionFactory()
-{
-  return functionFactory().clone();
-}
-
 
 std::string ShortFunShortFactory::functionGetFunctionName()
 {

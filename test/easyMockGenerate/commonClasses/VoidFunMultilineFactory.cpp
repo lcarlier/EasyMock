@@ -8,10 +8,11 @@
 
 FunctionDeclaration VoidFunMultilineFactory::functionFactory()
 {
-  Parameter::Vector p({new Parameter { new Pointer { new ConstQualifiedType {new CType{CTYPE_ULONG}}}, "a"},
-                       new Parameter{new CType{CTYPE_ULONG}, "b"},
-                       new Parameter{new CType{CTYPE_ULONG}, "c"}});
-  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), p);
+  Parameter::Vector pv{};
+  pv.emplace_back(Parameter{std::make_shared<Pointer>( std::make_shared<ConstQualifiedType>(std::make_shared<CType>(CTYPE_ULONG))), "a"});
+  pv.emplace_back(Parameter{std::make_shared<CType>(CTYPE_ULONG), "b"});
+  pv.emplace_back(Parameter{std::make_shared<CType>(CTYPE_ULONG), "c"});
+  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), std::move(pv));
   return f;
 }
 

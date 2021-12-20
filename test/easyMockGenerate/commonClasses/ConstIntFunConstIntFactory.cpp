@@ -6,29 +6,22 @@
 
 FunctionDeclaration ConstIntFunConstIntFactory::functionFactory()
 {
-  ReturnValue rv { new ConstQualifiedType(new CType(CTYPE_INT)) };
+  ReturnValue rv { std::make_shared<ConstQualifiedType>(std::make_shared<CType>(CTYPE_INT)) };
   /*
    * We use setDeclareString because rv.getFullDeclareString() generates
    * "int const" by default
    */
   rv.setDeclareString("const int");
 
-  TypeItf* curType = new CType(CTYPE_INT);
-  ConstQualifiedType* constCurType = new ConstQualifiedType(curType);
-  curType = nullptr; //We lost the ownership
-  Parameter *param = new Parameter(constCurType, "i");
-  constCurType = nullptr; //We lost the ownership
+  auto curType = std::make_shared<CType>(CTYPE_INT);
+  auto constCurType = std::make_shared<ConstQualifiedType>(std::move(curType));
+  Parameter param{std::move(constCurType), "i"};
 
-  FunctionDeclaration f(functionGetFunctionName(), rv, Parameter::Vector({param}));
-  param = nullptr;
+  Parameter::Vector pv{};
+  pv.emplace_back(std::move(param));
+  FunctionDeclaration f(functionGetFunctionName(), std::move(rv), std::move(pv));
   return f;
 }
-
-FunctionDeclaration* ConstIntFunConstIntFactory::newFunctionFactory()
-{
-  return functionFactory().clone();
-}
-
 
 std::string ConstIntFunConstIntFactory::functionGetFunctionName()
 {

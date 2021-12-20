@@ -8,7 +8,6 @@ class VoidFunStructRecusNonTypedefFactory : public FunctionFactory<void, std::tu
 {
 public:
   FunctionDeclaration functionFactory() override;
-  FunctionDeclaration* newFunctionFactory() override;
   std::string functionGetFunctionName() override;
   std::string getFilename() override;
 
@@ -21,4 +20,3 @@ public:
 };
 
 #endif /* VOIDFUNSTRUCTRECUSNONTYPEDEFFACTORY_H */
-

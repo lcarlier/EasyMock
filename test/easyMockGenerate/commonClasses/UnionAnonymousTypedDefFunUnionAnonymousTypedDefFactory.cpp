@@ -6,14 +6,19 @@
 
 FunctionDeclaration UnionAnonymousTypedDefFunUnionAnonymousTypedDefFactory::functionFactory()
 {
-  bool isEmbeddedInOtherType = false;
-  TypedefType *tst1 = new TypedefType("TypedDefAnonymousUnion", new UnionType("", isEmbeddedInOtherType));
-  UnionType *st1 = dynamic_cast<UnionType*>(tst1->getTypee());
-  st1->addField(new ComposableField(CTYPE_INT, "a"));
-  st1->addField(new ComposableField(CTYPE_INT, "b"));
-  TypeItf *rv = tst1->clone();
+  auto getTypedDefAnonymousUnion = []()
+  {
+    bool isEmbeddedInOtherType = false;
+    return std::make_shared<TypedefType>("TypedDefAnonymousUnion", std::make_shared<UnionType>("", isEmbeddedInOtherType));
+  };
+  std::shared_ptr<TypedefType> tst1 = getTypedDefAnonymousUnion();
+  ComposableType *st1 = tst1->getTypee()->asComposableType();
+  st1->addField(ComposableField(CTYPE_INT, "a"));
+  st1->addField(ComposableField(CTYPE_INT, "b"));
 
-  FunctionDeclaration f(functionGetFunctionName(), ReturnValue(rv), Parameter::Vector({new Parameter(tst1, "u")}));
+  Parameter::Vector pv{};
+  pv.emplace_back(Parameter(tst1, "u"));
+  FunctionDeclaration f(functionGetFunctionName(), ReturnValue(std::move(tst1)), std::move(pv));
   return f;
 }
 

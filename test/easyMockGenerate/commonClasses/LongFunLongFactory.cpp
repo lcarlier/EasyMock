@@ -2,15 +2,11 @@
 
 FunctionDeclaration LongFunLongFactory::functionFactory()
 {
-  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_LONG), Parameter::Vector({NamedParameter(CTYPE_LONG, "l")}));
+  Parameter::Vector pv{};
+  pv.emplace_back(NamedParameter(CTYPE_LONG, "l"));
+  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_LONG), std::move(pv));
   return f;
 }
-
-FunctionDeclaration* LongFunLongFactory::newFunctionFactory()
-{
-  return functionFactory().clone();
-}
-
 
 std::string LongFunLongFactory::functionGetFunctionName()
 {

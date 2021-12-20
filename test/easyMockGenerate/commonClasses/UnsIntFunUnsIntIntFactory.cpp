@@ -4,13 +4,12 @@ static Parameter::Vector getIntFunIntIntPamrameters();
 
 static Parameter::Vector getIntFunIntIntPamrameters()
 {
-  Parameter::Vector funParam(
-  {
-      NamedParameter(CTYPE_UINT, "a"),
-      NamedParameter(CTYPE_INT, "b")
-  });
+  Parameter::Vector pv{};
 
-  return funParam;
+  pv.emplace_back(NamedParameter(CTYPE_UINT, "a"));
+  pv.emplace_back(NamedParameter(CTYPE_INT, "b"));
+
+  return pv;
 }
 
 FunctionDeclaration UnsIntFunUnsIntIntFactory::functionFactory()
@@ -18,12 +17,6 @@ FunctionDeclaration UnsIntFunUnsIntIntFactory::functionFactory()
   FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_UINT), getIntFunIntIntPamrameters());
   return f;
 }
-
-FunctionDeclaration* UnsIntFunUnsIntIntFactory::newFunctionFactory()
-{
-  return functionFactory().clone();
-}
-
 
 std::string UnsIntFunUnsIntIntFactory::functionGetFunctionName()
 {

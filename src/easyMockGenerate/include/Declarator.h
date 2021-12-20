@@ -7,6 +7,7 @@
 #include "EasyMock_Hashable.h"
 
 #include <string>
+#include <memory>
 
 class TypeItf;
 
@@ -41,10 +42,10 @@ class TypeItf;
 class Declarator : public virtual EasyMock::Hashable
 {
 public:
-  Declarator(const Declarator& other);
-  Declarator &operator=(Declarator other);
-
-  Declarator(Declarator &&other);
+  Declarator(const Declarator& other) = delete;
+  Declarator &operator=(const Declarator &other) = delete;
+  Declarator(Declarator &&other) = default;
+  Declarator& operator=(Declarator &&other)=default;
 
   /*!
    * \brief Returns the type of the Declarator
@@ -56,14 +57,7 @@ public:
   /*!
    * \copydoc getType()
    */
-  const TypeItf* getType() const;
-
-  /*!
-   * \brief Sets the type of the declarator
-   *
-   * \sa TypeItf
-   */
-  void setType(TypeItf* type);
+  const TypeItf* getType() const noexcept;
 
   /*!
    * \brief Returns the actual line of code which was use to declare the Declarator.
@@ -114,14 +108,9 @@ public:
   bool operator!=(const Declarator &other) const;
 
   /*!
-   * \copydoc ::TypeItf::clone
-   */
-  virtual Declarator* clone() const;
-
-  /*!
    * \copydoc ::EasyMock::Hashable::getHash()
    */
-  std::size_t getHash() const override;
+  std::size_t getHash() const noexcept override;
 
   virtual ~Declarator();
 
@@ -152,14 +141,12 @@ protected:
    *
    * \param p_typeItf The TypeItf object which is hold by this declarator.
    */
-  explicit Declarator(TypeItf* p_typeItf);
+  explicit Declarator(std::shared_ptr<TypeItf> p_typeItf);
 
   friend void swap(Declarator &first, Declarator &second);
 private:
-  TypeItf* m_type;
+  std::shared_ptr<TypeItf> m_type;
   std::string m_declaredString;
-
-  void updateDeclareString();
 };
 
 #endif /* DECLARATOR_H */

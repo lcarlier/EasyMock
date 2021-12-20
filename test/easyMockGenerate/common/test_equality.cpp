@@ -6,7 +6,6 @@
 #include <StructType.h>
 #include <UnionType.h>
 #include <ComposableField.h>
-#include <AutoCleanVectorPtr.h>
 #include <Pointer.h>
 #include <FunctionType.h>
 #include <FunctionDeclaration.h>
@@ -50,13 +49,21 @@ void funName() \
   TestFunctionWrapper<T, Param...> testStruct{}; \
   if constexpr(std::is_base_of<FunctionType, T>::value) \
   { \
-    testStruct.testFun(f1Param, \
-                    f2Param); \
+    Parameter::Vector f1ParamVect{}; \
+    Parameter::Vector f2ParamVect{}; \
+    f1Param; \
+    f2Param; \
+    testStruct.testFun(f1RetType, std::move(f1ParamVect), \
+                    f2RetType, std::move(f2ParamVect)); \
   } \
   else \
   { \
-    testStruct.testFun("foo", f1Param, \
-                    "foo", f2Param); \
+    Parameter::Vector f1ParamVect{}; \
+    Parameter::Vector f2ParamVect{}; \
+    f1Param; \
+    f2Param; \
+    testStruct.testFun("foo", f1RetType, std::move(f1ParamVect), \
+                    "foo", f2RetType, std::move(f2ParamVect)); \
   } \
 }
 }
@@ -103,9 +110,9 @@ TEST(equality, CType)
 
 TEST(equality, PointerToConstSame)
 {
-  Pointer p1 { new ConstQualifiedType(new CType(CTYPE_INT)) };
-  Pointer p2 { new CType(CTYPE_INT) };
-  Pointer p3 { new ConstQualifiedType(new CType(CTYPE_INT)) };
+  Pointer p1 { std::make_shared<ConstQualifiedType>(std::make_shared<CType>(CTYPE_INT)) };
+  Pointer p2 { std::make_shared<CType>(CTYPE_INT) };
+  Pointer p3 { std::make_shared<ConstQualifiedType>(std::make_shared<CType>(CTYPE_INT)) };
 
   typeNe(p1, p2);
   typeNe(static_cast<Pointer&>(p1), static_cast<Pointer&>(p2));
@@ -115,19 +122,24 @@ TEST(equality, PointerToConstSame)
 
 TEST(equality, ConstPointerSame)
 {
-  ConstQualifiedType ctp1 { new Pointer (new CType(CTYPE_INT)) };
-  Pointer p1 { new CType(CTYPE_INT) };
-  ConstQualifiedType ctp2 { new Pointer (new CType(CTYPE_INT)) };
+  ConstQualifiedType ctp1 { std::make_shared<Pointer>(std::make_shared<CType>(CTYPE_INT)) };
+  Pointer p1 { std::make_shared<CType>(CTYPE_INT) };
+  ConstQualifiedType ctp2 { std::make_shared<Pointer>(std::make_shared<CType>(CTYPE_INT)) };
 
   typeNe(static_cast<TypeItf&>(ctp1), static_cast<TypeItf&>(p1));
   typeEq(ctp1, ctp2);
 }
 
-#define f1Param VoidReturnValue(), Parameter::Vector({NamedParameter(CTYPE_INT, "foo")})
-#define f2Param VoidReturnValue(), Parameter::Vector({NamedParameter(CTYPE_DOUBLE, "foo")})
+#define f1RetType VoidReturnValue()
+#define f1Param f1ParamVect.emplace_back(NamedParameter(CTYPE_INT, "foo"))
+
+#define f2RetType VoidReturnValue()
+#define f2Param f2ParamVect.emplace_back(NamedParameter(CTYPE_DOUBLE, "foo"))
 
   DECLARE_FUNCTION_TEST_FUNCTION(functionWithDifferentParams, testNe)
 
+#undef f1RetType
+#undef f2RetType
 #undef f1Param
 #undef f2Param
 
@@ -146,11 +158,16 @@ TEST(equality, FunctionDeclarationWithDifferentParams)
   functionWithDifferentParams<FunctionDeclaration, functionTuple>();
 }
 
-#define f1Param VoidReturnValue(), Parameter::Vector({NamedParameter(CTYPE_INT, "foo")})
-#define f2Param VoidReturnValue(), Parameter::Vector({NamedParameter(CTYPE_INT, "bar")})
+#define f1RetType VoidReturnValue()
+#define f1Param f1ParamVect.emplace_back(NamedParameter(CTYPE_INT, "foo"))
+
+#define f2RetType VoidReturnValue()
+#define f2Param f2ParamVect.emplace_back(NamedParameter(CTYPE_INT, "bar"))
 
   DECLARE_FUNCTION_TEST_FUNCTION(functionWithSameParamsButWithDifferentName, testEq)
 
+#undef f1RetType
+#undef f2RetType
 #undef f1Param
 #undef f2Param
 
@@ -169,11 +186,16 @@ TEST(equality, FunctionDeclarationWithSameParamsButWithDifferentName)
   functionWithSameParamsButWithDifferentName<FunctionDeclaration, functionTuple>();
 }
 
-#define f1Param TypedReturnValue(CTYPE_INT), Parameter::Vector({NamedParameter(CTYPE_INT, "foo")})
-#define f2Param TypedReturnValue(CTYPE_DOUBLE), Parameter::Vector({NamedParameter(CTYPE_INT, "bar")})
+#define f1RetType TypedReturnValue(CTYPE_INT)
+#define f1Param f1ParamVect.emplace_back(NamedParameter(CTYPE_INT, "foo"))
+
+#define f2RetType TypedReturnValue(CTYPE_DOUBLE)
+#define f2Param f2ParamVect.emplace_back(NamedParameter(CTYPE_INT, "bar"))
 
   DECLARE_FUNCTION_TEST_FUNCTION(functionWithSameParamsButReturnValueIsDifferent, testNe)
 
+#undef f1RetType
+#undef f2RetType
 #undef f1Param
 #undef f2Param
 
@@ -192,11 +214,18 @@ TEST(equality, FunctionDeclarationWithSameParamsButReturnValueIsDifferent)
   functionWithSameParamsButReturnValueIsDifferent<FunctionDeclaration, functionTuple>();
 }
 
-#define f1Param VoidReturnValue(), Parameter::Vector({NamedParameter(CTYPE_INT, "aInt"), NamedParameter(CTYPE_DOUBLE, "aDouble")})
-#define f2Param VoidReturnValue(), Parameter::Vector({NamedParameter(CTYPE_DOUBLE, "aDouble"), NamedParameter(CTYPE_INT, "aInt")})
+#define f1RetType VoidReturnValue()
+#define f1Param f1ParamVect.emplace_back(NamedParameter(CTYPE_INT, "aInt")); \
+                f1ParamVect.emplace_back(NamedParameter(CTYPE_DOUBLE, "aDouble"))
+
+#define f2RetType VoidReturnValue()
+#define f2Param f2ParamVect.emplace_back(NamedParameter(CTYPE_DOUBLE, "aDouble")); \
+                f2ParamVect.emplace_back(NamedParameter(CTYPE_INT, "aInt"))
 
   DECLARE_FUNCTION_TEST_FUNCTION(functionSameParamsSwaped, testNe)
 
+#undef f1RetType
+#undef f2RetType
 #undef f1Param
 #undef f2Param
 
@@ -217,8 +246,8 @@ TEST(equality, FunctionDeclarationSameParamsSwaped)
 
 TEST(equality, ParameterSameParam)
 {
-  Parameter p1(new CType(CTYPE_VOID), "v1");
-  Parameter p2(new CType(CTYPE_VOID), "v2");
+  Parameter p1(std::make_shared<CType>(CTYPE_VOID), "v1");
+  Parameter p2(std::make_shared<CType>(CTYPE_VOID), "v2");
 
   //Even though name is different parameters are the same
   typeEq(p1, p2);
@@ -227,8 +256,8 @@ TEST(equality, ParameterSameParam)
 
 TEST(equality, ParameterPointerSameParam)
 {
-  Parameter p1(new Pointer(new CType(CTYPE_VOID)), "v1");
-  Parameter p2(new Pointer(new CType(CTYPE_VOID)), "v2");
+  Parameter p1(std::make_shared<Pointer>(std::make_shared<CType>(CTYPE_VOID)), "v1");
+  Parameter p2(std::make_shared<Pointer>(std::make_shared<CType>(CTYPE_VOID)), "v2");
 
   //Even though name is different parameters are the same
   typeEq(p1, p2);
@@ -237,8 +266,8 @@ TEST(equality, ParameterPointerSameParam)
 
 TEST(equality, ParameterConstSameParam)
 {
-  Parameter p1 { new ConstQualifiedType(new CType(CTYPE_VOID)), "v1" };
-  Parameter p2 { new ConstQualifiedType(new CType(CTYPE_VOID)), "v2" };
+  Parameter p1 {std::make_shared<ConstQualifiedType>(std::make_shared<CType>(CTYPE_VOID)), "v1" };
+  Parameter p2 {std::make_shared<ConstQualifiedType>(std::make_shared<CType>(CTYPE_VOID)), "v2" };
 
   //Even though name is different parameters are the same
   typeEq(p1, p2);
@@ -247,8 +276,8 @@ TEST(equality, ParameterConstSameParam)
 
 TEST(equality, ParameterDeclareStringSameParam)
 {
-  Parameter p1(new CType(CTYPE_VOID), "v1");
-  Parameter p2(new CType(CTYPE_VOID), "v2");
+  Parameter p1(std::make_shared<CType>(CTYPE_VOID), "v1");
+  Parameter p2(std::make_shared<CType>(CTYPE_VOID), "v2");
   p1.setDeclareString(p1.getType()->getFullDeclarationName());
   p2.setDeclareString(p2.getType()->getFullDeclarationName());
 
@@ -259,8 +288,8 @@ TEST(equality, ParameterDeclareStringSameParam)
 
 TEST(equality, ParameterDifferentParam)
 {
-  Parameter p1(new CType(CTYPE_INT), "p1");
-  Parameter p2(new CType(CTYPE_VOID), "p1");
+  Parameter p1(std::make_shared<CType>(CTYPE_INT), "p1");
+  Parameter p2(std::make_shared<CType>(CTYPE_VOID), "p1");
 
   typeNe(p1, p2);
   typeNe(static_cast<Declarator&>(p1), static_cast<Declarator&>(p2));
@@ -268,14 +297,14 @@ TEST(equality, ParameterDifferentParam)
 
 TEST(equality, ParameterPointerDifferentParam)
 {
-  Parameter p1(new Pointer(new CType(CTYPE_INT)), "p1");
-  Parameter p2(new Pointer(new CType(CTYPE_VOID)), "p1");
+  Parameter p1(std::make_shared<Pointer>(std::make_shared<CType>(CTYPE_INT)), "p1");
+  Parameter p2(std::make_shared<Pointer>(std::make_shared<CType>(CTYPE_VOID)), "p1");
 
   typeNe(p1, p2);
   typeNe(static_cast<Declarator&>(p1), static_cast<Declarator&>(p2));
 
-  Parameter p3(new Pointer(new CType(CTYPE_INT)), "p1");
-  Parameter p4(new CType(CTYPE_INT), "p1");
+  Parameter p3(std::make_shared<Pointer>(std::make_shared<CType>(CTYPE_INT)), "p1");
+  Parameter p4(std::make_shared<CType>(CTYPE_INT), "p1");
 
   typeNe(p3, p4);
   typeNe(static_cast<Declarator&>(p3), static_cast<Declarator&>(p4));
@@ -283,14 +312,14 @@ TEST(equality, ParameterPointerDifferentParam)
 
 TEST(equality, ParameterConstDifferentParam)
 {
-  Parameter p1 { new ConstQualifiedType(new CType(CTYPE_INT)), "p1" };
-  Parameter p2 { new ConstQualifiedType(new CType(CTYPE_VOID)), "p1" };
+  Parameter p1 { std::make_shared<ConstQualifiedType>(std::make_shared<CType>(CTYPE_INT)), "p1" };
+  Parameter p2 { std::make_shared<ConstQualifiedType>(std::make_shared<CType>(CTYPE_VOID)), "p1" };
 
   typeNe(p1, p2);
   typeNe(static_cast<Declarator&>(p1), static_cast<Declarator&>(p2));
 
-  Parameter p3 { new ConstQualifiedType(new CType(CTYPE_INT)), "p1" };
-  Parameter p4 { new CType(CTYPE_INT), "p1" };
+  Parameter p3 { std::make_shared<ConstQualifiedType>(std::make_shared<CType>(CTYPE_INT)), "p1" };
+  Parameter p4 { std::make_shared<CType>(CTYPE_INT), "p1" };
 
   typeNe(p3, p4);
   typeNe(static_cast<Declarator&>(p3), static_cast<Declarator&>(p4));
@@ -298,15 +327,15 @@ TEST(equality, ParameterConstDifferentParam)
 
 TEST(equality, ParameterDeclareStringDifferentParam)
 {
-  Parameter p1(new CType(CTYPE_INT), "p1");
-  Parameter p2(new CType(CTYPE_INT), "p1");
+  Parameter p1(std::make_shared<CType>(CTYPE_INT), "p1");
+  Parameter p2(std::make_shared<CType>(CTYPE_INT), "p1");
   p1.setDeclareString("fromDefine");
 
   typeNe(p1, p2);
   typeNe(static_cast<Declarator&>(p1), static_cast<Declarator&>(p2));
 
-  Parameter p3(new CType(CTYPE_INT), "p1");
-  Parameter p4(new CType(CTYPE_INT), "p1");
+  Parameter p3(std::make_shared<CType>(CTYPE_INT), "p1");
+  Parameter p4(std::make_shared<CType>(CTYPE_INT), "p1");
   p3.setDeclareString(p3.getType()->getFullDeclarationName());
   p4.setDeclareString("FromDefine");
 
@@ -316,8 +345,8 @@ TEST(equality, ParameterDeclareStringDifferentParam)
 
 TEST(equality, ReturnValueSame)
 {
-  ReturnValue rv1(new CType(CTYPE_INT));
-  ReturnValue rv2(new CType(CTYPE_INT));
+  ReturnValue rv1(std::make_shared<CType>(CTYPE_INT));
+  ReturnValue rv2(std::make_shared<CType>(CTYPE_INT));
 
   typeEq(rv1, rv2);
   typeEq(static_cast<Declarator&>(rv1), static_cast<Declarator&>(rv2));
@@ -325,8 +354,8 @@ TEST(equality, ReturnValueSame)
 
 TEST(equality, ReturnValuePointerSame)
 {
-  ReturnValue rv1(new Pointer(new CType(CTYPE_INT)));
-  ReturnValue rv2(new Pointer(new CType(CTYPE_INT)));
+  ReturnValue rv1(std::make_shared<Pointer>(std::make_shared<CType>(CTYPE_INT)));
+  ReturnValue rv2(std::make_shared<Pointer>(std::make_shared<CType>(CTYPE_INT)));
 
   typeEq(rv1, rv2);
   typeEq(static_cast<Declarator&>(rv1), static_cast<Declarator&>(rv2));
@@ -334,8 +363,8 @@ TEST(equality, ReturnValuePointerSame)
 
 TEST(equality, ReturnValueConstSame)
 {
-  ReturnValue rv1 { new ConstQualifiedType(new CType(CTYPE_INT)) };
-  ReturnValue rv2 { new ConstQualifiedType(new CType(CTYPE_INT)) };
+  ReturnValue rv1 { std::make_shared<ConstQualifiedType>(std::make_shared<CType>(CTYPE_INT)) };
+  ReturnValue rv2 { std::make_shared<ConstQualifiedType>(std::make_shared<CType>(CTYPE_INT)) };
 
   typeEq(rv1, rv2);
   typeEq(static_cast<Declarator&>(rv1), static_cast<Declarator&>(rv2));
@@ -343,8 +372,8 @@ TEST(equality, ReturnValueConstSame)
 
 TEST(equality, ReturnValueDeclareStringSame)
 {
-  ReturnValue rv1(new CType(CTYPE_INT));
-  ReturnValue rv2(new CType(CTYPE_INT));
+  ReturnValue rv1(std::make_shared<CType>(CTYPE_INT));
+  ReturnValue rv2(std::make_shared<CType>(CTYPE_INT));
   rv1.setDeclareString(rv1.getType()->getFullDeclarationName());
   rv2.setDeclareString(rv2.getType()->getFullDeclarationName());
 
@@ -382,13 +411,13 @@ TEST(equality, ReturnValuePointerDifferent)
 TEST(equality, ReturnValueConstDifferent)
 {
   ReturnValue rv1 = VoidReturnValue();
-  ReturnValue rv2 = ReturnValue { new ConstQualifiedType(new CType(CTYPE_INT)) };
+  ReturnValue rv2 = ReturnValue { std::make_shared<ConstQualifiedType>(std::make_shared<CType>(CTYPE_INT)) };
 
   typeNe(rv1, rv2);
   typeNe(static_cast<Declarator&>(rv1), static_cast<Declarator&>(rv2));
 
-  ReturnValue rv3 = ReturnValue { new ConstQualifiedType(new CType(CTYPE_INT)) };
-  ReturnValue rv4 = ReturnValue { new CType(CTYPE_INT) };
+  ReturnValue rv3 = ReturnValue { std::make_shared<ConstQualifiedType>(std::make_shared<CType>(CTYPE_INT)) };
+  ReturnValue rv4 = ReturnValue { std::make_shared<CType>(CTYPE_INT) };
 
   typeNe(rv3, rv4);
   typeNe(static_cast<Declarator&>(rv3), static_cast<Declarator&>(rv4));
@@ -396,15 +425,15 @@ TEST(equality, ReturnValueConstDifferent)
 
 TEST(equality, ReturnValueDeclareStringDifferent)
 {
-  ReturnValue rv1(new CType(CTYPE_INT));
-  ReturnValue rv2(new CType(CTYPE_INT));
+  ReturnValue rv1(std::make_shared<CType>(CTYPE_INT));
+  ReturnValue rv2(std::make_shared<CType>(CTYPE_INT));
   rv1.setDeclareString("FromDefine");
 
   typeNe(rv1, rv2);
   typeNe(static_cast<Declarator&>(rv1), static_cast<Declarator&>(rv2));
 
-  ReturnValue rv3(new CType(CTYPE_INT));
-  ReturnValue rv4(new CType(CTYPE_INT));
+  ReturnValue rv3(std::make_shared<CType>(CTYPE_INT));
+  ReturnValue rv4(std::make_shared<CType>(CTYPE_INT));
   rv3.setDeclareString(rv3.getType()->getFullDeclarationName());
   rv4.setDeclareString("FromDefine");
 
@@ -421,8 +450,16 @@ TEST(equality, StructFieldSame)
   typeEq(static_cast<Declarator&>(f1), static_cast<Declarator&>(f2));
 
   bool isEmbeddedInOtherType = false;
-  ComposableField f3(new StructType("s", ComposableFieldItf::Vector({new ComposableField(CTYPE_INT, "c"), new ComposableField(CTYPE_INT, "d")}), isEmbeddedInOtherType), "e");
-  ComposableField f4(new StructType("s", ComposableFieldItf::Vector({new ComposableField(CTYPE_INT, "c"), new ComposableField(CTYPE_INT, "d")}), isEmbeddedInOtherType), "e");
+  auto getFieldVector = []()
+  {
+    ComposableType::ComposableFieldTypeVector fieldVectorF3{};
+    fieldVectorF3.emplace_back(ComposableField(CTYPE_INT, "c"));
+    fieldVectorF3.emplace_back(ComposableField(CTYPE_INT, "d"));
+
+    return fieldVectorF3;
+  };
+  ComposableField f3(std::make_shared<StructType>("s", getFieldVector(), isEmbeddedInOtherType), "e");
+  ComposableField f4(std::make_shared<StructType>("s", getFieldVector(), isEmbeddedInOtherType), "e");
 
   typeEq(f3, f4);
   typeEq(static_cast<Declarator&>(f3), static_cast<Declarator&>(f4));
@@ -430,31 +467,39 @@ TEST(equality, StructFieldSame)
 
 TEST(equality, StructFieldPointerSame)
 {
-  ComposableField f1( new Pointer(new CType(CTYPE_INT)), "a");
-  ComposableField f2(new Pointer(new CType(CTYPE_INT)), "a");
+  ComposableField f1(std::make_shared<Pointer>(std::make_shared<CType>(CTYPE_INT)), "a");
+  ComposableField f2(std::make_shared<Pointer>(std::make_shared<CType>(CTYPE_INT)), "a");
 
   typeEq(f1, f2);
   typeEq(static_cast<Declarator&>(f1), static_cast<Declarator&>(f2));
 
   bool isEmbeddedInOtherType = false;
-  ComposableField f3(new StructType("s", ComposableFieldItf::Vector({new ComposableField(CTYPE_INT, "c"), new ComposableField(new Pointer(new CType(CTYPE_INT)), "d")}), isEmbeddedInOtherType), "e");
-  ComposableField f4(new StructType("s", ComposableFieldItf::Vector({new ComposableField(CTYPE_INT, "c"), new ComposableField(new Pointer(new CType(CTYPE_INT)), "d")}), isEmbeddedInOtherType), "e");
+  auto getFieldVector = []()
+  {
+    ComposableType::ComposableFieldTypeVector fieldVector{};
+    fieldVector.emplace_back(ComposableField{CTYPE_INT, "c"});
+    fieldVector.emplace_back(ComposableField{CTYPE_INT, "d"});
+
+    return fieldVector;
+  };
+  ComposableField f3(std::make_shared<StructType>("s", getFieldVector(), isEmbeddedInOtherType), "e");
+  ComposableField f4(std::make_shared<StructType>("s", getFieldVector(), isEmbeddedInOtherType), "e");
 
   typeEq(f3, f4);
   typeEq(static_cast<Declarator&>(f3), static_cast<Declarator&>(f4));
 
-  dynamic_cast<ComposableField&>(f3.getType()->getContainedFields()[1]).setArraySize(10);
+  std::get<ComposableField>(f3.getType()->asComposableType()->getContainedFields()[1]).setArraySize(10);
   typeNe(f3, f4);
   typeNe(static_cast<Declarator&>(f3), static_cast<Declarator&>(f4));
-  dynamic_cast<ComposableField&>(f4.getType()->getContainedFields()[1]).setArraySize(10);
+  std::get<ComposableField>(f4.getType()->asComposableType()->getContainedFields()[1]).setArraySize(10);
   typeEq(f3, f4);
   typeEq(static_cast<Declarator&>(f3), static_cast<Declarator&>(f4));
 }
 
 TEST(equality, StructFieldConstSame)
 {
-  ComposableField f1 { new ConstQualifiedType(new CType(CTYPE_INT)), "a" };
-  ComposableField f2 { new ConstQualifiedType(new CType(CTYPE_INT)), "a" };
+  ComposableField f1 { std::make_shared<ConstQualifiedType>(std::make_shared<CType>(CTYPE_INT)), "a" };
+  ComposableField f2 { std::make_shared<ConstQualifiedType>(std::make_shared<CType>(CTYPE_INT)), "a" };
 
   typeEq(f1, f2);
   typeEq(static_cast<Declarator&>(f1), static_cast<Declarator&>(f2));
@@ -462,8 +507,8 @@ TEST(equality, StructFieldConstSame)
 
 TEST(equality, StructFieldDeclStringSame)
 {
-  ComposableField f1(new CType(CTYPE_INT), "a");
-  ComposableField f2(new CType(CTYPE_INT), "a");
+  ComposableField f1(std::make_shared<CType>(CTYPE_INT), "a");
+  ComposableField f2(std::make_shared<CType>(CTYPE_INT), "a");
   f1.setDeclareString(f1.getType()->getFullDeclarationName());
   f2.setDeclareString(f2.getType()->getFullDeclarationName());
 
@@ -480,8 +525,15 @@ TEST(equality, StructFieldDifferent)
   typeNe(static_cast<Declarator&>(f1), static_cast<Declarator&>(f2));
 
   bool isEmbeddedInOtherType = false;
-  ComposableField f3(new StructType("s", ComposableFieldItf::Vector({new ComposableField(CTYPE_INT, "c"), new ComposableField(CTYPE_INT, "d")}), isEmbeddedInOtherType), "e");
-  ComposableField f4(new StructType("s", ComposableFieldItf::Vector({new ComposableField(CTYPE_INT, "c"), new ComposableField(CTYPE_DOUBLE, "d")}), isEmbeddedInOtherType), "e");
+  ComposableType::ComposableFieldTypeVector fieldVectorF3{};
+  fieldVectorF3.emplace_back(ComposableField{CTYPE_INT, "c"});
+  fieldVectorF3.emplace_back(ComposableField{CTYPE_INT, "d"});
+  ComposableField f3(std::make_shared<StructType>("s", std::move(fieldVectorF3), isEmbeddedInOtherType), "e");
+
+  ComposableType::ComposableFieldTypeVector fieldVectorF4{};
+  fieldVectorF4.emplace_back(ComposableField{CTYPE_INT, "c"});
+  fieldVectorF4.emplace_back(ComposableField{CTYPE_DOUBLE, "d"});
+  ComposableField f4(std::make_shared<StructType>("s", std::move(fieldVectorF4), isEmbeddedInOtherType), "e");
 
   typeNe(f3, f4);
   typeNe(static_cast<Declarator&>(f3), static_cast<Declarator&>(f4));
@@ -489,8 +541,8 @@ TEST(equality, StructFieldDifferent)
 
 TEST(equality, StructFieldConstDifferent)
 {
-  ComposableField f1 { new CType(CTYPE_INT), "a" };
-  ComposableField f2 { new ConstQualifiedType(new CType(CTYPE_INT)), "a" };
+  ComposableField f1 { std::make_shared<CType>(CTYPE_INT), "a" };
+  ComposableField f2 { std::make_shared<ConstQualifiedType>(std::make_shared<CType>(CTYPE_INT)), "a" };
 
   typeNe(f1, f2);
   typeNe(static_cast<Declarator&>(f1), static_cast<Declarator&>(f2));
@@ -498,8 +550,8 @@ TEST(equality, StructFieldConstDifferent)
 
 TEST(equality, StructFieldDeclStringDifferent)
 {
-  ComposableField f1(new CType(CTYPE_INT), "a");
-  ComposableField f2(new CType(CTYPE_INT), "a");
+  ComposableField f1(std::make_shared<CType>(CTYPE_INT), "a");
+  ComposableField f2(std::make_shared<CType>(CTYPE_INT), "a");
   f1.setDeclareString(f1.getType()->getFullDeclarationName());
   f2.setDeclareString("FromMacro");
 
@@ -519,8 +571,15 @@ static void runComposableTypeSame(T &s1, T &s2)
   if constexpr(std::is_base_of<ComposableType, T>::value)
   {
     bool isEmbeddedInOtherType = false;
-    T s3("s", ComposableFieldItf::Vector({new ComposableField(CTYPE_CHAR, "f")}), isEmbeddedInOtherType);
-    T s4("s", ComposableFieldItf::Vector({new ComposableField(CTYPE_CHAR, "f")}), isEmbeddedInOtherType);
+    auto getFieldVector = []()
+    {
+      ComposableType::ComposableFieldTypeVector fieldVector;
+      fieldVector.emplace_back(ComposableField{CTYPE_CHAR, "f"});
+
+      return fieldVector;
+    };
+    T s3("s", getFieldVector(), isEmbeddedInOtherType);
+    T s4("s", getFieldVector(), isEmbeddedInOtherType);
 
     typeEq(s3, s4);
     //Test from base class to make sure that the comparison overload is working
@@ -533,8 +592,8 @@ static void runComposableTypeSame(T &s1, T &s2)
 TEST(equality, StructTypeSame)
 {
   bool isEmbeddedInOtherType = false;
-  StructType s1("s", ComposableFieldItf::Vector({}), isEmbeddedInOtherType);
-  StructType s2("s", ComposableFieldItf::Vector({}), isEmbeddedInOtherType);
+  StructType s1("s", {}, isEmbeddedInOtherType);
+  StructType s2("s", {}, isEmbeddedInOtherType);
 
   runComposableTypeSame(s1, s2);
 }
@@ -542,8 +601,8 @@ TEST(equality, StructTypeSame)
 TEST(equality, UnionTypeSame)
 {
   bool isEmbeddedInOtherType = true;
-  UnionType u1("s", ComposableFieldItf::Vector({}), isEmbeddedInOtherType);
-  UnionType u2("s", ComposableFieldItf::Vector({}), isEmbeddedInOtherType);
+  UnionType u1("s", {}, isEmbeddedInOtherType);
+  UnionType u2("s", {}, isEmbeddedInOtherType);
 
   runComposableTypeSame(u1, u2);
 }
@@ -561,8 +620,10 @@ static void runComposableTypeDifferent(T1 &s1, T2 &s2)
 TEST(equality, StructTypeDifferent)
 {
   bool isEmbeddedInOtherType = false;
-  StructType s1("s", ComposableFieldItf::Vector({}), isEmbeddedInOtherType);
-  StructType s2("s", ComposableFieldItf::Vector({new ComposableField(CTYPE_CHAR, "f")}), isEmbeddedInOtherType);
+  StructType s1("s", {}, isEmbeddedInOtherType);
+  ComposableType::ComposableFieldTypeVector fieldVector{};
+  fieldVector.emplace_back(ComposableField{CTYPE_CHAR, "f"});
+  StructType s2("s", std::move(fieldVector), isEmbeddedInOtherType);
 
   runComposableTypeDifferent(s1, s2);
 }
@@ -570,8 +631,10 @@ TEST(equality, StructTypeDifferent)
 TEST(equality, UnionTypeDifferent)
 {
   bool isEmbeddedInOtherType = false;
-  UnionType u1("s", ComposableFieldItf::Vector({}), isEmbeddedInOtherType);
-  UnionType u2("s", ComposableFieldItf::Vector({new ComposableField(CTYPE_CHAR, "f")}), isEmbeddedInOtherType);
+  UnionType u1("s", {}, isEmbeddedInOtherType);
+  ComposableType::ComposableFieldTypeVector fieldVector{};
+  fieldVector.emplace_back(ComposableField{CTYPE_CHAR, "f"});
+  UnionType u2("s", std::move(fieldVector), isEmbeddedInOtherType);
 
   runComposableTypeDifferent(u1, u2);
 }
@@ -580,8 +643,8 @@ TEST(equality, StructTypedDefEqual)
 {
   bool isEmbeddedInOtherType = false;
 
-  TypedefType s1 { "typeS1", new StructType("s1", isEmbeddedInOtherType) };
-  TypedefType s2 { "typeS1", new StructType("s1", isEmbeddedInOtherType) };
+  TypedefType s1 { "typeS1", std::make_shared<StructType>("s1", isEmbeddedInOtherType) };
+  TypedefType s2 { "typeS1", std::make_shared<StructType>("s1", isEmbeddedInOtherType) };
 
   runComposableTypeSame(s1, s2);
 }
@@ -590,8 +653,8 @@ TEST(equality, UnionTypedDefEqual)
 {
   bool isEmbeddedInOtherType = false;
 
-  TypedefType u1 { "typeU1", new UnionType("u1", isEmbeddedInOtherType) };
-  TypedefType u2 { "typeU1", new UnionType("u1", isEmbeddedInOtherType) };
+  TypedefType u1 { "typeU1", std::make_shared<UnionType>("u1", isEmbeddedInOtherType) };
+  TypedefType u2 { "typeU1", std::make_shared<UnionType>("u1", isEmbeddedInOtherType) };
 
   runComposableTypeSame(u1, u2);
 }
@@ -601,7 +664,7 @@ TEST(equality, StructTypedDefDifferent)
   bool isEmbeddedInOtherType = false;
 
   StructType s1("s1", isEmbeddedInOtherType);
-  TypedefType s2 { "s1", new StructType("", isEmbeddedInOtherType) };
+  TypedefType s2 { "s1", std::make_shared<StructType>("", isEmbeddedInOtherType) };
 
   runComposableTypeDifferent(s1, s2);
 }
@@ -611,7 +674,7 @@ TEST(equality, UnionTypedDefDifferent)
   bool isEmbeddedInOtherType = false;
 
   UnionType u1("u1", isEmbeddedInOtherType);
-  TypedefType u2 { "u1", new UnionType("", isEmbeddedInOtherType) };
+  TypedefType u2 { "u1", std::make_shared<UnionType>("", isEmbeddedInOtherType) };
 
   runComposableTypeDifferent(u1, u2);
 }
@@ -620,8 +683,8 @@ TEST(equality, StructEmbeddedInOtherTypeDifferent)
 {
   bool isEmbeddedInOtherType = false;
 
-  TypedefType s1 { "typeS1", new StructType("s1", isEmbeddedInOtherType) };
-  TypedefType s2 { "typeS1", new StructType("s1", !isEmbeddedInOtherType) };
+  TypedefType s1 { "typeS1", std::make_shared<StructType>("s1", isEmbeddedInOtherType) };
+  TypedefType s2 { "typeS1", std::make_shared<StructType>("s1", !isEmbeddedInOtherType) };
 
   runComposableTypeDifferent(s1, s2);
 }
@@ -630,8 +693,8 @@ TEST(equality, UnionEmbeddedInOtherTypeDifferent)
 {
   bool isEmbeddedInOtherType = false;
 
-  TypedefType u1 { "typeU1", new UnionType("u1", isEmbeddedInOtherType) };
-  TypedefType u2 { "typeU1", new UnionType("u1", !isEmbeddedInOtherType) };
+  TypedefType u1 { "typeU1", std::make_shared<UnionType>("u1", isEmbeddedInOtherType) };
+  TypedefType u2 { "typeU1", std::make_shared<UnionType>("u1", !isEmbeddedInOtherType) };
 
   runComposableTypeDifferent(u1, u2);
 }
@@ -640,13 +703,13 @@ TEST(equality, AnonymousTypedefDifferentWithSameField)
 {
   bool isEmbeddedInOtherType = false;
 
-  TypedefType tst1 { "TypedDefAnonymousStruct", new StructType("", isEmbeddedInOtherType) };
-  StructType *st1 = dynamic_cast<StructType*>(tst1.getTypee());
-  st1->addField(new ComposableField(CTYPE_INT, "a"));
+  TypedefType tst1 { "TypedDefAnonymousStruct", std::make_shared<StructType>("", isEmbeddedInOtherType) };
+  ComposableType *st1 = tst1.getTypee()->asComposableType();
+  st1->addField(ComposableField{CTYPE_INT, "a"});
 
-  TypedefType tst2 { "TypedDefAnonymousStruct2", new StructType("", isEmbeddedInOtherType) };
-  StructType *st2 = dynamic_cast<StructType*>(tst2.getTypee());
-  st2->addField(new ComposableField(CTYPE_INT, "a"));
+  TypedefType tst2 { "TypedDefAnonymousStruct2", std::make_shared<StructType>("", isEmbeddedInOtherType) };
+  ComposableType *st2 = tst2.getTypee()->asComposableType();
+  st2->addField(ComposableField{CTYPE_INT, "a"});
 
   runComposableTypeDifferent(tst1, tst2);
 }
@@ -669,22 +732,6 @@ TEST(equality, StructVSUnion)
   TypeItf &tU1 = u1;
 
   typeNe(tS1, tU1);
-}
-
-TEST(equality, AutoCleanVectorSame)
-{
-  AutoCleanVectorPtr<int> v1({new int(1), new int(2)});
-  AutoCleanVectorPtr<int> v2({new int(1), new int(2)});
-
-  typeEq(v1, v2);
-}
-
-TEST(equality, AutoCleanVectorDifferent)
-{
-  AutoCleanVectorPtr<int> v1({new int(1), new int(2)});
-  AutoCleanVectorPtr<int> v2({new int(2), new int(1)});
-
-  typeNe(v1, v2);
 }
 
 TEST(equality, Enum)
@@ -741,9 +788,9 @@ TEST(equality, ComposableBitfield)
 
 TEST(equality, TypeItf)
 {
-  TypedefType t1("t1", new CType(CTYPE_INT));
-  TypedefType t2("t1", new CType(CTYPE_INT));
-  TypedefType t3("t2", new CType(CTYPE_INT));
+  TypedefType t1("t1", std::make_shared<CType>(CTYPE_INT));
+  TypedefType t2("t1", std::make_shared<CType>(CTYPE_INT));
+  TypedefType t3("t2", std::make_shared<CType>(CTYPE_INT));
 
   typeEq(t1, t2);
   typeNe(t1, t3);
@@ -812,8 +859,8 @@ TEST(equality, FunctionAttributeAgainstFunctionNoAttribute)
 
 TEST(equality, FunctionDeclHasBodySame)
 {
-  FunctionDeclaration f1{"foo", VoidReturnValue(), Parameter::Vector({})};
-  FunctionDeclaration f2{f1};
+  FunctionDeclaration f1{"foo", VoidReturnValue(), {}};
+  FunctionDeclaration f2{"foo", VoidReturnValue(), {}};
 
   f1.setDoesThisDeclarationHasABody(true);
   f2.setDoesThisDeclarationHasABody(true);
@@ -830,8 +877,8 @@ TEST(equality, FunctionDeclHasBodySame)
 
 TEST(equality, FunctionDeclHasBodyDifferent)
 {
-  FunctionDeclaration f1{"foo", VoidReturnValue(), Parameter::Vector({})};
-  FunctionDeclaration f2{f1};
+  FunctionDeclaration f1{"foo", VoidReturnValue(), {}};
+  FunctionDeclaration f2{"foo", VoidReturnValue(), {}};
 
   f1.setDoesThisDeclarationHasABody(true);
   f2.setDoesThisDeclarationHasABody(false);
@@ -848,13 +895,14 @@ TEST(equality, FunctionDeclHasBodyDifferent)
 
 TEST(equality, FunctionRawHash_typedef_SameOnParam)
 {
-  CType intType{CTYPE_INT};
-  TypedefType tInt{"tint", intType.clone()};
-  Parameter f1p{intType.clone(), "p"};
-  Parameter f2p{tInt.clone(), "p"};
+  Parameter::Vector pvf1{};
+  pvf1.emplace_back(std::make_shared<CType>(CTYPE_INT), "p");
+  FunctionDeclaration f1{"foo", VoidReturnValue(), std::move(pvf1)};
 
-  FunctionDeclaration f1{"foo", VoidReturnValue(), Parameter::Vector({f1p.clone()})};
-  FunctionDeclaration f2{"foo", VoidReturnValue(), Parameter::Vector({f2p.clone()})};
+  auto tInt = std::make_shared<TypedefType>("tint", std::make_shared<CType>(CTYPE_INT));
+  Parameter::Vector pvf2{};
+  pvf2.emplace_back(std::move(tInt), "p");
+  FunctionDeclaration f2{"foo", VoidReturnValue(), std::move(pvf2)};
 
   ASSERT_NE(f1, f2);
   ASSERT_EQ(f1.getRawHash(), f2.getRawHash());
@@ -862,13 +910,12 @@ TEST(equality, FunctionRawHash_typedef_SameOnParam)
 
 TEST(equality, FunctionRawHash_typedef_SameOnReturnValue)
 {
-  CType intType{CTYPE_INT};
-  TypedefType tInt{"tint", intType.clone()};
-  ReturnValue frv1{intType.clone()};
-  ReturnValue frv2{tInt.clone()};
+  auto tInt = std::make_shared<TypedefType>("tint", std::make_shared<CType>(CTYPE_INT));
+  ReturnValue frv1{std::make_shared<CType>(CTYPE_INT)};
+  ReturnValue frv2{std::move(tInt)};
 
-  FunctionDeclaration f1{"foo", frv1, Parameter::Vector({})};
-  FunctionDeclaration f2{"foo", frv2, Parameter::Vector({})};
+  FunctionDeclaration f1{"foo", std::move(frv1), {}};
+  FunctionDeclaration f2{"foo", std::move(frv2), {}};
 
   ASSERT_NE(f1, f2);
   ASSERT_EQ(f1.getRawHash(), f2.getRawHash());
@@ -876,13 +923,14 @@ TEST(equality, FunctionRawHash_typedef_SameOnReturnValue)
 
 TEST(equality, FunctionRawHash_pointer_differentParam)
 {
-  CType intType{CTYPE_INT};
-  Pointer pInt{intType.clone()};
-  Parameter f1p{intType.clone(), "p"};
-  Parameter f2p{pInt.clone(), "p"};
+  auto pInt = std::make_shared<Pointer>(std::make_shared<CType>(CTYPE_INT));
 
-  FunctionDeclaration f1{"foo", VoidReturnValue(), Parameter::Vector({f1p.clone()})};
-  FunctionDeclaration f2{"foo", VoidReturnValue(), Parameter::Vector({f2p.clone()})};
+  Parameter::Vector pvf1{};
+  pvf1.emplace_back(Parameter{std::make_shared<CType>(CTYPE_INT), "p"});
+  FunctionDeclaration f1{"foo", VoidReturnValue(), std::move(pvf1)};
+  Parameter::Vector pvf2{};
+  pvf2.emplace_back(Parameter{std::move(pInt), "p"});
+  FunctionDeclaration f2{"foo", VoidReturnValue(), std::move(pvf2)};
 
   ASSERT_NE(f1, f2);
   ASSERT_NE(f1.getRawHash(), f2.getRawHash());

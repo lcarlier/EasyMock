@@ -26,26 +26,18 @@ public:
    * \param p_type The type of the bitfield.
    * \param p_name The name of the bitfield. If it is empty, the bitfield is anonymous.
    * \param p_size The number of bits that the field has.
-   *
-   * \heapPointer
    */
-  ComposableBitfield(CType* p_type, std::string p_name, uint8_t p_size);
+  ComposableBitfield(std::shared_ptr<TypeItf> p_type, std::string p_name, uint8_t p_size);
 
   /*!
-   * \copydoc ::ComposableBitfield::ComposableBitfield(CType*, std::string, uint8_t)
+   * \copydoc ::ComposableBitfield::ComposableBitfield(std::shared_ptr<TypeItf>, std::string, uint8_t)
    */
   ComposableBitfield(easyMock_cTypes_t p_type, std::string p_name, uint8_t p_size);
 
-  /*!
-   * \copydoc ::ComposableBitfield::ComposableBitfield(CType*, std::string, uint8_t)
-   */
-  ComposableBitfield(TypedefType* p_type, std::string p_name, uint8_t p_size);
-
-  ComposableBitfield(const ComposableBitfield &other) = default;
-  ComposableBitfield &operator=(const ComposableBitfield& other) = default;
-
+  ComposableBitfield(const ComposableBitfield &other) = delete;
+  ComposableBitfield &operator=(const ComposableBitfield& other) = delete;
   ComposableBitfield(ComposableBitfield &&other) = default;
-  //No move assignment operator when using copy and swap idiom
+  ComposableBitfield& operator=(ComposableBitfield &&other) = default;
 
   /*!
    * \brief Compares 2 ComposableBitfield objects.
@@ -66,14 +58,9 @@ public:
   uint8_t getSize() const;
 
   /*!
-   * \copydoc TypeItf::clone
-   */
-  ComposableBitfield* clone() const override;
-
-  /*!
    * \copydoc ::EasyMock::Hashable::getHash()
    */
-  std::size_t getHash() const override;
+  std::size_t getHash() const noexcept override;
 
   virtual ~ComposableBitfield() override;
 private:

@@ -4,27 +4,13 @@
 
 #include <cassert>
 
-ConstQualifiedType::ConstQualifiedType(TypeItf *p_type) :
-QualifiedType { p_type }
+ConstQualifiedType::ConstQualifiedType(std::shared_ptr<TypeItf> p_type) :
+QualifiedType { std::move(p_type) }
 {
   if(p_type)
   {
     assert(!p_type->isConst());
   }
-}
-
-ConstQualifiedType& ConstQualifiedType::operator=(ConstQualifiedType p_other)
-{
-  QualifiedType::operator=(p_other);
-  swap(*this, p_other);
-
-  return *this;
-}
-
-ConstQualifiedType::ConstQualifiedType(ConstQualifiedType&& p_other) :
-QualifiedType { p_other }
-{
-  swap(*this, p_other);
 }
 
 bool ConstQualifiedType::isConst() const
@@ -37,7 +23,7 @@ const char* ConstQualifiedType::getQualifierString() const
   return "const";
 }
 
-std::size_t ConstQualifiedType::getHash() const
+std::size_t ConstQualifiedType::getHash() const noexcept
 {
   std::size_t seed { QualifiedType::getHash() };
   return seed;
@@ -56,11 +42,6 @@ bool ConstQualifiedType::operator!=(const TypeItf& p_other) const
 void swap(ConstQualifiedType& first, ConstQualifiedType& second)
 {
   swap(dynamic_cast<QualifiedType&>(first), dynamic_cast<QualifiedType&>(second));
-}
-
-TypeItf* ConstQualifiedType::clone() const
-{
-  return new ConstQualifiedType(*this);
 }
 
 bool ConstQualifiedType::isEqual(const TypeItf& p_other) const

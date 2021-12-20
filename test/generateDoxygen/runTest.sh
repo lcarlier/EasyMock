@@ -12,13 +12,12 @@ echo $BASH
 # command in the documentation of another variable fails. There are some workaround to make doxygen happy however
 # it implies modifying the code inside CodeGeneratorCTemplate.cpp which is not right.
 # Hence we are just counting the expected number of generated warning to make sure no new one are introduced.
-#
-# Some older version of doxygen parses the file correctly (i.e. doesn't have the bug) and as such grep doesn't return
-# any match. We use the { cmd || true; } trick to make the script pass in case grep is not getting any match.
-# Remember that grep returns an error code if it doesn't match anything.
-EXPECTED_WARNING=4
+# The same goes for ComposableType::ComposableFieldTypeVector
+EXPECTED_WARNING=8
 doxygen --version
-NB_WARNING=$(doxygen docs/doxygen/Doxyfile 2>&1 | { grep -c "CodeGeneratorCTemplate\.h:.*warning" || true; })
+doxygen docs/doxygen/Doxyfile 2>&1 | tee out.log
+grep ":.*warning" out.log
+NB_WARNING=$(grep -c ":.*warning" out.log)
 
 # NB_WARNING can be 0 or 4 depending on the doxygen's version
 if [ $((NB_WARNING)) -gt $((EXPECTED_WARNING)) ];

@@ -10,74 +10,99 @@
 
 ElementToMockList VoidFunEnumFactory::functionFactoryArray()
 {
-  Enum e("enumTestParam");
-  e.addEnumValue(1, "ONE");
-  e.addEnumValue(2, "TWO");
+  auto getOneTwoEnumToTest = []()
+  {
+    auto e = std::make_shared<Enum>("enumTestParam");
+    e->addEnumValue(1, "ONE");
+    e->addEnumValue(2, "TWO");
+
+    return e;
+  };
+
+  auto getThreeFiveToTest=[]()
+  {
+    auto eStr = std::make_shared<Enum>("enumStruct");
+    eStr->addEnumValue(3, "THREE");
+    eStr->addEnumValue(5, "FIVE");
+
+    return eStr;
+  };
   ElementToMockList returnedList;
   {
-    FunctionDeclaration *fd = new FunctionDeclaration("voidFunEnum", VoidReturnValue(false), Parameter::Vector({new Parameter(e.clone(), "e")}));
-    returnedList.push_back(fd);
+    Parameter::Vector pv{};
+    pv.emplace_back(Parameter(getOneTwoEnumToTest(), "e"));
+    FunctionDeclaration fd("voidFunEnum", VoidReturnValue(false), std::move(pv));
+    returnedList.push_back(std::move(fd));
   }
   {
-    FunctionDeclaration *fd = new FunctionDeclaration("voidFunPtrEnum", VoidReturnValue(false), Parameter::Vector({new Parameter(new Pointer(e.clone()), "e")}));
-    returnedList.push_back(fd);
+    Parameter::Vector pv{};
+    pv.emplace_back(Parameter(std::make_shared<Pointer>(
+      getOneTwoEnumToTest()), "e"));
+    FunctionDeclaration fd("voidFunPtrEnum", VoidReturnValue(false), std::move(pv));
+    returnedList.push_back(std::move(fd));
   }
   {
-    TypedefType te { "t_enumTestRv", new Enum("") };
-    Enum& eRv = dynamic_cast<Enum&>(*te.getTypee());
+    auto te = std::make_shared<TypedefType>( "t_enumTestRv", std::make_shared<Enum>("") );
+    Enum& eRv = *te->getTypee()->asEnum();
     eRv.addEnumValue(0, "ZERO");
     eRv.addEnumValue(4, "FOUR");
-    FunctionDeclaration *fd = new FunctionDeclaration("enumFunVoid", ReturnValue(te.clone()), Parameter::Vector({}));
-    returnedList.push_back(fd);
-  }
-  Enum eStr("enumStruct");
-  eStr.addEnumValue(3, "THREE");
-  eStr.addEnumValue(5, "FIVE");
-  {
-    StructType *s = new StructType("structTestEnum", false);
-    ComposableField *enumField = new ComposableField(eStr.clone(), "e");
-    s->addField(enumField);
-    FunctionDeclaration *fd = new FunctionDeclaration("voidFunStructEnum", VoidReturnValue(false), Parameter::Vector({new Parameter(s, "s")}));
-    returnedList.push_back(fd);
+    FunctionDeclaration fd("enumFunVoid", ReturnValue(std::move(te)), {});
+    returnedList.push_back(std::move(fd));
   }
   {
-    TypedefType te { "t_enumStruct", eStr.clone() };
-    StructType *s = new StructType("structTestAnonyStructEnum", false);
-    s->addField(new ComposableField(new CType(CTYPE_INT), "a"));
-    StructType *as = new StructType("", true);
-    as->addField(new ComposableField(te.clone(), "e"));
-    s->addField(new ComposableField(as, ""));
-    FunctionDeclaration *fd = new FunctionDeclaration("voidFunStructAnonStructEnum", VoidReturnValue(false), Parameter::Vector({new Parameter(s, "s")}));
-
-    returnedList.push_back(fd);
+    auto s = std::make_shared<StructType>("structTestEnum", false);
+    s->addField(ComposableField(getThreeFiveToTest(), "e"));
+    Parameter::Vector pv{};
+    pv.emplace_back(Parameter(std::move(s), "s"));
+    FunctionDeclaration fd("voidFunStructEnum", VoidReturnValue(false), std::move(pv));
+    returnedList.push_back(std::move(fd));
   }
   {
-    Enum ee {""};
-    ee.addEnumValue(9, "NINE");
-    ee.addEnumValue(10, "TEN");
-    StructType *s = new StructType { "structTestEmbeddedEnum" , false};
-    s->addField(new ComposableField{ee.clone(), "embeddedEnum"});
-    FunctionDeclaration *fd = new FunctionDeclaration{ "voidFunStructEmbeddedEnumType", VoidReturnValue(false), Parameter::Vector ({new Parameter{s, "s"}})};
+    auto te = std::make_shared<TypedefType>( "t_enumStruct", getThreeFiveToTest() );
+    auto s = std::make_shared<StructType>("structTestAnonyStructEnum", false);
+    s->addField(ComposableField(std::make_shared<CType>(CTYPE_INT), "a"));
+    auto as = std::make_shared<StructType>("", true);
+    as->addField(ComposableField(std::move(te), "e"));
+    s->addField(ComposableField(std::move(as), ""));
 
-    returnedList.push_back(fd);
+    Parameter::Vector pv{};
+    pv.emplace_back(Parameter(std::move(s), "s"));
+    FunctionDeclaration fd("voidFunStructAnonStructEnum", VoidReturnValue(false), std::move(pv));
+
+    returnedList.push_back(std::move(fd));
   }
   {
-    FunctionDeclaration *fd = new FunctionDeclaration{ "voidFunUnnamedEnumParam", VoidReturnValue(false), Parameter::Vector ({new Parameter{e.clone(), ""}})};
+    auto ee = std::make_shared<Enum>("");
+    ee->addEnumValue(9, "NINE");
+    ee->addEnumValue(10, "TEN");
+    auto s = std::make_shared<StructType>( "structTestEmbeddedEnum" , false);
+    s->addField(ComposableField{std::move(ee), "embeddedEnum"});
 
-    returnedList.push_back(fd);
+    Parameter::Vector pv{};
+    pv.emplace_back(Parameter{std::move(s), "s"});
+    FunctionDeclaration fd{ "voidFunStructEmbeddedEnumType", VoidReturnValue(false), std::move(pv)};
+
+    returnedList.push_back(std::move(fd));
   }
   {
-    ReturnValue rv{e.clone()};
-    FunctionDeclaration *fd = new FunctionDeclaration{ "enumTest", rv, Parameter::Vector ({})};
+    Parameter::Vector pv{};
+    pv.emplace_back(Parameter{getOneTwoEnumToTest(), ""});
+    FunctionDeclaration fd{ "voidFunUnnamedEnumParam", VoidReturnValue(false), std::move(pv)};
 
-    returnedList.push_back(fd);
+    returnedList.push_back(std::move(fd));
   }
   {
-    Enum onlyRv{"nonDefinedEnum"};
+    ReturnValue rv{getOneTwoEnumToTest()};
+    FunctionDeclaration fd{ "enumTest", std::move(rv), {}};
 
-    FunctionDeclaration *fd = new FunctionDeclaration{ "nonDefinedEnumFunVoid", ReturnValue{onlyRv.clone()}, Parameter::Vector({})};
+    returnedList.push_back(std::move(fd));
+  }
+  {
+    auto onlyRv = std::make_shared<Enum>("nonDefinedEnum");
 
-    returnedList.push_back(fd);
+    FunctionDeclaration fd{ "nonDefinedEnumFunVoid", ReturnValue{std::move(onlyRv)}, {}};
+
+    returnedList.push_back(std::move(fd));
   }
   return returnedList;
 }

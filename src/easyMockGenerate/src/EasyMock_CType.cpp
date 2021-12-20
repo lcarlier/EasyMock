@@ -108,12 +108,6 @@ void CType::updateCType(easyMock_cTypes_t p_cType)
   this->setName(easyMock_arrayCTypeStr[m_cType]);
 }
 
-
-CType* CType::clone() const
-{
-  return new CType(*this);
-}
-
 bool CType::isEqual(const TypeItf& p_other) const
 {
   bool parentEq = TypeItf::isEqual(p_other);
@@ -136,7 +130,7 @@ std::string CType::getDeclarationPrefix(bool p_naked) const
   return m_name;
 }
 
-std::size_t CType::getHash() const
+std::size_t CType::getHash() const noexcept
 {
   std::size_t seed { TypeItf::getHash() };
   boost::hash_combine(seed, static_cast<uint32_t>(m_cType));

@@ -136,7 +136,7 @@ std::tuple<Formats...> as_tuple(std::array<T, N> const& arr) {
 template<typename ...>
 class FunctionFactory;
 
-using ElementToMockList = AutoCleanVectorPtr<FunctionDeclaration>;
+using ElementToMockList = std::vector<FunctionDeclaration>;
 
 // Specialisation of the template. Out of the n parameters, the first is RV, second is std::tuple<Params...>, and third is std::tuple<Compare ...>
 /*!
@@ -161,16 +161,7 @@ public:
    * The parser tests uses the objects returned by this function to check that
    * the parsing is working as expected.
    */
-  virtual ElementToMockList functionFactoryArray() {ElementToMockList rv; rv.push_back(functionFactory().clone()); return rv;}
-  /*!
-   * \brief Returns the function to be mocked.
-   *
-   * The caller of this function is responsible of freeing this object or
-   * loose the ownership.
-   *
-   * \heapPointer
-   */
-  virtual FunctionDeclaration* newFunctionFactory() { return functionFactory().clone(); }
+  virtual ElementToMockList functionFactoryArray() {ElementToMockList rv; rv.push_back(functionFactory()); return rv;}
   /*!
    * \brief Returns the list of macro to be generated
    */

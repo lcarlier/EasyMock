@@ -6,12 +6,14 @@
 FunctionDeclaration UnionFunUnionFactory::functionFactory()
 {
   bool isEmbeddedInOtherType = false;
-  UnionType *st1 = new UnionType("u1", isEmbeddedInOtherType);
-  st1->addField(new ComposableField(CTYPE_INT, "a"));
-  UnionType *st2 = new UnionType("u2", isEmbeddedInOtherType);
-  st2->addField(new ComposableField(CTYPE_INT, "b"));
+  auto st1 = std::make_shared<UnionType>("u1", isEmbeddedInOtherType);
+  st1->addField(ComposableField(CTYPE_INT, "a"));
+  auto st2 = std::make_shared<UnionType>("u2", isEmbeddedInOtherType);
+  st2->addField(ComposableField(CTYPE_INT, "b"));
 
-  FunctionDeclaration f(functionGetFunctionName(), ReturnValue(st1), Parameter::Vector({new Parameter(st2, "u")}));
+  Parameter::Vector pv{};
+  pv.emplace_back(Parameter(std::move(st2), "u"));
+  FunctionDeclaration f(functionGetFunctionName(), ReturnValue(std::move(st1)), std::move(pv));
   return f;
 }
 

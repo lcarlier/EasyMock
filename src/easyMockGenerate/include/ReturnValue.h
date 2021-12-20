@@ -32,18 +32,14 @@ public:
    * \brief Creates a new ReturnValue object.
    *
    * \param p_type The type of the return value.
-   *
-   * \heapPointer
-   *
    * \see TypeItf
    */
-  explicit ReturnValue(TypeItf *p_type);
+  explicit ReturnValue(std::shared_ptr<TypeItf> p_type);
 
-  ReturnValue(const ReturnValue &other);
-  ReturnValue& operator=(ReturnValue other);
-
-  ReturnValue(ReturnValue &&other);
-  //With elision pattern no need for move assignment
+  ReturnValue(const ReturnValue &other) = delete;
+  ReturnValue& operator=(const ReturnValue &other) = delete;
+  ReturnValue(ReturnValue &&other) = default;
+  ReturnValue& operator=(ReturnValue &&other) = default;
 
   /*!
    * \brief Compares 2 ReturnValue objects.
@@ -64,7 +60,6 @@ private:
 
 ReturnValue VoidReturnValue(bool p_isPointer = false);
 ReturnValue TypedReturnValue(easyMock_cTypes_t p_type, bool p_isPointer = false);
-ReturnValue StructReturnValue(StructType* type, bool p_isPointer = false);
+ReturnValue StructReturnValue(std::shared_ptr<StructType> type, bool p_isPointer = false);
 
 #endif /* RETURNVALUE_H */
-

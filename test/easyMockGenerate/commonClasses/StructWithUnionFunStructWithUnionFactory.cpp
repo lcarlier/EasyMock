@@ -7,20 +7,21 @@
 
 FunctionDeclaration StructWithUnionFunStructWithUnionFactory::functionFactory()
 {
-  TypedefType *tst = new TypedefType("sWithUnion", new StructType("", false));
-  StructType *st = dynamic_cast<StructType*>(tst->getTypee());
-  UnionType *ut = new UnionType("ut", true);
-  ut->addField(new ComposableField(CTYPE_INT, "a"));
-  ut->addField(new ComposableField(CTYPE_FLOAT, "b"));
-  st->addField(new ComposableField(ut, "u"));
-  TypeItf *rv = tst->clone();
-  FunctionDeclaration f(functionGetFunctionName(), ReturnValue(rv), Parameter::Vector({new Parameter(tst, "st")}));
-  return f;
-}
+  auto getsWithUnion = []()
+  {
+    return std::make_shared<TypedefType>("sWithUnion", std::make_shared<StructType>("", false));
+  };
+  std::shared_ptr<TypedefType> tst = getsWithUnion();
+  ComposableType *st = tst->getTypee()->asComposableType();
+  auto ut = std::make_shared<UnionType>("ut", true);
+  ut->addField(ComposableField(CTYPE_INT, "a"));
+  ut->addField(ComposableField(CTYPE_FLOAT, "b"));
+  st->addField(ComposableField(std::move(ut), "u"));
 
-FunctionDeclaration* StructWithUnionFunStructWithUnionFactory::newFunctionFactory()
-{
-  return functionFactory().clone();
+  Parameter::Vector pv{};
+  pv.emplace_back(Parameter(tst, "st"));
+  FunctionDeclaration f(functionGetFunctionName(), ReturnValue(std::move(tst)), std::move(pv));
+  return f;
 }
 
 std::string StructWithUnionFunStructWithUnionFactory::functionGetFunctionName()

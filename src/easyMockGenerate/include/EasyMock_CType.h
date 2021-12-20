@@ -77,14 +77,9 @@ public:
   bool operator!=(const TypeItf &other) const;
 
   /*!
-   * \copydoc TypeItf::clone
-   */
-  CType *clone() const override;
-
-  /*!
    * \copydoc ::EasyMock::Hashable::getHash()
    */
-  std::size_t getHash() const override;
+  std::size_t getHash() const noexcept override;
 
   /*
    * bool isEqual(const TypeItf &other);

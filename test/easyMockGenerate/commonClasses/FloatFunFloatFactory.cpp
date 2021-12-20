@@ -2,15 +2,11 @@
 
 FunctionDeclaration FloatFunFloatFactory::functionFactory()
 {
-  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_FLOAT), Parameter::Vector({NamedParameter(CTYPE_FLOAT, "f")}));
+  Parameter::Vector pv{};
+  pv.emplace_back(NamedParameter(CTYPE_FLOAT, "f"));
+  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_FLOAT), std::move(pv));
   return f;
 }
-
-FunctionDeclaration* FloatFunFloatFactory::newFunctionFactory()
-{
-  return functionFactory().clone();
-}
-
 
 std::string FloatFunFloatFactory::functionGetFunctionName()
 {

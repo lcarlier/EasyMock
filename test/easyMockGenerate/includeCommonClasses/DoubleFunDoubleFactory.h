@@ -7,7 +7,6 @@ class DoubleFunDoubleFactory : public FunctionFactory<double, std::tuple<double>
 {
 public:
   FunctionDeclaration functionFactory() override;
-  FunctionDeclaration* newFunctionFactory() override;
   std::string functionGetFunctionName() override;
   std::string getFilename() override;
   void setupTestCase(EasyMockTestCase::TestCase tc) override;
@@ -15,4 +14,3 @@ public:
 };
 
 #endif /* DOUBLEFUNDOUBLEFACTORY_H */
-

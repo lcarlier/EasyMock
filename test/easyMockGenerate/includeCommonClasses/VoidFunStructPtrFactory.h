@@ -8,7 +8,6 @@ class VoidFunStructPtrFactory : public FunctionFactory<void, std::tuple<struct s
 {
 public:
   FunctionDeclaration functionFactory() override;
-  FunctionDeclaration* newFunctionFactory() override;
   std::string functionGetFunctionName() override;
   std::string getFilename() override;
 
@@ -21,4 +20,3 @@ public:
 };
 
 #endif /* VOIDFUNSTRUCTPTRFACTORY_H */
-

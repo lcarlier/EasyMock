@@ -42,15 +42,10 @@ std::string Enum::getDeclarationPrefix(bool) const
   return toReturn;
 }
 
-std::size_t Enum::getHash() const
+std::size_t Enum::getHash() const noexcept
 {
   std::size_t seed { TypeItf::getHash() };
   boost::hash_combine(seed, boost::hash_range(this->m_listOfValues.begin(), this->m_listOfValues.end()));
 
   return seed;
-}
-
-Enum *Enum::clone() const
-{
-  return new Enum(*this);
 }

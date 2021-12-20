@@ -10,7 +10,7 @@
 
 TEST(TypedefType, isAnonymous)
 {
-  StructType *s = new StructType("", false);
+  auto s = std::make_shared<StructType>("", false);
   TypedefType td {"t_def", s};
   ASSERT_FALSE(td.isAnonymous());
   ASSERT_TRUE(s->getRawType()->isAnonymous());
@@ -18,8 +18,8 @@ TEST(TypedefType, isAnonymous)
 
 TEST(TypedefType, constIsAnonymous)
 {
-  StructType *s = new StructType("", false);
-  TypedefType td {"t_def", new ConstQualifiedType{ s }};
+  auto s = std::make_shared<StructType>("", false);
+  TypedefType td {"t_def", s};
   ASSERT_FALSE(td.isAnonymous());
   ASSERT_TRUE(td.getTypee()->isAnonymous());
   ASSERT_TRUE(s->getRawType()->isAnonymous());
@@ -33,30 +33,30 @@ TEST(ContainsTypeDef, notContainsTypedef)
 
 TEST(ContainsTypeDef, simple)
 {
-  TypedefType td{"int_t",new CType {CTYPE_INT}};
+  TypedefType td{"int_t",std::make_shared<CType>(CTYPE_INT)};
   ASSERT_TRUE(td.containsTypeDef());
 }
 
 TEST(ContainsTypeDef, pointerToTypedef)
 {
-  Pointer p{new TypedefType{"int_t", new CType{CTYPE_INT}}};
+  Pointer p{std::make_shared<TypedefType>("int_t", std::make_shared<CType>(CTYPE_INT))};
   ASSERT_TRUE(p.containsTypeDef());
 }
 
 TEST(ContainsTypeDef, pointerToPointerTypedef)
 {
-  Pointer p{new Pointer{new TypedefType{"int_t", new CType{CTYPE_INT}}}};
+  Pointer p{std::make_shared<Pointer>(std::make_shared<TypedefType>("int_t", std::make_shared<CType>(CTYPE_INT)))};
   ASSERT_TRUE(p.containsTypeDef());
 }
 
 TEST(ContainsTypeDef, constTypedef)
 {
-  ConstQualifiedType cq{new TypedefType{"int_t", new CType{CTYPE_INT}}};
+  ConstQualifiedType cq{std::make_shared<TypedefType>("int_t", std::make_shared<CType>(CTYPE_INT))};
   ASSERT_TRUE(cq.containsTypeDef());
 }
 
 TEST(ContainsTypeDef, constPointerTypedef)
 {
-  ConstQualifiedType cq{new Pointer{new TypedefType{"int_t", new CType{CTYPE_INT}}}};
+  ConstQualifiedType cq{std::make_shared<Pointer>(std::make_shared<TypedefType>("int_t", std::make_shared<CType>(CTYPE_INT)))};
   ASSERT_TRUE(cq.containsTypeDef());
 }

@@ -7,7 +7,6 @@ class UnsIntFunVoidFactory : public FunctionFactory<unsigned int, std::tuple<>, 
 {
 public:
   FunctionDeclaration functionFactory() override;
-  FunctionDeclaration* newFunctionFactory() override;
   std::string functionGetFunctionName() override;
   std::string getFilename() override;
   void setupTestCase(EasyMockTestCase::TestCase tc) override;
@@ -15,4 +14,3 @@ public:
 };
 
 #endif /* UNSINTFUNVOIDFACTORY_H */
-

@@ -29,8 +29,7 @@ if (CMAKE_VERSION VERSION_LESS 2.8.11)
   include_directories("${gtest_SOURCE_DIR}/include")
 endif()
 
-set(TEST_INCLUDE_DIR ${EasyMock_SOURCE_DIR}/src/common/include
-                     ${EasyMock_SOURCE_DIR}/src/easyMockFramework/include
+set(TEST_INCLUDE_DIR ${EasyMock_SOURCE_DIR}/src/easyMockFramework/include
                      ${EasyMock_SOURCE_DIR}/src/easyMockFramework/src
                      ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/include
                      ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/include

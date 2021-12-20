@@ -6,17 +6,12 @@
 
 FunctionDeclaration VoidFunIntArrayFactory::functionFactory()
 {
-  //Even though an array is passed as parameter. C/C++ sees it as a pointer
-  Parameter::Vector p({new Parameter(new Pointer(new CType(CTYPE_INT)), "array")});
-  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), p);
+  //Even though an array is passed as parameter. C sees it as a pointer
+  Parameter::Vector p{};
+  p.emplace_back(Parameter(std::make_shared<Pointer>(std::make_shared<CType>(CTYPE_INT)), "array"));
+  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), std::move(p));
   return f;
 }
-
-FunctionDeclaration* VoidFunIntArrayFactory::newFunctionFactory()
-{
-  return functionFactory().clone();
-}
-
 
 std::string VoidFunIntArrayFactory::functionGetFunctionName()
 {

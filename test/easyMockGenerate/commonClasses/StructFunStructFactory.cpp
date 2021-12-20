@@ -29,7 +29,7 @@ static ReturnValue structFunStructReturnValue();
 
 static ReturnValue structFunStructReturnValue()
 {
-  ReturnValue rv(newStructS1Type());
+  ReturnValue rv{newStructS1Type()};
 
   return rv;
 }
@@ -38,28 +38,23 @@ FunctionDeclaration StructFunStructFactory::functionFactory()
 {
   Parameter::Vector funParam = structS2Parameter();
 
-  StructType* structOnelineStruct = new StructType { "onelineStruct", false };
-  structOnelineStruct->addField(new ComposableField{CTYPE_UINT, "a"});
-  structOnelineStruct->addField(new ComposableField{CTYPE_UINT, "b"});
-  structOnelineStruct->addField(new ComposableField{CTYPE_UINT, "c"});
-  structOnelineStruct->addField(new ComposableField{ new Pointer { new CType {CTYPE_UINT}}, "pa"});
-  structOnelineStruct->addField(new ComposableField{ new Pointer { new CType {CTYPE_UINT}}, "pb"});
-  structOnelineStruct->addField(new ComposableField{ new Pointer { new CType {CTYPE_UINT}}, "pc"});
+  auto structOnelineStruct = std::make_shared<StructType>( "onelineStruct", false );
+  structOnelineStruct->addField(ComposableField{CTYPE_UINT, "a"});
+  structOnelineStruct->addField(ComposableField{CTYPE_UINT, "b"});
+  structOnelineStruct->addField(ComposableField{CTYPE_UINT, "c"});
+  structOnelineStruct->addField(ComposableField{ std::make_shared<Pointer>(std::make_shared<CType>(CTYPE_UINT)), "pa"});
+  structOnelineStruct->addField(ComposableField{ std::make_shared<Pointer>(std::make_shared<CType>(CTYPE_UINT)), "pb"});
+  structOnelineStruct->addField(ComposableField{ std::make_shared<Pointer>(std::make_shared<CType>(CTYPE_UINT)), "pc"});
   /*
    * This UT want's to make sure we are processing the space correctly so set the declare string
    */
-  structOnelineStruct->getContainedFields()[3].setDeclareString("unsigned int *");
-  structOnelineStruct->getContainedFields()[4].setDeclareString("unsigned int *");
-  structOnelineStruct->getContainedFields()[5].setDeclareString("unsigned int *");
-  funParam.push_back(new Parameter{structOnelineStruct, "s2"});
+  std::get<ComposableField>(structOnelineStruct->getContainedFields()[3]).setDeclareString("unsigned int *");
+  std::get<ComposableField>(structOnelineStruct->getContainedFields()[4]).setDeclareString("unsigned int *");
+  std::get<ComposableField>(structOnelineStruct->getContainedFields()[5]).setDeclareString("unsigned int *");
+  funParam.push_back(Parameter{std::move(structOnelineStruct), "s2"});
 
-  FunctionDeclaration f(functionGetFunctionName(), structFunStructReturnValue(), funParam);
+  FunctionDeclaration f(functionGetFunctionName(), structFunStructReturnValue(), std::move(funParam));
   return f;
-}
-
-FunctionDeclaration* StructFunStructFactory::newFunctionFactory()
-{
-  return functionFactory().clone();
 }
 
 std::string StructFunStructFactory::functionGetFunctionName()

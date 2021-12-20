@@ -9,9 +9,9 @@ ElementToMockList HeaderWithDashFactory::functionFactoryArray()
 {
   ElementToMockList returnedList;
   {
-    FunctionDeclaration *f = new FunctionDeclaration{ "header_with_dash", VoidReturnValue(), Parameter::Vector ({})};
+    FunctionDeclaration f{ "header_with_dash", VoidReturnValue(), {}};
 
-    returnedList.push_back(f);
+    returnedList.push_back(std::move(f));
   }
   return returnedList;
 }

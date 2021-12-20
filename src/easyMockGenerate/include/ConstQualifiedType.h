@@ -39,11 +39,12 @@ public:
    *
    * \param p_type The type to be const qualified
    */
-  ConstQualifiedType(TypeItf *p_type);
+  ConstQualifiedType(std::shared_ptr<TypeItf> p_type);
 
-  ConstQualifiedType(const ConstQualifiedType& orig) = default;
-  ConstQualifiedType& operator=(ConstQualifiedType p_other);
-  ConstQualifiedType(ConstQualifiedType&& p_other);
+  ConstQualifiedType(const ConstQualifiedType& orig) = delete;
+  ConstQualifiedType& operator=(const ConstQualifiedType& p_other) = delete;
+  ConstQualifiedType(ConstQualifiedType&& p_other) = default;
+  ConstQualifiedType& operator=(ConstQualifiedType &&other) = default;
 
   bool operator==(const TypeItf& p_other) const;
   bool operator!=(const TypeItf& p_other) const;
@@ -59,14 +60,9 @@ public:
   const char* getQualifierString() const override;
 
   /*!
-   * \copydoc ::TypeItf::clone()
-   */
-  TypeItf* clone() const override;
-
-  /*!
    * \copydoc ::EasyMock::Hashable::getHash()
    */
-  std::size_t getHash() const override;
+  std::size_t getHash() const noexcept override;
 
   ~ConstQualifiedType() = default;
 protected:

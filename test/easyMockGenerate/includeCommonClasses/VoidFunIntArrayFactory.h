@@ -7,7 +7,6 @@ class VoidFunIntArrayFactory: public FunctionFactory<int, std::tuple<int *>, std
 {
 public:
   FunctionDeclaration functionFactory() override;
-  FunctionDeclaration* newFunctionFactory() override;
   std::string functionGetFunctionName() override;
   std::string getFilename() override;
   //No setupTestCase. It is covered by PtrFunPtrGenericFactory

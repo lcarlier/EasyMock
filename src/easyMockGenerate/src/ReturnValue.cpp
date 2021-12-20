@@ -6,27 +6,9 @@
 
 #include <boost/functional/hash.hpp>
 
-ReturnValue::ReturnValue(TypeItf* type) :
-Declarator(type)
+ReturnValue::ReturnValue(std::shared_ptr<TypeItf> type) :
+Declarator(std::move(type))
 {
-}
-
-ReturnValue::ReturnValue(const ReturnValue& other) :
-Declarator(other)
-{
-}
-
-ReturnValue::ReturnValue(ReturnValue&& other):
-Declarator(other)
-{
-  swap(*this, other);
-}
-
-ReturnValue& ReturnValue::operator=(ReturnValue other)
-{
-  swap(*this, other);
-
-  return *this;
 }
 
 void swap(ReturnValue &first, ReturnValue &second)
@@ -45,28 +27,25 @@ ReturnValue VoidReturnValue (bool p_isPointer)
 
 ReturnValue TypedReturnValue(easyMock_cTypes_t p_type, bool p_isPointer)
 {
-  TypeItf *curType = new CType(p_type);
+  std::shared_ptr<TypeItf> curType = std::make_shared<CType>(p_type);
   if(p_isPointer)
   {
-    curType = new Pointer(curType);
+    curType = std::make_shared<Pointer>(std::move(curType));
   }
-
-  ReturnValue rv = ReturnValue(curType);
+  ReturnValue rv = ReturnValue(std::move(curType));
 
   return rv;
 }
 
-ReturnValue StructReturnValue(StructType *type, bool p_isPointer)
+ReturnValue StructReturnValue(std::shared_ptr<StructType> type, bool p_isPointer)
 {
-  TypeItf *curType = type;
+  std::shared_ptr<TypeItf> curType = std::move(type);
   if(p_isPointer)
   {
-    curType = new Pointer(type);
+    curType = std::make_shared<Pointer>(std::move(curType));
   }
 
-  ReturnValue rv = ReturnValue(curType);
-
-  return rv;
+  return ReturnValue{std::move(curType)};
 }
 
 bool ReturnValue::operator==(const ReturnValue& other) const
@@ -83,4 +62,3 @@ bool ReturnValue::operator!=(const ReturnValue& other) const
 {
   return (*this == other) == false;
 }
-

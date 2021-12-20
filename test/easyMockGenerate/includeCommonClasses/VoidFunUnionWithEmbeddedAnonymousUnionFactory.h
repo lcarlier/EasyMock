@@ -8,7 +8,6 @@ class VoidFunUnionWithEmbeddedAnonymousUnionFactory : public FunctionFactory<voi
 {
 public:
   FunctionDeclaration functionFactory() override;
-  FunctionDeclaration* newFunctionFactory() override;
   std::string functionGetFunctionName() override;
   std::string getFilename() override;
   std::string getMatcherFunctionName() override;
@@ -27,4 +26,3 @@ public:
 };
 
 #endif /* VOIDFUNUNIONWITHEMBEDDEDANONYMOUSUNIONFACTORY_H */
-

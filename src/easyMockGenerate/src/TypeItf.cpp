@@ -21,8 +21,8 @@ TypeItf("")
 {
 }
 
-TypeItf::TypeItf(const std::string p_name) :
-TypeItf({.name = p_name,
+TypeItf::TypeItf(std::string p_name) :
+TypeItf({.name = std::move(p_name),
         .isCType = false,
         .isStruct = false,
         .isUnion = false,
@@ -117,18 +117,6 @@ const TypeItf* TypeItf::unqualify() const
 TypeItf* TypeItf::unqualify()
 {
   return const_cast<TypeItf*>(static_cast<const TypeItf*>(this)->unqualify());
-}
-
-ComposableFieldItf::Vector& TypeItf::getContainedFields()
-{
-  return const_cast<ComposableFieldItf::Vector &>(static_cast<const TypeItf &>(*this).getContainedFields());
-}
-
-const ComposableFieldItf::Vector& TypeItf::getContainedFields() const
-{
-  fprintf(stderr, "THIS FUNCTION SHOULDN'T BE CALLED");
-  assert(false);
-  //NO return is OK
 }
 
 bool TypeItf::isCType() const
@@ -404,7 +392,7 @@ std::string TypeItf::getDeclarationPostfix(bool p_naked) const
   return "";
 }
 
-std::size_t TypeItf::getHash() const
+std::size_t TypeItf::getHash() const noexcept
 {
   std::size_t seed { 0 };
   boost::hash_combine(seed, m_name);
@@ -420,6 +408,11 @@ std::size_t TypeItf::getHash() const
   boost::hash_combine(seed, m_isQualifiedType);
 
   return seed;
+}
+
+std::size_t TypeItf::getRawHash() const noexcept
+{
+  return getHash();
 }
 
 bool TypeItf::operator==(const TypeItf& other) const
@@ -447,28 +440,4 @@ bool TypeItf::isEqual(const TypeItf& other) const
 bool TypeItf::operator!=(const TypeItf& other) const
 {
   return (*this == other) == false;
-}
-
-std::unique_ptr<TypeItf> deTypeDef(const TypeItf& typeItf)
-{
-  const Pointer *ptr = typeItf.asPointer();
-  if(ptr)
-  {
-    auto deTypedPointedType = deTypeDef(*ptr->getPointedType());
-    return std::make_unique<Pointer>(deTypedPointedType->clone());
-  }
-  const QualifiedType* qualifiedType = typeItf.asQualifiedType();
-  if(qualifiedType)
-  {
-    auto deTypedQualifiedType = deTypeDef(*qualifiedType->getUnqualifiedType());
-    TypeItf* copyQualifiedType = qualifiedType->clone();
-    copyQualifiedType->asQualifiedType()->setUnqualifiedType(deTypedQualifiedType->clone());
-    return std::unique_ptr<TypeItf>(copyQualifiedType);
-  }
-  const TypedefType* typedefType = typeItf.asTypedefType();
-  if(typedefType)
-  {
-    return deTypeDef(*typedefType->getTypee());
-  }
-  return std::unique_ptr<TypeItf>(typeItf.clone());
 }

@@ -7,28 +7,21 @@
 
 FunctionDeclaration VoidFunStructWithTypedefStructFactory::functionFactory()
 {
-  TypedefType *tt_subStructVar = new TypedefType("t_subStruct", new StructType("", false));
-  StructType *t_subStructVar = dynamic_cast<StructType*>(tt_subStructVar->getTypee());
-  t_subStructVar->addField(new ComposableField(new CType(CTYPE_INT), "a"));
+  auto tt_subStructVar = std::make_shared<TypedefType>("t_subStruct", std::make_shared<StructType>("", false));
+  ComposableType *t_subStructVar = tt_subStructVar->getTypee()->asComposableType();
+  t_subStructVar->addField(ComposableField(std::make_shared<CType>(CTYPE_INT), "a"));
 
-  TypedefType *tt_structVar = new TypedefType("t_struct", new StructType("", false));
-  StructType *t_structVar = dynamic_cast<StructType*>(tt_structVar->getTypee());
-  t_structVar->addField(new ComposableField(tt_subStructVar, "sub"));
-  tt_subStructVar = nullptr; //We lost the ownership
+  auto tt_structVar = std::make_shared<TypedefType>("t_struct", std::make_shared<StructType>("", false));
+  ComposableType *t_structVar = tt_structVar->getTypee()->asComposableType();
+  t_structVar->addField(ComposableField(std::move(tt_subStructVar), "sub"));
 
-  Parameter *p = new Parameter(tt_structVar, "s");
-  tt_structVar = nullptr; //We lost the ownership
-  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), Parameter::Vector({p}));
-  p = nullptr; //We lost the ownership
+  Parameter p{std::move(tt_structVar), "s"};
+  Parameter::Vector pv{};
+  pv.emplace_back(std::move(p));
+  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), std::move(pv));
 
   return f;
 }
-
-FunctionDeclaration* VoidFunStructWithTypedefStructFactory::newFunctionFactory()
-{
-  return functionFactory().clone();
-}
-
 
 std::string VoidFunStructWithTypedefStructFactory::functionGetFunctionName()
 {

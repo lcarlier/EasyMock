@@ -2,15 +2,11 @@
 
 FunctionDeclaration UnsCharFunUnsCharFactory::functionFactory()
 {
-  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_UCHAR), Parameter::Vector({NamedParameter(CTYPE_UCHAR, "uc")}));
+  Parameter::Vector pv{};
+  pv.emplace_back(NamedParameter(CTYPE_UCHAR, "uc"));
+  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_UCHAR), std::move(pv));
   return f;
 }
-
-FunctionDeclaration* UnsCharFunUnsCharFactory::newFunctionFactory()
-{
-  return functionFactory().clone();
-}
-
 
 std::string UnsCharFunUnsCharFactory::functionGetFunctionName()
 {

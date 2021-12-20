@@ -8,18 +8,27 @@
 
 ElementToMockList VoidFunTypeAndTypeDefUsedFactory::functionFactoryArray()
 {
+  auto getNotTypedefUsed=[]()
+  {
+    auto s = std::make_shared<StructType>("notTypedefUsed", false);
+    s->addField(ComposableField{CTYPE_INT, "a"});
+
+    return s;
+  };
   ElementToMockList returnedList;
 
-  StructType s{"notTypedefUsed", false};
-  s.addField(new ComposableField{CTYPE_INT, "a"});
   {
-    TypedefType *t = new TypedefType{"typedefUsed", new Pointer{s.clone()}};
-    FunctionDeclaration *fd = new FunctionDeclaration("voidFunTypeDefUsed", VoidReturnValue(), Parameter::Vector({new Parameter{t, "t"}}));
-    returnedList.push_back(fd);
+    auto t = std::make_shared<TypedefType>("typedefUsed", std::make_shared<Pointer>(getNotTypedefUsed()));
+    Parameter::Vector pv{};
+    pv.emplace_back(Parameter{std::move(t), "t"});
+    FunctionDeclaration fd("voidFunTypeDefUsed", VoidReturnValue(), std::move(pv));
+    returnedList.push_back(std::move(fd));
   }
   {
-    FunctionDeclaration *fd = new FunctionDeclaration(functionGetFunctionName(), VoidReturnValue(), Parameter::Vector({new Parameter(s.clone(), "s")}));
-    returnedList.push_back(fd);
+    Parameter::Vector pv{};
+    pv.emplace_back(Parameter(getNotTypedefUsed(), "s"));
+    FunctionDeclaration fd(functionGetFunctionName(), VoidReturnValue(), std::move(pv));
+    returnedList.push_back(std::move(fd));
   }
   return returnedList;
 }

@@ -2,6 +2,7 @@
 #define GENGENERATE_TESTCASE_H
 
 #include "test_common.h"
+#include "FunctionFactory.h"
 
 template<class T>
 class genGenerate_testCase : public easyMockGenerate_baseTestCase
@@ -10,9 +11,10 @@ public:
   genGenerate_testCase() : easyMockGenerate_baseTestCase(m_factory.functionGetFunctionName(), m_factory.functionGetIncludeDir(), m_factory.functionGetMockDir(), m_factory.getGenerateTypes(),
                                                          m_factory.loadFunction(), m_factory.getRmDir())
   {
-    for(const auto f : m_factory.functionFactoryArray())
+    ElementToMockList elementToMockList = m_factory.functionFactoryArray();
+    for(auto& f : elementToMockList)
     {
-      m_ctxt.addElementToMock(f->clone());
+      m_ctxt.addElementToMock(std::move(f));
     }
     for(const auto& p : m_factory.getDefinedMacroList())
     {
@@ -37,4 +39,3 @@ template<class T>
 T genGenerate_testCase<T>::m_factory;
 
 #endif /* GENGENERATE_TESTCASE_H */
-

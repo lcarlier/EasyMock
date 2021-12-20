@@ -7,21 +7,17 @@
 
 FunctionDeclaration ConstVoidPtrFunConstVoidPtrFactory::functionFactory()
 {
-  Pointer pointerToConstVoid{ new ConstQualifiedType(new CType(CTYPE_VOID)) };
-  ReturnValue rv { pointerToConstVoid.clone() };
+  auto getPointerToConstVoid=[]()
+  {
+    return std::make_shared<Pointer>(std::make_shared<ConstQualifiedType>(std::make_shared<CType>(CTYPE_VOID)) );
+  };
+  ReturnValue rv{ getPointerToConstVoid() };
 
-  Parameter *param = new Parameter(pointerToConstVoid.clone(), "p");
-  
-  FunctionDeclaration f(functionGetFunctionName(), rv, Parameter::Vector({param}));
-  param = nullptr;
+  Parameter::Vector pv{};
+  pv.emplace_back(Parameter(getPointerToConstVoid(), "p"));
+  FunctionDeclaration f(functionGetFunctionName(), std::move(rv), std::move(pv));
   return f;
 }
-
-FunctionDeclaration* ConstVoidPtrFunConstVoidPtrFactory::newFunctionFactory()
-{
-  return functionFactory().clone();
-}
-
 
 std::string ConstVoidPtrFunConstVoidPtrFactory::functionGetFunctionName()
 {

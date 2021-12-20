@@ -10,24 +10,24 @@
 
 FunctionDeclaration VoidFunStructBitfieldFactory::functionFactory()
 {
-  StructType *s = new StructType("BoxProps", false);
-  s->addField(new ComposableBitfield(CTYPE_UINT, "opaque", 1));
-  s->addField(new ComposableBitfield(CTYPE_UINT, "fill_color", 3));
-  s->addField(new ComposableBitfield(CTYPE_UINT, "", 4));
-  s->addField(new ComposableBitfield(CTYPE_UINT, "show_border", 1));
-  TypedefType uintType { "t_uint", new CType(CTYPE_UINT) };
-  s->addField(new ComposableBitfield(static_cast<TypedefType*>(uintType.clone()), "border_color", 3));
-  s->addField(new ComposableBitfield(CTYPE_UINT, "border_style", 2));
-  s->addField(new ComposableBitfield(CTYPE_UCHAR, "", 0));
-  s->addField(new ComposableBitfield(CTYPE_UCHAR, "width", 4));
-  s->addField(new ComposableBitfield(CTYPE_UCHAR, "height", 4));
+  auto s = std::make_shared<StructType>("BoxProps", false);
+  s->addField(ComposableBitfield(CTYPE_UINT, "opaque", 1));
+  s->addField(ComposableBitfield(CTYPE_UINT, "fill_color", 3));
+  s->addField(ComposableBitfield(CTYPE_UINT, "", 4));
+  s->addField(ComposableBitfield(CTYPE_UINT, "show_border", 1));
+  auto uintType = std::make_shared<TypedefType>( "t_uint", std::make_shared<CType>(CTYPE_UINT) );
+  s->addField(ComposableBitfield(std::move(uintType), "border_color", 3));
+  s->addField(ComposableBitfield(CTYPE_UINT, "border_style", 2));
+  s->addField(ComposableBitfield(CTYPE_UCHAR, "", 0));
+  s->addField(ComposableBitfield(CTYPE_UCHAR, "width", 4));
+  s->addField(ComposableBitfield(CTYPE_UCHAR, "height", 4));
 
-  StructType *sContainer = new StructType("BoxPropsContainer", false);
-  sContainer->addField(new ComposableField(s, "b"));
+  auto sContainer = std::make_shared<StructType>("BoxPropsContainer", false);
+  sContainer->addField(ComposableField(std::move(s), "b"));
 
-  Parameter* p = new Parameter(sContainer, "s");
-
-  FunctionDeclaration f(functionGetFunctionName(), VoidReturnValue(), Parameter::Vector({p}));
+  Parameter::Vector pv{};
+  pv.emplace_back(Parameter(std::move(sContainer), "s"));
+  FunctionDeclaration f(functionGetFunctionName(), VoidReturnValue(), std::move(pv));
   return f;
 }
 

@@ -1,7 +1,9 @@
 #include "FunctionDeclaration.h"
 
+#include <boost/functional/hash.hpp>
+
 FunctionDeclaration::FunctionDeclaration(std::string p_functionName, ReturnValue p_functionReturnType, Parameter::Vector p_functionParameters):
-Function(p_functionName, p_functionReturnType, p_functionParameters), ElementToMock(), m_doesThisDeclarationHasBody{false}
+Function(std::move(p_functionName), std::move(p_functionReturnType), std::move(p_functionParameters)), ElementToMock(), m_doesThisDeclarationHasBody{false}
 {
 }
 
@@ -15,7 +17,7 @@ void FunctionDeclaration::setDoesThisDeclarationHasABody(bool val) noexcept
   m_doesThisDeclarationHasBody = val;
 }
 
-size_t FunctionDeclaration::getHash() const
+size_t FunctionDeclaration::getHash() const noexcept
 {
   size_t seed{0};
   boost::hash_combine(seed, Function::getHash());
@@ -48,13 +50,5 @@ ElementToMock_Type FunctionDeclaration::getMockType() const
   return ETS_function;
 }
 
-
-FunctionDeclaration* FunctionDeclaration::clone() const
-{
-  return new FunctionDeclaration(*this);
-}
-
-
 FunctionDeclaration::~FunctionDeclaration() {
 }
-

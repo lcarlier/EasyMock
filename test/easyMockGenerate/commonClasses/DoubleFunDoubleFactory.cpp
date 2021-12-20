@@ -2,15 +2,11 @@
 
 FunctionDeclaration DoubleFunDoubleFactory::functionFactory()
 {
-  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_DOUBLE), Parameter::Vector({NamedParameter(CTYPE_DOUBLE, "d")}));
+  Parameter::Vector pv{};
+  pv.emplace_back(NamedParameter(CTYPE_DOUBLE, "d"));
+  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_DOUBLE), std::move(pv));
   return f;
 }
-
-FunctionDeclaration* DoubleFunDoubleFactory::newFunctionFactory()
-{
-  return functionFactory().clone();
-}
-
 
 std::string DoubleFunDoubleFactory::functionGetFunctionName()
 {

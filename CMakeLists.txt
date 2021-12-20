@@ -72,6 +72,16 @@ message(STATUS "Building for ${CMAKE_BUILD_TYPE}.")
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+# EasyMock needs at least clang 8.0 to prevent this bug:
+# https://github.com/lcarlier/EasyMock/runs/4583991022?check_suite_focus=true
+# I'm not sure why it happened
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    message(STATUS "CLANG VERSION: ${CMAKE_CXX_COMPILER_VERSION}")
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8.0)
+        message(FATAL_ERROR "Clang version must be at least 8.0!")
+    endif()
+endif()
+
 if(hasParent)
     set(ENABLE_ASAN "" PARENT_SCOPE)
 else()
@@ -268,8 +278,7 @@ set(CTEMPLATE_GENERATE_OBJ ctemplateGenerate)
 set(CMD_LINE_PARSER_OBJ cmdLineParser)
 set(EASYMOCK_COMMON_OBJ easyMockCommonObj)
 set(EASYMOCK_FRAMEWORK_LIBRARY EasyMockFramework)
-set(EASYMOCK_GEN_INCLUDE_DIR ${EasyMock_SOURCE_DIR}/src/common/include
-                             ${EasyMock_SOURCE_DIR}/src/easyMockFramework/include
+set(EASYMOCK_GEN_INCLUDE_DIR ${EasyMock_SOURCE_DIR}/src/easyMockFramework/include
                              ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/include
                              ${Boost_INCLUDE_DIR}
                              ${CTEMPLATE_INCLUDEDIR}

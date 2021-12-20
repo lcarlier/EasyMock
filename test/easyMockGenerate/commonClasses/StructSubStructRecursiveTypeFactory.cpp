@@ -23,13 +23,15 @@
 FunctionDeclaration StructSubStructRecursiveTypeFactory::functionFactory()
 {
   bool isEmbeddedInOtherType = false;
-  StructType *st1 = new StructType("st1", isEmbeddedInOtherType);
-  StructType *st2 = new StructType("st2", isEmbeddedInOtherType);
-  st1->addField(new ComposableField(st2, "st1SubSt2"));
-  //st1 is recursive in st2 because it is access via the parameter "st1Val" which is type st2 and has a st1 as field member
-  st2->addField(new ComposableField(new Pointer (new IncompleteType(*st1, IncompleteType::Type::STRUCT)), "st2SubSt1"));
-  st2->addField(new ComposableField(new Pointer (new IncompleteType(*st2, IncompleteType::Type::STRUCT)), "st2SubSt2"));
-  FunctionDeclaration f(functionGetFunctionName(), VoidReturnValue(), Parameter::Vector({new Parameter(st1, "st1Val")}));
+  auto st1 = std::make_shared<StructType>("st1", isEmbeddedInOtherType);
+  auto st2 = std::make_shared<StructType>("st2", isEmbeddedInOtherType);
+  st1->addField(ComposableField(st2, "st1SubSt2"));
+  //st1 is recursive in st2 because it is accessed via the parameter "st1Val" which is type st2 and has a st1 as field member
+  st2->addField(ComposableField(std::make_shared<Pointer>(std::make_shared<IncompleteType>(*st1, IncompleteType::Type::STRUCT)), "st2SubSt1"));
+  st2->addField(ComposableField(std::make_shared<Pointer>(std::make_shared<IncompleteType>(*st2, IncompleteType::Type::STRUCT)), "st2SubSt2"));
+  Parameter::Vector pv{};
+  pv.emplace_back(Parameter(std::move(st1), "st1Val"));
+  FunctionDeclaration f(functionGetFunctionName(), VoidReturnValue(), std::move(pv));
   return f;
 }
 

@@ -2,15 +2,11 @@
 
 FunctionDeclaration UnsLongFunUnsLongFactory::functionFactory()
 {
-  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_ULONG), Parameter::Vector({NamedParameter(CTYPE_ULONG, "ul")}));
+  Parameter::Vector pv{};
+  pv.emplace_back(NamedParameter(CTYPE_ULONG, "ul"));
+  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_ULONG), std::move(pv));
   return f;
 }
-
-FunctionDeclaration* UnsLongFunUnsLongFactory::newFunctionFactory()
-{
-  return functionFactory().clone();
-}
-
 
 std::string UnsLongFunUnsLongFactory::functionGetFunctionName()
 {

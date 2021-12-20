@@ -10,7 +10,9 @@
 TEST(StructType, StructTypeConstructor)
 {
   bool isEmbeddedInOtherType = false;
-  StructType st1("s", ComposableFieldItf::Vector({new ComposableField(CTYPE_CHAR, "f")}), isEmbeddedInOtherType);
+  ComposableType::ComposableFieldTypeVector fieldVector{};
+  fieldVector.emplace_back(ComposableField(CTYPE_CHAR, "f"));
+  StructType st1("s", std::move(fieldVector), isEmbeddedInOtherType);
   ASSERT_FALSE(st1.isCType());
   ASSERT_TRUE(st1.isStruct());
   ASSERT_FALSE(st1.isUnion());
@@ -22,7 +24,9 @@ TEST(StructType, EmbeddedInOtherType)
 {
   bool isEmbeddedInOtherType = true;
 
-  StructType st1("s", ComposableFieldItf::Vector({new ComposableField(CTYPE_CHAR, "f")}), isEmbeddedInOtherType);
+  ComposableType::ComposableFieldTypeVector fieldVector;
+  fieldVector.emplace_back(ComposableField(CTYPE_CHAR, "f"));
+  StructType st1("s", std::move(fieldVector), isEmbeddedInOtherType);
   ASSERT_FALSE(st1.isCType());
   ASSERT_TRUE(st1.isStruct());
   ASSERT_FALSE(st1.isUnion());
@@ -33,7 +37,9 @@ TEST(StructType, AnonymousStructGetFullDeclarationName)
 {
   bool isEmbeddedInOtherType = false;
 
-  StructType st1("", ComposableFieldItf::Vector({new ComposableField(CTYPE_CHAR, "f")}), isEmbeddedInOtherType);
+  ComposableType::ComposableFieldTypeVector vectorField{};
+  vectorField.emplace_back(ComposableField(CTYPE_CHAR, "f"));
+  StructType st1("", std::move(vectorField), isEmbeddedInOtherType);
   ASSERT_FALSE(st1.isCType());
   ASSERT_TRUE(st1.isStruct());
   ASSERT_FALSE(st1.isUnion());
@@ -46,8 +52,8 @@ TEST(StructType, AnonymousStructGetFullDeclarationName)
 TEST(StructType, PtrToPtrRecur)
 {
   StructType t("ptrToPtrStructRecur", false);
-  Pointer *p = new Pointer(new IncompleteType(t, IncompleteType::Type::STRUCT));
-  Pointer *p2p = new Pointer(p);
-  t.addField(new ComposableField(p2p, "r"));
+  auto p = std::make_shared<Pointer>(std::make_shared<IncompleteType>(t, IncompleteType::Type::STRUCT));
+  auto p2p = std::make_shared<Pointer>(std::move(p));
+  t.addField(ComposableField(std::move(p2p), "r"));
   //Nothing to check in particular. The address sanitiser shouldn't return any error
 }

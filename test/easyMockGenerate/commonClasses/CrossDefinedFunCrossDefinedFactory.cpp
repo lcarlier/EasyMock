@@ -8,17 +8,18 @@
 ElementToMockList CrossDefinedFunCrossDefinedFactory::functionFactoryArray()
 {
   ElementToMockList returnedList;
-  CType intType(CTYPE_INT);
-  CType floatType(CTYPE_FLOAT);
-  ReturnValue rv(floatType.clone());
+  auto intType = std::make_shared<CType>(CTYPE_INT);
+  auto floatType = std::make_shared<CType>(CTYPE_FLOAT);
+  ReturnValue rv(std::move(floatType));
   rv.setDeclareString("DEF2");
 
-  Parameter* p = new Parameter(intType.clone(), "p");
-  p->setDeclareString("DEF1");
-
   {
-    FunctionDeclaration *fd = new FunctionDeclaration(functionGetFunctionName(), rv, Parameter::Vector({p}));
-    returnedList.push_back(fd);
+    Parameter p{std::move(intType), "p"};
+    p.setDeclareString("DEF1");
+    Parameter::Vector pv{};
+    pv.emplace_back(std::move(p));
+    FunctionDeclaration fd(functionGetFunctionName(), std::move(rv), std::move(pv));
+    returnedList.push_back(std::move(fd));
   }
   return returnedList;
 }

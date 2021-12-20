@@ -32,7 +32,7 @@ TYPED_TEST(GenericParser_testCase, parser)
   fileName.append(funFactory.getFilename());
   parser.setFilename(fileName);
   parser.getElementToMockContext(ctxt);
-  const ElementToMock::Vector& elementToMock = ctxt.getElementToMock();
+  const auto& elementToMock = ctxt.getElementToMock();
   ASSERT_EQ(elementToMock.size(), funList.size());
   for(size_t funIdx = 0; funIdx < funList.size(); funIdx++)
   {
@@ -40,7 +40,7 @@ TYPED_TEST(GenericParser_testCase, parser)
     std::ostringstream factorySs;
     factorySs <<  funFromFactory;
 
-    const FunctionDeclaration& funFromParser = FunctionDeclaration::toFunctionDeclaration(elementToMock[funIdx]);
+    const FunctionDeclaration& funFromParser = std::get<FunctionDeclaration>(elementToMock[funIdx]);
     std::ostringstream parserSs;
     parserSs << funFromParser;
 

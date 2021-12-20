@@ -9,57 +9,54 @@ ElementToMockList VoidFunAttrFunFactory::functionFactoryArray()
 {
   ElementToMockList returnedList;
   {
-    Parameter *p = new Parameter{new Pointer{new ConstQualifiedType{new CType{CTYPE_CHAR}}}, "fmt"};
-    FunctionDeclaration *f = new FunctionDeclaration{functionGetFunctionName(), TypedReturnValue(CTYPE_VOID),
-                                                     Parameter::Vector({p})};
-    p = nullptr; //We lost the ownership
-    f->setVariadic(true);
+    Parameter::Vector pv{};
+    pv.emplace_back(Parameter{std::make_shared<Pointer>(std::make_shared<ConstQualifiedType>(std::make_shared<CType>(CTYPE_CHAR))), "fmt"});
+    FunctionDeclaration f{functionGetFunctionName(), VoidReturnValue(), std::move(pv)};
+    f.setVariadic(true);
     FunctionAttribute fa{"format", FunctionAttribute::ParametersList{"printf", "1", "2"}};
-    f->addAttribute(std::move(fa));
-    returnedList.push_back(f);
+    f.addAttribute(std::move(fa));
+    returnedList.push_back(std::move(f));
   }
   {
-    Parameter *p2 = new Parameter{new Pointer{new ConstQualifiedType{new CType{CTYPE_CHAR}}}, "fmt"};
-    Parameter *p1 = new Parameter{ new CType {CTYPE_INT}, "a"};
-    FunctionDeclaration *f = new FunctionDeclaration{"voidFunAttrFunMacro", TypedReturnValue(CTYPE_VOID),
-                                                     Parameter::Vector({p1, p2})};
-    p2 = nullptr; //We lost the ownership
-    f->setVariadic(true);
+    Parameter::Vector pv{};
+    pv.emplace_back(Parameter{std::make_shared<CType>(CTYPE_INT), "a"});
+    pv.emplace_back(Parameter{std::make_shared<Pointer>(std::make_shared<ConstQualifiedType>(std::make_shared<CType>(CTYPE_CHAR))), "fmt"});
+    FunctionDeclaration f{"voidFunAttrFunMacro", VoidReturnValue(), std::move(pv)};
+    f.setVariadic(true);
     FunctionAttribute fa{"format", FunctionAttribute::ParametersList{"printf", "2", "3"}};
-    f->addAttribute(std::move(fa));
-    returnedList.push_back(f);
+    f.addAttribute(std::move(fa));
+    returnedList.push_back(std::move(f));
   }
   {
-    Parameter *p = new Parameter{new Pointer{new ConstQualifiedType{new CType{CTYPE_CHAR}}}, "fmt"};
-    FunctionDeclaration *f = new FunctionDeclaration{"voidFunAttrFunAlwaysInline", TypedReturnValue(CTYPE_VOID),
-                                                     Parameter::Vector({p})};
-    p = nullptr; //We lost the ownership
-    f->setVariadic(true);
+    Parameter::Vector pv{};
+    pv.emplace_back(Parameter{std::make_shared<Pointer>(std::make_shared<ConstQualifiedType>(std::make_shared<CType>(CTYPE_CHAR))), "fmt"});
+    FunctionDeclaration f{"voidFunAttrFunAlwaysInline", VoidReturnValue(), std::move(pv)};
+    f.setVariadic(true);
     FunctionAttribute fa1{"format", FunctionAttribute::ParametersList{"printf", "1", "2"}};
     FunctionAttribute fa2{"noinline"};
-    f->addAttribute(std::move(fa1));
-    f->addAttribute(std::move(fa2));
-    returnedList.push_back(f);
+    f.addAttribute(std::move(fa1));
+    f.addAttribute(std::move(fa2));
+    returnedList.push_back(std::move(f));
   }
   {
-    FunctionDeclaration *f = new FunctionDeclaration{"voidFunAttrMultiAttr", TypedReturnValue(CTYPE_VOID),
-                                                     Parameter::Vector({})};
+    FunctionDeclaration f{"voidFunAttrMultiAttr", VoidReturnValue(),
+                                                     {}};
     FunctionAttribute fa1{"section", FunctionAttribute::ParametersList{"__DATA__,.multiAttr.text"}};
     FunctionAttribute fa2{"cold"};
-    f->addAttribute(std::move(fa1));
-    f->addAttribute(std::move(fa2));
-    returnedList.push_back(f);
+    f.addAttribute(std::move(fa1));
+    f.addAttribute(std::move(fa2));
+    returnedList.push_back(std::move(f));
   }
   {
-    FunctionDeclaration *f = new FunctionDeclaration{"voidFunNoReturn", VoidReturnValue(), Parameter::Vector({})};
-    f->addAttribute(FunctionAttribute{"noreturn"});
+    FunctionDeclaration f{"voidFunNoReturn", VoidReturnValue(), {}};
+    f.addAttribute(FunctionAttribute{"noreturn"});
 
-    returnedList.push_back(f);
+    returnedList.push_back(std::move(f));
   }
   {
-    FunctionDeclaration *f = new FunctionDeclaration{ "__bad_copy_from", VoidReturnValue(), Parameter::Vector ({})};
+    FunctionDeclaration f{ "__bad_copy_from", VoidReturnValue(), {}};
 
-    returnedList.push_back(f);
+    returnedList.push_back(std::move(f));
   }
   return returnedList;
 }
