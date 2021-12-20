@@ -21,6 +21,26 @@ FunctionDeclaration VoidFunStructBitfieldFactory::functionFactory()
   s->addField(ComposableBitfield(CTYPE_UCHAR, "", 0));
   s->addField(ComposableBitfield(CTYPE_UCHAR, "width", 4));
   s->addField(ComposableBitfield(CTYPE_UCHAR, "height", 4));
+#if defined(__APPLE__)
+  auto uint64t = std::make_shared<TypedefType>("uint64_t", std::make_shared<CType>(CTYPE_ULONG_LONG));
+#elif defined(__linux__)
+  auto uint64t = std::make_shared<TypedefType>("uint64_t", std::make_shared<CType>(CTYPE_ULONG));
+#endif
+  s->addField(ComposableBitfield(uint64t, "bit64_0", 1));
+  s->addField(ComposableBitfield(uint64t, "bit64_1", 1));
+  s->addField(ComposableBitfield(std::move(uint64t), "rest64", 62));
+  auto uint32t = std::make_shared<TypedefType>("uint32_t", std::make_shared<CType>(CTYPE_UINT));
+  s->addField(ComposableBitfield(uint32t, "bit32_0", 1));
+  s->addField(ComposableBitfield(uint32t, "bit32_1", 1));
+  s->addField(ComposableBitfield(std::move(uint32t), "rest32", 30));
+  auto uint16t = std::make_shared<TypedefType>("uint16_t", std::make_shared<CType>(CTYPE_USHORT));
+  s->addField(ComposableBitfield(uint16t, "bit16_0", 1));
+  s->addField(ComposableBitfield(uint16t, "bit16_1", 1));
+  s->addField(ComposableBitfield(std::move(uint16t), "rest16", 14));
+  auto uint8t = std::make_shared<TypedefType>("uint8_t", std::make_shared<CType>(CTYPE_UCHAR));
+  s->addField(ComposableBitfield(uint8t, "bit8_0", 1));
+  s->addField(ComposableBitfield(uint8t, "bit8_1", 1));
+  s->addField(ComposableBitfield(std::move(uint8t), "rest8", 6));
 
   auto sContainer = std::make_shared<StructType>("BoxPropsContainer", false);
   sContainer->addField(ComposableField(std::move(s), "b"));

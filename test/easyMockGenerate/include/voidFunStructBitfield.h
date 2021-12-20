@@ -21,6 +21,18 @@ struct BoxProps
   unsigned char              : 0; // fill to nearest byte (16 bits)
   unsigned char width        : 4, // Split a byte into 2 fields of 4 bits
                 height       : 4;
+  uint64_t      bit64_0      : 1;
+  uint64_t      bit64_1      : 1;
+  uint64_t      rest64       : 62;
+  uint32_t      bit32_0      : 1;
+  uint32_t      bit32_1      : 1;
+  uint32_t      rest32       : 30;
+  uint16_t      bit16_0      : 1;
+  uint16_t      bit16_1      : 1;
+  uint16_t      rest16       : 14;
+  uint8_t       bit8_0       : 1;
+  uint8_t       bit8_1       : 1;
+  uint8_t       rest8        : 6;
 };
 
 struct BoxPropsContainer
@@ -35,4 +47,3 @@ void voidFunStructBitfield(struct BoxPropsContainer s);
 #endif
 
 #endif /* STRUCTBITFIELDFUNSTRUCTBITFIELD_H */
-

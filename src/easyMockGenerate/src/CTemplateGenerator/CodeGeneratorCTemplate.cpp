@@ -3,17 +3,11 @@
  * \brief See CodeGeneratorCTemplate.hpp
  */
 #include <cstdio>
-#include <cstdlib>
-#include <vector>
 #include <algorithm>
 #include <cstring>
 #include "CodeGeneratorCTemplate.h"
 #include <boost/filesystem.hpp>
-#include <boost/algorithm/string/replace.hpp>
 #include <unordered_set>
-
-#include <sys/stat.h>
-#include <fcntl.h>
 
 #include "TypeItf.h"
 #include "ComposableType.h"
@@ -27,6 +21,7 @@
 #include "IncompleteType.h"
 #include "Enum.h"
 #include "TypedefType.h"
+#include "EasyMock_CType.h"
 
 #undef NDEBUG
 #include <cassert>
@@ -177,6 +172,10 @@
 #define VARIADIC_SECTION "VARIADIC_SECTION"
 #define VARIADIC_VAR "VARIADIC_VAR"
 #define VARIADIC_TEMPLATE_VAR TEMPLATE_VAR(VARIADIC_VAR)
+
+#define ERROR_PRINTF_VAL_SPECIFIC_CAST_SECTION "ERROR_PRINTF_VAL_SPECIFIC_CAST_SECTION"
+#define ERROR_PRINTF_VAL_SPECIFIC_CAST_VAR "ERROR_PRINTF_VAL_SPECIFIC_CAST_VAR"
+#define ERROR_PRINTF_VAL_SPECIFIC_CAST_TEMPLATE_VAR TEMPLATE_VAR(ERROR_PRINTF_VAL_SPECIFIC_CAST_VAR)
 
 #define EXTRA_DECL_SECTION "EXTRA_DECL_SECTION"
 #define EXTRA_TOP_LEVEL_DECL_SECTION "EXTRA_TOP_LEVEL_DECL_SECTION"
@@ -459,7 +458,7 @@ const char templateText[] =
         "    if(" STRUCT_COMPARE_PARAM_SECTION_COMPARE_CONDITION_VAR ")" CARRIAGE_RETURN
         "    {" CARRIAGE_RETURN
         TEMPLATE_BEG_SECTION(STRUCT_COMPARE_ERROR)
-        "        easyMock_snprintf(errorMessage, 256 , \"Parameter '%s' which is a" COMPOSED_TYPE_TEMPLATE_VAR " of type '" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_STRUCT_TYPE_VAR "' has field '" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_FIELD_VAR "' with value '%" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_PRINTF_FORMAT_VAR "', was expecting '%" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_PRINTF_FORMAT_VAR "'\", paramName, currentCall_val->" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_FIELD_VAR ", expectedCall_val->" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_FIELD_VAR ");" CARRIAGE_RETURN
+        "        easyMock_snprintf(errorMessage, 256 , \"Parameter '%s' which is a" COMPOSED_TYPE_TEMPLATE_VAR " of type '" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_STRUCT_TYPE_VAR "' has field '" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_FIELD_VAR "' with value '%" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_PRINTF_FORMAT_VAR "', was expecting '%" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_PRINTF_FORMAT_VAR "'\", paramName, " IF_SECTION_EXISTS(ERROR_PRINTF_VAL_SPECIFIC_CAST_SECTION, "(" ERROR_PRINTF_VAL_SPECIFIC_CAST_TEMPLATE_VAR ")") "currentCall_val->" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_FIELD_VAR ", " IF_SECTION_EXISTS(ERROR_PRINTF_VAL_SPECIFIC_CAST_SECTION, "(" ERROR_PRINTF_VAL_SPECIFIC_CAST_TEMPLATE_VAR ")") "expectedCall_val->" STRUCT_COMPARE_ERROR_SECTION_STRUCT_COMPARE_FIELD_VAR ");" CARRIAGE_RETURN
         TEMPLATE_END_SECTION(STRUCT_COMPARE_ERROR)
         "        return -1;" CARRIAGE_RETURN
         "    }" CARRIAGE_RETURN
@@ -1643,7 +1642,13 @@ void CodeGeneratorCTemplate::generateBasicTypeField(const ComposableFieldItf *p_
   }
   errorDict->SetValue(STRUCT_COMPARE_TYPE, compareType);
   const TypeItf *curFieldType = p_curField->getType();
+  if(p_curField->isComposableBitfield())
+  {
+    ctemplate::TemplateDictionary* castSection = errorDict->AddSectionDictionary(ERROR_PRINTF_VAL_SPECIFIC_CAST_SECTION);
+    castSection->SetValue(ERROR_PRINTF_VAL_SPECIFIC_CAST_VAR, p_curField->getType()->getFullDeclarationName());
+  }
   setStructCompareStringFormat(errorDict, curFieldType);
+
   p_paramSectDict->SetValue(COMPARE_CONDITION, condition);
 }
 

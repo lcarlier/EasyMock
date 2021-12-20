@@ -13,6 +13,8 @@
 #include <variant>
 
 class TypeItf;
+class ComposableField;
+class ComposableBitfield;
 
 /*!
  * \brief The interface for a field to be added to a ::ComposableType
@@ -37,9 +39,37 @@ public:
   virtual bool isComposableField() const;
 
   /*!
+   * \brief Cast a ::ComposableFieldItf pointer to a ::ComposableField pointer.
+   *
+   * \return If this is a pointer to ::ComposableField, returns the casted pointer
+   * \return Else returns nullptr
+   */
+  const ComposableField* asComposableField() const;
+
+  /*!
+   * \copydoc ::ComposableFieldItf::asComposableField() const
+   * @return
+   */
+  ComposableField* asComposableField();
+
+  /*!
    * \brief Returns whether the subclasser is a ::ComposableBitfield object
    */
   virtual bool isComposableBitfield() const;
+
+  /*!
+   * \brief Cast a ::ComposableFieldItf pointer to a ::ComposableBitfield pointer.
+   *
+   * \return If this is a pointer to ::ComposableBitfield, returns the casted pointer
+   * \return Else returns nullptr
+   */
+  const ComposableBitfield* asComposableBitfield() const;
+
+  /*!
+   * \copydoc ::ComposableFieldItf::asComposableBitfield() const
+   * @return
+   */
+  ComposableBitfield* asComposableBitfield();
 
   /*!
    * \brief Returns if the field is anonymous.
