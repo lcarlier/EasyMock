@@ -31,19 +31,21 @@ int main(int argc, char *argv[])
     std::fprintf(stderr, "%s\n\r", opt.m_errorMessage.c_str());
     return 1;
   }
-  if(!validateParameter(opt))
-  {
-    return 1;
-  }
 
   if(!opt.m_changeWorkingDir.empty())
   {
     if(chdir(opt.m_changeWorkingDir.c_str()) == -1)
     {
-      std::fprintf(stderr, "Couldn't change to directory %s: %s\n\r", opt.m_changeWorkingDir.c_str(), strerror(errno));
+      std::fprintf(stderr, "EasyMock couldn't change to directory %s: %s\n\r", opt.m_changeWorkingDir.c_str(), strerror(errno));
       return 1;
     }
   }
+
+  if(!validateParameter(opt))
+  {
+    return 1;
+  }
+
   LLVMParser of;
   of.setFlags(opt.m_extraArgs);
   of.setMockOnlyFunction(opt.m_mockOnlyList);

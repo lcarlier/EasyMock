@@ -292,6 +292,9 @@ LLVM. Typically, the same compile flags (such as `-I` and `-D`) that are given
 to compile the source file including the header that is being mocked in the
 production code should be given as extra parameters to EasyMock.
 
+When using the `cwd` parameter, any relative parameter given to `-i` or `-o` will
+be used after EasyMock has changed his current working directory.
+
 ## <a name="user-content-gf"></a>Generated functions
 
 To configure the generated mocks, EasyMock generates 2 function families
