@@ -21,6 +21,8 @@
 #include <clang/Tooling/CompilationDatabase.h>
 #include <clang/Tooling/Tooling.h>
 
+#include <boost/filesystem.hpp>
+
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -54,8 +56,8 @@ private:
   using structKnownTypeMap = std::unordered_map<std::string, std::shared_ptr<IncompleteType>>;
 public:
 
-  explicit FunctionDeclASTVisitor(clang::SourceManager& sm, ElementToMockContext& ctxt, const MockOnlyList& mockOnlyList, const IgnoreTypeFieldList& ignoreTypeFieldList)
-  : m_sourceManager(sm), m_ctxt(ctxt), m_context(nullptr), m_mockOnlyList{mockOnlyList}, m_ignoreTypeFieldList{ignoreTypeFieldList}
+  explicit FunctionDeclASTVisitor(clang::SourceManager& sm, ElementToMockContext& ctxt, const MockOnlyList& mockOnlyList, const IgnoreTypeFieldList& ignoreTypeFieldList, const boost::filesystem::path& mainFile)
+  : m_sourceManager(sm), m_ctxt(ctxt), m_context(nullptr), m_mockOnlyList{mockOnlyList}, m_ignoreTypeFieldList{ignoreTypeFieldList}, m_mainFile{mainFile}
   {
     (void)m_sourceManager;
     m_cachedStruct.clear();
@@ -85,19 +87,28 @@ public:
     {
       return std::nullopt;
     }
-    bool isInline = func->isInlined();
-    bool doesThisDeclHasABody = func->doesThisDeclarationHaveABody();
-    bool isStatic = func->isStatic();
-    std::string originFile = func->getSourceRange().printToString(*m_SM);
+    std::string originFileFullInfo = func->getLocation().printToString(*m_SM);
+    size_t posColumn = originFileFullInfo.find_first_of(':');
+    std::string originFile = originFileFullInfo.substr(0,posColumn);
+    boost::filesystem::path originCanon = boost::filesystem::canonical(originFile);
+
+    bool isFromMainFile = m_mainFile == originCanon;
+    if(!isFromMainFile)
+    {
+      return std::nullopt;
+    }
 
     ReturnValue rv = getFunctionReturnValue(func);
     Parameter::Vector param = getFunctionParameters(func);
     FunctionDeclaration f(funName, std::move(rv), std::move(param));
+    bool isInline = func->isInlined();
+    bool doesThisDeclHasABody = func->doesThisDeclarationHaveABody();
+    bool isStatic = func->isStatic();
     f.setVariadic(func->isVariadic());
     f.setInlined(isInline);
     f.setIsStatic(isStatic);
     f.setDoesThisDeclarationHasABody(doesThisDeclHasABody);
-    f.setOriginFile(originFile);
+    f.setOriginFile(originFileFullInfo);
     setFunctionAttribute(func, f);
     return std::make_optional<FunctionDeclaration>(std::move(f));
   }
@@ -117,6 +128,7 @@ private:
   const MockOnlyList& m_mockOnlyList;
   const IgnoreTypeFieldList& m_ignoreTypeFieldList;
   std::unordered_map<std::string, std::shared_ptr<TypeItf>> m_cachedStruct;
+  const boost::filesystem::path& m_mainFile;
 
   enum ContainerType {
     STRUCT,
@@ -948,8 +960,8 @@ class FunctionDeclASTConsumer : public clang::ASTConsumer
 public:
   // override the constructor in order to pass CI
 
-  FunctionDeclASTConsumer(clang::CompilerInstance& ci, ElementToMockContext& ctxt, const MockOnlyList& mockOnlyList, const IgnoreTypeFieldList& ignoreTypeFieldList)
-  : clang::ASTConsumer(), m_visitor(ci.getSourceManager(), ctxt, mockOnlyList, ignoreTypeFieldList) { }
+  FunctionDeclASTConsumer(clang::CompilerInstance& ci, ElementToMockContext& ctxt, const MockOnlyList& mockOnlyList, const IgnoreTypeFieldList& ignoreTypeFieldList, const boost::filesystem::path& mainFile)
+  : clang::ASTConsumer(), m_visitor(ci.getSourceManager(), ctxt, mockOnlyList, ignoreTypeFieldList, mainFile) { }
 
   virtual void HandleTranslationUnit(clang::ASTContext& astContext) override
   {
@@ -1062,8 +1074,8 @@ private:
 class FunctionDeclFrontendAction : public clang::ASTFrontendAction
 {
 public:
-  FunctionDeclFrontendAction(ElementToMockContext& ctxt, const MockOnlyList& mockOnlyList, const IgnoreTypeFieldList& ignoreTypeFieldList) :
-  clang::ASTFrontendAction(), m_ctxt(ctxt), m_mockOnlyList{mockOnlyList}, m_ignoreTypeFieldList{ignoreTypeFieldList}
+  FunctionDeclFrontendAction(ElementToMockContext& ctxt, const MockOnlyList& mockOnlyList, const IgnoreTypeFieldList& ignoreTypeFieldList, const boost::filesystem::path& mainFile) :
+  clang::ASTFrontendAction(), m_ctxt(ctxt), m_mockOnlyList{mockOnlyList}, m_ignoreTypeFieldList{ignoreTypeFieldList}, m_mainFile{mainFile}
   {
   }
 
@@ -1072,30 +1084,32 @@ public:
     clang::Preprocessor& PP = CI.getPreprocessor();
     clang::SourceManager& sm = CI.getSourceManager();
     PP.addPPCallbacks(std::make_unique<MacroBrowser>(m_ctxt, sm));
-    return std::make_unique<FunctionDeclASTConsumer>(CI, m_ctxt, m_mockOnlyList, m_ignoreTypeFieldList);
+    return std::make_unique<FunctionDeclASTConsumer>(CI, m_ctxt, m_mockOnlyList, m_ignoreTypeFieldList, m_mainFile);
   }
 private:
   ElementToMockContext& m_ctxt;
   const MockOnlyList& m_mockOnlyList;
   const IgnoreTypeFieldList& m_ignoreTypeFieldList;
+  const boost::filesystem::path& m_mainFile;
 };
 
-std::unique_ptr<clang::tooling::FrontendActionFactory> newFunctionDeclFrontendAction(ElementToMockContext& ctxt, const MockOnlyList& mockOnlyList, const IgnoreTypeFieldList& ignoreTypeFieldList) {
+std::unique_ptr<clang::tooling::FrontendActionFactory> newFunctionDeclFrontendAction(ElementToMockContext& ctxt, const MockOnlyList& mockOnlyList, const IgnoreTypeFieldList& ignoreTypeFieldList, const boost::filesystem::path& mainFile) {
   class FunctionDeclFrontendActionFactory : public clang::tooling::FrontendActionFactory {
   public:
-    FunctionDeclFrontendActionFactory(ElementToMockContext& ctxt, const MockOnlyList& mockOnlyList, const IgnoreTypeFieldList& ignoreTypeFieldList) :
-    clang::tooling::FrontendActionFactory(), m_ctxt(ctxt), m_mockOnlyList{mockOnlyList}, m_ignoreTypeFieldList{ignoreTypeFieldList}
+    FunctionDeclFrontendActionFactory(ElementToMockContext& ctxt, const MockOnlyList& mockOnlyList, const IgnoreTypeFieldList& ignoreTypeFieldList, const boost::filesystem::path& mainFile) :
+    clang::tooling::FrontendActionFactory(), m_ctxt(ctxt), m_mockOnlyList{mockOnlyList}, m_ignoreTypeFieldList{ignoreTypeFieldList}, m_mainFile{mainFile}
     {
     }
-    std::unique_ptr<clang::FrontendAction> create() override { return std::make_unique<FunctionDeclFrontendAction>(m_ctxt, m_mockOnlyList, m_ignoreTypeFieldList); }
+    std::unique_ptr<clang::FrontendAction> create() override { return std::make_unique<FunctionDeclFrontendAction>(m_ctxt, m_mockOnlyList, m_ignoreTypeFieldList, m_mainFile); }
   private:
     ElementToMockContext& m_ctxt;
     const MockOnlyList& m_mockOnlyList;
     const IgnoreTypeFieldList& m_ignoreTypeFieldList;
+    const boost::filesystem::path& m_mainFile;
   };
 
   return std::unique_ptr<clang::tooling::FrontendActionFactory>(
-      new FunctionDeclFrontendActionFactory(ctxt, mockOnlyList, ignoreTypeFieldList));
+      new FunctionDeclFrontendActionFactory(ctxt, mockOnlyList, ignoreTypeFieldList, mainFile));
 }
 
 LLVMParser::LLVMParser() : CodeParserItf()
@@ -1130,9 +1144,10 @@ CodeParser_errCode LLVMParser::getElementToMockContext(ElementToMockContext& p_c
     LLVMExtraArgs.emplace_back(toAdd);
   }
   clang::tooling::FixedCompilationDatabase db(twineDir, LLVMExtraArgs);
-  std::vector<std::string> arRef({m_filename});
+  boost::filesystem::path fullPath = boost::filesystem::canonical(m_filename);
+  std::vector<std::string> arRef({fullPath.string()});
   clang::tooling::ClangTool tool(db, arRef);
-  tool.run(newFunctionDeclFrontendAction(p_ctxt, m_mockOnlyList, m_ignoreTypeFieldList).get());
+  tool.run(newFunctionDeclFrontendAction(p_ctxt, m_mockOnlyList, m_ignoreTypeFieldList, fullPath).get());
   return cp_OK;
 }
 
