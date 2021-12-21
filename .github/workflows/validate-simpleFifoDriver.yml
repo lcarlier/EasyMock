@@ -1,0 +1,55 @@
+name: Validate simple FIFO driver
+
+on: [push, pull_request]
+
+jobs:
+  ubuntu-20-04-x86-gcc:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: |-
+          sudo apt install \
+            gcc \
+            g++ \
+            cmake \
+            pkg-config \
+            libunwind-dev \
+            llvm-12-dev \
+            libclang-12-dev \
+            libncurses-dev \
+            libboost-system-dev \
+            libboost-filesystem-dev \
+            libctemplate-dev \
+            libdw-dev \
+            doxygen \
+            graphviz
+
+      - name: Pull and prepare simple FIFO driver repo
+        run: |-
+          git clone https://github.com/lcarlier/simpleFifoKernelDriver.git /tmp/simpleFifoKernelDriver
+          rm -rf /tmp/simpleFifoKernelDriver/extern/EasyMock
+          ln -s `pwd` /tmp/simpleFifoKernelDriver/extern/EasyMock
+
+      - name: Run test
+        run: |-
+          cd /tmp/simpleFifoKernelDriver/
+          cmake -B build
+          cd build
+          make -j `nproc` all
+          ctest --output-on-failure
+
+      - name: Store artifacts
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: build-output
+          path: |
+            /tmp/simpleFifoKernelDriver/**/*.c
+            /tmp/simpleFifoKernelDriver/**/*.cpp
+            /tmp/simpleFifoKernelDriver/**/*.h
+            /tmp/simpleFifoKernelDriver/**/*.hpp
+            /tmp/simpleFifoKernelDriver/**/*.txt
+            /tmp/simpleFifoKernelDriver/**/Kbuild
