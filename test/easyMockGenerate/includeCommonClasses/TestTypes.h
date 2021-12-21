@@ -77,6 +77,7 @@
 #include <VoidFunStructForwardDeclAndEmptyStructFactory.h>
 #include <Header-With-Dash-Factory.h>
 #include <MainIncludeFactory.h>
+#include <StructEmptyTypeArrayFactory.h>
 
 // TestTypesInclude.h is generated
 #include "TestTypesInclude.h"
@@ -221,7 +222,9 @@
         HeaderWithDashFactory, \
         HeaderWithDashGenerateTypeFactory, \
         MainIncludeFactory, \
-        MainIncludeGenerateTypeFactory
+        MainIncludeGenerateTypeFactory, \
+        StructEmptyTypeArrayFactory, \
+        StructEmptyTypeArrayGenerateTypeFactory
 
 typedef ::testing::Types
 <

@@ -97,6 +97,8 @@ private:
   void registerTypeDef(const TypeItf* p_type);
   const std::string& getTypeDefName(const TypeItf* p_type);
   const TypeItf* getRawType(const TypeItf* p_type);
+  bool hasTypeNonZeroSize(const TypeItf* p_type);
+  const TypeItf* getMostDefinedType(const TypeItf* p_type);
   const std::string& getMostDefinedName(const TypeItf* p_type);
   void generateForwardDeclaration(const TypeItf* p_type);
 

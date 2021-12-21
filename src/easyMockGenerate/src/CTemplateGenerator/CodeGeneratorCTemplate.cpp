@@ -887,6 +887,42 @@ bool doesFunctionUsesEmptyEnum(const FunctionDeclaration& fd)
 
 } //namespace
 
+bool CodeGeneratorCTemplate::hasTypeNonZeroSize(const TypeItf* p_type)
+{
+  const TypeItf* mostDefinedType = getMostDefinedType(p_type);
+  const ComposableType* composableType = mostDefinedType->asComposableType();
+
+  if(composableType)
+  {
+    return !composableType->getContainedFields().empty();
+  }
+  return true;
+}
+
+const TypeItf* CodeGeneratorCTemplate::getMostDefinedType(const TypeItf *p_type)
+{
+  const QualifiedType* qualifiedType = p_type->asQualifiedType();
+  if(qualifiedType)
+  {
+    return getMostDefinedType(qualifiedType->getUnqualifiedType());
+  }
+
+  const TypedefType* typedefType = p_type->asTypedefType();
+  if(typedefType)
+  {
+    /*
+     * Instead of calling registerTypeDef at each place we discover a new type, we prefer to register the typedef
+     * in the list whenever we encounter one via this function. This is working in most of the case because
+     * we need to know the raw type at one moment in the mock generation. The only exception is for the return values
+     * where we need to call registerTypeDef manually.
+     */
+    registerTypeDef(p_type);
+    return getMostDefinedType(typedefType->getTypee());
+  }
+
+  return p_type;
+}
+
 const TypeItf* CodeGeneratorCTemplate::getRawType(const TypeItf* p_type)
 {
   const Pointer* pointerType = p_type->asPointer();
@@ -2026,7 +2062,13 @@ void CodeGeneratorCTemplate::generateAllFieldStructCompare(ctemplate::TemplateDi
         const bool isArray = curComposableField.isBoundSpecifiedArray();
         if(isArray)
         {
-          generateBodyStructCompare(p_compareFunDict, STRUCT_COMPARE_ARRAY_SECTION, p_composedType, &curComposableField, prevField, p_uniquePrepend, p_declPrepend);
+          const bool hasTypeNonZeroSize = this->hasTypeNonZeroSize(curComposableField.getType());
+          if(hasTypeNonZeroSize)
+          {
+            generateBodyStructCompare(p_compareFunDict, STRUCT_COMPARE_ARRAY_SECTION, p_composedType,
+                                      &curComposableField, prevField, p_uniquePrepend, p_declPrepend);
+          }
+          // else we don't generate a check for empty type field like structs without members. It doesn't make sense.
         }
         else if(isGeneratableField)
         {
