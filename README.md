@@ -279,10 +279,13 @@ OPTIONS are:
 	                               "--generate-attribute format" will generate the code __attribute__((format(x, y, z))) where
 	                               x, y and z are the parameters given to the format attribute.
 	                               Can be used several times.
+	--ignore-generation-of         Ignore the parsing and the generation of the given function.
+	                               Can be used several times.
 	--ignore-field-generation-of   Ignore the field generation of the given struct or union type.
 	                               Consider using this option if mocking some types takes too much time.
 	                               The list is given to the parser which ignores the reporting the fields of
 	                               the given types.
+	                               Can be used several times.
 	-h, --help                     Print usage.
 ```
 

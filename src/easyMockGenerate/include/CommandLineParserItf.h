@@ -20,6 +20,7 @@ const std::string g_changeWorkingDir("--cwd");
 const std::string g_generateTypes("--generate-types");
 const std::string g_generateAttribute("--generate-attribute");
 const std::string g_ignoreFieldGenerationOfParam("--ignore-field-generation-of");
+const std::string g_ignoreGenerationOfParam("--ignore-generation-of");
 
 const std::string g_errorInputMissing("Error: The input header file is not provided");
 const std::string g_errorOutputMissing("Error: The output directory is not provided");
@@ -28,6 +29,7 @@ const std::string g_errorCwdMissing("Error: Argument to --cwd is missing");
 const std::string g_errorCwdMoreThanOnce("Error: Argument to --cwd is given more than once");
 const std::string g_errorGenerateAttrAttrMissing("Error: Argument --generate-attribute needs a value");
 const std::string g_errorIgnoreFieldGenerationOfArgumentMissing("Error: Argument --ignore-field-generation-of needs a value");
+const std::string g_errorIgnoreGenerationOfArgumentMissing("Error: Argument --ignore-generation-of needs a value");
 
 const std::string g_helpMessage =
   "Generate mocks to be used into a unit test inside a specific directory\n\r"
@@ -52,10 +54,13 @@ const std::string g_helpMessage =
   "\t                               \"--generate-attribute format\" will generate the code __attribute__((format(x, y, z))) where\n\r"
   "\t                               x, y and z are the parameters given to the format attribute.\n\r"
   "\t                               Can be used several times.\n\r"
+  "\t--ignore-generation-of         Ignore the parsing and the generation of the given function.\n\r"
+  "\t                               Can be used several times.\n\r"
   "\t--ignore-field-generation-of   Ignore the field generation of the given struct or union type.\n\r"
   "\t                               Consider using this option if mocking some types takes too much time.\n\r"
   "\t                               The list is given to the parser which ignores the reporting the fields of\n\r"
   "\t                               the given types.\n\r"
+  "\t                               Can be used several times.\n\r"
   "\t-h, --help                     Print usage.\n\r";
 
 using ExtraArgsList = std::vector<std::string>;
@@ -109,7 +114,11 @@ struct EasyMockOptions
   /*!
    * \brief The values given to the `--ignore-field-generation-of` parameter.
    */
-  MockOnlyList m_ignoreTypeList;
+  IgnoreTypeFieldList m_ignoreTypeList;
+  /*!
+   * \brief The values given to the `--ignore-generation-of` parameter.
+   */
+  IgnoreFunList m_ignoreFunList;
 };
 
 /*!
@@ -143,4 +152,3 @@ public:
 };
 
 #endif /* COMMANDLINEPARSERITF_H */
-

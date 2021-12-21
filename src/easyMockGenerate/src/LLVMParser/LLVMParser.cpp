@@ -47,6 +47,14 @@ std::string trim(const std::string &s) {
 }
 }
 
+struct ParserConfig
+{
+  const MockOnlyList& mockOnlyList;
+  const IgnoreTypeFieldList& ignoreTypeFieldList;
+  const boost::filesystem::path& mainFile;
+  const IgnoreFunList& ignoreFunList;
+};
+
 /*!
  * \brief An implementation of a LLVM clang::RecursiveASTVisitor<FunctionDeclASTVisitor>
  */
@@ -56,8 +64,14 @@ private:
   using structKnownTypeMap = std::unordered_map<std::string, std::shared_ptr<IncompleteType>>;
 public:
 
-  explicit FunctionDeclASTVisitor(clang::SourceManager& sm, ElementToMockContext& ctxt, const MockOnlyList& mockOnlyList, const IgnoreTypeFieldList& ignoreTypeFieldList, const boost::filesystem::path& mainFile)
-  : m_sourceManager(sm), m_ctxt(ctxt), m_context(nullptr), m_mockOnlyList{mockOnlyList}, m_ignoreTypeFieldList{ignoreTypeFieldList}, m_mainFile{mainFile}
+  explicit FunctionDeclASTVisitor(clang::SourceManager& sm, ElementToMockContext& ctxt, const ParserConfig& parserConfig)
+  : m_sourceManager(sm),
+  m_ctxt(ctxt),
+  m_context(nullptr),
+  m_mockOnlyList{parserConfig.mockOnlyList},
+  m_ignoreTypeFieldList{parserConfig.ignoreTypeFieldList},
+  m_mainFile{parserConfig.mainFile},
+  m_ignoreFunList{parserConfig.ignoreFunList}
   {
     (void)m_sourceManager;
     m_cachedStruct.clear();
@@ -84,6 +98,10 @@ public:
   {
     const std::string funName = getFunctionName(func);
     if(!m_mockOnlyList.empty() && std::find(std::begin(m_mockOnlyList), std::end(m_mockOnlyList), funName) == std::end(m_mockOnlyList))
+    {
+      return std::nullopt;
+    }
+    if(!m_ignoreFunList.empty() && std::find(std::begin(m_ignoreFunList), std::end(m_ignoreFunList), funName) != std::end(m_ignoreFunList))
     {
       return std::nullopt;
     }
@@ -129,6 +147,7 @@ private:
   const IgnoreTypeFieldList& m_ignoreTypeFieldList;
   std::unordered_map<std::string, std::shared_ptr<TypeItf>> m_cachedStruct;
   const boost::filesystem::path& m_mainFile;
+  const IgnoreFunList& m_ignoreFunList;
 
   enum ContainerType {
     STRUCT,
@@ -960,8 +979,8 @@ class FunctionDeclASTConsumer : public clang::ASTConsumer
 public:
   // override the constructor in order to pass CI
 
-  FunctionDeclASTConsumer(clang::CompilerInstance& ci, ElementToMockContext& ctxt, const MockOnlyList& mockOnlyList, const IgnoreTypeFieldList& ignoreTypeFieldList, const boost::filesystem::path& mainFile)
-  : clang::ASTConsumer(), m_visitor(ci.getSourceManager(), ctxt, mockOnlyList, ignoreTypeFieldList, mainFile) { }
+  FunctionDeclASTConsumer(clang::CompilerInstance& ci, ElementToMockContext& ctxt, const ParserConfig& parserConfig)
+  : clang::ASTConsumer(), m_visitor(ci.getSourceManager(), ctxt, parserConfig) { }
 
   virtual void HandleTranslationUnit(clang::ASTContext& astContext) override
   {
@@ -1074,8 +1093,8 @@ private:
 class FunctionDeclFrontendAction : public clang::ASTFrontendAction
 {
 public:
-  FunctionDeclFrontendAction(ElementToMockContext& ctxt, const MockOnlyList& mockOnlyList, const IgnoreTypeFieldList& ignoreTypeFieldList, const boost::filesystem::path& mainFile) :
-  clang::ASTFrontendAction(), m_ctxt(ctxt), m_mockOnlyList{mockOnlyList}, m_ignoreTypeFieldList{ignoreTypeFieldList}, m_mainFile{mainFile}
+  FunctionDeclFrontendAction(ElementToMockContext& ctxt, const ParserConfig& parserConfig) :
+  clang::ASTFrontendAction(), m_ctxt(ctxt), m_parserConfig{parserConfig}
   {
   }
 
@@ -1084,32 +1103,28 @@ public:
     clang::Preprocessor& PP = CI.getPreprocessor();
     clang::SourceManager& sm = CI.getSourceManager();
     PP.addPPCallbacks(std::make_unique<MacroBrowser>(m_ctxt, sm));
-    return std::make_unique<FunctionDeclASTConsumer>(CI, m_ctxt, m_mockOnlyList, m_ignoreTypeFieldList, m_mainFile);
+    return std::make_unique<FunctionDeclASTConsumer>(CI, m_ctxt, m_parserConfig);
   }
 private:
   ElementToMockContext& m_ctxt;
-  const MockOnlyList& m_mockOnlyList;
-  const IgnoreTypeFieldList& m_ignoreTypeFieldList;
-  const boost::filesystem::path& m_mainFile;
+  const ParserConfig& m_parserConfig;
 };
 
-std::unique_ptr<clang::tooling::FrontendActionFactory> newFunctionDeclFrontendAction(ElementToMockContext& ctxt, const MockOnlyList& mockOnlyList, const IgnoreTypeFieldList& ignoreTypeFieldList, const boost::filesystem::path& mainFile) {
+std::unique_ptr<clang::tooling::FrontendActionFactory> newFunctionDeclFrontendAction(ElementToMockContext& ctxt, const ParserConfig& parserConfig) {
   class FunctionDeclFrontendActionFactory : public clang::tooling::FrontendActionFactory {
   public:
-    FunctionDeclFrontendActionFactory(ElementToMockContext& ctxt, const MockOnlyList& mockOnlyList, const IgnoreTypeFieldList& ignoreTypeFieldList, const boost::filesystem::path& mainFile) :
-    clang::tooling::FrontendActionFactory(), m_ctxt(ctxt), m_mockOnlyList{mockOnlyList}, m_ignoreTypeFieldList{ignoreTypeFieldList}, m_mainFile{mainFile}
+    FunctionDeclFrontendActionFactory(ElementToMockContext& ctxt, const ParserConfig& parserConfig) :
+    clang::tooling::FrontendActionFactory(), m_ctxt(ctxt), m_parserConfig{parserConfig}
     {
     }
-    std::unique_ptr<clang::FrontendAction> create() override { return std::make_unique<FunctionDeclFrontendAction>(m_ctxt, m_mockOnlyList, m_ignoreTypeFieldList, m_mainFile); }
+    std::unique_ptr<clang::FrontendAction> create() override { return std::make_unique<FunctionDeclFrontendAction>(m_ctxt, m_parserConfig); }
   private:
     ElementToMockContext& m_ctxt;
-    const MockOnlyList& m_mockOnlyList;
-    const IgnoreTypeFieldList& m_ignoreTypeFieldList;
-    const boost::filesystem::path& m_mainFile;
+    const ParserConfig& m_parserConfig;
   };
 
   return std::unique_ptr<clang::tooling::FrontendActionFactory>(
-      new FunctionDeclFrontendActionFactory(ctxt, mockOnlyList, ignoreTypeFieldList, mainFile));
+      new FunctionDeclFrontendActionFactory(ctxt, parserConfig));
 }
 
 LLVMParser::LLVMParser() : CodeParserItf()
@@ -1147,7 +1162,14 @@ CodeParser_errCode LLVMParser::getElementToMockContext(ElementToMockContext& p_c
   boost::filesystem::path fullPath = boost::filesystem::canonical(m_filename);
   std::vector<std::string> arRef({fullPath.string()});
   clang::tooling::ClangTool tool(db, arRef);
-  tool.run(newFunctionDeclFrontendAction(p_ctxt, m_mockOnlyList, m_ignoreTypeFieldList, fullPath).get());
+  ParserConfig parserConfig
+    {
+      m_mockOnlyList,
+      m_ignoreTypeFieldList,
+      fullPath,
+      m_ignoreFunList
+    };
+  tool.run(newFunctionDeclFrontendAction(p_ctxt, parserConfig).get());
   return cp_OK;
 }
 

@@ -77,12 +77,21 @@ public:
    *
    * Set the parser to ignore parsing the field of specific types.
    */
-  void setIgnoreTypeFieldList(MockOnlyList p_list) { m_ignoreTypeFieldList = std::move(p_list); };
+  void setIgnoreTypeFieldList(IgnoreTypeFieldList p_list) { m_ignoreTypeFieldList = std::move(p_list); };
+
+  /*!
+   * \brief Sets the list of function whose parsing must be ignored.
+   * \param p_list The list of function whose parsing must be ignored.
+   *
+   * Set the parser to ignore parsing the specified functions.
+   */
+  void setIgnoreFunList(IgnoreFunList p_list) { m_ignoreFunList = std::move(p_list); };
 protected:
   std::string m_filename;
   ParserExtraArgs m_flags;
   MockOnlyList m_mockOnlyList;
   IgnoreTypeFieldList m_ignoreTypeFieldList;
+  IgnoreFunList m_ignoreFunList;
 };
 
 #endif /* CODEPARSERITF_H */

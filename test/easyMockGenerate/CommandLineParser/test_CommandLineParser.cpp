@@ -345,3 +345,42 @@ TYPED_TEST(CommandLineParser_testCase, TypeIgnoreFieldMissingArgEnd)
   ASSERT_FALSE(opt.m_errorMessage.empty());
   ASSERT_STREQ(opt.m_errorMessage.c_str(), g_errorIgnoreFieldGenerationOfArgumentMissing.c_str());
 }
+
+TYPED_TEST(CommandLineParser_testCase, FunIgnore)
+{
+  TypeParam parser;
+  CommandLineParserItf& parserItf = parser;
+  const char * parsedArgs[] = {"./test", "-i", "foo", "-o", "bar", "--ignore-generation-of", "type1", "--ignore-generation-of", "type2", "--ignore-generation-of", "type3", NULL};
+  EasyMockOptions opt = parserItf.getParsedArguments(ARRAY_SIZE(parsedArgs) - 1, parsedArgs);
+
+  IgnoreFunList ignoreFunListExpect = {"type1", "type2", "type3"};
+  ASSERT_TRUE(opt.m_errorMessage.empty()) << opt.m_errorMessage;
+  ASSERT_TRUE(opt.m_helpMessage.empty()) << opt.m_helpMessage;
+  ASSERT_EQ(opt.m_inputHeaderFile, "foo");
+  ASSERT_EQ(opt.m_outputDir, "bar");
+  ASSERT_EQ(opt.m_extraArgs, std::vector<std::string>());
+  ASSERT_EQ(opt.m_ignoreFunList, ignoreFunListExpect);
+  ASSERT_FALSE(opt.m_generateTypes);
+}
+
+TYPED_TEST(CommandLineParser_testCase, FunIgnoreMissingArgBegin)
+{
+  TypeParam parser;
+  CommandLineParserItf& parserItf = parser;
+  const char * parsedArgs[] = {"./test", "--ignore-generation-of", "-i", "foo", "-o", "bar", "--ignore-generation-of", "type1", "--ignore-generation-of", "type2", "--ignore-generation-of", "type3", NULL};
+  EasyMockOptions opt = parserItf.getParsedArguments(ARRAY_SIZE(parsedArgs) - 1, parsedArgs);
+
+  ASSERT_FALSE(opt.m_errorMessage.empty());
+  ASSERT_STREQ(opt.m_errorMessage.c_str(), g_errorIgnoreGenerationOfArgumentMissing.c_str());
+}
+
+TYPED_TEST(CommandLineParser_testCase, FunIgnoreMissingArgEnd)
+{
+  TypeParam parser;
+  CommandLineParserItf& parserItf = parser;
+  const char * parsedArgs[] = {"./test", "-i", "foo", "-o", "bar", "--ignore-generation-of", "type1", "--ignore-generation-of", "type2", "--ignore-generation-of", "type3", "--ignore-generation-of", NULL};
+  EasyMockOptions opt = parserItf.getParsedArguments(ARRAY_SIZE(parsedArgs) - 1, parsedArgs);
+
+  ASSERT_FALSE(opt.m_errorMessage.empty());
+  ASSERT_STREQ(opt.m_errorMessage.c_str(), g_errorIgnoreGenerationOfArgumentMissing.c_str());
+}
