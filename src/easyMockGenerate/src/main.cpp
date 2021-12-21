@@ -56,6 +56,7 @@ int main(int argc, char *argv[])
   cg.setMockOnlyFunction(std::move(opt.m_mockOnlyList));
   cg.setGenerateAttrList(std::move(opt.m_generateAttrList));
   cg.setGenerateUsedType(opt.m_generateTypes);
+  cg.setGenerateStructComparator(std::move(opt.m_comparatorList));
 
   MainCodeGenerator cp(opt.m_inputHeaderFile, of, cg);
   cp.generateCode(opt.m_outputDir);

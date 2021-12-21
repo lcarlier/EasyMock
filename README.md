@@ -265,27 +265,41 @@ Usage:
 
 OPTIONS are:
 	-i <header>                    Input header file.
+
 	-o <directory>                 Output directory.
+
 	--cwd <directory>              Change to the directory passed on this parameter before running the parser.
+
 	--mock-only <function>         Mock only the function specified in this parameter.
+
 	--generate-types               Generate the used type instead of including the original header.
 	                               When using this option, the original header (i.e. the header given to -i) doesn't
 	                               need to be used when compiling the mock.
 	                               The generated functions signature will not contain any function attribute unless
 	                               the --generate-attribute option is used.
+
+	--generate-comparator-of       Generate comparator function of the given type. The comparator can be used in the *_ExpectAndReturn function.
+	                               If comparators of the same type are generated on several header file with function that use
+	                               the same type, then compiling and linking the generated mocked together will generate double
+	                               symbol definition.
+	                               Special value 'EasyMock_all_comparators' can be used to generate the comparator of all the composable types.
 	                               Can be used several times.
+
 	--generate-attribute           Generate the function attribute if the function has been declared with it.
 	                               E.G. if a function has been declared with the format attribute, give the parameter
 	                               "--generate-attribute format" will generate the code __attribute__((format(x, y, z))) where
 	                               x, y and z are the parameters given to the format attribute.
 	                               Can be used several times.
+
 	--ignore-generation-of         Ignore the parsing and the generation of the given function.
 	                               Can be used several times.
+
 	--ignore-field-generation-of   Ignore the field generation of the given struct or union type.
 	                               Consider using this option if mocking some types takes too much time.
 	                               The list is given to the parser which ignores the reporting the fields of
 	                               the given types.
 	                               Can be used several times.
+
 	-h, --help                     Print usage.
 ```
 
@@ -372,7 +386,8 @@ cmp_pointer
 cmp_str
 ```
 
-Whenever a struct is present in the list of the mocked function parameters,
+Whenever a struct is present in the list of the mocked function parameters
+and the `--generate-comparator-of` parameter is given to EasyMock,
 EasyMock generates the corresponding matcher which compares the struct
 fields one by one and yield an error if one of the field's value is not
 matching. The name of the generated struct matcher is in the form of
@@ -381,6 +396,7 @@ cmp_<structName>
 ```
 
 If a pointer to a struct is present in the list of mocked function parameters,
+and the `--generate-comparator-of` parameter is given to EasyMock,
 EasyMock generates the corresponding matcher which first dereference the struct pointer
 and call the matcher which compares the struct fields one by one and yield an
 error if one of the field's value is not matching. The name of the generated 
@@ -388,6 +404,23 @@ struct matcher is in the form of
 ```
 cmp_deref_ptr_<structName>
 ```
+
+Attention must be taken that in the following situation
+```c
+struct s1
+{
+  int a;
+};
+
+struct s2
+{
+  struct s1 f;
+};
+```
+if the parameter `--generate-comparator-of s2` is given, the parameter
+`--generate-comparator-of s1` must also be given else the generated mock will not compile.
+The reason is that the generated comparator assumes that comparators of contained fields
+types are available.
 
 A user can implement its own version of EasyMock matchers by creating
 functions that match the `EasyMock_Matcher` type.

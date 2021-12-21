@@ -11,6 +11,7 @@
 #include "CommonParserGenerator.h"
 
 using GenerateAttrList = std::unordered_set<std::string>;
+using ComparatorList = std::unordered_set<std::string>;
 
 /*!
  * \brief The interface which must be implemented by a generator.
@@ -50,6 +51,14 @@ public:
    * This means that that original header file doesn't need to be used when compiling the mock.
    */
   void setGenerateUsedType(bool p_value);
+  /*!
+   * \brief Specifies the list of composable type for which the tool must generate a comparator.
+   *
+   * \param p_value The list of composable type for which the tool must generate a comparator.
+   *
+   * A special value `EasyMock_all_comparators` can be given to generate the comparator of all the composable types.
+   */
+  void setGenerateStructComparator(ComparatorList p_value);
 protected:
 
   /*!
@@ -58,9 +67,10 @@ protected:
    * \copydetails ::CodeGeneratorItf::generateCode
    */
   virtual bool generateCodeImplementation(const std::string& p_outDir, const std::string &p_fullPathToHeaderToMock, const ElementToMockContext& p_elem) = 0;
-  MockOnlyList m_mockOnlyList;
-  GenerateAttrList m_generateAttrList;
-  bool m_generateUsedType;
+  MockOnlyList m_mockOnlyList = {};
+  GenerateAttrList m_generateAttrList = {};
+  bool m_generateUsedType = false;
+  ComparatorList m_comparatorList = {};
 };
 
 #endif /* CODEGENERATORITF_H */

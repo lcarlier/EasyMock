@@ -21,6 +21,7 @@ const std::string g_generateTypes("--generate-types");
 const std::string g_generateAttribute("--generate-attribute");
 const std::string g_ignoreFieldGenerationOfParam("--ignore-field-generation-of");
 const std::string g_ignoreGenerationOfParam("--ignore-generation-of");
+const std::string g_generateComparatorOf("--generate-comparator-of");
 
 const std::string g_errorInputMissing("Error: The input header file is not provided");
 const std::string g_errorOutputMissing("Error: The output directory is not provided");
@@ -30,6 +31,7 @@ const std::string g_errorCwdMoreThanOnce("Error: Argument to --cwd is given more
 const std::string g_errorGenerateAttrAttrMissing("Error: Argument --generate-attribute needs a value");
 const std::string g_errorIgnoreFieldGenerationOfArgumentMissing("Error: Argument --ignore-field-generation-of needs a value");
 const std::string g_errorIgnoreGenerationOfArgumentMissing("Error: Argument --ignore-generation-of needs a value");
+const std::string g_errorGenerateComparatorOfArgumentMissing("Error: Argument --generate-comparator-of needs a value");
 
 const std::string g_helpMessage =
   "Generate mocks to be used into a unit test inside a specific directory\n\r"
@@ -40,27 +42,41 @@ const std::string g_helpMessage =
   "\n\r"
   "OPTIONS are:\n\r"
   "\t-i <header>                    Input header file.\n\r"
+  "\n\r"
   "\t-o <directory>                 Output directory.\n\r"
+  "\n\r"
   "\t--cwd <directory>              Change to the directory passed on this parameter before running the parser.\n\r"
+  "\n\r"
   "\t--mock-only <function>         Mock only the function specified in this parameter.\n\r"
+  "\n\r"
   "\t--generate-types               Generate the used type instead of including the original header.\n\r"
   "\t                               When using this option, the original header (i.e. the header given to -i) doesn't\n\r"
   "\t                               need to be used when compiling the mock.\n\r"
   "\t                               The generated functions signature will not contain any function attribute unless\n\r"
   "\t                               the --generate-attribute option is used.\n\r"
+  "\n\r"
+  "\t--generate-comparator-of       Generate comparator function of the given type. The comparator can be used in the *_ExpectAndReturn function.\n\r"
+  "\t                               If comparators of the same type are generated on several header file with function that use\n\r"
+  "\t                               the same type, then compiling and linking the generated mocked together will generate double\n\r"
+  "\t                               symbol definition.\n\r"
+  "\t                               Special value 'EasyMock_all_comparators' can be used to generate the comparator of all the composable types.\n\r"
   "\t                               Can be used several times.\n\r"
+  "\n\r"
   "\t--generate-attribute           Generate the function attribute if the function has been declared with it.\n\r"
   "\t                               E.G. if a function has been declared with the format attribute, give the parameter\n\r"
   "\t                               \"--generate-attribute format\" will generate the code __attribute__((format(x, y, z))) where\n\r"
   "\t                               x, y and z are the parameters given to the format attribute.\n\r"
   "\t                               Can be used several times.\n\r"
+  "\n\r"
   "\t--ignore-generation-of         Ignore the parsing and the generation of the given function.\n\r"
   "\t                               Can be used several times.\n\r"
+  "\n\r"
   "\t--ignore-field-generation-of   Ignore the field generation of the given struct or union type.\n\r"
   "\t                               Consider using this option if mocking some types takes too much time.\n\r"
   "\t                               The list is given to the parser which ignores the reporting the fields of\n\r"
   "\t                               the given types.\n\r"
   "\t                               Can be used several times.\n\r"
+  "\n\r"
   "\t-h, --help                     Print usage.\n\r";
 
 using ExtraArgsList = std::vector<std::string>;
@@ -119,6 +135,10 @@ struct EasyMockOptions
    * \brief The values given to the `--ignore-generation-of` parameter.
    */
   IgnoreFunList m_ignoreFunList;
+  /*!
+   * \brief The values given to the `--generate-comparator-of` parameter.
+   */
+  ComparatorList m_comparatorList;
 };
 
 /*!

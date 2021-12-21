@@ -384,3 +384,42 @@ TYPED_TEST(CommandLineParser_testCase, FunIgnoreMissingArgEnd)
   ASSERT_FALSE(opt.m_errorMessage.empty());
   ASSERT_STREQ(opt.m_errorMessage.c_str(), g_errorIgnoreGenerationOfArgumentMissing.c_str());
 }
+
+TYPED_TEST(CommandLineParser_testCase, ComparatorGen)
+{
+TypeParam parser;
+  CommandLineParserItf& parserItf = parser;
+  const char * parsedArgs[] = {"./test", "-i", "foo", "-o", "bar", "--generate-comparator-of", "type1", "--generate-comparator-of", "type2", "--generate-comparator-of", "type3", NULL};
+  EasyMockOptions opt = parserItf.getParsedArguments(ARRAY_SIZE(parsedArgs) - 1, parsedArgs);
+
+  ComparatorList comparatorList = {"type1", "type2", "type3"};
+  ASSERT_TRUE(opt.m_errorMessage.empty()) << opt.m_errorMessage;
+  ASSERT_TRUE(opt.m_helpMessage.empty()) << opt.m_helpMessage;
+  ASSERT_EQ(opt.m_inputHeaderFile, "foo");
+  ASSERT_EQ(opt.m_outputDir, "bar");
+  ASSERT_EQ(opt.m_extraArgs, std::vector<std::string>());
+  ASSERT_EQ(opt.m_comparatorList, comparatorList);
+  ASSERT_FALSE(opt.m_generateTypes);
+}
+
+TYPED_TEST(CommandLineParser_testCase, ComparatorGenMissingArgBegin)
+{
+  TypeParam parser;
+  CommandLineParserItf& parserItf = parser;
+  const char * parsedArgs[] = {"./test", "--generate-comparator-of", "-i", "foo", "-o", "bar", "--generate-comparator-of", "type1", "--generate-comparator-of", "type2", "--generate-comparator-of", "type3", NULL};
+  EasyMockOptions opt = parserItf.getParsedArguments(ARRAY_SIZE(parsedArgs) - 1, parsedArgs);
+
+  ASSERT_FALSE(opt.m_errorMessage.empty());
+  ASSERT_STREQ(opt.m_errorMessage.c_str(), g_errorGenerateComparatorOfArgumentMissing.c_str());
+}
+
+TYPED_TEST(CommandLineParser_testCase, ComparatorGenMissingArgEnd)
+{
+  TypeParam parser;
+  CommandLineParserItf& parserItf = parser;
+  const char * parsedArgs[] = {"./test", "-i", "foo", "-o", "bar", "--generate-comparator-of", "type1", "--generate-comparator-of", "type2", "--generate-comparator-of", "type3", "--generate-comparator-of", NULL};
+  EasyMockOptions opt = parserItf.getParsedArguments(ARRAY_SIZE(parsedArgs) - 1, parsedArgs);
+
+  ASSERT_FALSE(opt.m_errorMessage.empty());
+  ASSERT_STREQ(opt.m_errorMessage.c_str(), g_errorGenerateComparatorOfArgumentMissing.c_str());
+}

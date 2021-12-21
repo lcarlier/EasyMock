@@ -151,6 +151,7 @@ void easyMockGenerate_baseTestCase::prepareTest(const ElementToMockContext &elem
                         << std::endl << "getcwd error. errno: " << errno << "(" << strerror(errno) << ")" << std::endl;
   CodeGeneratorCTemplate generate;
   generate.setGenerateUsedType(m_generate_types);
+  generate.setGenerateStructComparator({"EasyMock_all_comparators"});
 
   std::string pathAndfileNameToMock = boost::filesystem::path(fullPathToFileToMock).stem().string();
   std::string fileNameToMock = boost::filesystem::path(pathAndfileNameToMock).filename().string();

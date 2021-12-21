@@ -60,3 +60,13 @@ TEST(ContainsTypeDef, constPointerTypedef)
   ConstQualifiedType cq{std::make_shared<Pointer>(std::make_shared<TypedefType>("int_t", std::make_shared<CType>(CTYPE_INT)))};
   ASSERT_TRUE(cq.containsTypeDef());
 }
+
+TEST(TypedefType, HashAnonymousTypeDef)
+{
+  auto s1 = std::make_shared<StructType>("", false);
+  s1->addField(ComposableField{CTYPE_INT, "a"});
+  auto td1 = std::make_shared<TypedefType>("TypeDefStruct", s1);
+  auto td2 = std::make_shared<TypedefType>("TypeDefStruct2", s1);
+
+  ASSERT_NE(td1->getHash(), td2->getHash());
+}

@@ -153,6 +153,24 @@ EasyMockOptions CmdLineParser::getParsedArguments(int argc,const char* argv[]) c
         return opt;
       }
     }
+    else if(currentParam == g_generateComparatorOf)
+    {
+      if(hasOneMoreArgument(argIdx, argc))
+      {
+        if(argv[argIdx+1][0] == '-')
+        {
+          opt.m_errorMessage = g_errorGenerateComparatorOfArgumentMissing;
+          return opt;
+        }
+        opt.m_comparatorList.insert(std::string(argv[argIdx+1]));
+        argIdx++;
+      }
+      else
+      {
+        opt.m_errorMessage = g_errorGenerateComparatorOfArgumentMissing;
+        return opt;
+      }
+    }
     else
     {
       opt.m_extraArgs.emplace_back(std::string(argv[argIdx]));

@@ -960,7 +960,9 @@ void CodeGeneratorCTemplate::registerTypeDef(const TypeItf *p_type)
   {
     const TypeItf* typeeType = typeDefType->getTypee();
     if(m_typeToTypedef.find(typeeType) == m_typeToTypedef.end())
+    {
       m_typeToTypedef.insert({typeeType, typeDefType});
+    }
   }
 }
 
@@ -1347,7 +1349,6 @@ void CodeGeneratorCTemplate::generateFunctionParamSection(ctemplate::TemplateDic
     {
       std::string prepend {};
       std::string declare {};
-      std::string typedefName { getTypeDefName(paramType) };
       generateComposedTypedCompareSection(composableType, prepend, declare);
     }
     newTypedefParamSection->SetValue(FUNCTION_PARAM_TYPE, argType);
@@ -1985,6 +1986,22 @@ void CodeGeneratorCTemplate::generateComposedTypedCompareSection(const Composabl
     return;
   }
   std::string uniqueName {getComparatorName(p_composedType) };
+  std::string toFind {uniqueName};
+  auto keywordList = {"struct_", "union_"};
+  for(const auto& keyword: keywordList)
+  {
+    std::string with {};
+    if(toFind.find(keyword) == 0)
+    {
+      toFind.replace(0, std::strlen(keyword), with.data(), with.length());
+    }
+  }
+  bool forceGenerateAll = std::find(std::begin(m_comparatorList), std::end(m_comparatorList), "EasyMock_all_comparators") != std::end(m_comparatorList);
+  bool mustGenerate = std::find(std::begin(m_comparatorList), std::end(m_comparatorList), toFind) != std::end(m_comparatorList);
+  if(!forceGenerateAll && !mustGenerate)
+  {
+    return;
+  }
 
   //Generate each comparator only once.
   if(m_generatedComparator.find(uniqueName) != m_generatedComparator.end())
