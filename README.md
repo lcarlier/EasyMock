@@ -16,6 +16,10 @@ the dependencies.
 EasyMock is very flexible to reproduce production scenarios because of its
 flexibility of configuring the mocks.
 
+EasyMock can be used to mock Linux kernel header files to write unit test for
+validating a Linux kernel driver. An example on how to do so is available in
+the [simple FIFO kernel module project](https://github.com/lcarlier/simpleFifoKernelDriver).
+
 ## Table of content
 * [What is EasyMock ?][whatIsEasymock]
 * [How to compile EasyMock ?][compileEasymock]
@@ -89,35 +93,18 @@ sudo apt install \
 #### <a name="user-content-macos"></a> MacOS
 
 libunwind and libdw are not available in macOS, as such the backtrace support
-is not supported in macOS.
+is not supported on macOS.
 
-libclang/llvm and libncurse libraries as well as pkg-config and cmake tool can
-be installed via brew.
+The dependencies can be installed can be installed via brew.
 ```sh
-brew install llvm
-brew install ncurses
-brew install pkg-config
-brew install cmake
-brew install doxygen
-brew install graphviz
-```
-
-Note: At the time of writing, brew is not officially supported on the Apple Silicon (M1)
-but the brew command can be executed with the `-s` option to compile and install from source.
-
-libctemplate must be compiled and installed from [source](https://github.com/OlafvdSpek/ctemplate).
-For instance by executing the following commands:
-```sh
-git clone https://github.com/OlafvdSpek/ctemplate.git
-cd ctemplate
-./autogen.sh
-mkdir build
-export LIBCTEMPLATE_INSTALL=$(pwd)/install
-mkdir ${LIBCTEMPLATE_INSTALL}
-cd build
-../configure --prefix=${LIBCTEMPLATE_INSTALL}
-make
-make install
+brew install cmake \
+    pkgconfig \
+    ncurses \
+    gcc \
+    llvm \
+    ctemplate \
+    doxygen \
+    boost
 ```
 
 ### <a name="user-content-compilation-steps"></a> Compilation steps
@@ -132,12 +119,6 @@ mkdir build #Referred as $EASYMOCK_BUILDDIR below
 cd build
 cmake ..
 make -j $(nproc)
-```
-
-On macOS, the path to `libctemplate` must be given to cmake by using the `CTEMPLATE_LIB_INSTALL` cache entries.
-I.E:
-```sh
-cmake ../ -DDCTEMPLATE_LIB_INSTALL=${LIBCTEMPLATE_INSTALL}
 ```
 
 Note: On macOS, the following command `cmake ../ -GXcode <rest of parameters>` can be used to generate the
@@ -434,7 +415,7 @@ types are available.
 A user can implement its own version of EasyMock matchers by creating
 functions that match the `EasyMock_Matcher` type.
 
-## <a name="user-content-utm"></a>Using the mock
+## <a name="user-content-utm"></a>Using the mocks
 Once the mocks have been generated, the unit test must call the
 `*_ExpectAndReturn` and/or `*_ExpectReturnAndOutput` function family to
 configure the behaviour of the mock. For each time the function to be
