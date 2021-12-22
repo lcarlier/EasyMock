@@ -257,9 +257,15 @@ A good start to get acquainted with EasyMockGenerate is to look at its help.
 
 ```
 # ./EasyMockGenerate -h
-Generate mocks to be used into a unit test inside a specific directory
-Parameters not recognised by EasyMock (e.g. -I, -D) are given to the parser
-responsible for parsing the header file.
+Generate mocks to be used into unit tests.
+
+EasyMock takes a header file ('-i') and generate a mocked version of functions declared in that header file in a target directory ('-o').
+The tool generates mocks for functions directly declared in the header file. I.e. not coming from other included files.
+'--generate-included-functions' option can be used to generate mocks of functions declared in included files.
+
+Parameters not recognised by EasyMock (e.g. -I, -D) are given to the parser responsible for parsing the header file.
+The same options used by a Clang compiler are recognised by EasyMock's parser.
+
 Usage:
 ./EasyMockGenerate [OPTIONS...]
 
@@ -269,6 +275,7 @@ OPTIONS are:
 	-o <directory>                 Output directory.
 
 	--cwd <directory>              Change to the directory passed on this parameter before running the parser.
+	                               Relative paths given to '-i' and '-o' will be taken from the path given to '--cwd'.
 
 	--mock-only <function>         Mock only the function specified in this parameter.
 
@@ -277,6 +284,8 @@ OPTIONS are:
 	                               need to be used when compiling the mock.
 	                               The generated functions signature will not contain any function attribute unless
 	                               the --generate-attribute option is used.
+
+	--generate-included-functions  Generate the mocks of functions declared in header files that the input file ('-i') includes.
 
 	--generate-comparator-of       Generate comparator function of the given type. The comparator can be used in the *_ExpectAndReturn function.
 	                               If comparators of the same type are generated on several header file with function that use

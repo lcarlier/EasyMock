@@ -34,10 +34,20 @@ class CodeParserItf
 {
 public:
   CodeParserItf() :
-  m_filename(""), m_flags({}), m_mockOnlyList{}, m_ignoreTypeFieldList{}
+    m_filename(""),
+    m_flags({}),
+    m_mockOnlyList{},
+    m_ignoreTypeFieldList{},
+    m_ignoreFunList{},
+    m_parseIncludedFunctions{}
   {}
   CodeParserItf(std::string& filename, ParserExtraArgs& flags) :
-  m_filename(filename), m_flags(flags), m_mockOnlyList{}, m_ignoreTypeFieldList{}
+    m_filename(filename),
+    m_flags(flags),
+    m_mockOnlyList{},
+    m_ignoreTypeFieldList{},
+    m_ignoreFunList{},
+    m_parseIncludedFunctions{}
   {}
 
   /*!
@@ -86,12 +96,19 @@ public:
    * Set the parser to ignore parsing the specified functions.
    */
   void setIgnoreFunList(IgnoreFunList p_list) { m_ignoreFunList = std::move(p_list); };
+
+  /*!
+   * \brief Sets whether functions coming from included files must be parsed.
+   * \param p_parseIncludedFunctions true if the parser must parse the functions coming from included files. False instead.
+   */
+  void setParseIncludedFunctions(bool p_parseIncludedFunctions) { m_parseIncludedFunctions = p_parseIncludedFunctions; }
 protected:
   std::string m_filename;
   ParserExtraArgs m_flags;
   MockOnlyList m_mockOnlyList;
   IgnoreTypeFieldList m_ignoreTypeFieldList;
   IgnoreFunList m_ignoreFunList;
+  bool m_parseIncludedFunctions;
 };
 
 #endif /* CODEPARSERITF_H */

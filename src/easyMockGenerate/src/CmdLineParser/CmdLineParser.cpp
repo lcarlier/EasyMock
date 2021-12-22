@@ -19,6 +19,7 @@ EasyMockOptions CmdLineParser::getParsedArguments(int argc,const char* argv[]) c
 {
   EasyMockOptions opt;
   opt.m_generateTypes = false;
+  opt.m_generateIncludedFunctions = false;
 
   int argIdx;
   for(argIdx = 1; argv[argIdx] != nullptr && argIdx < argc; argIdx++)
@@ -116,6 +117,10 @@ EasyMockOptions CmdLineParser::getParsedArguments(int argc,const char* argv[]) c
     else if(currentParam == g_generateTypes)
     {
       opt.m_generateTypes = true;
+    }
+    else if(currentParam == g_generateIncludedFunctions)
+    {
+      opt.m_generateIncludedFunctions = true;
     }
     else if(currentParam == g_ignoreFieldGenerationOfParam)
     {

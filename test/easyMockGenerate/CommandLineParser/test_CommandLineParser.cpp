@@ -46,6 +46,20 @@ TYPED_TEST(CommandLineParser_testCase, InOutGenerateType)
   ASSERT_TRUE(opt.m_generateTypes);
 }
 
+TYPED_TEST(CommandLineParser_testCase, InOutGeneratedIncludedFunctions)
+{
+  TypeParam parser;
+  CommandLineParserItf& parserItf = parser;
+  const char * parsedArgs[] = {"./test", "-i", "foo", "-o", "bar", "--generate-included-functions", NULL};
+  EasyMockOptions opt = parserItf.getParsedArguments(ARRAY_SIZE(parsedArgs) - 1, parsedArgs);
+
+  ASSERT_TRUE(opt.m_errorMessage.empty()) << opt.m_errorMessage;
+  ASSERT_TRUE(opt.m_helpMessage.empty()) << opt.m_helpMessage;
+  ASSERT_EQ(opt.m_inputHeaderFile, "foo");
+  ASSERT_EQ(opt.m_outputDir, "bar");
+  ASSERT_TRUE(opt.m_generateIncludedFunctions);
+}
+
 TYPED_TEST(CommandLineParser_testCase, NoIn)
 {
   TypeParam parser;

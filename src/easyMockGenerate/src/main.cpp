@@ -51,6 +51,7 @@ int main(int argc, char *argv[])
   of.setMockOnlyFunction(opt.m_mockOnlyList);
   of.setIgnoreTypeFieldList(std::move(opt.m_ignoreTypeList));
   of.setIgnoreFunList(std::move(opt.m_ignoreFunList));
+  of.setParseIncludedFunctions(opt.m_generateIncludedFunctions);
 
   CodeGeneratorCTemplate cg;
   cg.setMockOnlyFunction(std::move(opt.m_mockOnlyList));

@@ -18,6 +18,7 @@ const std::string g_helpParamLong("--help");
 const std::string g_mockOnlyParam("--mock-only");
 const std::string g_changeWorkingDir("--cwd");
 const std::string g_generateTypes("--generate-types");
+const std::string g_generateIncludedFunctions("--generate-included-functions");
 const std::string g_generateAttribute("--generate-attribute");
 const std::string g_ignoreFieldGenerationOfParam("--ignore-field-generation-of");
 const std::string g_ignoreGenerationOfParam("--ignore-generation-of");
@@ -34,9 +35,15 @@ const std::string g_errorIgnoreGenerationOfArgumentMissing("Error: Argument --ig
 const std::string g_errorGenerateComparatorOfArgumentMissing("Error: Argument --generate-comparator-of needs a value");
 
 const std::string g_helpMessage =
-  "Generate mocks to be used into a unit test inside a specific directory\n\r"
-  "Parameters not recognised by EasyMock (e.g. -I, -D) are given to the parser\n\r"
-  "responsible for parsing the header file.\n\r"
+  "Generate mocks to be used into unit tests.\n\r"
+  "\n\r"
+  "EasyMock takes a header file ('-i') and generate a mocked version of functions declared in that header file in a target directory ('-o').\n\r"
+  "The tool generates mocks for functions directly declared in the header file. I.e. not coming from other included files.\n\r"
+  "'--generate-included-functions' option can be used to generate mocks of functions declared in included files.\n\r"
+  "\n\r"
+  "Parameters not recognised by EasyMock (e.g. -I, -D) are given to the parser responsible for parsing the header file.\n\r"
+  "The same options used by a Clang compiler are recognised by EasyMock's parser.\n\r"
+  "\n\r"
   "Usage:\n\r"
   "./EasyMockGenerate [OPTIONS...]\n\r"
   "\n\r"
@@ -46,6 +53,7 @@ const std::string g_helpMessage =
   "\t-o <directory>                 Output directory.\n\r"
   "\n\r"
   "\t--cwd <directory>              Change to the directory passed on this parameter before running the parser.\n\r"
+  "\t                               Relative paths given to '-i' and '-o' will be taken from the path given to '--cwd'.\n\r"
   "\n\r"
   "\t--mock-only <function>         Mock only the function specified in this parameter.\n\r"
   "\n\r"
@@ -54,6 +62,8 @@ const std::string g_helpMessage =
   "\t                               need to be used when compiling the mock.\n\r"
   "\t                               The generated functions signature will not contain any function attribute unless\n\r"
   "\t                               the --generate-attribute option is used.\n\r"
+  "\n\r"
+  "\t--generate-included-functions  Generate the mocks of functions declared in header files that the input file ('-i') includes.\n\r"
   "\n\r"
   "\t--generate-comparator-of       Generate comparator function of the given type. The comparator can be used in the *_ExpectAndReturn function.\n\r"
   "\t                               If comparators of the same type are generated on several header file with function that use\n\r"
@@ -123,6 +133,10 @@ struct EasyMockOptions
    * \brief Generate the used type instead of including the original header.
    */
   bool m_generateTypes;
+  /*!
+   * \brief Generate the mocks of functions declared in header files that the input file ('-i') includes.
+   */
+  bool m_generateIncludedFunctions;
   /*!
    * \brief All the function attributes to generate.
    */

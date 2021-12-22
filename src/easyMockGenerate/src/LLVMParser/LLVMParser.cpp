@@ -53,6 +53,7 @@ struct ParserConfig
   const IgnoreTypeFieldList& ignoreTypeFieldList;
   const boost::filesystem::path& mainFile;
   const IgnoreFunList& ignoreFunList;
+  bool parseIncludedFunctions;
 };
 
 /*!
@@ -71,7 +72,8 @@ public:
   m_mockOnlyList{parserConfig.mockOnlyList},
   m_ignoreTypeFieldList{parserConfig.ignoreTypeFieldList},
   m_mainFile{parserConfig.mainFile},
-  m_ignoreFunList{parserConfig.ignoreFunList}
+  m_ignoreFunList{parserConfig.ignoreFunList},
+  m_parseIncludedFunctions{parserConfig.parseIncludedFunctions}
   {
     (void)m_sourceManager;
     m_cachedStruct.clear();
@@ -111,7 +113,7 @@ public:
     boost::filesystem::path originCanon = boost::filesystem::canonical(originFile);
 
     bool isFromMainFile = m_mainFile == originCanon;
-    if(!isFromMainFile)
+    if(!m_parseIncludedFunctions && !isFromMainFile)
     {
       return std::nullopt;
     }
@@ -148,6 +150,7 @@ private:
   std::unordered_map<std::string, std::shared_ptr<TypeItf>> m_cachedStruct;
   const boost::filesystem::path& m_mainFile;
   const IgnoreFunList& m_ignoreFunList;
+  bool m_parseIncludedFunctions;
 
   enum ContainerType {
     STRUCT,
@@ -1167,7 +1170,8 @@ CodeParser_errCode LLVMParser::getElementToMockContext(ElementToMockContext& p_c
       m_mockOnlyList,
       m_ignoreTypeFieldList,
       fullPath,
-      m_ignoreFunList
+      m_ignoreFunList,
+      m_parseIncludedFunctions
     };
   tool.run(newFunctionDeclFrontendAction(p_ctxt, parserConfig).get());
   return cp_OK;
