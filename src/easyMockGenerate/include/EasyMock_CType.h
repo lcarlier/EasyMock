@@ -65,8 +65,8 @@ public:
    */
   virtual std::string getDeclarationPrefix(bool p_naked = false) const override;
 
-  CType(const CType &other) = default;
-  CType& operator=(const CType &other) = default;
+  CType(const CType &other) = delete;
+  CType& operator=(const CType &other) = delete;
   CType(CType &&other) = default;
   CType& operator=(CType &&other) = default;
 

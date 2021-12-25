@@ -700,9 +700,9 @@ TEST(moveCopy, Enum)
   ASSERT_EQ(etype3, etype1);
 
   Enum etype4("e4");
-  ASSERT_NE(etype4, etype1);
+  ASSERT_NE(etype4, etype3);
   etype4 = std::move(etype1);
-  ASSERT_EQ(etype4, etype1);
+  ASSERT_EQ(etype4, etype3);
 }
 
 void testComposableField(ComposableBitfield& bf1, ComposableBitfield &bf2)

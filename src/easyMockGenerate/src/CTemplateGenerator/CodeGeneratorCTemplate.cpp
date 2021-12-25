@@ -2274,14 +2274,14 @@ void CodeGeneratorCTemplate::generateEnum(const TypeItf* p_type)
   {
     return;
   }
-  std::unique_ptr<Enum> copyEnum = std::make_unique<Enum>(*enumType);
+  Enum copyEnum {enumType->getName()};
   if(enumType->getValues().empty())
   {
     std::string dummyAttr = enumType->getName();
     dummyAttr.push_back('_');
     dummyAttr.append("dummy");
-    copyEnum->addEnumValue(0, dummyAttr);
-    enumType = copyEnum.get();
+    copyEnum.addEnumValue(0, dummyAttr);
+    enumType = &copyEnum;
   }
 
   /*

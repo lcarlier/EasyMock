@@ -17,6 +17,10 @@
 class Enum : public TypeItf
 {
 public:
+  Enum(const Enum &other) = delete;
+  Enum& operator=(const Enum &other) = delete;
+  Enum(Enum &&other) = default;
+  Enum& operator=(Enum &&other) = default;
 
   /*!
    * \brief Type used to store enum values

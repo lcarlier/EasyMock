@@ -26,8 +26,8 @@ class CType;
 class TypeItf : virtual public EasyMock::Hashable
 {
 public:
-  TypeItf(const TypeItf &other) = default;
-  TypeItf& operator=(const TypeItf &other) = default;
+  TypeItf(const TypeItf &other) = delete;
+  TypeItf& operator=(const TypeItf &other) = delete;
   TypeItf(TypeItf &&other) = default;
   TypeItf& operator=(TypeItf &&other) = default;
 
