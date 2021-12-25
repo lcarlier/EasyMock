@@ -3,7 +3,10 @@
 #include <boost/functional/hash.hpp>
 
 FunctionDeclaration::FunctionDeclaration(std::string p_functionName, ReturnValue p_functionReturnType, Parameter::Vector p_functionParameters):
-Function(std::move(p_functionName), std::move(p_functionReturnType), std::move(p_functionParameters)), ElementToMock(), m_doesThisDeclarationHasBody{false}
+Function{std::move(p_functionName), std::move(p_functionReturnType), std::move(p_functionParameters)},
+ElementToMock{},
+m_doesThisDeclarationHasBody{false},
+m_cachedHash{0}
 {
 }
 
@@ -19,12 +22,23 @@ void FunctionDeclaration::setDoesThisDeclarationHasABody(bool val) noexcept
 
 size_t FunctionDeclaration::getHash() const noexcept
 {
-  size_t seed{0};
-  boost::hash_combine(seed, Function::getHash());
+  if(m_cachedHash != 0)
+  {
+    return m_cachedHash;
+  }
+  size_t seed{Function::getHash()};
   boost::hash_combine(seed, ElementToMock::getHash());
   boost::hash_combine(seed, m_doesThisDeclarationHasBody);
 
   return seed;
+}
+
+void FunctionDeclaration::cacheHash() noexcept
+{
+  m_cachedHash = 0;
+  Function::cacheHash();
+  ElementToMock::cacheHash();
+  m_cachedHash = FunctionDeclaration::getHash();
 }
 
 bool FunctionDeclaration::operator==(const FunctionDeclaration& other) const

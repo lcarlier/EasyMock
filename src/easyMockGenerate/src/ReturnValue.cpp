@@ -11,11 +11,6 @@ Declarator(std::move(type))
 {
 }
 
-void swap(ReturnValue &first, ReturnValue &second)
-{
-  swap(static_cast<Declarator &>(first), static_cast<Declarator &>(second));
-}
-
 ReturnValue::~ReturnValue()
 {
 }

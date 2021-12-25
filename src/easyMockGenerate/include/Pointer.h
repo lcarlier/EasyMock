@@ -83,14 +83,19 @@ public:
    */
   std::size_t getHash() const noexcept override;
 
+  /*!
+   * \copydoc ::EasyMock::Hashable::cacheHash()
+   */
+  void cacheHash() noexcept override;
+
 protected:
   /*!
    * \copydoc TypeItf::isEqual
    */
   bool isEqual(const TypeItf& p_other) const override;
 private:
-  void swap(Pointer &first, Pointer &second);
   std::shared_ptr<TypeItf> m_pointedType;
+  std::size_t m_cachedHash;
 };
 
 #endif /* POINTER_H */

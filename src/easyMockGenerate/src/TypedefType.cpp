@@ -4,7 +4,10 @@
 #include <boost/functional/hash.hpp>
 
 TypedefType::TypedefType(std::string p_typedefName, std::shared_ptr<TypeItf> p_typeeType) :
-TypeItf { std::move(p_typedefName) }, m_typeeType { std::move(p_typeeType) }
+TypeItf { std::move(p_typedefName) },
+m_typeeType { std::move(p_typeeType) },
+m_cachedHash{0},
+m_cachedRawHash{0}
 {
   setTypedefType(true);
 }
@@ -21,14 +24,35 @@ bool TypedefType::operator!=(const TypeItf &other) const
 
 std::size_t TypedefType::getHash() const noexcept
 {
+  if(m_cachedHash != 0)
+  {
+    return m_cachedHash;
+  }
   std::size_t seed { TypeItf::getHash() };
   boost::hash_combine(seed, getRawHash());
 
   return seed;
 }
 
+void TypedefType::cacheHash() noexcept
+{
+  m_cachedRawHash = 0;
+  m_cachedHash = 0;
+  TypeItf::cacheHash();
+  m_typeeType->cacheHash();
+  // Since getHash calls getRawHash:
+  // First cache the raw hash
+  m_cachedRawHash = TypedefType::getRawHash();
+  // Then cache the hash
+  m_cachedHash = TypedefType::getHash();
+}
+
 std::size_t TypedefType::getRawHash() const noexcept
 {
+  if(m_cachedRawHash != 0)
+  {
+    return m_cachedRawHash;
+  }
   return m_typeeType->getHash();
 }
 
@@ -73,11 +97,6 @@ TypeItf* TypedefType::getMostDefinedTypee()
 std::string TypedefType::getDeclarationPrefix(bool) const
 {
   return m_name;
-}
-
-void TypedefType::swap(TypedefType &first, TypedefType &second)
-{
-  std::swap(first.m_typeeType, second.m_typeeType);
 }
 
 TypedefType::~TypedefType()

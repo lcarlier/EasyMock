@@ -65,6 +65,11 @@ public:
    */
   std::size_t getHash() const noexcept override;
 
+  /*!
+   * \copydoc ::EasyMock::Hashable::cacheHash()
+   */
+  void cacheHash() noexcept override;
+
 private:
   /*!
    * \copydoc ::Declarator::isEqual
@@ -72,8 +77,7 @@ private:
   bool isEqual(const Declarator& p_other) const override;
   /* Do not make the member const otherwise they are not copyable anymore */
   std::string m_name;
-
-  friend void swap(Parameter &first, Parameter &second);
+  std::size_t m_cachedHash;
 };
 
 Parameter VoidParameter(std::string p_name);

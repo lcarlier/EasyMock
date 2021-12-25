@@ -3,7 +3,9 @@
 #include <boost/functional/hash.hpp>
 
 IncompleteType::IncompleteType(const TypeItf& p_type, Type p_typeType)
-: TypeItf(p_type.getName()), m_type(p_typeType)
+: TypeItf{p_type.getName()},
+m_type{p_typeType},
+m_cachedHash{0}
 {
   setIncompleteType(true);
   setCType(p_type.isCType());
@@ -39,10 +41,21 @@ std::string IncompleteType::getDeclarationPrefix(bool) const
 
 std::size_t IncompleteType::getHash() const noexcept
 {
+  if(m_cachedHash != 0)
+  {
+    return m_cachedHash;
+  }
   std::size_t seed { TypeItf::getHash() };
   boost::hash_combine(seed, static_cast<uint32_t>(m_type));
 
   return seed;
+}
+
+void IncompleteType::cacheHash() noexcept
+{
+  m_cachedHash = 0;
+  TypeItf::cacheHash();
+  m_cachedHash = IncompleteType::getHash();
 }
 
 IncompleteType::~IncompleteType()

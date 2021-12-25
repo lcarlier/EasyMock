@@ -496,6 +496,11 @@ public:
   std::size_t getHash() const noexcept override;
 
   /*!
+   * \copydoc ::EasyMock::Hashable::cacheHash()
+   */
+  void cacheHash() noexcept override;
+
+  /*!
    * \brief Returns the hash of the type where all typedefs have been removed.
    *
    * For example:
@@ -664,6 +669,8 @@ private:
     TYPEITF_COMMON_CLASS_MEMBERS()
   } attributes;
   TypeItf(attributes attrib);
+
+  std::size_t m_cachedHash;
 
 #undef TYPEITF_COMMON_CLASS_MEMBERS
 };

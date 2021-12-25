@@ -9,5 +9,6 @@ add_custom_target(
 
 add_subdirectory(CommandLineParser)
 add_subdirectory(common)
+add_subdirectory(hashTest)
 add_subdirectory(parser)
 add_subdirectory(generate)

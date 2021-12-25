@@ -81,6 +81,11 @@ public:
    */
   std::size_t getHash() const noexcept override;
 
+  /*!
+   * \copydoc ::EasyMock::Hashable::cacheHash()
+   */
+  void cacheHash() noexcept override;
+
   /*
    * bool isEqual(const TypeItf &other);
    * Doesn't need to be overridden because the name is updated whenever the CType object changes.
@@ -96,6 +101,7 @@ private:
   void updateCType(easyMock_cTypes_t p_cType);
   easyMock_cTypes_t m_cType;
   bool m_initAsNakedChar;
+  std::size_t m_cachedHash;
 };
 
 #endif /* CTYPE_H */

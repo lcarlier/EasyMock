@@ -84,6 +84,11 @@ public:
   std::size_t getHash() const noexcept override;
 
   /*!
+   * \copydoc ::EasyMock::Hashable::cacheHash()
+   */
+  void cacheHash() noexcept override;
+
+  /*!
    * \copydoc ::TypeItf::getRawHash()
    */
   std::size_t getRawHash() const noexcept override;
@@ -92,8 +97,9 @@ public:
 
 protected:
 private:
-  void swap(TypedefType &first, TypedefType &second);
   std::shared_ptr<TypeItf> m_typeeType;
+  std::size_t m_cachedHash;
+  std::size_t m_cachedRawHash;
 };
 
 #endif /* TYPEDEFTYPE_H */

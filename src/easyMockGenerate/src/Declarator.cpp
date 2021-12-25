@@ -9,7 +9,9 @@
 #include <boost/functional/hash.hpp>
 
 Declarator::Declarator(std::shared_ptr<TypeItf> typeItf) :
-m_type { std::move(typeItf) }, m_declaredString { "" }
+m_type { std::move(typeItf) },
+m_declaredString { "" },
+m_cachedHash{0}
 {
   if(m_type)
   {
@@ -68,11 +70,22 @@ bool Declarator::operator==(const Declarator& other) const
 
 std::size_t Declarator::getHash() const noexcept
 {
+  if(m_cachedHash != 0)
+  {
+    return m_cachedHash;
+  }
   std::size_t seed { 0 };
   boost::hash_combine(seed, m_declaredString);
   boost::hash_combine(seed, *m_type);
 
   return seed;
+}
+
+void Declarator::cacheHash() noexcept
+{
+  m_cachedHash = 0;
+  m_type->cacheHash();
+  m_cachedHash = Declarator::getHash();
 }
 
 bool Declarator::isEqual(const Declarator& other) const
@@ -101,10 +114,4 @@ bool Declarator::isEqual(const Declarator& other) const
 bool Declarator::operator!=(const Declarator& other) const
 {
   return !(*this == other);
-}
-
-void swap(Declarator &first, Declarator &second)
-{
-  std::swap(first.m_type, second.m_type);
-  std::swap(first.m_declaredString, second.m_declaredString);
 }

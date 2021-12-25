@@ -3,7 +3,9 @@
 #include <boost/functional/hash.hpp>
 
 FunctionType::FunctionType(ReturnValue p_functionReturnType, Parameter::Vector p_functionParameters):
-Function("", std::move(p_functionReturnType), std::move(p_functionParameters)), TypeItf("")
+Function{"", std::move(p_functionReturnType), std::move(p_functionParameters)},
+TypeItf{""},
+m_cachedHash{0}
 {
   setFunction(true);
 }
@@ -43,6 +45,10 @@ std::string FunctionType::getDeclarationPostfix(bool p_naked) const
 
 std::size_t FunctionType::getHash() const noexcept
 {
+  if(m_cachedHash != 0)
+  {
+    return m_cachedHash;
+  }
   std::size_t seed { Function::getHash() };
   /*
    * To keep in mind when reading this comment:
@@ -57,6 +63,14 @@ std::size_t FunctionType::getHash() const noexcept
   boost::hash_combine(seed, TypeItf::getHash());
 
   return seed;
+}
+
+void FunctionType::cacheHash() noexcept
+{
+  m_cachedHash = 0;
+  Function::cacheHash();
+  TypeItf::cacheHash();
+  m_cachedHash = FunctionType::getHash();
 }
 
 bool FunctionType::isEqual(const TypeItf &p_other) const

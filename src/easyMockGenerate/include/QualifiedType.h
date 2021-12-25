@@ -65,6 +65,11 @@ public:
    */
   std::size_t getHash() const noexcept override;
 
+  /*!
+   * \copydoc ::EasyMock::Hashable::cacheHash()
+   */
+  void cacheHash() noexcept override;
+
   virtual ~QualifiedType();
 protected:
   /*!
@@ -82,9 +87,9 @@ protected:
 
   virtual bool isEqual(const TypeItf& p_other) const override;
 
-  friend void swap(QualifiedType& first, QualifiedType& second);
 private:
   std::shared_ptr<TypeItf> m_type;
+  std::size_t m_cachedHash;
 };
 
 #endif /* QUALIFIEDTYPE_H */

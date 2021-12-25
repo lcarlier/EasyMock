@@ -20,6 +20,7 @@ public:
   {
     IntFunVoidFactory factory;
     FunctionDeclaration f = factory.functionFactory();
+    f.cacheHash();
     m_ctxt.addElementToMock(std::move(f));
   }
 };

@@ -109,9 +109,15 @@ public:
    */
   std::size_t getHash() const noexcept override;
 
+  /*!
+   * \copydoc ::EasyMock::Hashable::cacheHash()
+   */
+  void cacheHash() noexcept override;
+
   virtual ~ComposableFieldItf() {}
 private:
   std::string m_name;
+  std::size_t m_cachedHash;
 };
 
 #endif /* COMPOSABLEFIELDITF_H */

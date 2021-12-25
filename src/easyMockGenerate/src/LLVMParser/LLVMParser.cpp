@@ -90,6 +90,7 @@ public:
     auto f = getFunctionDeclaration(func);
     if(f)
     {
+      f->cacheHash();
       m_ctxt.addElementToMock(std::move(*f));
     }
 

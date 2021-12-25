@@ -49,12 +49,18 @@ public:
    */
   std::size_t getHash() const noexcept override;
 
+  /*!
+   * \copydoc ::EasyMock::Hashable::cacheHash()
+   */
+  void cacheHash() noexcept override;
+
   virtual ~FunctionType();
 
 protected:
   bool isEqual(const TypeItf &p_other) const override;
 
 private:
+  std::size_t m_cachedHash;
 };
 
 #endif /* FUNCTIONTYPE_H */

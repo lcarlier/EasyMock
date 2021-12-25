@@ -104,6 +104,11 @@ public:
   std::size_t getHash() const noexcept override;
 
   /*!
+   * \copydoc ::EasyMock::Hashable::cacheHash()
+   */
+  void cacheHash() noexcept override;
+
+  /*!
    * \copydoc ::TypeItf::getDeclarationPrefix
    */
   virtual std::string getDeclarationPrefix(bool p_naked = false) const override;
@@ -115,10 +120,6 @@ protected:
   ComposableType(std::string p_name, bool p_is_embedded_in_other_type);
   ComposableType(std::string p_name, ComposableFieldTypeVector p_elem, bool p_is_embedded_in_other_type);
 
-  /*
-   * There is no pointer to move so I decided not to use the
-   * copy-and-swap idiom
-   */
   ComposableType(const ComposableType& other) = delete;
   ComposableType& operator=(const ComposableType& other) = delete;
   ComposableType(ComposableType &&other) = default;
@@ -133,6 +134,7 @@ private:
   ComposableFieldTypeVector m_elem;
   bool m_is_declaration_embedded_in_other_type;
   bool m_is_forward_declared;
+  std::size_t m_cachedHash;
 };
 
 #endif /* COMPOSABLETYPE_H */

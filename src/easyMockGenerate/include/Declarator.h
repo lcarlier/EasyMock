@@ -112,6 +112,11 @@ public:
    */
   std::size_t getHash() const noexcept override;
 
+  /*!
+   * \copydoc ::EasyMock::Hashable::cacheHash()
+   */
+  void cacheHash() noexcept override;
+
   virtual ~Declarator();
 
 protected:
@@ -142,11 +147,10 @@ protected:
    * \param p_typeItf The TypeItf object which is hold by this declarator.
    */
   explicit Declarator(std::shared_ptr<TypeItf> p_typeItf);
-
-  friend void swap(Declarator &first, Declarator &second);
 private:
   std::shared_ptr<TypeItf> m_type;
   std::string m_declaredString;
+  std::size_t m_cachedHash;
 };
 
 #endif /* DECLARATOR_H */

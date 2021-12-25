@@ -32,6 +32,37 @@ namespace EasyMock {
      */
     [[nodiscard]] virtual std::size_t getHash() const noexcept = 0;
 
+    /*!
+     * \brief Cache the hash of this object so that getHash() gets called faster.
+     *
+     * The code managing this object can call this function to compute the hash and cache it for performance reason.
+     * If this function isn't called, the hash of the object is computed each and every time getHash() is called.
+     *
+     * A good rule of thumb is to call cacheHash() whenever it is known that the object won't be modified anymore.
+     *
+     * \warning Modifying a contained type retrieved by functions such as ::Declarator::getType() after calling
+     * cacheHash() will result in a wrong hash returned by getHash(). The user is responsible for updating the cache
+     * by calling cacheHash() again on all the objects referencing the modified object. e.g.
+     *
+     * \code{.cpp}
+     *
+     * auto cType = std::make_shared<CType>(CTYPE_INT);
+     *
+     * Parameter p1{cType, "p1};
+     * p1.cacheHash();
+     * Parameter p1{cType, "p2};
+     * p2.cacheHash();
+     * // cType is referenced by p1 and p2
+     *
+     * cType.setUnsigned(true);
+     * // Cache of p1 and p2 needs to be updated otherwise getCache() would return the wrong value.
+     *
+     * p1.cacheHash();
+     * p2.cacheHash();
+     * \endcode
+     */
+    virtual void cacheHash() noexcept = 0;
+
     virtual ~Hashable() = default;
   };
 
@@ -57,7 +88,13 @@ namespace EasyMock {
     inline bool operator()(const T &lhs, const T &rhs) const noexcept
     {
       static_assert(std::is_pointer<T>::value, "The template parameter must be a pointer");
-      return *lhs == *rhs;
+      static_assert(std::is_base_of<Hashable, typename std::remove_pointer<T>::type>::value,
+                    "The template parameter must inherit from EasyMock_Hashable");
+      /*
+       * Instead of comparing the objects, the hashes are compared. It is very important that the hashes are
+       * cached otherwise the performance is horrible.
+       */
+      return lhs->getHash() == rhs->getHash();
     }
   };
 

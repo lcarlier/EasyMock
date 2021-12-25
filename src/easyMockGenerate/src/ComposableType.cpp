@@ -3,12 +3,16 @@
 #include <boost/functional/hash.hpp>
 
 ComposableType::ComposableType(std::string p_name, bool p_is_embedded_in_other_type) :
-ComposableType(std::move(p_name), {}, p_is_embedded_in_other_type)
+ComposableType{std::move(p_name), {}, p_is_embedded_in_other_type}
 {
 }
 
 ComposableType::ComposableType(std::string p_name, ComposableFieldTypeVector p_elem, bool p_is_embedded_in_other_type) :
-TypeItf(std::move(p_name)), m_elem(std::move(p_elem)), m_is_declaration_embedded_in_other_type(p_is_embedded_in_other_type), m_is_forward_declared(false)
+TypeItf{std::move(p_name)},
+m_elem{std::move(p_elem)},
+m_is_declaration_embedded_in_other_type{p_is_embedded_in_other_type},
+m_is_forward_declared{false},
+m_cachedHash{0}
 {
 }
 
@@ -29,12 +33,31 @@ void ComposableType::setForwardDecl(bool p_value)
 
 std::size_t ComposableType::getHash() const noexcept
 {
+  if(m_cachedHash != 0)
+  {
+    return m_cachedHash;
+  }
   std::size_t seed { TypeItf::getHash() };
   boost::hash_combine(seed, m_elem);
   boost::hash_combine(seed, m_is_declaration_embedded_in_other_type);
   boost::hash_combine(seed, m_is_forward_declared);
 
   return seed;
+}
+
+void ComposableType::cacheHash() noexcept
+{
+  m_cachedHash = 0;
+  TypeItf::cacheHash();
+  for(auto& v_elem : m_elem)
+  {
+    std::visit([](auto& elem)
+    {
+      elem.cacheHash();
+    },
+    v_elem);
+  }
+  m_cachedHash = ComposableType::getHash();
 }
 
 bool ComposableType::operator==(const TypeItf& other) const

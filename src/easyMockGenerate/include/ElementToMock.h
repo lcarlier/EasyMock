@@ -41,6 +41,11 @@ public:
    */
   virtual size_t getHash() const noexcept override;
 
+  /*!
+   * \copydoc ::EasyMock::Hashable::cacheHash()
+   */
+  void cacheHash() noexcept override;
+
   virtual ~ElementToMock();
 };
 

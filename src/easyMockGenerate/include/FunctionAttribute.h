@@ -67,9 +67,17 @@ public:
    */
   std::size_t getHash() const noexcept override;
 
+  /*!
+   * \copydoc ::EasyMock::Hashable::cacheHash()
+   *
+   * The same rules applies for the hash returned by getRawHash()
+   */
+  void cacheHash() noexcept override;
+
 private:
   std::string m_name;
   ParametersList m_parameters;
+  std::size_t m_cachedHash;
 };
 
 #endif //EASYMOCK_FUNCTIONATTRIBUTE_H

@@ -25,6 +25,7 @@ public:
     StructFunStructFactory factory;
     FunctionDeclaration f = factory.functionFactory();
     setComparatorToMatch("cmp_struct_s2");
+    f.cacheHash();
     m_ctxt.addElementToMock(std::move(f));
   }
 };

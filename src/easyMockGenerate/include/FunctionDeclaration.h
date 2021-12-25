@@ -51,6 +51,11 @@ public:
    */
   std::size_t getHash() const noexcept override;
 
+  /*!
+   * \copydoc ::EasyMock::Hashable::cacheHash()
+   */
+  void cacheHash() noexcept override;
+
   virtual ~FunctionDeclaration();
   static const FunctionDeclaration& toFunctionDeclaration(const ElementToMock& elem)
   {
@@ -58,6 +63,7 @@ public:
   }
 private:
   bool m_doesThisDeclarationHasBody;
+  std::size_t m_cachedHash;
 };
 
 #endif /* FUNCTIONDECLARATION_H */

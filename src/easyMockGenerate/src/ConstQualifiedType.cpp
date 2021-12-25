@@ -5,7 +5,8 @@
 #include <cassert>
 
 ConstQualifiedType::ConstQualifiedType(std::shared_ptr<TypeItf> p_type) :
-QualifiedType { std::move(p_type) }
+QualifiedType { std::move(p_type) },
+m_cachedHash{0}
 {
   if(p_type)
   {
@@ -25,8 +26,20 @@ const char* ConstQualifiedType::getQualifierString() const
 
 std::size_t ConstQualifiedType::getHash() const noexcept
 {
+  if(m_cachedHash != 0)
+  {
+    return m_cachedHash;
+  }
   std::size_t seed { QualifiedType::getHash() };
+  boost::hash_combine(seed, std::string{"const"});
   return seed;
+}
+
+void ConstQualifiedType::cacheHash() noexcept
+{
+  m_cachedHash = 0;
+  QualifiedType::cacheHash();
+  m_cachedHash = ConstQualifiedType::getHash();
 }
 
 bool ConstQualifiedType::operator==(const TypeItf& p_other) const
@@ -37,11 +50,6 @@ bool ConstQualifiedType::operator==(const TypeItf& p_other) const
 bool ConstQualifiedType::operator!=(const TypeItf& p_other) const
 {
   return !(*this == p_other);
-}
-
-void swap(ConstQualifiedType& first, ConstQualifiedType& second)
-{
-  swap(dynamic_cast<QualifiedType&>(first), dynamic_cast<QualifiedType&>(second));
 }
 
 bool ConstQualifiedType::isEqual(const TypeItf& p_other) const

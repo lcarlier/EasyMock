@@ -270,4 +270,6 @@ typedef ::testing::Types
 COMPILE_ONLY_TYPES_50_99
 > CompileOnlyTypes_50_99;
 
+using HashTestTypes = ParserTestTypes;
+
 #endif /* TESTTYPES_H */

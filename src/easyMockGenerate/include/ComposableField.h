@@ -171,6 +171,11 @@ public:
    */
   std::size_t getHash() const noexcept override;
 
+  /*!
+   * \copydoc ::EasyMock::Hashable::cacheHash()
+   */
+  void cacheHash() noexcept override;
+
   virtual ~ComposableField() override;
 
 private:
@@ -180,8 +185,7 @@ private:
   bool isEqual(const Declarator& p_other) const override;
 
   int64_t m_arraySize;
-
-  friend void swap(ComposableField &first, ComposableField &second);
+  std::size_t m_cachedHash;
 };
 
 #endif /* STRUCTFIELD_H */

@@ -133,6 +133,13 @@ public:
   std::size_t getHash() const noexcept override;
 
   /*!
+   * \copydoc ::EasyMock::Hashable::cacheHash()
+   *
+   * The same rules applies for the hash returned by getRawHash()
+   */
+  void cacheHash() noexcept override;
+
+  /*!
    * \brief Returns the hash of the function where all typedefs of the return value and parameter have been removed.
    *
    * In the following example
@@ -170,6 +177,9 @@ protected:
   bool m_isInlined;
   bool m_isStatic;
   std::string m_originFile;
+private:
+  std::size_t m_cachedHash;
+  std::size_t m_cachedRawHash;
 };
 
 #endif /* FUNCTION_H */

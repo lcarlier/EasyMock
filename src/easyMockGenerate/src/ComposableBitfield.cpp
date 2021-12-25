@@ -7,12 +7,14 @@
 #include <cassert>
 
 ComposableBitfield::ComposableBitfield(easyMock_cTypes_t p_type, std::string p_name, uint8_t p_size) :
-ComposableBitfield(std::make_shared<CType>(p_type), std::move(p_name), p_size)
+ComposableBitfield{std::make_shared<CType>(p_type), std::move(p_name), p_size}
 {
 }
 
 ComposableBitfield::ComposableBitfield(std::shared_ptr<TypeItf> p_type, std::string p_name, uint8_t p_size) :
-ComposableFieldItf(std::move(p_type), std::move(p_name)), m_size(p_size)
+ComposableFieldItf{std::move(p_type), std::move(p_name)},
+m_size{p_size},
+m_cachedHash{0}
 {
   TypeItf* typeItf = getType();
   assert(typeItf);
@@ -34,10 +36,21 @@ bool ComposableBitfield::operator==(const ComposableBitfield &other) const
 
 std::size_t ComposableBitfield::getHash() const noexcept
 {
+  if(m_cachedHash != 0)
+  {
+    return m_cachedHash;
+  }
   std::size_t seed { ComposableFieldItf::getHash() };
   boost::hash_combine(seed, m_size);
 
   return seed;
+}
+
+void ComposableBitfield::cacheHash() noexcept
+{
+  m_cachedHash = 0;
+  ComposableFieldItf::cacheHash();
+  m_cachedHash = ComposableBitfield::getHash();
 }
 
 bool ComposableBitfield::isEqual(const Declarator& p_other) const

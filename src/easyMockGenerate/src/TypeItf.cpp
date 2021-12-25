@@ -17,12 +17,12 @@
 #include <cassert>
 
 TypeItf::TypeItf():
-TypeItf("")
+TypeItf{""}
 {
 }
 
 TypeItf::TypeItf(std::string p_name) :
-TypeItf({.name = std::move(p_name),
+TypeItf{{.name = std::move(p_name),
         .isCType = false,
         .isStruct = false,
         .isUnion = false,
@@ -33,7 +33,7 @@ TypeItf({.name = std::move(p_name),
         .isIncompleteType = false,
         .isTypedefType = false,
         .isQualifiedType = false,
-        })
+        }}
 {
 }
 
@@ -50,6 +50,8 @@ TypeItf::TypeItf(TypeItf::attributes attrib)
   m_isIncompleteType = attrib.isIncompleteType;
   m_isTypedefType = attrib.isTypedefType;
   m_isQualifiedType = attrib.isQualifiedType;
+
+  m_cachedHash = 0;
 }
 
 const std::string &TypeItf::getName() const
@@ -100,7 +102,6 @@ bool TypeItf::isImplicit() const
 TypeItf* TypeItf::setImplicit(bool value)
 {
   m_isImplicit = value;
-
   return this;
 }
 
@@ -394,6 +395,10 @@ std::string TypeItf::getDeclarationPostfix(bool p_naked) const
 
 std::size_t TypeItf::getHash() const noexcept
 {
+  if(m_cachedHash != 0)
+  {
+    return m_cachedHash;
+  }
   std::size_t seed { 0 };
   boost::hash_combine(seed, m_name);
   boost::hash_combine(seed, m_isCType);
@@ -410,8 +415,15 @@ std::size_t TypeItf::getHash() const noexcept
   return seed;
 }
 
+void TypeItf::cacheHash() noexcept
+{
+  m_cachedHash = 0;
+  m_cachedHash = TypeItf::getHash();
+}
+
 std::size_t TypeItf::getRawHash() const noexcept
 {
+  //No need to introduce a cache mechanism for the raw hash since this is the same as normal hash
   return getHash();
 }
 

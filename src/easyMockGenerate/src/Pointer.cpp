@@ -5,7 +5,9 @@
 #include <boost/functional/hash.hpp>
 
 Pointer::Pointer(std::shared_ptr<TypeItf> p_type):
-TypeItf(""), m_pointedType(std::move(p_type))
+TypeItf{""},
+m_pointedType{std::move(p_type)},
+m_cachedHash{0}
 {
   this->setPointer(true);
 }
@@ -36,17 +38,24 @@ bool Pointer::setPointedType(std::shared_ptr<TypeItf> newPointedType)
   return true;
 }
 
-void Pointer::swap(Pointer &first, Pointer &second)
-{
-  std::swap(first.m_pointedType, second.m_pointedType);
-}
-
 std::size_t Pointer::getHash() const noexcept
 {
+  if(m_cachedHash != 0)
+  {
+    return m_cachedHash;
+  }
   std::size_t seed { TypeItf::getHash() };
   boost::hash_combine(seed, *m_pointedType);
 
   return seed;
+}
+
+void Pointer::cacheHash() noexcept
+{
+  m_cachedHash = 0;
+  TypeItf::cacheHash();
+  m_pointedType->cacheHash();
+  m_cachedHash = Pointer::getHash();
 }
 
 bool Pointer::isEqual(const TypeItf& p_other) const

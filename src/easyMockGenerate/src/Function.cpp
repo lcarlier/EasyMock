@@ -3,7 +3,16 @@
 #include <boost/functional/hash.hpp>
 
 Function::Function(std::string p_functionName, ReturnValue p_functionReturnType, Parameter::Vector p_functionParameters):
-m_name(p_functionName), m_parameters(std::move(p_functionParameters)), m_returnType(std::move(p_functionReturnType)), m_attributes{}, m_isVariadic(false), m_isInlined(false), m_isStatic{false}, m_originFile{}
+m_name{p_functionName},
+m_parameters{std::move(p_functionParameters)},
+m_returnType{std::move(p_functionReturnType)},
+m_attributes{},
+m_isVariadic{false},
+m_isInlined{false},
+m_isStatic{false},
+m_originFile{},
+m_cachedHash{0},
+m_cachedRawHash{0}
 { }
 
 const std::string* Function::getName() const
@@ -68,6 +77,10 @@ void Function::setInlined(bool value)
 
 std::size_t Function::getHash() const noexcept
 {
+  if(m_cachedHash != 0)
+  {
+    return m_cachedHash;
+  }
   std::size_t seed { 0 };
   boost::hash_combine(seed, m_isInlined);
   boost::hash_combine(seed, m_isVariadic);
@@ -80,8 +93,29 @@ std::size_t Function::getHash() const noexcept
   return seed;
 }
 
+void Function::cacheHash() noexcept
+{
+  m_cachedHash = 0;
+  m_cachedRawHash = 0;
+  for(auto& param : m_parameters)
+  {
+    param.cacheHash();
+  }
+  for(auto& attr : m_attributes)
+  {
+    attr.cacheHash();
+  }
+  m_returnType.cacheHash();
+  m_cachedHash = Function::getHash();
+  m_cachedRawHash = Function::getRawHash();
+}
+
 std::size_t Function::getRawHash() const noexcept
 {
+  if(m_cachedRawHash != 0)
+  {
+    return m_cachedRawHash;
+  }
   std::size_t seed { 0 };
   boost::hash_combine(seed, m_isVariadic);
   boost::hash_combine(seed, m_name);

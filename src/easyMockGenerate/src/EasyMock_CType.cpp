@@ -7,7 +7,10 @@ CType::CType() : CType(CTYPE_INVALID)
 }
 
 CType::CType(const easyMock_cTypes_t p_cType) :
-TypeItf(easyMock_arrayCTypeStr[p_cType]), m_cType(p_cType), m_initAsNakedChar(p_cType == CTYPE_CHAR)
+TypeItf{easyMock_arrayCTypeStr[p_cType]},
+m_cType{p_cType},
+m_initAsNakedChar{p_cType == CTYPE_CHAR},
+m_cachedHash{0}
 {
   this->setCType(true);
 }
@@ -132,11 +135,22 @@ std::string CType::getDeclarationPrefix(bool p_naked) const
 
 std::size_t CType::getHash() const noexcept
 {
+  if(m_cachedHash != 0)
+  {
+    return m_cachedHash;
+  }
   std::size_t seed { TypeItf::getHash() };
   boost::hash_combine(seed, static_cast<uint32_t>(m_cType));
   boost::hash_combine(seed, m_initAsNakedChar);
 
   return seed;
+}
+
+void CType::cacheHash() noexcept
+{
+  m_cachedHash = 0;
+  TypeItf::cacheHash();
+  m_cachedHash = CType::getHash();
 }
 
 bool CType::operator==(const TypeItf& other) const

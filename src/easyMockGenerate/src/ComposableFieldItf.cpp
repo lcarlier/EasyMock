@@ -5,7 +5,9 @@
 #include <boost/functional/hash.hpp>
 
 ComposableFieldItf::ComposableFieldItf(std::shared_ptr<TypeItf> p_type, std::string p_name) :
-Declarator(std::move(p_type)), m_name(std::move(p_name))
+Declarator{std::move(p_type)},
+m_name{std::move(p_name)},
+m_cachedHash{0}
 {
 }
 
@@ -59,10 +61,21 @@ const std::string& ComposableFieldItf::getName() const
 
 std::size_t ComposableFieldItf::getHash() const noexcept
 {
+  if(m_cachedHash != 0)
+  {
+    return m_cachedHash;
+  }
   std::size_t seed { Declarator::getHash() };
   boost::hash_combine(seed, m_name);
 
   return seed;
+}
+
+void ComposableFieldItf::cacheHash() noexcept
+{
+  m_cachedHash = 0;
+  Declarator::cacheHash();
+  m_cachedHash = ComposableFieldItf::getHash();
 }
 
 bool ComposableFieldItf::isEqual(const Declarator& p_other) const

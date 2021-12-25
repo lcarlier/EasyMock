@@ -7,7 +7,9 @@ QualifiedType{ nullptr }
 }
 
 QualifiedType::QualifiedType(std::shared_ptr<TypeItf> p_type) :
-TypeItf { "" }, m_type { std::move(p_type) }
+TypeItf { "" },
+m_type { std::move(p_type) },
+m_cachedHash{0}
 {
   setQualifiedType(true);
 }
@@ -37,12 +39,6 @@ const char* QualifiedType::getQualifierString() const
   return "QualifiedType::getString() must be overridden";
 }
 
-void swap(QualifiedType& first, QualifiedType& second)
-{
-  using std::swap;
-  swap(first.m_type, second.m_type);
-}
-
 bool QualifiedType::operator==(const QualifiedType& p_other) const
 {
   return isEqual(p_other);
@@ -55,10 +51,22 @@ bool QualifiedType::operator!=(const QualifiedType& p_other) const
 
 std::size_t QualifiedType::getHash() const noexcept
 {
+  if(m_cachedHash != 0)
+  {
+    return m_cachedHash;
+  }
   std::size_t seed { TypeItf::getHash() };
   boost::hash_combine(seed, *m_type);
 
   return seed;
+}
+
+void QualifiedType::cacheHash() noexcept
+{
+  m_cachedHash = 0;
+  TypeItf::cacheHash();
+  m_type->cacheHash();
+  m_cachedHash = QualifiedType::getHash();
 }
 
 bool QualifiedType::isEqual(const TypeItf& p_other) const

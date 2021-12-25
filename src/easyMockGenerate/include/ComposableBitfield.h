@@ -62,6 +62,11 @@ public:
    */
   std::size_t getHash() const noexcept override;
 
+  /*!
+   * \copydoc ::EasyMock::Hashable::cacheHash()
+   */
+  void cacheHash() noexcept override;
+
   virtual ~ComposableBitfield() override;
 private:
   /*!
@@ -70,8 +75,7 @@ private:
   bool isEqual(const Declarator& p_other) const override;
 
   uint8_t m_size;
-
-  friend void swap(ComposableBitfield &first, ComposableBitfield &second);
+  std::size_t m_cachedHash;
 };
 
 #endif /* COMPOSABLEBITFIELD_H */

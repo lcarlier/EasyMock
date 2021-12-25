@@ -9,18 +9,19 @@
 #include <boost/functional/hash.hpp>
 
 ComposableField::ComposableField(const easyMock_cTypes_t p_ctype, std::string p_name) :
-ComposableField(std::make_shared<CType>(p_ctype), std::move(p_name))
+ComposableField{std::make_shared<CType>(p_ctype), std::move(p_name)}
 {
 }
 
 ComposableField::ComposableField(std::shared_ptr<TypeItf> p_type, std::string p_name) :
-ComposableField(std::move(p_type), std::move(p_name), {.arraySize = -1})
+ComposableField{std::move(p_type), std::move(p_name), {.arraySize = -1}}
 {
 }
 
 ComposableField::ComposableField(std::shared_ptr<TypeItf> p_type, std::string p_name, ComposableField::attributes p_attrib) :
-ComposableFieldItf(std::move(p_type), std::move(p_name)),
-m_arraySize(p_attrib.arraySize)
+ComposableFieldItf{std::move(p_type), std::move(p_name)},
+m_arraySize{p_attrib.arraySize},
+m_cachedHash{0}
 {}
 
 bool ComposableField::isIncompleteTypeField() const
@@ -35,10 +36,21 @@ bool ComposableField::operator==(const ComposableField& other) const
 
 std::size_t ComposableField::getHash() const noexcept
 {
+  if(m_cachedHash != 0)
+  {
+    return m_cachedHash;
+  }
   std::size_t seed { ComposableFieldItf::getHash() };
   boost::hash_combine(seed, m_arraySize);
 
   return seed;
+}
+
+void ComposableField::cacheHash() noexcept
+{
+  m_cachedHash = 0;
+  ComposableFieldItf::cacheHash();
+  m_cachedHash = ComposableField::getHash();
 }
 
 bool ComposableField::isEqual(const Declarator& p_other) const
@@ -82,7 +94,6 @@ bool ComposableField::isUnboundSpecifiedArray() const
 bool ComposableField::setArraySize(uint64_t size)
 {
   m_arraySize = size;
-
   return true;
 }
 

@@ -4,7 +4,8 @@
 #include <boost/type_index/type_index_facade.hpp>
 
 Enum::Enum(const std::string p_name):
-TypeItf { p_name }
+TypeItf { p_name },
+m_cachedHash{0}
 {
   setEnum(true);
 }
@@ -44,8 +45,19 @@ std::string Enum::getDeclarationPrefix(bool) const
 
 std::size_t Enum::getHash() const noexcept
 {
+  if(m_cachedHash != 0)
+  {
+    return m_cachedHash;
+  }
   std::size_t seed { TypeItf::getHash() };
   boost::hash_combine(seed, boost::hash_range(this->m_listOfValues.begin(), this->m_listOfValues.end()));
 
   return seed;
+}
+
+void Enum::cacheHash() noexcept
+{
+  m_cachedHash = 0;
+  TypeItf::cacheHash();
+  m_cachedHash = Enum::getHash();
 }
