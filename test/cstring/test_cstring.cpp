@@ -72,11 +72,25 @@ TEST(test_ctype, append_non_empty_big_string)
   const char* bigString = LOREM_IPSUM;
   size_t lenOfBigString = strlen(bigString);
 
-  CSTRING_AUTOCLEAN(s) = cstring_new_init(bigString);
+  CSTRING_AUTOCLEAN(s) = cstring_new_init("bar");
 
-  cstring_append(&s, "bar");
+  cstring_append(&s, LOREM_IPSUM);
 
   ASSERT_EQ(cstring_length(&s), lenOfBigString + 3);
-  ASSERT_STREQ(cstring_c_str(&s), LOREM_IPSUM "bar");
-  ASSERT_EQ(cstring_compare_const_char(&s, LOREM_IPSUM "bar"), 0);
+  ASSERT_STREQ(cstring_c_str(&s), "bar" LOREM_IPSUM );
+  ASSERT_EQ(cstring_compare_const_char(&s, "bar" LOREM_IPSUM ), 0);
+}
+
+TEST(test_ctype, append_big_string_to_init_big_string)
+{
+  const char* bigString = LOREM_IPSUM;
+  size_t lenOfBigString = strlen(bigString);
+
+  CSTRING_AUTOCLEAN(s) = cstring_new_init(bigString);
+
+  cstring_append(&s, LOREM_IPSUM);
+
+  ASSERT_EQ(cstring_length(&s), lenOfBigString + lenOfBigString);
+  ASSERT_STREQ(cstring_c_str(&s), LOREM_IPSUM LOREM_IPSUM );
+  ASSERT_EQ(cstring_compare_const_char(&s, LOREM_IPSUM LOREM_IPSUM ), 0);
 }

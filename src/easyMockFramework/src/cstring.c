@@ -82,7 +82,7 @@ void cstring_append(cstring *s, const char *strToAppend)
     else
     {
       s->heap = malloc(newSize);
-      s->heap[0] = '\0';
+      strncpy(s->heap, s->stack, currentSize + 1);
       ptrToUpdate = s->heap;
     }
   }
