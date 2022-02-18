@@ -24,11 +24,11 @@
 
 static void readStdoutStderrUntilEnd(int fdStdOut, int fdStdErr, std::string &stdOut, std::string &stdErr);
 static void appendReadIntoString(int fd, std::string &str, const char *strName, bool *noMoreToRead);
-static void loadSo(const char *pathToSo, const char *functionToLoad, const char *comparatorToMatch, void **funcPtr, void **functExpectPtr, void **functMatcherPtr, void **functOutputPtr, void **handle, bool & m_rmDir, bool& m_load_function);
+static void loadSo(const char *pathToSo, const char *functionToLoadSymbol, const char *functionExpectAndReturnSymbol, const char* functionExpectReturnAndOutputSymbol, const char *comparatorToMatch, void **funcPtr, void **funcPtr_expect, void **funcPtr_matcher, void **funcPtr_output_ptr, void **handle, bool& m_rmDir, bool& m_load_function);
 static void cleanTest(void **handle, const std::string &mockDir, bool rmDirectory);
 static void dumpToFile(const std::string& dir, const std::string& file, std::string& data, bool append);
 
-easyMockGenerate_baseTestCase::easyMockGenerate_baseTestCase(const std::string functionToMock, const std::string pathToFileToMock, const std::string mockDir, bool generateTypes, bool loadFunction, bool rmDir) :
+easyMockGenerate_baseTestCase::easyMockGenerate_baseTestCase(const std::string functionToMock, const std::string pathToFileToMock, const std::string mockDir, bool generateTypes, bool loadFunction, bool isCpp, bool rmDir) :
 ::testing::Test {} ,
 m_functionToMock {functionToMock },
 m_comparatorToMatch {"" },
@@ -42,7 +42,8 @@ m_fptr_matcher { nullptr },
 m_fptr_output_ptr { nullptr },
 m_generate_types { generateTypes },
 m_load_function {loadFunction },
-m_finalMockDir { "" }
+m_finalMockDir { "" },
+m_isCpp{isCpp}
 {
 }
 
@@ -126,11 +127,6 @@ void easyMockGenerate_baseTestCase::getFunPtr(void** fPtr, void** fExpectPtr, vo
   }
 }
 
-void easyMockGenerate_baseTestCase::setGenerateTypes(bool p_generateTypes)
-{
-  m_generate_types = p_generateTypes;
-}
-
 void createDir(const std::string &dir)
 {
   boost::system::error_code errCode;
@@ -152,6 +148,7 @@ void easyMockGenerate_baseTestCase::prepareTest(const ElementToMockContext &elem
   CodeGeneratorCTemplate generate;
   generate.setGenerateUsedType(m_generate_types);
   generate.setGenerateStructComparator({"EasyMock_all_comparators"});
+  generate.setCpp(m_isCpp);
 
   std::string pathAndfileNameToMock = boost::filesystem::path(fullPathToFileToMock).stem().string();
   std::string fileNameToMock = boost::filesystem::path(pathAndfileNameToMock).filename().string();
@@ -174,15 +171,15 @@ void easyMockGenerate_baseTestCase::prepareTest(const ElementToMockContext &elem
   objFile.append(pathAndfileNameToMock);
   std::string fileToCompile(objFile);
   objFile.append(".o");
-  fileToCompile.append(".c");
+  fileToCompile.append(m_isCpp ? ".cpp" : ".c");
   std::string initLog{std::string("Log for: ") + fileToCompile + std::string("\n")};
   dumpToFile(m_finalMockDir, "stdout.txt", initLog, false);
   initLog = std::string("Log for: ") + fileToCompile + std::string("\n");
   dumpToFile(m_finalMockDir, "stderr.txt", initLog, false);
 #if defined(__clang__)
-  const char *cCompiler = "clang";
+  const char *cCompiler = m_isCpp ? "clang++" : "clang";
 #elif defined(__GNUC__) || defined(__GNUG__)
-  const char *cCompiler = "gcc";
+  const char *cCompiler = m_isCpp ? "g++" : "gcc";
 #else
 #error "Compiler not supported"
 #endif
@@ -246,7 +243,24 @@ void easyMockGenerate_baseTestCase::prepareTest(const ElementToMockContext &elem
   executeCmd(fileLibFile, &status);
   ASSERT_EQ(status, 0);
 
-  loadSo(pathToLib.c_str(), functionToMock.c_str(), comparatorToMatch.c_str(), fptr, fptr_expect, fptr_matcher, fptr_output_ptr, handle, m_rmDir, m_load_function);
+  std::string mangledFunctionSymbol;
+  std::string mangledExpectAndReturn;
+  std::string mangledExpectReturnAndOutput;
+  if(m_isCpp)
+  {
+    mangledFunctionSymbol = getMangledString(pathToLib.c_str(), functionToMock);
+    std::string expectAndReturnSymbol = std::string{} + "EasyMock::" + functionToMock + "::ExpectAndReturn";
+    mangledExpectAndReturn = getMangledString(pathToLib.c_str(), expectAndReturnSymbol);
+    std::string expectReturnAndOutputSymbol = std::string{} + "EasyMock::" + functionToMock + "::ExpectReturnAndOutput";
+    mangledExpectReturnAndOutput = getMangledString(pathToLib.c_str(), expectReturnAndOutputSymbol);
+  }
+  else
+  {
+    mangledFunctionSymbol = functionToMock;
+    mangledExpectAndReturn = functionToMock + "_ExpectAndReturn";
+    mangledExpectReturnAndOutput = functionToMock + "_ExpectReturnAndOutput";
+  }
+  loadSo(pathToLib.c_str(), mangledFunctionSymbol.c_str(), mangledExpectAndReturn.c_str(), mangledExpectReturnAndOutput.c_str(), comparatorToMatch.c_str(), fptr, fptr_expect, fptr_matcher, fptr_output_ptr, handle, m_rmDir, m_load_function);
 }
 
 static void cleanTest(void **handle, const std::string &mockDir, bool rmDirectory)
@@ -334,7 +348,12 @@ static void appendReadIntoString(int fd, std::string &str, const char *strName, 
 
 void easyMockGenerate_baseTestCase::executeCmd(const char * const aArguments[], int *status)
 {
-  std::string stdOutLog {};
+  std::string ignoreStdout{};
+  executeCmd(aArguments, status, ignoreStdout);
+}
+
+void easyMockGenerate_baseTestCase::executeCmd(const char * const aArguments[], int *status, std::string& stdOutLog)
+{
   std::string stdErrLog {};
   *status = -1;
   int pipeStdOut[2];
@@ -457,9 +476,12 @@ void easyMockGenerate_baseTestCase::executeCmd(const char * const aArguments[], 
   }
 }
 
-static void loadSo(const char *pathToSo, const char *functionToLoad, const char *comparatorToMatch, void **funcPtr, void **funcPtr_expect, void **funcPtr_matcher, void **funcPtr_output_ptr, void **handle, bool& m_rmDir, bool& m_load_function)
+static void loadSo(const char *pathToSo, const char *functionToLoadSymbol, const char *functionExpectAndReturnSymbol, const char* functionExpectReturnAndOutputSymbol, const char *comparatorToMatch, void **funcPtr, void **funcPtr_expect, void **funcPtr_matcher, void **funcPtr_output_ptr, void **handle, bool& m_rmDir, bool& m_load_function)
 {
   char *error;
+  ASSERT_TRUE(functionToLoadSymbol);
+  ASSERT_TRUE(functionExpectAndReturnSymbol);
+  ASSERT_TRUE(functionExpectReturnAndOutputSymbol);
 
   dlerror(); /* Clear any existing error */
   *handle = dlopen(pathToSo, RTLD_NOW | RTLD_LOCAL);
@@ -474,25 +496,20 @@ static void loadSo(const char *pathToSo, const char *functionToLoad, const char 
   {
     dlerror(); /* Clear any existing error */
 
-    *funcPtr = dlsym(*handle, functionToLoad);
+    *funcPtr = dlsym(*handle, functionToLoadSymbol);
     error = dlerror();
-    ASSERT_EQ(error, nullptr) << "couldn't load function " << functionToLoad << ": " << error;
-
-    std::string expectStr(functionToLoad);
-    expectStr.append("_ExpectAndReturn");
+    ASSERT_EQ(error, nullptr) << "couldn't load function '" << functionToLoadSymbol << "': " << error;
 
     dlerror(); /* Clear any existing error */
 
-    *funcPtr_expect = dlsym(*handle, expectStr.c_str());
+    *funcPtr_expect = dlsym(*handle, functionExpectAndReturnSymbol);
     error = dlerror();
-    ASSERT_EQ(error, nullptr) << "couldn't load expect function " << functionToLoad << ": " << error;
+    ASSERT_EQ(error, nullptr) << "couldn't load expect function '" << functionToLoadSymbol << "': " << error;
 
     std::string matchStr(comparatorToMatch);
     *funcPtr_matcher = dlsym(*handle, matchStr.c_str());
 
-    std::string funPtrOutPtr(functionToLoad);
-    funPtrOutPtr.append("_ExpectReturnAndOutput");
-    *funcPtr_output_ptr = dlsym(*handle, funPtrOutPtr.c_str());
+    *funcPtr_output_ptr = dlsym(*handle, functionExpectReturnAndOutputSymbol);
   }
 }
 
@@ -505,5 +522,77 @@ static void dumpToFile(const std::string& p_dir, const std::string& p_file, std:
   ofile.open(fileName, append ? std::ios::app : std::ios::trunc);
   ofile << p_data;
   ofile.close();
-  p_data.clear();
+}
+
+std::string easyMockGenerate_baseTestCase::getStartLineToMatchForSymbolInSo(const char *pathToSo, const std::string& functionToMock)
+{
+  const char *const nmDemangled[] =
+      {
+          "nm",
+          "-g",
+          "-C",
+          pathToSo,
+          nullptr
+      };
+  int status;
+  std::string nmDemangledOut;
+  executeCmd(nmDemangled, &status, nmDemangledOut);
+
+  std::string sToFind {functionToMock};
+  sToFind.push_back('(');
+
+  std::string symbolAddr;
+  std::istringstream nmDemangledOutIs{nmDemangledOut};
+  std::string curLine{};
+  while (std::getline(nmDemangledOutIs, curLine))
+  {
+    std::string::size_type sToFindPos;
+    if((sToFindPos = curLine.find(sToFind)) != std::string::npos)
+    {
+      symbolAddr = curLine.substr(0, sToFindPos);
+    }
+  }
+  return symbolAddr;
+}
+
+std::string easyMockGenerate_baseTestCase::getMangleFunName(const char *pathToSo, const std::string& startLineToMatch)
+{
+  const char *const nmDemangled[] =
+      {
+          "nm",
+          "-g",
+          pathToSo,
+          nullptr
+      };
+  int status;
+  std::string nmMangledOut;
+  executeCmd(nmDemangled, &status, nmMangledOut);
+
+  std::string symbolAddr;
+  std::istringstream nmMangledOutIs{nmMangledOut};
+  std::string curLine{};
+  while (std::getline(nmMangledOutIs, curLine))
+  {
+    std::string::size_type sToFindPos;
+    if((sToFindPos = curLine.find(startLineToMatch)) != std::string::npos)
+    {
+      std::string::size_type startLineToMatchLen = startLineToMatch.length();
+      symbolAddr = curLine.substr(startLineToMatchLen, curLine.length() - startLineToMatchLen);
+    }
+  }
+  return symbolAddr;
+}
+
+std::string easyMockGenerate_baseTestCase::getMangledString(const char *pathToSo, const std::string& functionToMock)
+{
+  std::string symbolAddr = getStartLineToMatchForSymbolInSo(pathToSo, functionToMock);
+  std::string mangledString = getMangleFunName(pathToSo, symbolAddr);
+#if defined (__APPLE__)
+  /*
+   * Somehow "nm -C" on MacOS returns __mangledString iso _mangledString
+   * but dlsym wants _mangleString ¯\_(ツ)_/¯
+   */
+  mangledString.erase(0, 1);
+#endif
+  return mangledString;
 }

@@ -16,7 +16,7 @@ typedef void (*funExpectPtr)();
 class voidFunVoid_testCase : public easyMockGenerate_baseTestCase
 {
 public:
-  voidFunVoid_testCase() : easyMockGenerate_baseTestCase("voidFunVoid", "include/voidFunVoid.h", "mockVoidFunVoid", false, true)
+  voidFunVoid_testCase() : easyMockGenerate_baseTestCase("voidFunVoid", "include/voidFunVoid.h", "mockVoidFunVoid", false, true, false)
   {
     VoidFunVoidFactory factory;
     FunctionDeclaration f = factory.functionFactory();

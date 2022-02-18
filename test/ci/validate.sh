@@ -45,6 +45,10 @@ if [ "$OS" = "Linux" ]; then
     doxygen \
     graphviz
 elif [ "$OS" = "Darwin" ]; then
+  # Latest version of doxygen (1.9.3)has a regression
+  # so version 1.8.13 is installed instead
+  brew tap-new $USER/local-doxygen
+  brew extract --version=1.8.13 doxygen $USER/local-doxygen
   brew install \
     cmake \
     pkgconfig \
@@ -52,8 +56,9 @@ elif [ "$OS" = "Darwin" ]; then
     gcc \
     llvm \
     ctemplate \
-    doxygen \
-    boost
+    doxygen@1.8.13 \
+    boost \
+    graphviz
   echo 'export PATH="/usr/local/opt/llvm/bin:$PATH"' >> /Users/runner/.bash_profile
 fi
 

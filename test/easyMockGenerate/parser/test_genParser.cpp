@@ -31,7 +31,8 @@ TYPED_TEST(GenericParser_testCase, parser)
   std::string fileName(PROJECT_ROOT_DIR"/test/easyMockGenerate/include/");
   fileName.append(funFactory.getFilename());
   parser.setFilename(fileName);
-  parser.getElementToMockContext(ctxt);
+  parser.setForceCpp(funFactory.isCpp());
+  ASSERT_EQ(parser.getElementToMockContext(ctxt), cp_OK);
   const auto& elementToMock = ctxt.getElementToMock();
   ASSERT_EQ(elementToMock.size(), funList.size());
   for(size_t funIdx = 0; funIdx < funList.size(); funIdx++)

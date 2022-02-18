@@ -52,17 +52,18 @@ int main(int argc, char *argv[])
   of.setIgnoreTypeFieldList(std::move(opt.m_ignoreTypeList));
   of.setIgnoreFunList(std::move(opt.m_ignoreFunList));
   of.setParseIncludedFunctions(opt.m_generateIncludedFunctions);
+  of.setForceCpp(opt.m_mockCpp);
 
   CodeGeneratorCTemplate cg;
   cg.setMockOnlyFunction(std::move(opt.m_mockOnlyList));
   cg.setGenerateAttrList(std::move(opt.m_generateAttrList));
   cg.setGenerateUsedType(opt.m_generateTypes);
   cg.setGenerateStructComparator(std::move(opt.m_comparatorList));
+  cg.setCpp(opt.m_mockCpp);
 
   MainCodeGenerator cp(opt.m_inputHeaderFile, of, cg);
-  cp.generateCode(opt.m_outputDir);
 
-  return 0;
+  return cp.generateCode(opt.m_outputDir, opt.m_ignoreParserError) ? 0 : 1;
 }
 
 static bool validateParameter(const EasyMockOptions& opt)

@@ -54,6 +54,7 @@ struct ParserConfig
   const boost::filesystem::path& mainFile;
   const IgnoreFunList& ignoreFunList;
   bool parseIncludedFunctions;
+  bool forceCpp;
 };
 
 /*!
@@ -1102,6 +1103,15 @@ public:
   {
   }
 
+  virtual bool PrepareToExecuteAction(clang::CompilerInstance &CI) override
+  {
+    if(m_parserConfig.forceCpp)
+    {
+      CI.getInvocation().LangOpts->CPlusPlus = 1;
+    }
+    return true;
+  }
+
   virtual std::unique_ptr<clang::ASTConsumer> CreateASTConsumer(clang::CompilerInstance& CI, clang::StringRef file) override
   {
     clang::Preprocessor& PP = CI.getPreprocessor();
@@ -1172,10 +1182,11 @@ CodeParser_errCode LLVMParser::getElementToMockContext(ElementToMockContext& p_c
       m_ignoreTypeFieldList,
       fullPath,
       m_ignoreFunList,
-      m_parseIncludedFunctions
+      m_parseIncludedFunctions,
+      m_forceCpp
     };
-  tool.run(newFunctionDeclFrontendAction(p_ctxt, parserConfig).get());
-  return cp_OK;
+  int rv = tool.run(newFunctionDeclFrontendAction(p_ctxt, parserConfig).get());
+  return rv == 0 ? cp_OK : cp_ERROR;
 }
 
 LLVMParser::~LLVMParser() { }

@@ -9,7 +9,7 @@ class genGenerate_testCase : public easyMockGenerate_baseTestCase
 {
 public:
   genGenerate_testCase() : easyMockGenerate_baseTestCase(m_factory.functionGetFunctionName(), m_factory.functionGetIncludeDir(), m_factory.functionGetMockDir(), m_factory.getGenerateTypes(),
-                                                         m_factory.loadFunction(), m_factory.getRmDir())
+                                                         m_factory.loadFunction(), m_factory.isCpp(), m_factory.getRmDir())
   {
     ElementToMockList elementToMockList = m_factory.functionFactoryArray();
     for(auto& f : elementToMockList)

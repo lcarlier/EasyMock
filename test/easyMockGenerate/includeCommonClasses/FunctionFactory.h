@@ -221,6 +221,11 @@ public:
    */
   virtual std::string getFilename() = 0;
 
+  /*!
+   * \brief Returns if the factory is for C++
+   */
+  virtual bool isCpp() { return false; }
+
   void setupTestCaseAndMatcher(EasyMockTestCase::TestCase tc, EasyMock_Matcher matcher){
     m_user_matcher = matcher;
     this->setupTestCase(tc);

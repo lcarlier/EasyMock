@@ -128,6 +128,7 @@ add_library(${TEST_FACTORIES_COMMON_OBJ}
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/Header-With-Dash-Factory.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/MainIncludeFactory.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/StructEmptyTypeArrayFactory.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/CppVoidFunVoidFactory.cpp
 )
 
 set(EASYMOCK_TEST_LIBRARY easyMockTestLibrary)
@@ -160,6 +161,8 @@ add_subdirectory(generateStructComparator)
 add_subdirectory(generateStructComparatorForceAll)
 add_subdirectory(generateStructComparatorTypeDef)
 add_subdirectory(parseIncludedFunctions)
+add_subdirectory(MockCpp)
+add_subdirectory(IgnoreParserError)
 add_subdirectory(testForwardDeclareAndFullTypeInOneBuild)
 add_subdirectory(easyMockGenerate)
 add_subdirectory(end2end)

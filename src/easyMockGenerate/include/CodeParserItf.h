@@ -15,7 +15,8 @@ class ElementToMockContext;
 
 enum CodeParser_errCode
 {
-  cp_OK
+  cp_OK,
+  cp_ERROR
 };
 
 using ParserExtraArgs = std::vector<std::string>;
@@ -39,7 +40,8 @@ public:
     m_mockOnlyList{},
     m_ignoreTypeFieldList{},
     m_ignoreFunList{},
-    m_parseIncludedFunctions{}
+    m_parseIncludedFunctions{},
+    m_forceCpp{false}
   {}
   CodeParserItf(std::string& filename, ParserExtraArgs& flags) :
     m_filename(filename),
@@ -47,7 +49,8 @@ public:
     m_mockOnlyList{},
     m_ignoreTypeFieldList{},
     m_ignoreFunList{},
-    m_parseIncludedFunctions{}
+    m_parseIncludedFunctions{},
+    m_forceCpp{false}
   {}
 
   /*!
@@ -102,6 +105,12 @@ public:
    * \param p_parseIncludedFunctions true if the parser must parse the functions coming from included files. False instead.
    */
   void setParseIncludedFunctions(bool p_parseIncludedFunctions) { m_parseIncludedFunctions = p_parseIncludedFunctions; }
+
+  /*!
+   * \brief Sets whether the parser must use C++.
+   * \param p_forceCpp true if the parser must use C++. False instead.
+   */
+  void setForceCpp(bool p_forceCpp) { m_forceCpp = p_forceCpp; }
 protected:
   std::string m_filename;
   ParserExtraArgs m_flags;
@@ -109,6 +118,7 @@ protected:
   IgnoreTypeFieldList m_ignoreTypeFieldList;
   IgnoreFunList m_ignoreFunList;
   bool m_parseIncludedFunctions;
+  bool m_forceCpp;
 };
 
 #endif /* CODEPARSERITF_H */

@@ -78,6 +78,7 @@
 #include <Header-With-Dash-Factory.h>
 #include <MainIncludeFactory.h>
 #include <StructEmptyTypeArrayFactory.h>
+#include <CppVoidFunVoidFactory.h>
 
 // TestTypesInclude.h is generated
 #include "TestTypesInclude.h"
@@ -132,7 +133,9 @@
         StructWithUnionFunStructWithUnionGenerateTypeFactory, \
         ConstIntFunConstIntFactory, \
         Int128FunUint128Factory, \
-        Int128FunUint128FactoryGenTypeFactory
+        Int128FunUint128FactoryGenTypeFactory, \
+        CppVoidFunVoidFactory, \
+        CppVoidFunVoidGenerateTypeFactory
 
 #define VOID_FUN_COMPOSABLE_TYPE_WITH_COMPOSABLE_TYPE_TYPES \
         VoidFunStructWithEmbeddedStructFactory, \

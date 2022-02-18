@@ -23,6 +23,8 @@ const std::string g_generateAttribute("--generate-attribute");
 const std::string g_ignoreFieldGenerationOfParam("--ignore-field-generation-of");
 const std::string g_ignoreGenerationOfParam("--ignore-generation-of");
 const std::string g_generateComparatorOf("--generate-comparator-of");
+const std::string g_mockCpp("--mock-cpp");
+const std::string g_ignoreParserError("--ignore-parser-error");
 
 const std::string g_errorInputMissing("Error: The input header file is not provided");
 const std::string g_errorOutputMissing("Error: The output directory is not provided");
@@ -52,6 +54,8 @@ const std::string g_helpMessage =
   "\n\r"
   "\t-o <directory>                 Output directory.\n\r"
   "\n\r"
+  "\t--mock-cpp                     Mock C++ header.\n\r"
+  "\n\r"
   "\t--cwd <directory>              Change to the directory passed on this parameter before running the parser.\n\r"
   "\t                               Relative paths given to '-i' and '-o' will be taken from the path given to '--cwd'.\n\r"
   "\n\r"
@@ -77,6 +81,14 @@ const std::string g_helpMessage =
   "\t                               \"--generate-attribute format\" will generate the code __attribute__((format(x, y, z))) where\n\r"
   "\t                               x, y and z are the parameters given to the format attribute.\n\r"
   "\t                               Can be used several times.\n\r"
+  "\n\r"
+  "\t--ignore-parser-error          Ignore parser error.\n\r"
+  "\t                               This option ignores the errors that the parser is returning but won't prevent\n\r"
+  "\t                               the generation of the mocks of the function that the parser can parse.\n\r"
+  "\t                               Depending on the error encountered by the parser, it can be that the generated\n\r"
+  "\t                               mock will not compile.\n\r"
+  "\t                               This option isn't recommended and it is better to give the right compile flag\n\r"
+  "\t                               to EasyMock instead of ignoring the errors.\n\r"
   "\n\r"
   "\t--ignore-generation-of         Ignore the parsing and the generation of the given function.\n\r"
   "\t                               Can be used several times.\n\r"
@@ -153,6 +165,14 @@ struct EasyMockOptions
    * \brief The values given to the `--generate-comparator-of` parameter.
    */
   ComparatorList m_comparatorList;
+  /*!
+   * \brief Mock C++
+   */
+   bool m_mockCpp;
+  /*!
+  * \brief Ignore parser error
+  */
+  bool m_ignoreParserError;
 };
 
 /*!

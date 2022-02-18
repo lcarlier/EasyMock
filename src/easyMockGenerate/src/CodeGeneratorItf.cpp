@@ -24,3 +24,8 @@ bool CodeGeneratorItf::generateCode(const std::string& p_outDir, const std::stri
 {
   return generateCodeImplementation(p_outDir, p_fullPathToHeaderToMock, p_elem);
 }
+
+void CodeGeneratorItf::setCpp(bool p_isCpp)
+{
+  this->m_isCpp = p_isCpp;
+}

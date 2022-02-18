@@ -42,7 +42,7 @@ public:
    * * The header has been correctly parsed.
    * * The code containing the mocks exists in outDir.
    */
-  bool generateCode(const std::string &outDir);
+  bool generateCode(const std::string &outDir, bool ignoreParserError);
 private:
   std::string m_filename;
   CodeParserItf &m_codeParserItf;

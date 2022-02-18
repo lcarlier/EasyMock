@@ -20,7 +20,7 @@ typedef int (*structFunStruct_funMatcherPtr)(EASYMOCK_MATCHER_PARAM);
 class structFunStruct_testCase : public easyMockGenerate_baseTestCase
 {
 public:
-  structFunStruct_testCase() : easyMockGenerate_baseTestCase("structFunStruct", "include/structFunStruct.h", "mockStructFunStruct", false, true)
+  structFunStruct_testCase() : easyMockGenerate_baseTestCase("structFunStruct", "include/structFunStruct.h", "mockStructFunStruct", false, true, false)
   {
     StructFunStructFactory factory;
     FunctionDeclaration f = factory.functionFactory();

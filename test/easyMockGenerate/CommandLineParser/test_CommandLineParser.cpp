@@ -30,6 +30,8 @@ TYPED_TEST(CommandLineParser_testCase, InOut)
   ASSERT_EQ(opt.m_inputHeaderFile, "foo");
   ASSERT_EQ(opt.m_outputDir, "bar");
   ASSERT_FALSE(opt.m_generateTypes);
+  ASSERT_FALSE(opt.m_mockCpp);
+  ASSERT_FALSE(opt.m_ignoreParserError);
 }
 
 TYPED_TEST(CommandLineParser_testCase, InOutGenerateType)
@@ -44,6 +46,8 @@ TYPED_TEST(CommandLineParser_testCase, InOutGenerateType)
   ASSERT_EQ(opt.m_inputHeaderFile, "foo");
   ASSERT_EQ(opt.m_outputDir, "bar");
   ASSERT_TRUE(opt.m_generateTypes);
+  ASSERT_FALSE(opt.m_mockCpp);
+  ASSERT_FALSE(opt.m_ignoreParserError);
 }
 
 TYPED_TEST(CommandLineParser_testCase, InOutGeneratedIncludedFunctions)
@@ -140,6 +144,8 @@ TYPED_TEST(CommandLineParser_testCase, ExtraParams)
   ExtraArgsList expectedArgList = {"-I", "i1", "-D", "d1", "-I", "i2", "-D", "d2"};
   ASSERT_EQ(opt.m_extraArgs, expectedArgList);
   ASSERT_FALSE(opt.m_generateTypes);
+  ASSERT_FALSE(opt.m_mockCpp);
+  ASSERT_FALSE(opt.m_ignoreParserError);
 }
 
 TYPED_TEST(CommandLineParser_testCase, ExtraParamsMangled)
@@ -156,6 +162,8 @@ TYPED_TEST(CommandLineParser_testCase, ExtraParamsMangled)
   ExtraArgsList expectedArgList = {"-I", "i1", "-D", "d1", "-I", "i2", "-D", "d2"};
   ASSERT_EQ(opt.m_extraArgs, expectedArgList);
   ASSERT_FALSE(opt.m_generateTypes);
+  ASSERT_FALSE(opt.m_mockCpp);
+  ASSERT_FALSE(opt.m_ignoreParserError);
 }
 
 TYPED_TEST(CommandLineParser_testCase, ParamHelpShort)
@@ -169,6 +177,8 @@ TYPED_TEST(CommandLineParser_testCase, ParamHelpShort)
   ASSERT_FALSE(opt.m_helpMessage.empty()) << opt.m_helpMessage;
   ASSERT_STREQ(opt.m_helpMessage.c_str(), g_helpMessage.c_str());
   ASSERT_FALSE(opt.m_generateTypes);
+  ASSERT_FALSE(opt.m_mockCpp);ASSERT_FALSE(opt.m_ignoreParserError);
+  ASSERT_FALSE(opt.m_ignoreParserError);
 }
 
 TYPED_TEST(CommandLineParser_testCase, ParamHelpLong)
@@ -182,6 +192,8 @@ TYPED_TEST(CommandLineParser_testCase, ParamHelpLong)
   ASSERT_FALSE(opt.m_helpMessage.empty()) << opt.m_helpMessage;
   ASSERT_STREQ(opt.m_helpMessage.c_str(), g_helpMessage.c_str());
   ASSERT_FALSE(opt.m_generateTypes);
+  ASSERT_FALSE(opt.m_mockCpp);
+  ASSERT_FALSE(opt.m_ignoreParserError);
 }
 
 TYPED_TEST(CommandLineParser_testCase, MockOnly)
@@ -199,6 +211,8 @@ TYPED_TEST(CommandLineParser_testCase, MockOnly)
   ASSERT_EQ(opt.m_extraArgs, std::vector<std::string>());
   ASSERT_EQ(opt.m_mockOnlyList, mockOnlyExpect);
   ASSERT_FALSE(opt.m_generateTypes);
+  ASSERT_FALSE(opt.m_mockCpp);
+  ASSERT_FALSE(opt.m_ignoreParserError);
 }
 
 TYPED_TEST(CommandLineParser_testCase, MockOnlyMissingArgBegin)
@@ -236,6 +250,8 @@ TYPED_TEST(CommandLineParser_testCase, CwdOk)
   ASSERT_EQ(opt.m_outputDir, "bar");
   ASSERT_EQ(opt.m_changeWorkingDir, "directory");
   ASSERT_FALSE(opt.m_generateTypes);
+  ASSERT_FALSE(opt.m_mockCpp);
+  ASSERT_FALSE(opt.m_ignoreParserError);
 }
 
 TYPED_TEST(CommandLineParser_testCase, CwdMissing)
@@ -336,6 +352,8 @@ TYPED_TEST(CommandLineParser_testCase, TypeIgnoreField)
   ASSERT_EQ(opt.m_extraArgs, std::vector<std::string>());
   ASSERT_EQ(opt.m_ignoreTypeList, ignoreTypeListExpect);
   ASSERT_FALSE(opt.m_generateTypes);
+  ASSERT_FALSE(opt.m_mockCpp);
+  ASSERT_FALSE(opt.m_ignoreParserError);
 }
 
 TYPED_TEST(CommandLineParser_testCase, TypeIgnoreFieldMissingArgBegin)
@@ -375,6 +393,8 @@ TYPED_TEST(CommandLineParser_testCase, FunIgnore)
   ASSERT_EQ(opt.m_extraArgs, std::vector<std::string>());
   ASSERT_EQ(opt.m_ignoreFunList, ignoreFunListExpect);
   ASSERT_FALSE(opt.m_generateTypes);
+  ASSERT_FALSE(opt.m_mockCpp);
+  ASSERT_FALSE(opt.m_ignoreParserError);
 }
 
 TYPED_TEST(CommandLineParser_testCase, FunIgnoreMissingArgBegin)
@@ -414,6 +434,8 @@ TypeParam parser;
   ASSERT_EQ(opt.m_extraArgs, std::vector<std::string>());
   ASSERT_EQ(opt.m_comparatorList, comparatorList);
   ASSERT_FALSE(opt.m_generateTypes);
+  ASSERT_FALSE(opt.m_mockCpp);
+  ASSERT_FALSE(opt.m_ignoreParserError);
 }
 
 TYPED_TEST(CommandLineParser_testCase, ComparatorGenMissingArgBegin)
@@ -436,4 +458,37 @@ TYPED_TEST(CommandLineParser_testCase, ComparatorGenMissingArgEnd)
 
   ASSERT_FALSE(opt.m_errorMessage.empty());
   ASSERT_STREQ(opt.m_errorMessage.c_str(), g_errorGenerateComparatorOfArgumentMissing.c_str());
+}
+
+TYPED_TEST(CommandLineParser_testCase, MockCpp)
+{
+  TypeParam parser;
+  CommandLineParserItf& parserItf = parser;
+  const char * parsedArgs[] = {"./test", "-i", "foo", "-o", "bar", "--mock-cpp", NULL};
+  EasyMockOptions opt = parserItf.getParsedArguments(ARRAY_SIZE(parsedArgs) - 1, parsedArgs);
+
+  ASSERT_TRUE(opt.m_errorMessage.empty()) << opt.m_errorMessage;
+  ASSERT_TRUE(opt.m_helpMessage.empty()) << opt.m_helpMessage;
+  ASSERT_EQ(opt.m_inputHeaderFile, "foo");
+  ASSERT_EQ(opt.m_outputDir, "bar");
+  ASSERT_FALSE(opt.m_generateTypes);
+  ASSERT_TRUE(opt.m_mockCpp);
+  ASSERT_FALSE(opt.m_ignoreParserError);
+}
+
+
+TYPED_TEST(CommandLineParser_testCase, IgnoreParser)
+{
+  TypeParam parser;
+  CommandLineParserItf& parserItf = parser;
+  const char * parsedArgs[] = {"./test", "-i", "foo", "-o", "bar", "--ignore-parser-error", NULL};
+  EasyMockOptions opt = parserItf.getParsedArguments(ARRAY_SIZE(parsedArgs) - 1, parsedArgs);
+
+  ASSERT_TRUE(opt.m_errorMessage.empty()) << opt.m_errorMessage;
+  ASSERT_TRUE(opt.m_helpMessage.empty()) << opt.m_helpMessage;
+  ASSERT_EQ(opt.m_inputHeaderFile, "foo");
+  ASSERT_EQ(opt.m_outputDir, "bar");
+  ASSERT_FALSE(opt.m_generateTypes);
+  ASSERT_FALSE(opt.m_mockCpp);
+  ASSERT_TRUE(opt.m_ignoreParserError);
 }

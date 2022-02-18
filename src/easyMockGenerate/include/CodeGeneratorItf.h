@@ -59,6 +59,12 @@ public:
    * A special value `EasyMock_all_comparators` can be given to generate the comparator of all the composable types.
    */
   void setGenerateStructComparator(ComparatorList p_value);
+  /*!
+   * \brief Specifies whether to generate mock for C++ or not
+   *
+   * \param p_isCpp True if C++ code generation is needed. False instead.
+   */
+   void setCpp(bool p_isCpp);
 protected:
 
   /*!
@@ -71,6 +77,7 @@ protected:
   GenerateAttrList m_generateAttrList = {};
   bool m_generateUsedType = false;
   ComparatorList m_comparatorList = {};
+  bool m_isCpp = {false};
 };
 
 #endif /* CODEGENERATORITF_H */

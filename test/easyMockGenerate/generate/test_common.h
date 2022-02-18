@@ -40,14 +40,13 @@ public:
 class easyMockGenerate_baseTestCase : public ::testing::Test
 {
 public:
-  easyMockGenerate_baseTestCase(const std::string functionToMock, const std::string pathToFileToMock, const std::string mockDir, bool generateTypes, bool loadFunction, bool rmDir = true);
+  easyMockGenerate_baseTestCase(const std::string functionToMock, const std::string pathToFileToMock, const std::string mockDir, bool generateTypes, bool loadFunction, bool isCpp, bool rmDir = true);
   //Only 1 matcher can be supported at a time!! this means that we cannot test union matcher and struct matcher in the same UT
   //No problem since 1 UT only tests 1 functionality
   void setComparatorToMatch(const std::string structTypeToMatch);
 protected:
   const std::string m_functionToMock;
   std::string m_comparatorToMatch;
-  std::string m_ptrOutputTypeToMatch;
   const std::string m_pathToFileToMock;
   const std::string m_mockDir;
   ElementToMockContext m_ctxt;
@@ -62,10 +61,13 @@ protected:
   void getFunPtr(void **fPtr, void **fExpectPtr);
   void getFunPtr(void **fPtr, void **fExpectPtr, void **fMatcherPtr);
   void getFunPtr(void **fPtr, void **fExpectPtr, void **fMatcherPtr, void **fOutputPtr);
-  void setGenerateTypes(bool p_generateTypes);
 private:
   void prepareTest(const ElementToMockContext &ctxt, const std::string &functionToMock, std::string &comparatorToMatch, const std::string &fullPathToFileToMock, const std::string &mockDir, void **funcPtr, void **functExpectPtr, void **functMatcherPtr, void **functOutputPtr, void **handle);
   void executeCmd(const char * const aArguments[], int *status);
+  void executeCmd(const char * const aArguments[], int *status, std::string& stdOutLog);
+  std::string getMangledString(const char* pathToSo, const std::string& functionToMock);
+  std::string getStartLineToMatchForSymbolInSo(const char *pathToSo, const std::string& functionToMock);
+  std::string getMangleFunName(const char *pathToSo, const std::string& startLineToMatch);
   void *handle;
   void *m_fptr;
   void *m_fptr_expect;
@@ -74,6 +76,7 @@ private:
   bool m_generate_types;
   bool m_load_function;
   std::string m_finalMockDir;
+  bool m_isCpp;
 };
 
 #endif /* TEST_COMMON_H */

@@ -34,9 +34,16 @@ then
   GTEST_LIB_POSTFIX="d"
 fi
 
+#from: https://stackoverflow.com/questions/45181115/portable-way-to-find-the-number-of-processors-cpus-in-a-shell-script
+OS="$(uname -s)"
+PLATFORM_DEP_PARAM=""
+if [ "$OS" = "Darwin" ]; then
+  PLATFORM_DEP_PARAM="-DTARGET_OS_IPHONE=0"
+fi
+
 mkdir -p "${TEST_DIR}"
 
-${EASYMOCK_GENERATE} -i "${FILE_TO_MOCK}" -o "${TEST_DIR}" ${EASYMOCK_EXTRA_PARAMS[*]}
+${EASYMOCK_GENERATE} -i "${FILE_TO_MOCK}" -o "${TEST_DIR}" ${EASYMOCK_EXTRA_PARAMS[*]} ${PLATFORM_DEP_PARAM}
 
 ${C_COMPILER} \
   -c "${TEST_DIR}/easyMock_${FILE_TO_MOCK_BASE_NAME}.c" \
