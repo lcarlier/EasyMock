@@ -176,6 +176,12 @@ if (NOT CLANG_LIBRARIES OR NOT EXISTS ${CLANG_LIBRARIES})
     message (FATAL_ERROR "libclang not found. CLANG_LIBRARIES=${CLANG_LIBRARIES}")
 endif()
 
+find_library(CLANGCPP_LIBRARIES NAMES clang-cpp PATHS ${LLVM_PATH} PATH_SUFFIXES lib)
+
+if (NOT CLANGCPP_LIBRARIES OR NOT EXISTS ${CLANGCPP_LIBRARIES})
+    message (FATAL_ERROR "libclang-cpp not found. PATH=${LLVM_PATH} CLANGCPP_LIBRARIES=${CLANGCPP_LIBRARIES}")
+endif()
+
 find_library(ZLIB_LIBRARIES NAMES z PATHS PATH_SUFFIXES lib)
 if (NOT ZLIB_LIBRARIES)
     message (FATAL_ERROR "zlib not found.")
@@ -207,39 +213,14 @@ if(CMAKE_BUILD_TYPE STREQUAL build_debug)
     message(STATUS "Setting extra link flags (${EASYMOCK_DEFAULT_LDFLAGS})")
 endif()
 
-# In the following list, some of the libraries are repeated on purpose because
-# the linker discards too soon some symbols used by subsequent libraries and then
-# fails with undefined symbol. By repeating the libraries, the linker is able to
-# find the symbols it has missed the first time.
 set(LINK_LIB
   ${CTEMPLATE_LIBRARIES}
   ${Boost_FILESYSTEM_LIBRARY}
   ${Boost_SYSTEM_LIBRARY}
-  clangTooling
-  clangFrontend
-  clangSerialization
-  LLVMBitReader
-  LLVMOption
-  clangParse
-  clangDriver
-  LLVMProfileData
-  LLVMCore
-  clangSema
-  clangAnalysis
-  clangAST
-  clangBasic
-  LLVMMCParser
-  LLVMMC
-  LLVMBinaryFormat
-  clangEdit
-  LLVMSupport
-  LLVMRemarks
-  LLVMBitstreamReader
-  LLVMFrontendOpenMP
-  LLVMCore
-  LLVMDemangle
+  clang
+  clang-cpp
+  LLVM
   pthread
-  clangLex
   z
   curses
 )

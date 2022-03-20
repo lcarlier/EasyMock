@@ -37,6 +37,7 @@ if [ "$OS" = "Linux" ]; then
     libunwind-dev \
     llvm-10-dev \
     libclang-10-dev \
+    libclang-cpp10-dev \
     libncurses-dev \
     libboost-system-dev \
     libboost-filesystem-dev \

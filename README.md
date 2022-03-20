@@ -48,7 +48,9 @@ EasyMock can be compiled on Linux or macOS x86_64/arm.
 ### <a name="user-content-dependencies"></a> Dependencies
 
 EasyMock uses the following mandatory libraries:
-* libclang/llvm
+* libclang
+* libclang-cpp
+* libllvm
 * libctemplate
 * libncurse
 * liboost (system, filesystem)
@@ -74,13 +76,14 @@ For generating the documentation, the following tools must be installed:
 The dependencies can be installed on Ubuntu by using the following command:
 ```sh
 sudo apt install \
-    gcc \
     g++ \
+    clang \
     cmake \
     pkg-config \
     libunwind-dev \
     llvm-10-dev \
     libclang-10-dev \
+    libclang-cpp10-dev \
     libncurses-dev \
     libboost-system-dev \
     libboost-filesystem-dev \

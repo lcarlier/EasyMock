@@ -11,6 +11,7 @@ jobs:
 
       - name: Install dependencies
         run: |-
+          sudo apt update -y
           sudo apt install \
             gcc \
             g++ \
@@ -19,6 +20,7 @@ jobs:
             libunwind-dev \
             llvm-12-dev \
             libclang-12-dev \
+            libclang-cpp12-dev \
             libncurses-dev \
             libboost-system-dev \
             libboost-filesystem-dev \
