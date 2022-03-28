@@ -26,7 +26,7 @@ public:
   }
 };
 
-TYPED_TEST_CASE(voidFunComposableTypeWithComposableType_testCase, VoidFunComposableTypeWithComposableTypeTypes);
+TYPED_TEST_SUITE(voidFunComposableTypeWithComposableType_testCase, VoidFunComposableTypeWithComposableTypeTypes);
 
 /*
  * Same as generic test case but test the matcher for positive case

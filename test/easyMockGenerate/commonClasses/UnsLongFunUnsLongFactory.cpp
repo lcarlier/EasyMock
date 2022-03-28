@@ -1,4 +1,5 @@
 #include <UnsLongFunUnsLongFactory.h>
+#include <limits>
 
 FunctionDeclaration UnsLongFunUnsLongFactory::functionFactory()
 {

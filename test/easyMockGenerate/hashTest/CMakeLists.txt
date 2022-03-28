@@ -4,7 +4,6 @@ add_executable(${EASYMOCK_HASHTEST_TEST_BINARY}
         ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/hashTest/test_genHashTest.cpp
         )
 
-add_dependencies(${EASYMOCK_HASHTEST_TEST_BINARY} generateTestInclude)
 target_compile_options(${EASYMOCK_HASHTEST_TEST_BINARY} PRIVATE ${TEST_COMPILE_FLAGS})
 target_include_directories(${EASYMOCK_HASHTEST_TEST_BINARY} PRIVATE ${TEST_INCLUDE_DIR})
 target_link_libraries(${EASYMOCK_HASHTEST_TEST_BINARY} ${TEST_LINK_LIB} ${TEST_FACTORIES_COMMON_OBJ} ${EASYMOCK_COMMON_OBJ} ${EASYMOCK_TEST_LIBRARY})

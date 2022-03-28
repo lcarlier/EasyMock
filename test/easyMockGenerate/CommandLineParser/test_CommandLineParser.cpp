@@ -16,7 +16,7 @@ class CommandLineParser_testCase : public ::testing::Test
 {
 };
 
-TYPED_TEST_CASE(CommandLineParser_testCase, CmdLineParserTestTypes);
+TYPED_TEST_SUITE(CommandLineParser_testCase, CmdLineParserTestTypes);
 
 TYPED_TEST(CommandLineParser_testCase, InOut)
 {

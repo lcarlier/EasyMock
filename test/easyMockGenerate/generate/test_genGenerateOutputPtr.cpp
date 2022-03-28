@@ -20,7 +20,7 @@ public:
   }
 };
 
-TYPED_TEST_CASE(genGenerateOutputPtr_testCase, PtrFunPtrTypes);
+TYPED_TEST_SUITE(genGenerateOutputPtr_testCase, PtrFunPtrTypes);
 
 TYPED_TEST(genGenerateOutputPtr_testCase, TestOutputPtrGenerated)
 {
@@ -55,7 +55,7 @@ public:
   }
 };
 
-TYPED_TEST_CASE(nonPtrGenerateOutputPtr_testCase, NonPtrFunTypes);
+TYPED_TEST_SUITE(nonPtrGenerateOutputPtr_testCase, NonPtrFunTypes);
 
 TYPED_TEST(nonPtrGenerateOutputPtr_testCase, TestOutputPtrNotGenerated)
 {

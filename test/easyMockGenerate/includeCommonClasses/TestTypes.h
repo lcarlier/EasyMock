@@ -80,9 +80,6 @@
 #include <StructEmptyTypeArrayFactory.h>
 #include <CppVoidFunVoidFactory.h>
 
-// TestTypesInclude.h is generated
-#include "TestTypesInclude.h"
-
 #define PTR_FUN_PTR_FACTORIES \
         VoidPtrFunVoidPtrFactory, \
         CharPtrFunCharPtrFactory, \
@@ -165,7 +162,7 @@
         VoidFunStructWithAnonymousUnionFieldWithStructFactory, \
         VoidFunStructWithAnonymousUnionFieldWithStructGenerateTypeFactory
 
-#define COMPILE_ONLY_TYPES_0_49 \
+#define COMPILE_ONLY_TYPES \
         CompileTwoFunctionsFactory, \
         VariadicFunctionsFactory, \
         MultipleDefinitionsFactory, \
@@ -215,9 +212,7 @@
         VoidFunStructWithOutsideDeclaredAnonymousTypeStructFieldFactory, \
         VoidFunStructWithOutsideDeclaredAnonymousTypeStructFieldGenerateTypeFactory, \
         VoidFunDeclAndDefFactory, \
-        VoidFunDeclAndDefGenerateTypeFactory
-
-#define COMPILE_ONLY_TYPES_50_99 \
+        VoidFunDeclAndDefGenerateTypeFactory, \
         VoidFunAliasedFunFactory, \
         VoidFunAliasedFunGenerateTypeFactory, \
         VoidFunStructForwardDeclAndEmptyStructFactory, \
@@ -250,13 +245,12 @@ typedef ::testing::Types
         VOID_FUN_COMPOSABLE_TYPE_WITH_COMPOSABLE_TYPE_TYPES
 > VoidFunComposableTypeWithComposableTypeTypes;
 
-typedef ::testing::BigTypes
+typedef ::testing::Types
 <
         PTR_FUN_PTR_FACTORIES,
         NON_PTR_FUN_FACTORIES,
         VOID_FUN_COMPOSABLE_TYPE_WITH_COMPOSABLE_TYPE_TYPES,
-        COMPILE_ONLY_TYPES_0_49,
-        COMPILE_ONLY_TYPES_50_99,
+        COMPILE_ONLY_TYPES,
         IntFunStructPtrIntCharPtrFactory,
         VoidFunIntArrayFactory,
         VoidFunIntArrayGenerateTypeFactory
@@ -264,14 +258,8 @@ typedef ::testing::BigTypes
 
 typedef ::testing::Types
 <
-        COMPILE_ONLY_TYPES_0_49
-> CompileOnlyTypes_0_49;
-
-
-typedef ::testing::Types
-<
-COMPILE_ONLY_TYPES_50_99
-> CompileOnlyTypes_50_99;
+        COMPILE_ONLY_TYPES
+> CompileOnlyTypes;
 
 using HashTestTypes = ParserTestTypes;
 

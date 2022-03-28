@@ -16,6 +16,7 @@ BINARY_DIR=${8}
 DEBUG=${9}
 C_COMPILER=${10}
 CXX_COMPILER=${11}
+CXX_STANDARD=${12}
 
 FILE_TO_MOCK_BASE_NAME=$(basename "${FILE_TO_MOCK}")
 FILE_TO_MOCK_BASE_NAME=${FILE_TO_MOCK_BASE_NAME%.*}
@@ -56,6 +57,7 @@ ${C_COMPILER} \
 
 ${CXX_COMPILER} \
   -c "${TEST_FILE_TO_COMPILE}" \
+  -std="c++${CXX_STANDARD}" \
   -I "${SOURCE_DIR}/src/easyMockFramework/include" \
   -I "${SOURCE_DIR}/test/easyMockGenerate/include" \
   -I "${SOURCE_DIR}/test/end2end" \
@@ -66,6 +68,7 @@ ${CXX_COMPILER} \
 ${CXX_COMPILER} \
   "-Wl,-rpath,${BINARY_DIR}/src/easyMockFramework/src" \
   "-L${BINARY_DIR}/src/easyMockFramework/src" \
+  -std="c++${CXX_STANDARD}" \
   "${TEST_DIR}/easyMock_${FILE_TO_MOCK_BASE_NAME}.o" \
   "${TEST_DIR}/${FILE_TO_COMPILE_BASE_NAME}.o" \
   "${GTEST_BINARY_DIR}/libgtest_main${GTEST_LIB_POSTFIX}.a" \

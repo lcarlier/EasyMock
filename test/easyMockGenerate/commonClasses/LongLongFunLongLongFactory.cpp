@@ -1,4 +1,5 @@
 #include <LongLongFunLongLongFactory.h>
+#include <limits>
 
 FunctionDeclaration LongLongFunLongLongFactory::functionFactory()
 {

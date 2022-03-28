@@ -26,7 +26,6 @@ add_executable(${EASYMOCK_GENERATE_TEST_BINARY}
     ${EasyMock_SOURCE_DIR}/src/easyMockFramework/src/easyMock_glueStdlib.c
 )
 
-add_dependencies(${EASYMOCK_GENERATE_TEST_BINARY} generateTestInclude)
 target_compile_options(${EASYMOCK_GENERATE_TEST_BINARY} PRIVATE ${TEST_COMPILE_FLAGS})
 target_include_directories(${EASYMOCK_GENERATE_TEST_BINARY} PRIVATE ${TEST_INCLUDE_DIR})
 target_link_libraries(${EASYMOCK_GENERATE_TEST_BINARY} ${CTEMPLATE_GENERATE_OBJ} ${TEST_LINK_LIB} ${TEST_FACTORIES_COMMON_OBJ} ${EASYMOCK_COMMON_OBJ})

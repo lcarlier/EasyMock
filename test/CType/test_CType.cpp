@@ -60,7 +60,7 @@ static ctype_params test_unsigned_params[]
   {CTYPE_INT128, CTYPE_UINT128}
 };
 
-INSTANTIATE_TEST_CASE_P(CtypeUnsignedTypes, ctype_unsigned_testcase, ::testing::ValuesIn(test_unsigned_params));
+INSTANTIATE_TEST_SUITE_P(CtypeUnsignedTypes, ctype_unsigned_testcase, ::testing::ValuesIn(test_unsigned_params));
 
 class ctype_signed_only_testcase : public ::testing::TestWithParam<easyMock_cTypes_t>
 {
@@ -89,7 +89,7 @@ static easyMock_cTypes_t test_signed_only_params[]
   CTYPE_VOID
 };
 
-INSTANTIATE_TEST_CASE_P(CtypeSignedType, ctype_signed_only_testcase, ::testing::ValuesIn(test_signed_only_params));
+INSTANTIATE_TEST_SUITE_P(CtypeSignedType, ctype_signed_only_testcase, ::testing::ValuesIn(test_signed_only_params));
 
 TEST(ctype_char_signed_unsigned, naked_char_default)
 {
@@ -177,4 +177,4 @@ TEST_P(ctype_declare_string_testcase, all_type)
   ASSERT_STREQ(c.getFullDeclarationName().c_str(), toExpect);
 }
 
-INSTANTIATE_TEST_CASE_P(CtypeDeclareString, ctype_declare_string_testcase, ::testing::Range(static_cast<int>(CTYPE_CHAR), static_cast<int>(CTYPE_INVALID-1)));
+INSTANTIATE_TEST_SUITE_P(CtypeDeclareString, ctype_declare_string_testcase, ::testing::Range(static_cast<int>(CTYPE_CHAR), static_cast<int>(CTYPE_INVALID-1)));

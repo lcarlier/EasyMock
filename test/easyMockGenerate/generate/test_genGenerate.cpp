@@ -33,7 +33,7 @@ template <typename... Args,
 typename std::enable_if<(sizeof...(Args) == 0), int>::type = 0>
 static auto getFirstTupleElem(std::tuple<Args...>& t);
 
-TYPED_TEST_CASE(genGenerate_testCase, GenerateTestTypes);
+TYPED_TEST_SUITE(genGenerate_testCase, GenerateTestTypes);
 
 TYPED_TEST(genGenerate_testCase, OneExpect)
 {

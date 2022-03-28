@@ -11,7 +11,7 @@ class GenericHashTest_testCase : public ::testing::Test
 {
 };
 
-TYPED_TEST_CASE(GenericHashTest_testCase, HashTestTypes);
+TYPED_TEST_SUITE(GenericHashTest_testCase, HashTestTypes);
 
 TYPED_TEST(GenericHashTest_testCase, hashTest)
 {

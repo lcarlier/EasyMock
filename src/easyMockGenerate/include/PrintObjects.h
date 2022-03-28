@@ -20,27 +20,27 @@ class ComposableBitfield;
 class ConstQualifiedType;
 class TypedefType;
 
-std::ostream& operator<<(std::ostream& os, const Function& fun);
-std::ostream& operator<<(std::ostream& os, const ReturnValue& rv);
-std::ostream& operator<<(std::ostream& os, const TypeItf& typeItf);
-std::ostream& operator<<(std::ostream& os, const StructType& structType);
-std::ostream& operator<<(std::ostream& os, const Parameter& param);
-std::ostream& operator<<(std::ostream& os, const CType& ctype);
-std::ostream& operator<<(std::ostream& os, const ComposableField& composableField);
-std::ostream& operator<<(std::ostream& os, const UnionType& unionType);
-std::ostream& operator<<(std::ostream& os, const Pointer& pointer);
-std::ostream& operator<<(std::ostream& os, const FunctionType& pointer);
-std::ostream& operator<<(std::ostream& os, const FunctionDeclaration& pointer);
-std::ostream& operator<<(std::ostream& os, const Enum& e);
-std::ostream& operator<<(std::ostream& os, const IncompleteType& incType);
-std::ostream& operator<<(std::ostream& os, const __int128& int128Type);
-std::ostream& operator<<(std::ostream& os, const ComposableFieldItf& composableFieldItf);
-std::ostream& operator<<(std::ostream& os, const ComposableBitfield& composableBitfield);
-std::ostream& operator<<(std::ostream& os, const ConstQualifiedType& constQualifiedType);
-std::ostream& operator<<(std::ostream& os, const TypedefType& p_typedefType);
-void PrintTo(const __int128& bar, std::ostream* os);
-std::ostream& operator<<(std::ostream& os, const unsigned __int128& uint128Type);
-void PrintTo(const unsigned __int128& bar, std::ostream* os);
+namespace std {
+    ostream &operator<<(ostream &os, const Function &fun);
+    ostream &operator<<(ostream &os, const ReturnValue &rv);
+    ostream &operator<<(ostream &os, const TypeItf &typeItf);
+    ostream &operator<<(ostream &os, const StructType &structType);
+    ostream &operator<<(ostream &os, const Parameter &param);
+    ostream &operator<<(ostream &os, const CType &ctype);
+    ostream &operator<<(ostream &os, const ComposableField &composableField);
+    ostream &operator<<(ostream &os, const UnionType &unionType);
+    ostream &operator<<(ostream &os, const Pointer &pointer);
+    ostream &operator<<(ostream &os, const FunctionType &pointer);
+    ostream &operator<<(ostream &os, const FunctionDeclaration &pointer);
+    ostream &operator<<(ostream &os, const Enum &e);
+    ostream &operator<<(ostream &os, const IncompleteType &incType);
+    ostream &operator<<(ostream &os, const ComposableFieldItf &composableFieldItf);
+    ostream &operator<<(ostream &os, const ComposableBitfield &composableBitfield);
+    ostream &operator<<(ostream &os, const ConstQualifiedType &constQualifiedType);
+    ostream &operator<<(ostream &os, const TypedefType &p_typedefType);
+    ostream &operator<<(ostream &os, const __int128 &uint128Type);
+    ostream &operator<<(ostream &os, const unsigned __int128 &uint128Type);
+}
 
 #endif /* EASYMOCKPRINTOBJECTS_H */
 

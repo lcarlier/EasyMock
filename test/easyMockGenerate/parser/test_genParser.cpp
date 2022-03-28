@@ -13,7 +13,7 @@ class GenericParser_testCase : public ::testing::Test
 {
 };
 
-TYPED_TEST_CASE(GenericParser_testCase, ParserTestTypes);
+TYPED_TEST_SUITE(GenericParser_testCase, ParserTestTypes);
 
 TYPED_TEST(GenericParser_testCase, parser)
 {
