@@ -10,10 +10,29 @@ inputs:
   build_type:
     description: 'Build type'
     required: true
+
 runs:
   using: "composite"
   steps:
+    # Enable tmate debugging of manually-triggered workflows if the input option was provided
+    - name: Setup tmate session if enabled
+      uses: mxschmitt/action-tmate@v3
+      if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tmate_enabled == 'true' }}
+
     - name: Run test
       run:  |-
         ./test/ci/validate.sh ${{ inputs.c_compiler }} ${{ inputs.cxx_compiler }} ${{ inputs.build_type }}
       shell: bash
+
+    - name: Store artifacts
+      if: always()
+      uses: actions/upload-artifact@v2
+      with:
+        name: build-output
+        path: |
+          **/*.c
+          **/*.cpp
+          **/*.h
+          **/*.hpp
+          **/*.txt
+          **/Kbuild

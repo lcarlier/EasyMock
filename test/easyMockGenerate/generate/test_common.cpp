@@ -33,7 +33,7 @@ easyMockGenerate_baseTestCase::easyMockGenerate_baseTestCase(const std::string f
 m_functionToMock {functionToMock },
 m_comparatorToMatch {"" },
 m_pathToFileToMock { pathToFileToMock },
-m_mockDir { mockDir },
+m_mockDir { mockDir + "_" + ::testing::UnitTest::GetInstance()->current_test_info()->name() },
 m_rmDir { rmDir },
 handle { nullptr },
 m_fptr { nullptr } ,
@@ -56,7 +56,7 @@ std::stringstream &operator<<(std::stringstream &out, const EasyMock_ErrorArrayP
 {
   const char **curArrChar = obj.m_in;
   const char *curChar;
-  for(curChar = *curArrChar; curChar != NULL; curArrChar++, curChar = *curArrChar)
+  for(curChar = *curArrChar; curChar != nullptr; curArrChar++, curChar = *curArrChar)
   {
     out << curChar << std::endl;
   }
@@ -184,7 +184,7 @@ void easyMockGenerate_baseTestCase::prepareTest(const ElementToMockContext &elem
 #error "Compiler not supported"
 #endif
 
-  const char *const whichCCompilerCmd[] =
+  std::vector<const char *> whichCCompilerCmd =
   {
     "which",
     cCompiler,
@@ -193,14 +193,19 @@ void easyMockGenerate_baseTestCase::prepareTest(const ElementToMockContext &elem
   executeCmd(whichCCompilerCmd, &status);
 
   ASSERT_EQ(status, 0);
-  const char *const compileMockCmd[] = {cCompiler, "-Wall", "-Werror", "-g", "-O0", "-fpic", "-I", m_finalMockDir.c_str(),
+  std::vector<const char *> compileMockCmd = {cCompiler, "-Wall", "-Werror", "-g", "-O0", "-fpic", "-I", m_finalMockDir.c_str(),
                                         "-I", PROJECT_ROOT_DIR"/src/easyMockFramework/include", "-I",
                                         PROJECT_ROOT_DIR"/test/easyMockGenerate/include", "-o", objFile.c_str(), "-c",
-                                        fileToCompile.c_str(), NULL};
+                                        fileToCompile.c_str()};
+  if(m_isCpp)
+  {
+    compileMockCmd.push_back("-std=gnu++17");
+  }
+  compileMockCmd.push_back(nullptr);
   executeCmd(compileMockCmd, &status);
   ASSERT_EQ(status, 0) << std::endl << "Compilation mock failed " << std::endl << "cwd: " << cwd << std::endl;
 
-  const char * const fileObjFile [] =
+  std::vector<const char *>fileObjFile =
   {
     "file",
     objFile.c_str(),
@@ -219,7 +224,7 @@ void easyMockGenerate_baseTestCase::prepareTest(const ElementToMockContext &elem
 #else
 #error "OS not supported"
 #endif
-  const char * const compileLibCmd[] =
+  std::vector<const char *> compileLibCmd =
   {
     cCompiler,
     "-shared",
@@ -229,12 +234,23 @@ void easyMockGenerate_baseTestCase::prepareTest(const ElementToMockContext &elem
     "-o",
     pathToLib.c_str(),
     objFile.c_str(),
-    NULL
   };
+  if(m_isCpp)
+  {
+    /*
+     * Make sure the share library is linked against the same libc++ as test_easyMockGenerate_generate executable
+     * using -L.
+     * If not VERY WIERD THINGS such as integer not printed correctly in stringstream, or crash in
+     * operator<<(T&) of basic_stream happens.
+     */
+    compileLibCmd.push_back("-L");
+    compileLibCmd.push_back(LLVM_LIBDIR);
+  }
+  compileLibCmd.push_back(nullptr);
   executeCmd(compileLibCmd, &status);
   ASSERT_EQ(status, 0) << std::endl << "Compilation lib failed " << std::endl << "cwd: " << cwd << std::endl;
 
-  const char * const fileLibFile [] =
+  std::vector<const char *> fileLibFile =
   {
     "file",
     pathToLib.c_str(),
@@ -273,7 +289,7 @@ static void cleanTest(void **handle, const std::string &mockDir, bool rmDirector
     error = dlclose(*handle);
     char *errorStr = dlerror();
     ASSERT_EQ(error, 0) << "Error dlclose" << std::endl << errorStr;
-    *handle = NULL;
+    *handle = nullptr;
   }
   if(rmDirectory)
   {
@@ -302,7 +318,7 @@ static void readStdoutStderrUntilEnd(int fdStdOut, int fdStdErr, std::string &st
       FD_SET(fdStdErr, &rfds);
       nfds = std::max(fdStdErr, nfds) + 1;
     }
-    retval = select(nfds, &rfds, NULL, NULL, NULL);
+    retval = select(nfds, &rfds, nullptr, nullptr, nullptr);
     if (retval == -1)
     {
       if(!(errno == EAGAIN || errno == EINTR))
@@ -346,13 +362,13 @@ static void appendReadIntoString(int fd, std::string &str, const char *strName, 
   }
 }
 
-void easyMockGenerate_baseTestCase::executeCmd(const char * const aArguments[], int *status)
+void easyMockGenerate_baseTestCase::executeCmd(const std::vector<const char*> &aArguments, int *status)
 {
   std::string ignoreStdout{};
   executeCmd(aArguments, status, ignoreStdout);
 }
 
-void easyMockGenerate_baseTestCase::executeCmd(const char * const aArguments[], int *status, std::string& stdOutLog)
+void easyMockGenerate_baseTestCase::executeCmd(const std::vector<const char*> &aArguments, int *status, std::string& stdOutLog)
 {
   std::string stdErrLog {};
   *status = -1;
@@ -364,7 +380,7 @@ void easyMockGenerate_baseTestCase::executeCmd(const char * const aArguments[], 
   stdOutLog.append("executing ");
   for (int argsIdx = 0;; argsIdx++)
   {
-      if (aArguments[argsIdx] == NULL)
+      if (aArguments[argsIdx] == nullptr)
       {
           break;
       }
@@ -414,7 +430,7 @@ void easyMockGenerate_baseTestCase::executeCmd(const char * const aArguments[], 
       exit(1);
     }
 
-    execvp(aArguments[0], (char * const *) aArguments);
+    execvp(aArguments[0], (char * const *) &aArguments[0]);
     std::fprintf(stderr, "execvp error: %s", strerror(errno));
     exit(1);
   }
@@ -526,7 +542,7 @@ static void dumpToFile(const std::string& p_dir, const std::string& p_file, std:
 
 std::string easyMockGenerate_baseTestCase::getStartLineToMatchForSymbolInSo(const char *pathToSo, const std::string& functionToMock)
 {
-  const char *const nmDemangled[] =
+  std::vector<const char *> nmDemangled
       {
           "nm",
           "-g",
@@ -557,7 +573,7 @@ std::string easyMockGenerate_baseTestCase::getStartLineToMatchForSymbolInSo(cons
 
 std::string easyMockGenerate_baseTestCase::getMangleFunName(const char *pathToSo, const std::string& startLineToMatch)
 {
-  const char *const nmDemangled[] =
+  std::vector<const char *> nmDemangled =
       {
           "nm",
           "-g",

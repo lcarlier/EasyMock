@@ -43,9 +43,12 @@ set(TEST_INCLUDE_DIR ${EasyMock_SOURCE_DIR}/src/easyMockFramework/include
 
 set(TEST_LINK_LIB ${EASYMOCK_DEFAULT_FULL_LD_PARAM} gtest_main dl -rdynamic)
 
+execute_process(COMMAND ${LLVM_CONFIG} --libdir OUTPUT_VARIABLE LLVM_LIBDIR OUTPUT_STRIP_TRAILING_WHITESPACE)
+message(STATUS "LLVM_LIBDIR ${LLVM_LIBDIR}")
+
 #We use the -fno-access-control ONLY to compile UT because sometime we want to check internal states of objects
 set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -fno-access-control)
-set(TEST_COMPILE_FLAGS ${EASYMOCK_DEFAULT_FULL_CC_PARAM} -DPROJECT_ROOT_DIR="${PROJECT_SOURCE_DIR}")
+set(TEST_COMPILE_FLAGS ${EASYMOCK_DEFAULT_FULL_CC_PARAM} -DPROJECT_ROOT_DIR="${PROJECT_SOURCE_DIR}" -DLLVM_LIBDIR="${LLVM_LIBDIR}")
 
 set(TEST_FACTORIES_COMMON_OBJ testFactoriesCommonObj)
 
@@ -129,6 +132,7 @@ add_library(${TEST_FACTORIES_COMMON_OBJ}
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/MainIncludeFactory.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/StructEmptyTypeArrayFactory.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/CppVoidFunVoidFactory.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/CppVoidFunIntFactory.cpp
 )
 
 set(EASYMOCK_TEST_LIBRARY easyMockTestLibrary)

@@ -9,6 +9,7 @@
 #include <ElementToMockContext.h>
 
 #include <string>
+#include <vector>
 
 void createDir(const std::string &dir);
 void rmDir(const std::string &dir);
@@ -63,8 +64,8 @@ protected:
   void getFunPtr(void **fPtr, void **fExpectPtr, void **fMatcherPtr, void **fOutputPtr);
 private:
   void prepareTest(const ElementToMockContext &ctxt, const std::string &functionToMock, std::string &comparatorToMatch, const std::string &fullPathToFileToMock, const std::string &mockDir, void **funcPtr, void **functExpectPtr, void **functMatcherPtr, void **functOutputPtr, void **handle);
-  void executeCmd(const char * const aArguments[], int *status);
-  void executeCmd(const char * const aArguments[], int *status, std::string& stdOutLog);
+  void executeCmd(const std::vector<const char*> &aArguments, int *status);
+  void executeCmd(const std::vector<const char*> &aArguments, int *status, std::string& stdOutLog);
   std::string getMangledString(const char* pathToSo, const std::string& functionToMock);
   std::string getStartLineToMatchForSymbolInSo(const char *pathToSo, const std::string& functionToMock);
   std::string getMangleFunName(const char *pathToSo, const std::string& startLineToMatch);

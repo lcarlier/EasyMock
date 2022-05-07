@@ -200,5 +200,30 @@ extern "C"
 }
 #endif
 
-#endif /* EASYMOCK_H */
+#ifdef __cplusplus
 
+#include <functional>
+#include <sstream>
+#include <string>
+namespace EasyMock
+{
+template<class T>
+using EasyMock_Matcher_Cpp = bool(*)(const T& currentCall, const T& expectedCall, const std::string paramName, std::ostringstream& errorMessage);
+
+template<typename T>
+bool cmp(const T& currentCall, const T& expectedCall, std::string paramName, std::ostringstream& errorMessage)
+{
+  if(currentCall == expectedCall)
+  {
+    return false;
+  }
+  errorMessage << "Parameter '" << paramName << "'"
+    << " has value '" << currentCall << "'"
+    << ", was expecting '" << expectedCall << "'";
+
+  return true;
+}
+}
+#endif
+
+#endif /* EASYMOCK_H */

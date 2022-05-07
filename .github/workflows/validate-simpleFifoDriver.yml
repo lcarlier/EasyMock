@@ -1,6 +1,19 @@
 name: Validate simple FIFO driver
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+    branches:
+      - '*'
+  workflow_dispatch:
+    inputs:
+      tmate_enabled:
+        description: 'Run the build with tmate debugging session enabled (https://github.com/marketplace/actions/debugging-with-tmate)'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   ubuntu-20-04-x86-gcc:
@@ -34,6 +47,11 @@ jobs:
           git clone https://github.com/lcarlier/simpleFifoKernelDriver.git /tmp/simpleFifoKernelDriver
           rm -rf /tmp/simpleFifoKernelDriver/extern/EasyMock
           ln -s `pwd` /tmp/simpleFifoKernelDriver/extern/EasyMock
+
+      # Enable tmate debugging of manually-triggered workflows if the input option was provided
+      - name: Setup tmate session if enabled
+        uses: mxschmitt/action-tmate@v3
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tmate_enabled == 'true' }}
 
       - name: Run test
         run: |-

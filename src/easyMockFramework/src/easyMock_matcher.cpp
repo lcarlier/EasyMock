@@ -1,8 +1,8 @@
 #include <easyMock.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdint.h>
-#include <inttypes.h>
+#include <cstdio>
+#include <cstring>
+#include <cstdint>
+#include <cinttypes>
 
 #define IMPLEMENT_MATCHER(typeName, cType, printFormat) \
   extern "C" DECLARE_MATCHER(typeName) \
@@ -12,7 +12,7 @@
     if(currentCall_val == expectedCall_val) { \
       return 0; \
     } \
-     snprintf(errorMessage, EASYMOCK_MAX_CMP_ERR, \
+     std::snprintf(errorMessage, EASYMOCK_MAX_CMP_ERR, \
      "Parameter '%s' has value '" printFormat "', was expecting '" printFormat "'", \
            paramName, currentCall_val, expectedCall_val); \
     return -1; \
@@ -45,11 +45,11 @@ extern "C" int cmp_str(const void *currentCall_ptr, const void *expectedCall_ptr
 {
   char* currentCall_val = *((char **)currentCall_ptr);
   char* expectedCall_val = *((char **)expectedCall_ptr);
-  if(strcmp(currentCall_val, expectedCall_val) == 0)
+  if(std::strcmp(currentCall_val, expectedCall_val) == 0)
   {
     return 0;
   }
-  snprintf(errorMessage, EASYMOCK_MAX_CMP_ERR,
+  std::snprintf(errorMessage, EASYMOCK_MAX_CMP_ERR,
   "Parameter '%s' has value '%s', was expecting '%s'",
         paramName, currentCall_val, expectedCall_val);
   return -1;
@@ -67,7 +67,7 @@ extern "C" int cmp_int128(const void *currentCall_ptr, const void *expectedCall_
   uint64_t lowDigitExpected = expectedCall_val & 0xffffffffffffffff;
   uint64_t highDigitCurrent = currentCall_val >> 64;
   uint64_t highDigitExpected = expectedCall_val >> 64;
-  snprintf(errorMessage, EASYMOCK_MAX_CMP_ERR,
+  std::snprintf(errorMessage, EASYMOCK_MAX_CMP_ERR,
   "Parameter '%s' has value '%#" PRIx64 "%" PRIx64 "', was expecting '%#" PRIx64 "%" PRIx64 "'",
         paramName, highDigitCurrent, lowDigitCurrent, highDigitExpected, lowDigitExpected);
   return -1;
@@ -84,7 +84,7 @@ extern "C" int cmp_uint128(const void *currentCall_ptr, const void *expectedCall
   uint64_t lowDigitExpected = expectedCall_val & 0xffffffffffffffff;
   uint64_t highDigitCurrent = currentCall_val >> 64;
   uint64_t highDigitExpected = expectedCall_val >> 64;
-  snprintf(errorMessage, EASYMOCK_MAX_CMP_ERR,
+  std::snprintf(errorMessage, EASYMOCK_MAX_CMP_ERR,
   "Parameter '%s' has value '%#" PRIx64 "%" PRIx64 "', was expecting '%#" PRIx64 "%" PRIx64 "'",
         paramName, highDigitCurrent, lowDigitCurrent, highDigitExpected, lowDigitExpected);
   return -1;

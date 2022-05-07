@@ -42,6 +42,7 @@ for testType in "${TestTypeList[@]}"; do
   g++ \
     -Wall \
     -Werror \
+    -std=c++11 \
     -c "${TEST_DIR}/${testType}/easyMock_cppVoidFunVoid.cpp"  \
     -I "${SOURCE_DIR}/src/easyMockFramework/include" \
     -I "${SOURCE_DIR}/test/easyMockGenerate/include" \

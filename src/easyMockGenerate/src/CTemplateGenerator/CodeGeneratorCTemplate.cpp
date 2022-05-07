@@ -307,7 +307,11 @@ PARAMETER_NON_QUALIFIED_TYPE " " PARAMETER_NAME(PREFIX) TEMPLATE_INCL_SECTION(EX
 
 #define FUNCTION_MATCHER_LIST \
   TEMPLATE_BEG_SECTION(FUNCTION_PARAM_SECTION) \
-    "EasyMock_Matcher " FUNCTION_PARAM_MATCH_VAR \
+    IF_SECTION_EXISTS(C_ONLY_SECTION, \
+    "EasyMock_Matcher ") \
+    IF_SECTION_EXISTS(CPP_ONLY_SECTION, \
+    "::EasyMock::EasyMock_Matcher_Cpp<" PARAMETER_TYPE "> ") \
+    FUNCTION_PARAM_MATCH_VAR \
     TEMPLATE_BEG_SECTION(FUNCTION_PARAM_SECTION_SEPARATOR)\
       ", " \
     TEMPLATE_END_SECTION(FUNCTION_PARAM_SECTION_SEPARATOR) \
@@ -440,6 +444,10 @@ const char templateText[] =
         "#include <easyMock_glueStdlib.h>" CARRIAGE_RETURN
         "#include <MockedFunction.h>" CARRIAGE_RETURN
         "#include <cstring.h>" CARRIAGE_RETURN
+        IF_SECTION_EXISTS(CPP_ONLY_SECTION,
+        "#include <sstream>" CARRIAGE_RETURN
+        "#include <tuple>" CARRIAGE_RETURN
+        )
         CARRIAGE_RETURN
         "#include \"" MOCK_FRAMEWORK_NAME "_" TEMPLATE_VAR(MOCKED_HEADER_FILENAME) "\"" CARRIAGE_RETURN
         CARRIAGE_RETURN
@@ -514,7 +522,13 @@ const char templateText[] =
         "typedef struct {" CARRIAGE_RETURN
         TEMPLATE_BEG_SECTION(FUNCTION_PARAM_SECTION)
         "    " DECLARE_NON_QUALIFIED_PARAMETER("") ";" CARRIAGE_RETURN
-        "    EasyMock_Matcher " FUNCTION_MOCK_DATA_CUR_MATCH_VAR ";" CARRIAGE_RETURN
+        IF_SECTION_EXISTS(C_ONLY_SECTION,
+        "    EasyMock_Matcher " FUNCTION_MOCK_DATA_CUR_MATCH_VAR ";"
+        )
+        IF_SECTION_EXISTS(CPP_ONLY_SECTION,
+        "    ::EasyMock::EasyMock_Matcher_Cpp<" PARAMETER_TYPE "> " FUNCTION_MOCK_DATA_CUR_MATCH_VAR ";"
+        )
+        CARRIAGE_RETURN
         TEMPLATE_END_SECTION(FUNCTION_PARAM_SECTION)
         IF_RETURN_VALUE("    " FUNCTION_NON_QUALIFIED_RETURN_VALUE_TYPE " " FUNCTION_MOCK_DATA_RETURN_VALUE_VARIABLE TEMPLATE_INCL_SECTION(EXTRA_DECL_SECTION) ";" CARRIAGE_RETURN)
         TEMPLATE_BEG_SECTION(FUNCTION_PARAM_PTR_SECTION)
@@ -554,6 +568,7 @@ const char templateText[] =
         "    }" CARRIAGE_RETURN
         CARRIAGE_RETURN
         TEMPLATE_BEG_SECTION(FUNCTION_PARAM_SECTION)
+        IF_SECTION_EXISTS(C_ONLY_SECTION,
         "    if(" CURRENT_DATA_CALL_MEMBER(FUNCTION_MOCK_DATA_CUR_MATCH_VAR) " != easyMock_null)" CARRIAGE_RETURN
         "    {" CARRIAGE_RETURN
         "        char errorMessage[EASYMOCK_MAX_CMP_ERR] = {0};" CARRIAGE_RETURN
@@ -566,6 +581,21 @@ const char templateText[] =
         "            easyMock_addError(printCallStack, \"Error : at call %d of '%s': %s\", MockedFunction_getNbActualCall(&" TEMPLATE_MOCKED_FUN_CLASS "), MockedFunction_getName(&" TEMPLATE_MOCKED_FUN_CLASS "), errorMessage);" CARRIAGE_RETURN
         "        }" CARRIAGE_RETURN
         "    }" CARRIAGE_RETURN
+        )
+        IF_SECTION_EXISTS(CPP_ONLY_SECTION,
+        "    if(" CURRENT_DATA_CALL_MEMBER(FUNCTION_MOCK_DATA_CUR_MATCH_VAR) ")" CARRIAGE_RETURN
+        "    {" CARRIAGE_RETURN
+        "        std::ostringstream errorMessage{};" CARRIAGE_RETURN
+        "        auto& curCallVal = " PARAMETER_NAME("") ";" CARRIAGE_RETURN
+        "        auto& expectedCallVal = " CURRENT_DATA_CALL_MEMBER(PARAMETER_NAME("")) ";" CARRIAGE_RETURN
+        "        auto& matcher = " CURRENT_DATA_CALL_MEMBER(FUNCTION_MOCK_DATA_CUR_MATCH_VAR) ";" CARRIAGE_RETURN
+        "        bool error = matcher(curCallVal, expectedCallVal, \"" PARAMETER_NAME("") "\", errorMessage);" CARRIAGE_RETURN
+        "        if(error)" CARRIAGE_RETURN
+        "        {" CARRIAGE_RETURN
+        "            easyMock_addError(printCallStack, \"Error : at call %d of '%s': %s\", MockedFunction_getNbActualCall(&" TEMPLATE_MOCKED_FUN_CLASS "), MockedFunction_getName(&" TEMPLATE_MOCKED_FUN_CLASS "), errorMessage.str().c_str());" CARRIAGE_RETURN
+        "        }" CARRIAGE_RETURN
+        "    }" CARRIAGE_RETURN
+        )
         CARRIAGE_RETURN
         TEMPLATE_END_SECTION(FUNCTION_PARAM_SECTION)
         IF_RETURN_VALUE("    default_res = currentDataCall." FUNCTION_MOCK_DATA_RETURN_VALUE_VARIABLE ";" CARRIAGE_RETURN)
@@ -1376,7 +1406,7 @@ void CodeGeneratorCTemplate::generateFunctionParamSection(ctemplate::TemplateDic
   }
   for (const auto& fParam: p_functionParam)
   {
-    ctemplate::TemplateDictionary* newTypedefParamSection = p_functionSectionDict->AddSectionDictionary(FUNCTION_PARAM_SECTION);
+    ctemplate::TemplateDictionary* functionParamSection = p_functionSectionDict->AddSectionDictionary(FUNCTION_PARAM_SECTION);
     const TypeItf *paramType = fParam.getType();
     generateDeclarationOfUsedType(m_rootDictionary, paramType, false);
     //For the rest of this function nonQualifiedParamPtrType tells whether we are dealing with a pointer parameter or not
@@ -1391,20 +1421,20 @@ void CodeGeneratorCTemplate::generateFunctionParamSection(ctemplate::TemplateDic
       std::string declare {};
       generateComposedTypedCompareSection(composableType, prepend, declare);
     }
-    newTypedefParamSection->SetValue(FUNCTION_PARAM_TYPE, argType);
+    functionParamSection->SetValue(FUNCTION_PARAM_TYPE, argType);
     if(!nonQualifiedParamPtrType)
     {
-      newTypedefParamSection->SetValue(FUNCTION_PARAM_NON_QUALIFIED_TYPE, nonQualifiedArgType);
+      functionParamSection->SetValue(FUNCTION_PARAM_NON_QUALIFIED_TYPE, nonQualifiedArgType);
     }
     else
     {
-      newTypedefParamSection->SetValue(FUNCTION_PARAM_NON_QUALIFIED_TYPE, argType);
+      functionParamSection->SetValue(FUNCTION_PARAM_NON_QUALIFIED_TYPE, argType);
       const TypeItf *paramPtrPointedType = getRawType(nonQualifiedParamPtrType);
       const FunctionType *ft = paramPtrPointedType->asFunctionType();
       if(ft)
       {
         generateDeclarationOfUsedType(m_rootDictionary, ft, false);
-        generateExtraDecl(newTypedefParamSection, EXTRA_DECL_SECTION, EXTRA_DECL_TEMPLATE_NAME, ft);
+        generateExtraDecl(functionParamSection, EXTRA_DECL_SECTION, EXTRA_DECL_TEMPLATE_NAME, ft);
       }
     }
     std::string paramName = fParam.getName();
@@ -1413,9 +1443,20 @@ void CodeGeneratorCTemplate::generateFunctionParamSection(ctemplate::TemplateDic
       paramName.append("__easymock_param" + std::to_string(m_nbUnamedParam));
       m_nbUnamedParam++;
     }
-    newTypedefParamSection->SetValue(FUNCTION_PARAM_NAME, paramName);
+    functionParamSection->SetValue(FUNCTION_PARAM_NAME, paramName);
     // For easyMock_matcher_*
-    newTypedefParamSection->SetValue(FUNCTION_MATCHER_PARAM_NAME, paramName);
+    functionParamSection->SetValue(FUNCTION_MATCHER_PARAM_NAME, paramName);
+
+    // Add the {C/CPP}_ONLY_SECTION in functionParamSection after all the value have been set in functionParamSection
+    // to allow the value set (e.g. FUNCTION PARAM_TYPE) to be available in those section as well.
+    if(m_isCpp)
+    {
+      functionParamSection->AddSectionDictionary(CPP_ONLY_SECTION);
+    }
+    else
+    {
+      functionParamSection->AddSectionDictionary(C_ONLY_SECTION);
+    }
 
     /*
      * Do not generate the output parameter for pointers to const value.

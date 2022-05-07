@@ -13,6 +13,7 @@ inputs:
   docker_image:
     description: 'The docker image to use'
     required: true
+
 runs:
   using: "composite"
   steps:
@@ -40,7 +41,24 @@ runs:
                                        "'-DENABLE_ASAN=0'\"" \
         > docker_cmd_f
       shell: bash
+    # Enable tmate debugging of manually-triggered workflows if the input option was provided
+    - name: Setup tmate session if enabled
+      uses: mxschmitt/action-tmate@v3
+      if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tmate_enabled == 'true' }}
     - name: Run test
       run:  |-
         docker run -i --rm -w /project -v $PWD:/project arm64_ubuntu < docker_cmd_f
       shell: bash
+
+    - name: Store artifacts
+      if: always()
+      uses: actions/upload-artifact@v2
+      with:
+        name: build-output
+        path: |
+          **/*.c
+          **/*.cpp
+          **/*.h
+          **/*.hpp
+          **/*.txt
+          **/Kbuild
