@@ -176,23 +176,7 @@ void easyMockGenerate_baseTestCase::prepareTest(const ElementToMockContext &elem
   dumpToFile(m_finalMockDir, "stdout.txt", initLog, false);
   initLog = std::string("Log for: ") + fileToCompile + std::string("\n");
   dumpToFile(m_finalMockDir, "stderr.txt", initLog, false);
-#if defined(__clang__)
-  const char *cCompiler = m_isCpp ? "clang++" : "clang";
-#elif defined(__GNUC__) || defined(__GNUG__)
-  const char *cCompiler = m_isCpp ? "g++" : "gcc";
-#else
-#error "Compiler not supported"
-#endif
-
-  std::vector<const char *> whichCCompilerCmd =
-  {
-    "which",
-    cCompiler,
-    nullptr
-  };
-  executeCmd(whichCCompilerCmd, &status);
-
-  ASSERT_EQ(status, 0);
+  const char *cCompiler = m_isCpp ? CXX_COMPILER_IN_USE : C_COMPILER_IN_USE;
   std::vector<const char *> compileMockCmd = {cCompiler, "-Wall", "-Werror", "-g", "-O0", "-fpic", "-I", m_finalMockDir.c_str(),
                                         "-I", PROJECT_ROOT_DIR"/src/easyMockFramework/include", "-I",
                                         PROJECT_ROOT_DIR"/test/easyMockGenerate/include", "-o", objFile.c_str(), "-c",

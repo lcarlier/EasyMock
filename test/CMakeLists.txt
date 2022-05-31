@@ -48,7 +48,11 @@ message(STATUS "LLVM_LIBDIR ${LLVM_LIBDIR}")
 
 #We use the -fno-access-control ONLY to compile UT because sometime we want to check internal states of objects
 set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -fno-access-control)
-set(TEST_COMPILE_FLAGS ${EASYMOCK_DEFAULT_FULL_CC_PARAM} -DPROJECT_ROOT_DIR="${PROJECT_SOURCE_DIR}" -DLLVM_LIBDIR="${LLVM_LIBDIR}")
+set(TEST_COMPILE_FLAGS ${EASYMOCK_DEFAULT_FULL_CC_PARAM}
+        -DPROJECT_ROOT_DIR="${PROJECT_SOURCE_DIR}"
+        -DLLVM_LIBDIR="${LLVM_LIBDIR}"
+        -DC_COMPILER_IN_USE="${CMAKE_C_COMPILER}"
+        -DCXX_COMPILER_IN_USE="${CMAKE_CXX_COMPILER}")
 
 set(TEST_FACTORIES_COMMON_OBJ testFactoriesCommonObj)
 

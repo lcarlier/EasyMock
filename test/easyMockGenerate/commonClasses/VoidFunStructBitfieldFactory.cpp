@@ -96,6 +96,18 @@ void VoidFunStructBitfieldFactory::setupTestCase(EasyMockTestCase::TestCase tc)
   aToExpect.b.opaque = 1;
   aToExpect.b.show_border = 1;
   aToExpect.b.width = 5;
+  aToExpect.b.bit64_0 = 0;
+  aToExpect.b.bit64_1 = 1;
+  aToExpect.b.rest64 = 0;
+  aToExpect.b.bit32_0 = 1;
+  aToExpect.b.bit32_1 = 0;
+  aToExpect.b.rest32 = 0;
+  aToExpect.b.bit16_0 = 0;
+  aToExpect.b.bit16_1 = 1;
+  aToExpect.b.rest16 = 0;
+  aToExpect.b.bit8_0 = 1;
+  aToExpect.b.bit8_0 = 0;
+  aToExpect.b.rest8 = 0;
 
   switch(tc)
   {
