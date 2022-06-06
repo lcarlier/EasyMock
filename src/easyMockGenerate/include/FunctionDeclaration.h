@@ -7,6 +7,8 @@
 #include "ElementToMock.h"
 #include "Function.h"
 
+struct Namespace;
+
 /*!
  * \brief Represents a function declaration.
  *
@@ -18,8 +20,16 @@ public:
   /*!
    * \brief Creates a new function declaration object.
    * \copydetails Function
+   *
+   * This construction set the function declaration object inside the global namespace.
    */
   FunctionDeclaration(std::string p_functionName, ReturnValue p_functionReturnType, Parameter::Vector p_functionParameters);
+  /*!
+   * \brief Creates a new function declaration object.
+   * \copydetails Function
+   * \param p_namespace A shared_ptr to the direct parent namespace.
+   */
+  FunctionDeclaration(std::string p_functionName, ReturnValue p_functionReturnType, Parameter::Vector p_functionParameters, std::shared_ptr<const Namespace> p_namespace);
 
   /*!
    * \copybrief Function
@@ -56,6 +66,15 @@ public:
    */
   void cacheHash() noexcept override;
 
+  /*!
+   * \brief Return the namespace in which the function is declared
+   * \return A ::Namespace object representing the namespace in which the function is declared
+   *
+   * Even though namespace doesn't exists in plain C, this function returns the global namespace
+   * (i.e. returned by ::getGlobalNamespace) object for C mocked function.
+   */
+  std::shared_ptr<const Namespace> getNamespace() const;
+
   virtual ~FunctionDeclaration();
   static const FunctionDeclaration& toFunctionDeclaration(const ElementToMock& elem)
   {
@@ -64,6 +83,7 @@ public:
 private:
   bool m_doesThisDeclarationHasBody;
   std::size_t m_cachedHash;
+  std::shared_ptr<const Namespace> m_namespace;
 };
 
 #endif /* FUNCTIONDECLARATION_H */

@@ -249,8 +249,10 @@ void easyMockGenerate_baseTestCase::prepareTest(const ElementToMockContext &elem
   if(m_isCpp)
   {
     mangledFunctionSymbol = getMangledString(pathToLib.c_str(), functionToMock);
+    ASSERT_FALSE(mangledFunctionSymbol.empty()) << "mangledFunctionSymbol for " << functionToMock << " not found";
     std::string expectAndReturnSymbol = std::string{} + "EasyMock::" + functionToMock + "::ExpectAndReturn";
     mangledExpectAndReturn = getMangledString(pathToLib.c_str(), expectAndReturnSymbol);
+    ASSERT_FALSE(mangledExpectAndReturn.empty()) << "mangledExpectAndReturn for " << expectAndReturnSymbol << " not found";
     std::string expectReturnAndOutputSymbol = std::string{} + "EasyMock::" + functionToMock + "::ExpectReturnAndOutput";
     mangledExpectReturnAndOutput = getMangledString(pathToLib.c_str(), expectReturnAndOutputSymbol);
   }
@@ -541,7 +543,7 @@ std::string easyMockGenerate_baseTestCase::getStartLineToMatchForSymbolInSo(cons
   std::string sToFind {functionToMock};
   sToFind.push_back('(');
 
-  std::string symbolAddr;
+  std::string symbolAddr{""};
   std::istringstream nmDemangledOutIs{nmDemangledOut};
   std::string curLine{};
   while (std::getline(nmDemangledOutIs, curLine))
@@ -568,7 +570,7 @@ std::string easyMockGenerate_baseTestCase::getMangleFunName(const char *pathToSo
   std::string nmMangledOut;
   executeCmd(nmDemangled, &status, nmMangledOut);
 
-  std::string symbolAddr;
+  std::string symbolAddr{""};
   std::istringstream nmMangledOutIs{nmMangledOut};
   std::string curLine{};
   while (std::getline(nmMangledOutIs, curLine))
@@ -585,14 +587,18 @@ std::string easyMockGenerate_baseTestCase::getMangleFunName(const char *pathToSo
 
 std::string easyMockGenerate_baseTestCase::getMangledString(const char *pathToSo, const std::string& functionToMock)
 {
+  std::string mangledString {""};
   std::string symbolAddr = getStartLineToMatchForSymbolInSo(pathToSo, functionToMock);
-  std::string mangledString = getMangleFunName(pathToSo, symbolAddr);
+  if(!symbolAddr.empty())
+  {
+    mangledString = getMangleFunName(pathToSo, symbolAddr);
 #if defined (__APPLE__)
-  /*
-   * Somehow "nm -C" on MacOS returns __mangledString iso _mangledString
-   * but dlsym wants _mangleString ¯\_(ツ)_/¯
-   */
-  mangledString.erase(0, 1);
+    /*
+     * Somehow "nm -C" on MacOS returns __mangledString iso _mangledString
+     * but dlsym wants _mangleString ¯\_(ツ)_/¯
+     */
+    mangledString.erase(0, 1);
 #endif
+  }
   return mangledString;
 }

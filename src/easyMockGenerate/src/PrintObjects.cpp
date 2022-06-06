@@ -14,6 +14,7 @@
 #include <IncompleteType.h>
 #include <ComposableBitfield.h>
 #include <ConstQualifiedType.h>
+#include <Namespace.h>
 
 #include "TypedefType.h"
 
@@ -110,7 +111,8 @@ namespace std {
 
     ostream &operator<<(ostream &os, const FunctionDeclaration &fun) {
         gs_indentation.push_back('\t');
-        os << std::endl << gs_indentation << "HasThisDeclABody: " << (fun.doesThisDeclarationHasABody() ? "yes" : "no")
+      os << std::endl << gs_indentation << "Namespace: " << *fun.getNamespace();
+      os << std::endl << gs_indentation << "HasThisDeclABody: " << (fun.doesThisDeclarationHasABody() ? "yes" : "no")
            << std::endl;
         gs_indentation.pop_back();
         return printFunction(os, fun);
@@ -276,5 +278,19 @@ namespace std {
         os << gs_indentation << *p_typedefType.getTypee() << std::endl;
         gs_indentation.pop_back();
         return os;
+    }
+
+    ostream &operator<<(ostream &os, const Namespace &p_namespace)
+    {
+      if(p_namespace.m_parent)
+      {
+        os << *p_namespace.m_parent;
+        if(!p_namespace.m_parent->isGlobal())
+        {
+          os << "::";
+        }
+      }
+      os << p_namespace.m_name;
+      return os;
     }
 }

@@ -14,8 +14,12 @@
 #include <ComposableBitfield.h>
 #include <ConstQualifiedType.h>
 #include <TypedefType.h>
+#include <Namespace.h>
 
 #include <clang/AST/RecursiveASTVisitor.h>
+#include <clang/AST/DeclBase.h>
+#include <clang/AST/DeclLookups.h>
+#include <clang/AST/DeclContextInternals.h>
 #include <clang/Frontend/CompilerInstance.h>
 #include <clang/Frontend/FrontendActions.h>
 #include <clang/Tooling/CompilationDatabase.h>
@@ -122,7 +126,9 @@ public:
 
     ReturnValue rv = getFunctionReturnValue(func);
     Parameter::Vector param = getFunctionParameters(func);
-    FunctionDeclaration f(funName, std::move(rv), std::move(param));
+
+    auto enclosingNamespace = getNamespace(func->getDeclContext());
+    FunctionDeclaration f(funName, std::move(rv), std::move(param), std::move(enclosingNamespace));
     bool isInline = func->isInlined();
     bool doesThisDeclHasABody = func->doesThisDeclarationHaveABody();
     bool isStatic = func->isStatic();
@@ -382,6 +388,27 @@ private:
     setDeclaratorDeclareString(rvQualType, &rv, declString);
 
     return rv;
+  }
+
+  std::shared_ptr<const Namespace> getNamespace(const clang::DeclContext* declContext)
+  {
+    if(!declContext)
+    {
+      return getGlobalNamespace();
+    }
+    const clang::DeclContext* parentContext = declContext->getParent();
+    for(auto lookup : declContext->lookups())
+    {
+      for (auto namedDecl: lookup)
+      {
+        if(namedDecl->getKind() == clang::Decl::Kind::Namespace)
+        {
+          const auto enclosingNamespace = getNamespace(parentContext);
+          return std::make_shared<const Namespace>(namedDecl->getNameAsString(), enclosingNamespace);
+        }
+      }
+    }
+    return getNamespace(parentContext);
   }
 
   Parameter::Vector getFunctionParameters(const clang::FunctionDecl* func)

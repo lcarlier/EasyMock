@@ -22,6 +22,7 @@
 #include "Enum.h"
 #include "TypedefType.h"
 #include "EasyMock_CType.h"
+#include "Namespace.h"
 
 #undef NDEBUG
 #include <cassert>
@@ -158,6 +159,13 @@
 #define TYPE_NAME_VAR "TYPE_NAME_VAR"
 #define TYPE_NAME_TEMPLATE_VAR TEMPLATE_VAR(TYPE_NAME_VAR)
 
+#define NAMESPACE_BEGIN_TEMPLATE "NAMESPACE_BEGIN_TEMPLATE"
+#define NAMESPACE_BEGIN_SECTION "NAMESPACE_BEGIN_SECTION"
+#define NAMESPACE_END_TEMPLATE "NAMESpACE_END_TEMPLATE"
+#define NAMESPACE_END_SECTION "NAMESPACE_END_SECTION"
+#define NAMESPACE_NAME_VAR "NAMESPACE_NAME_VAR"
+#define NAMESPACE_NAME TEMPLATE_VAR(NAMESPACE_NAME_VAR)
+
 #define ORIGIN_FILE_VAR "ORIGIN_FILE_VAR"
 #define ORIGIN_FILE_TEMPLATE_VAR TEMPLATE_VAR(ORIGIN_FILE_VAR)
 
@@ -191,14 +199,16 @@
   IF_SECTION_EXISTS(CPP_ONLY_SECTION, \
   "namespace EasyMock" CARRIAGE_RETURN \
   "{" CARRIAGE_RETURN \
+  TEMPLATE_INCL_SECTION(NAMESPACE_BEGIN_SECTION) CARRIAGE_RETURN \
   "namespace " TEMPLATE_VAR(FUNCTION_STACK_VARIABLE_NAME) CARRIAGE_RETURN \
   "{" \
   )
 
 #define NAMESPACE_IF_CPP_END \
   IF_SECTION_EXISTS(CPP_ONLY_SECTION, \
-  "} //namespace " TEMPLATE_VAR(FUNCTION_STACK_VARIABLE_NAME) CARRIAGE_RETURN \
-  "} //namespace EasyMock" \
+  "} // namespace " TEMPLATE_VAR(FUNCTION_STACK_VARIABLE_NAME) CARRIAGE_RETURN \
+  TEMPLATE_INCL_SECTION(NAMESPACE_END_SECTION) CARRIAGE_RETURN \
+  "} // namespace EasyMock" \
   )
 
 #define GENERATE_USED_TYPE_SECTION "GENERATE_USED_TYPE_SECTION"
@@ -543,6 +553,8 @@ const char templateText[] =
         "static MockedFunction " TEMPLATE_MOCKED_FUN_CLASS ";" CARRIAGE_RETURN
         IF_RETURN_VALUE("static " FUNCTION_NON_QUALIFIED_RETURN_VALUE_TYPE " dummyRes_" TEMPLATE_VAR(FUNCTION_STACK_VARIABLE_NAME) TEMPLATE_INCL_SECTION(EXTRA_DECL_SECTION) ";" CARRIAGE_RETURN)
         CARRIAGE_RETURN
+        IF_SECTION_EXISTS(CPP_ONLY_SECTION, TEMPLATE_INCL_SECTION(NAMESPACE_BEGIN_SECTION) CARRIAGE_RETURN
+        )
         TEMPLATE_FUNCTION_TO_BE_MOCKED CARRIAGE_RETURN
         "{" CARRIAGE_RETURN
         "    easyMock_bool printCallStack = easyMock_printCallStack();" CARRIAGE_RETURN
@@ -619,6 +631,8 @@ const char templateText[] =
         IF_RETURN_VALUE(CARRIAGE_RETURN "    return default_res;" CARRIAGE_RETURN)
         "}" CARRIAGE_RETURN
         CARRIAGE_RETURN
+        IF_SECTION_EXISTS(CPP_ONLY_SECTION, TEMPLATE_INCL_SECTION(NAMESPACE_END_SECTION) CARRIAGE_RETURN
+        )
         NAMESPACE_IF_CPP_BEGIN CARRIAGE_RETURN
         FUNCTION_EXPECT_AND_RETURN_SIGNATURE CARRIAGE_RETURN
         "{" CARRIAGE_RETURN
@@ -810,7 +824,11 @@ const char headerFileTemplate[] =
         "/*------------------- GENERATING '" TEMPLATE_FUNCTION_TO_BE_MOCKED "' -------------------*/" CARRIAGE_RETURN
         "// from: " ORIGIN_FILE_TEMPLATE_VAR CARRIAGE_RETURN
         IF_SECTION_EXISTS(GENERATE_MOCKED_TYPE_SECTION,
+          IF_SECTION_EXISTS(CPP_ONLY_SECTION, TEMPLATE_INCL_SECTION(NAMESPACE_BEGIN_SECTION) CARRIAGE_RETURN
+          )
           TEMPLATE_FUNCTION_TO_BE_MOCKED ";" CARRIAGE_RETURN
+          IF_SECTION_EXISTS(CPP_ONLY_SECTION, TEMPLATE_INCL_SECTION(NAMESPACE_END_SECTION) CARRIAGE_RETURN
+          )
         )
         NAMESPACE_IF_CPP_BEGIN CARRIAGE_RETURN
         FUNCTION_EXPECT_AND_RETURN_SIGNATURE ";" CARRIAGE_RETURN
@@ -855,6 +873,15 @@ const char extraTopDeclTemplate[] =
         TEMPLATE_BEG_SECTION(EXTRA_TOP_LEVEL_DECL_SECTION "INSIDE")
         TEMPLATE_INCL_SECTION(EXTRA_TOP_LEVEL_DECL_SECTION)
         TEMPLATE_END_SECTION(EXTRA_TOP_LEVEL_DECL_SECTION "INSIDE");
+
+const char namespaceBeginTemplate[] =
+        "namespace " NAMESPACE_NAME CARRIAGE_RETURN
+        "{" CARRIAGE_RETURN
+        TEMPLATE_INCL_SECTION(NAMESPACE_BEGIN_SECTION);
+
+const char namespaceEndTemplate[] =
+    "} // namespace " NAMESPACE_NAME CARRIAGE_RETURN
+    TEMPLATE_INCL_SECTION(NAMESPACE_END_SECTION);
 
 template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
 template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
@@ -1124,6 +1151,8 @@ bool CodeGeneratorCTemplate::generateCodeImplementation(const std::string& p_out
   ctemplate::StringToTemplateCache(COMPOSABLE_TYPE_DECLARE_COMPOSABLE_TYPE_TEMPLATE_NAME, composableType_DeclareComposableType_template, ctemplate::DO_NOT_STRIP);
   ctemplate::StringToTemplateCache(EXTRA_DECL_TEMPLATE_NAME, extraDeclTemplate, ctemplate::DO_NOT_STRIP);
   ctemplate::StringToTemplateCache(EXTRA_TOP_DECL_TEMPLATE_NAME, extraTopDeclTemplate, ctemplate::DO_NOT_STRIP);
+  ctemplate::StringToTemplateCache(NAMESPACE_BEGIN_TEMPLATE, namespaceBeginTemplate, ctemplate::DO_NOT_STRIP);
+  ctemplate::StringToTemplateCache(NAMESPACE_END_TEMPLATE, namespaceEndTemplate, ctemplate::DO_NOT_STRIP);
 
   std::string generatedCode;
   ctemplate::ExpandTemplate(CFILE_TEMPLATE, ctemplate::DO_NOT_STRIP, &dict, &generatedCode);
@@ -1292,6 +1321,38 @@ void CodeGeneratorCTemplate::generateFunctionAttributes(const FunctionDeclaratio
 void CodeGeneratorCTemplate::generateFunctionSection(const FunctionDeclaration *p_elemToMock)
 {
   ctemplate::TemplateDictionary *functionSectionDict = m_rootDictionary->AddSectionDictionary(FUNCTION_SECTION);
+
+  auto fillNamespace = [](std::shared_ptr<const Namespace> p_curNamespace,
+                          ctemplate::TemplateDictionary *p_currentBeginNamespace,
+                          ctemplate::TemplateDictionary *p_currentEndNamespace)
+  {
+    auto fillNamespaceImpl = [](std::shared_ptr<const Namespace> p_curNamespace,
+                                ctemplate::TemplateDictionary *p_currentBeginNamespace,
+                                ctemplate::TemplateDictionary *p_currentEndNamespace, auto& recCall) -> std::tuple<ctemplate::TemplateDictionary*, ctemplate::TemplateDictionary*>
+    {
+      if (!p_curNamespace->isGlobal())
+      {
+        ctemplate::TemplateDictionary *childBeginNamespace, *childEndNameSpace;
+        std::tie(childBeginNamespace, childEndNameSpace) = recCall(p_curNamespace->m_parent, p_currentBeginNamespace, p_currentEndNamespace, recCall);
+
+        ctemplate::TemplateDictionary *newBeginNamespace = childBeginNamespace->AddIncludeDictionary(
+            NAMESPACE_BEGIN_SECTION);
+        newBeginNamespace->SetFilename(NAMESPACE_BEGIN_TEMPLATE);
+        newBeginNamespace->SetValue(NAMESPACE_NAME_VAR, p_curNamespace->m_name);
+
+        ctemplate::TemplateDictionary *newEndNamespace = childEndNameSpace->AddIncludeDictionary(
+            NAMESPACE_END_SECTION);
+        newEndNamespace->SetFilename(NAMESPACE_END_TEMPLATE);
+        newEndNamespace->SetValue(NAMESPACE_NAME_VAR, p_curNamespace->m_name);
+
+        return std::make_tuple(newBeginNamespace, newEndNamespace);
+      }
+      return std::make_tuple(p_currentBeginNamespace, p_currentEndNamespace);
+    };
+    fillNamespaceImpl(p_curNamespace, p_currentBeginNamespace, p_currentEndNamespace, fillNamespaceImpl);
+  };
+  fillNamespace(p_elemToMock->getNamespace(), functionSectionDict, functionSectionDict);
+
   if(m_generateUsedType)
   {
     /*

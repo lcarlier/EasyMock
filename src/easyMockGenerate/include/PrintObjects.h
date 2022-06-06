@@ -19,6 +19,7 @@ class ComposableFieldItf;
 class ComposableBitfield;
 class ConstQualifiedType;
 class TypedefType;
+struct Namespace;
 
 namespace std {
     ostream &operator<<(ostream &os, const Function &fun);
@@ -40,6 +41,7 @@ namespace std {
     ostream &operator<<(ostream &os, const TypedefType &p_typedefType);
     ostream &operator<<(ostream &os, const __int128 &uint128Type);
     ostream &operator<<(ostream &os, const unsigned __int128 &uint128Type);
+    ostream &operator<<(ostream &os, const Namespace &p_namespace);
 }
 
 #endif /* EASYMOCKPRINTOBJECTS_H */

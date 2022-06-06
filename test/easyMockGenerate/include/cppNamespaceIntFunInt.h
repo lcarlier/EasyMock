@@ -1,0 +1,12 @@
+#ifndef EASYMOCK_CPPNAMESPACEINTFUNINT_H
+#define EASYMOCK_CPPNAMESPACEINTFUNINT_H
+
+namespace L1
+{
+namespace L2
+{
+int intFunInt(int a);
+}
+}
+
+#endif //EASYMOCK_CPPNAMESPACEINTFUNINT_H

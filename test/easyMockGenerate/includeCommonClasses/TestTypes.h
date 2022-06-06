@@ -80,6 +80,7 @@
 #include <StructEmptyTypeArrayFactory.h>
 #include <CppVoidFunVoidFactory.h>
 #include <CppVoidFunIntFactory.h>
+#include <CppNamespaceIntFunIntFactory.h>
 
 #define PTR_FUN_PTR_FACTORIES \
         VoidPtrFunVoidPtrFactory, \
@@ -135,7 +136,9 @@
         CppVoidFunVoidFactory, \
         CppVoidFunVoidGenerateTypeFactory, \
         CppVoidFunIntFactory, \
-        CppVoidFunIntGenerateTypeFactory
+        CppVoidFunIntGenerateTypeFactory, \
+        CppNamespaceIntFunIntFactory,     \
+        CppNamespaceIntFunIntGenerateTypeFactory
 
 #define VOID_FUN_COMPOSABLE_TYPE_WITH_COMPOSABLE_TYPE_TYPES \
         VoidFunStructWithEmbeddedStructFactory, \

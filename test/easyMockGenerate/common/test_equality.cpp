@@ -13,11 +13,14 @@
 #include <ComposableBitfield.h>
 #include <ConstQualifiedType.h>
 #include <TypedefType.h>
+#include <Namespace.h>
+#include <PrintObjects.h>
 
 #include "common.h"
 
 #include <tuple>
 #include <type_traits>
+#include <memory>
 
 namespace
 {
@@ -934,4 +937,56 @@ TEST(equality, FunctionRawHash_pointer_differentParam)
 
   ASSERT_NE(f1, f2);
   ASSERT_NE(f1.getRawHash(), f2.getRawHash());
+}
+
+TEST(equality, Namespace_global)
+{
+  auto g1 = getGlobalNamespace();
+  auto g2 = getGlobalNamespace();
+
+  // Check whether they are actually pointing to the same object
+  ASSERT_EQ(g1, g2);
+}
+
+TEST(equality, Namespace_simple)
+{
+  Namespace l1{"L1"};
+  Namespace l2{"L1"};
+
+  ASSERT_EQ(l1, l2);
+}
+
+TEST(equality, Namespace_double_different_shared_ptr_parent)
+{
+  Namespace l1l2_left{"L2", std::make_shared<const Namespace>("L1")};
+  Namespace l1l2_right{"L2", std::make_shared<const Namespace>("L1")};
+
+  ASSERT_EQ(l1l2_left, l1l2_right);
+}
+
+TEST(equality, Namespace_double_same_shared_ptr_parent)
+{
+  auto l1 = std::make_shared<const Namespace>("L1");
+  Namespace l1l2_left{"L2", l1};
+  Namespace l1l2_right{"L2", l1};
+
+  ASSERT_EQ(l1l2_left, l1l2_right);
+}
+
+TEST(equality, Function_namespace_vs_no_namespace)
+{
+  FunctionDeclaration f1{"foo", VoidReturnValue(), Parameter::Vector {}};
+  FunctionDeclaration f2{"foo", VoidReturnValue(), Parameter::Vector {}, std::make_shared<const Namespace>("L1")};
+  ASSERT_NE(f1, f2);
+  ASSERT_NE(f1.getHash(), f2.getHash());
+}
+
+TEST(equality, Function_namespace_vs_sub_namespace)
+{
+  auto L1Namespace = std::make_shared<const Namespace>("L1");
+  FunctionDeclaration f1{"foo", VoidReturnValue(), Parameter::Vector {}, L1Namespace};
+  auto L2Namespace = std::make_shared<const Namespace>("L2", std::move(L1Namespace));
+  FunctionDeclaration f2{"foo", VoidReturnValue(), Parameter::Vector {}, L2Namespace};
+  ASSERT_NE(f1, f2);
+  ASSERT_NE(f1.getHash(), f2.getHash());
 }
