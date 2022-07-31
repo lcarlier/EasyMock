@@ -8,12 +8,18 @@
 
 TEST(stdio, testOk)
 {
-    easyMock_init();
     /*
      * Disable the call stack else it creates an infinite loop when trying to
      * dump it. Dumping the callstack requires the usage of a mocked function.
+     *
+     * Do it before easyMock_init so that if there is a build without BACKTRACE_SUPPORT,
+     * then the test won't fail because the error message reporting will eventually use fwrite eventually to
+     * print the error.
      */
     easyMock_setPrintCallStack(false);
+
+    easyMock_init();
+
     FILE fr, fw;
     fopen_ExpectAndReturn("fileRead", "r+", &fr, cmp_str, cmp_str);
     fopen_ExpectAndReturn("fileWrite", "w+", &fw, cmp_str, cmp_str);
@@ -33,7 +39,7 @@ TEST(stdio, testOk)
 
     fwrite_ExpectAndReturn(dataRead, dataToReturnSize, 1, fwrv, dataToReturnSize, cmp_str, cmp_long, cmp_long, cmp_pointer);
     size_t byteWritten = fwrite(dataRead, dataToReturnSize, 1, fwrv);
-    ASSERT_EQ(byteWritten, dataToReturnSize);
+    EXPECT_EQ(byteWritten, dataToReturnSize);
 
     const char* errorMsg = easyMock_getErrorStr();
     ASSERT_FALSE(errorMsg) << errorMsg;
@@ -43,12 +49,17 @@ TEST(stdio, testOk)
 
 TEST(stdio, testNok)
 {
-    easyMock_init();
     /*
      * Disable the call stack else it creates an infinite loop when trying to
      * dump it. Dumping the callstack requires the usage of a mocked function.
+     *
+     * Do it before easyMock_init so that if there is a build without BACKTRACE_SUPPORT,
+     * then the test won't fail because the error message reporting will eventually use fwrite eventually to
+     * print the error.
      */
     easyMock_setPrintCallStack(false);
+
+    easyMock_init();
     FILE fr, fw;
     fopen_ExpectAndReturn("fileRead", "r+", &fr, cmp_str, cmp_str);
     fopen_ExpectAndReturn("fileWrite", "w+", &fw, cmp_str, cmp_str);
