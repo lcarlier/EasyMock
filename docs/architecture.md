@@ -1,7 +1,7 @@
 # Architecture of EasyMock
 
 ## Table of content
-* [Introduction][intro]
+* [Introduction][arch-intro]
 * [Structure of the repository][sotr]
 * [libEasyMockFramework.so's overall software architecture][losa]
     * [Registration of mocks to libEasyMockFramework.so][romtl]
@@ -18,7 +18,7 @@
         * [Test of generated mock (generate directory)][togm]
     * [End-to-end tests][e2e]
 
-## <a name="user-content-intro"></a> Introduction
+## <a name="user-content-arch-intro"></a> Introduction
 
 The goal of this page is to give a description of the overall software
 architecture, how the code is organised and also what are the concepts
@@ -151,7 +151,7 @@ the following class diagram.
 
 A complete explanation of those classes is available in the doxygen documentation.
 
-[All the care has been taken][iotcamc] to make sure that all the internal
+All the care has been taken to make sure that all the internal
 objects of Easymock are movable. Copy is not allowed to ensure that the memory footprint
 remains as small as possible.
 
@@ -310,7 +310,6 @@ by CMake. The validation of the test is done in `runTest.sh`.
 [clp]: #user-content-clp
 [archChoices]: #user-content-arch-choices
 [memMgmt]: #user-content-memory-management
-[iotcamc]: #user-content-iotcamc
 [tests]: #user-content-tests
 [eioTests]: #user-content-eio-tests
 [easyMockGenerate]: #user-content-easyMockGenerate
