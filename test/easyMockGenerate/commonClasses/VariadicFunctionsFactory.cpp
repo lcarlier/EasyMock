@@ -11,8 +11,8 @@ ElementToMockList VariadicFunctionsFactory::functionFactoryArray()
   {
     Parameter::Vector pv{};
     pv.emplace_back(Parameter(std::make_shared<CType>(CTYPE_INT), "a"));
-    FunctionDeclaration f1(functionGetFunctionName(), VoidReturnValue(), std::move(pv));
-    f1.setVariadic(true);
+    auto f1 = std::make_shared<FunctionDeclaration>(functionGetFunctionName(), VoidReturnValue(), std::move(pv));
+    f1->setVariadic(true);
     returnedList.push_back(std::move(f1));
   }
 
@@ -20,8 +20,8 @@ ElementToMockList VariadicFunctionsFactory::functionFactoryArray()
     auto constCtype = std::make_shared<Pointer>(std::make_shared<ConstQualifiedType>(std::make_shared<CType>(CTYPE_CHAR)));
     Parameter::Vector pv{};
     pv.emplace_back(Parameter{constCtype, "fmt"});
-    FunctionDeclaration f2("variadicFunctions2", VoidReturnValue(), std::move(pv));
-    f2.setVariadic(true);
+    auto f2 = std::make_shared<FunctionDeclaration>("variadicFunctions2", VoidReturnValue(), std::move(pv));
+    f2->setVariadic(true);
     returnedList.push_back(std::move(f2));
   }
 

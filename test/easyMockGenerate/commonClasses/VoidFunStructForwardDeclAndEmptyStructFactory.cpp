@@ -16,7 +16,7 @@ ElementToMockList VoidFunStructForwardDeclAndEmptyStructFactory::functionFactory
     Parameter::Vector pv{};
     pv.emplace_back(Parameter{std::make_shared<Pointer>(std::move(fd)), "fd"});
     pv.emplace_back(Parameter{std::move(es), "es"});
-    FunctionDeclaration f{functionGetFunctionName(), VoidReturnValue(), std::move(pv)};
+    auto f = std::make_shared<FunctionDeclaration>(functionGetFunctionName(), VoidReturnValue(), std::move(pv));
     returnedList.push_back(std::move(f));
   }
   return returnedList;

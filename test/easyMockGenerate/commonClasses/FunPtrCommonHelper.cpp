@@ -23,7 +23,7 @@ std::shared_ptr<TypeItf> getPointerToFunToTest()
   return std::make_shared<Pointer>(std::move(ft));
 };
 
-FunctionDeclaration getFunPtrDeclaration(unsigned int n, const char *functionName, std::string&& structName, std::string&& typedefName)
+std::shared_ptr<FunctionDeclaration> getFunPtrDeclaration(unsigned int n, const char *functionName, std::string&& structName, std::string&& typedefName)
 {
   switch(n)
   {
@@ -38,7 +38,7 @@ FunctionDeclaration getFunPtrDeclaration(unsigned int n, const char *functionNam
       }
       Parameter::Vector pv{};
       pv.emplace_back(Parameter(std::move(paramType), "funPtr"));
-      FunctionDeclaration fd(functionName, std::move(rv), std::move(pv));
+      auto fd = std::make_shared<FunctionDeclaration>(functionName, std::move(rv), std::move(pv));
       return fd;
     }
 
@@ -64,7 +64,7 @@ FunctionDeclaration getFunPtrDeclaration(unsigned int n, const char *functionNam
 
       Parameter::Vector pv{};
       pv.emplace_back(Parameter(std::move(ptf2), ""));
-      FunctionDeclaration fd(functionName, TypedReturnValue(CTYPE_INT), std::move(pv));
+      auto fd = std::make_shared<FunctionDeclaration>(functionName, TypedReturnValue(CTYPE_INT), std::move(pv));
       return fd;
     }
 
@@ -74,7 +74,7 @@ FunctionDeclaration getFunPtrDeclaration(unsigned int n, const char *functionNam
       ReturnValue rv(getPointerToFunToTest());
       Parameter::Vector pv{};
       pv.emplace_back(NamedParameter(CTYPE_CHAR, ""));
-      FunctionDeclaration fd(functionName, std::move(rv), std::move(pv));
+      auto fd = std::make_shared<FunctionDeclaration>(functionName, std::move(rv), std::move(pv));
       return fd;
     }
 
@@ -101,7 +101,7 @@ FunctionDeclaration getFunPtrDeclaration(unsigned int n, const char *functionNam
 
       Parameter::Vector pv{};
       pv.emplace_back(NamedParameter(CTYPE_INT, ""));
-      FunctionDeclaration fd(functionName, std::move(rv), std::move(pv));
+      auto fd = std::make_shared<FunctionDeclaration>(functionName, std::move(rv), std::move(pv));
       return fd;
     }
 
@@ -121,7 +121,7 @@ FunctionDeclaration getFunPtrDeclaration(unsigned int n, const char *functionNam
 
       Parameter::Vector pv{};
       pv.emplace_back(Parameter(std::move(s), "ptrToFunField"));
-        FunctionDeclaration fd(functionName, TypedReturnValue(CTYPE_INT), std::move(pv));
+      auto fd = std::make_shared<FunctionDeclaration>(functionName, TypedReturnValue(CTYPE_INT), std::move(pv));
       return fd;
     }
 
@@ -145,7 +145,7 @@ FunctionDeclaration getFunPtrDeclaration(unsigned int n, const char *functionNam
 
       Parameter::Vector pv{};
       pv.emplace_back(Parameter(std::move(top), "ptrToStructAnonFunField"));
-      FunctionDeclaration fd(functionName, TypedReturnValue(CTYPE_INT), std::move(pv));
+      auto fd = std::make_shared<FunctionDeclaration>(functionName, TypedReturnValue(CTYPE_INT), std::move(pv));
 
       return fd;
     }
@@ -159,7 +159,7 @@ FunctionDeclaration getFunPtrDeclaration(unsigned int n, const char *functionNam
 
       Parameter::Vector pv{};
       pv.emplace_back(Parameter{std::make_shared<CType>(CTYPE_INT), ""});
-      FunctionDeclaration fd{functionName, std::move(rv), std::move(pv)};
+      auto fd = std::make_shared<FunctionDeclaration>(functionName, std::move(rv), std::move(pv));
 
       return fd;
     }
@@ -177,7 +177,7 @@ FunctionDeclaration getFunPtrDeclaration(unsigned int n, const char *functionNam
 
       Parameter::Vector pv{};
       pv.emplace_back(Parameter{std::move(constPtrFunFieldStruct), "p"});
-      FunctionDeclaration fd{functionName, TypedReturnValue(CTYPE_INT), std::move(pv)};
+      auto fd = std::make_shared<FunctionDeclaration>(functionName, TypedReturnValue(CTYPE_INT), std::move(pv));
 
       return fd;
     }

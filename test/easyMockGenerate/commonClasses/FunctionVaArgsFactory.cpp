@@ -66,7 +66,7 @@ ElementToMockList FunctionVaArgsFactory::functionFactoryArray()
   Parameter::Vector pv{};
   pv.emplace_back(std::move(param1));
   pv.emplace_back(std::move(param2));
-  FunctionDeclaration f1(functionGetFunctionName(), std::move(rv), std::move(pv));
+  auto f1 = std::make_shared<FunctionDeclaration>(functionGetFunctionName(), std::move(rv), std::move(pv));
   returnedList.push_back(std::move(f1));
 
   return returnedList;

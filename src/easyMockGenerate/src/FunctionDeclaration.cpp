@@ -1,15 +1,16 @@
 #include "FunctionDeclaration.h"
 #include "Namespace.h"
+#include "StructType.h"
 
 #include <boost/functional/hash.hpp>
 
 FunctionDeclaration::FunctionDeclaration(std::string p_functionName, ReturnValue p_functionReturnType, Parameter::Vector p_functionParameters):
-FunctionDeclaration{std::move(p_functionName), std::move(p_functionReturnType), std::move(p_functionParameters), getGlobalNamespace()}
+FunctionDeclaration{std::move(p_functionName), std::move(p_functionReturnType), std::move(p_functionParameters), getGlobalNamespace(), {}}
 {
 }
 
-FunctionDeclaration::FunctionDeclaration(std::string p_functionName, ReturnValue p_functionReturnType, Parameter::Vector p_functionParameters, std::shared_ptr<const Namespace> p_namespace):
-    Function{std::move(p_functionName), std::move(p_functionReturnType), std::move(p_functionParameters)},
+FunctionDeclaration::FunctionDeclaration(std::string p_functionName, ReturnValue p_functionReturnType, Parameter::Vector p_functionParameters, std::shared_ptr<const Namespace> p_namespace, std::weak_ptr<const ComposableType> p_parentData):
+    Function{std::move(p_functionName), std::move(p_functionReturnType), std::move(p_functionParameters), std::move(p_parentData)},
     ElementToMock{},
     m_doesThisDeclarationHasBody{false},
     m_cachedHash{0},
@@ -36,7 +37,7 @@ size_t FunctionDeclaration::getHash() const noexcept
   size_t seed{Function::getHash()};
   boost::hash_combine(seed, ElementToMock::getHash());
   boost::hash_combine(seed, m_doesThisDeclarationHasBody);
-  boost::hash_combine(seed, m_namespace);
+  boost::hash_combine(seed, *m_namespace);
 
   return seed;
 }

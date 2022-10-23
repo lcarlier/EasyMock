@@ -9,7 +9,7 @@ ElementToMockList HeaderWithDashFactory::functionFactoryArray()
 {
   ElementToMockList returnedList;
   {
-    FunctionDeclaration f{ "header_with_dash", VoidReturnValue(), {}};
+    auto f = std::make_shared<FunctionDeclaration>( "header_with_dash", VoidReturnValue(), Parameter::Vector {});
 
     returnedList.push_back(std::move(f));
   }

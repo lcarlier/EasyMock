@@ -5,6 +5,7 @@
 #include <ReturnValue.h>
 #include <StructType.h>
 #include <UnionType.h>
+#include <ClassType.h>
 #include <ComposableField.h>
 #include <Pointer.h>
 #include <FunctionType.h>
@@ -962,6 +963,7 @@ TEST(equality, Namespace_double_different_shared_ptr_parent)
   Namespace l1l2_right{"L2", std::make_shared<const Namespace>("L1")};
 
   ASSERT_EQ(l1l2_left, l1l2_right);
+  ASSERT_EQ(l1l2_left.getHash(), l1l2_right.getHash());
 }
 
 TEST(equality, Namespace_double_same_shared_ptr_parent)
@@ -989,4 +991,55 @@ TEST(equality, Function_namespace_vs_sub_namespace)
   FunctionDeclaration f2{"foo", VoidReturnValue(), Parameter::Vector {}, L2Namespace};
   ASSERT_NE(f1, f2);
   ASSERT_NE(f1.getHash(), f2.getHash());
+}
+
+TEST(equality, cpp_class_equal)
+{
+  ClassType c1{"c1", false};
+  c1.addFunction(getF1());
+  c1.addFunction(getF2());
+  ClassType c2{"c1", false};
+  c2.addFunction(getF1());
+  c2.addFunction(getF2());
+
+  ASSERT_EQ(c1, c2);
+  ASSERT_EQ(c1.getHash(), c2.getHash());
+}
+
+TEST(equality, cpp_class_not_equal_different_functions)
+{
+  ClassType c1{"c1", false};
+  c1.addFunction(getF1());
+  c1.addFunction(getF2());
+  ClassType c2{"c1", false};
+  c2.addFunction(getF1());
+
+  ASSERT_NE(c1, c2);
+  ASSERT_NE(c1.getHash(), c2.getHash());
+}
+
+TEST(equality, cpp_struct_not_equal_class)
+{
+  StructType s1{"c1", false};
+  s1.addFunction(getF1());
+  s1.addFunction(getF2());
+  ClassType c1{"c1", false};
+  c1.addFunction(getF1());
+  c1.addFunction(getF2());
+
+  ASSERT_NE(s1, c1);
+  ASSERT_NE(s1.getHash(), c1.getHash());
+}
+
+TEST(equality, cpp_class_different_name)
+{
+  ClassType c1{"c1", false};
+  c1.addFunction(getF1());
+  c1.addFunction(getF2());
+  ClassType c2{"c2", false};
+  c2.addFunction(getF1());
+  c2.addFunction(getF2());
+
+  ASSERT_NE(c1, c2);
+  ASSERT_NE(c1.getHash(), c2.getHash());
 }

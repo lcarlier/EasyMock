@@ -3,7 +3,7 @@
 #include <UnionType.h>
 #include<ComposableField.h>
 
-FunctionDeclaration VoidFunUnionWithEmbeddedUnionFactory::functionFactory()
+std::shared_ptr<FunctionDeclaration> VoidFunUnionWithEmbeddedUnionFactory::functionFactory()
 {
   bool isEmbeddedStruct = true;
   auto top = std::make_shared<UnionType>("topEmbeddedUnion", !isEmbeddedStruct); //NOT EMBEDDED
@@ -14,7 +14,7 @@ FunctionDeclaration VoidFunUnionWithEmbeddedUnionFactory::functionFactory()
 
   Parameter::Vector pv{};
   pv.emplace_back(Parameter(std::move(top), "u"));
-  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), std::move(pv));
+  auto f = std::make_shared<FunctionDeclaration>(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), std::move(pv));
   return f;
 }
 
@@ -60,18 +60,18 @@ void VoidFunUnionWithEmbeddedUnionFactory::setupTestCase(EasyMockTestCase::TestC
   aToExpect.eu.a = 42;
   switch(tc)
   {
-    case EasyMockTestCase::OneExpect:
+    case EasyMockTestCase::TestCase::OneExpect:
       m_expects.push_back(std::make_tuple(aToExpect));
       m_params.push_back(std::make_tuple(aToExpect));
       m_compare.push_back(std::make_tuple(m_user_matcher));
       break;
-    case EasyMockTestCase::OneExpectArgIsBad:
+    case EasyMockTestCase::TestCase::OneExpectArgIsBad:
       m_expects.push_back(std::make_tuple(aToExpect));
       aToExpect.eu.a++;
       m_params.push_back(std::make_tuple(aToExpect));
       m_compare.push_back(std::make_tuple(m_user_matcher));
       break;
-    case EasyMockTestCase::NotEnoughCall:
+    case EasyMockTestCase::TestCase::NotEnoughCall:
       for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::NotEnoughCall_NbExpects; expectIdx++)
       {
         m_expects.push_back(std::make_tuple(aToExpect));
@@ -79,9 +79,9 @@ void VoidFunUnionWithEmbeddedUnionFactory::setupTestCase(EasyMockTestCase::TestC
         m_compare.push_back(std::make_tuple(m_user_matcher));
       }
       break;
-    case EasyMockTestCase::ThreeExpects:
-    case EasyMockTestCase::SecondExpectArgIsBad:
-    case EasyMockTestCase::NoExpect:
+    case EasyMockTestCase::TestCase::ThreeExpects:
+    case EasyMockTestCase::TestCase::SecondExpectArgIsBad:
+    case EasyMockTestCase::TestCase::NoExpect:
       break;
   }
 }

@@ -20,7 +20,7 @@
  *
  */
 
-FunctionDeclaration StructSubStructRecursiveTypeFactory::functionFactory()
+std::shared_ptr<FunctionDeclaration> StructSubStructRecursiveTypeFactory::functionFactory()
 {
   bool isEmbeddedInOtherType = false;
   auto st1 = std::make_shared<StructType>("st1", isEmbeddedInOtherType);
@@ -31,7 +31,7 @@ FunctionDeclaration StructSubStructRecursiveTypeFactory::functionFactory()
   st2->addField(ComposableField(std::make_shared<Pointer>(std::make_shared<IncompleteType>(*st2, IncompleteType::Type::STRUCT)), "st2SubSt2"));
   Parameter::Vector pv{};
   pv.emplace_back(Parameter(std::move(st1), "st1Val"));
-  FunctionDeclaration f(functionGetFunctionName(), VoidReturnValue(), std::move(pv));
+  auto f = std::make_shared<FunctionDeclaration>(functionGetFunctionName(), VoidReturnValue(), std::move(pv));
   return f;
 }
 
@@ -78,12 +78,12 @@ void StructSubStructRecursiveTypeFactory::setupTestCase(EasyMockTestCase::TestCa
 
   switch(tc)
   {
-    case EasyMockTestCase::OneExpect:
+    case EasyMockTestCase::TestCase::OneExpect:
       m_expects.push_back(std::make_tuple(aToExpect));
       m_params.push_back(std::make_tuple(aToExpect));
       m_compare.push_back(std::make_tuple(m_user_matcher));
       break;
-    case EasyMockTestCase::ThreeExpects:
+    case EasyMockTestCase::TestCase::ThreeExpects:
     {
       for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::ThreeExpects_NbExpects; expectIdx++)
       {
@@ -94,13 +94,13 @@ void StructSubStructRecursiveTypeFactory::setupTestCase(EasyMockTestCase::TestCa
       }
       break;
     }
-    case EasyMockTestCase::OneExpectArgIsBad:
+    case EasyMockTestCase::TestCase::OneExpectArgIsBad:
       m_expects.push_back(std::make_tuple(aToExpect));
       aToExpect.st1SubSt2.st2SubSt1++;
       m_params.push_back(std::make_tuple(aToExpect));
       m_compare.push_back(std::make_tuple(m_user_matcher));
       break;
-    case EasyMockTestCase::SecondExpectArgIsBad:
+    case EasyMockTestCase::TestCase::SecondExpectArgIsBad:
       m_expects.push_back(std::make_tuple(aToExpect));
       m_params.push_back(std::make_tuple(aToExpect));
       m_compare.push_back(std::make_tuple(m_user_matcher));
@@ -110,7 +110,7 @@ void StructSubStructRecursiveTypeFactory::setupTestCase(EasyMockTestCase::TestCa
       m_params.push_back(std::make_tuple(aToExpect)); //second call fails
       m_compare.push_back(std::make_tuple(m_user_matcher));
       break;
-    case EasyMockTestCase::NotEnoughCall:
+    case EasyMockTestCase::TestCase::NotEnoughCall:
       for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::NotEnoughCall_NbExpects; expectIdx++)
       {
         aToExpect.st1SubSt2.st2SubSt1++;
@@ -119,7 +119,7 @@ void StructSubStructRecursiveTypeFactory::setupTestCase(EasyMockTestCase::TestCa
         m_compare.push_back(std::make_tuple(m_user_matcher));
       }
       break;
-    case EasyMockTestCase::NoExpect:
+    case EasyMockTestCase::TestCase::NoExpect:
       break;
   }
 }

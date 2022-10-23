@@ -81,6 +81,7 @@
 #include <CppVoidFunVoidFactory.h>
 #include <CppVoidFunIntFactory.h>
 #include <CppNamespaceIntFunIntFactory.h>
+#include <CppClassIntFunIntFactory.h>
 
 #define PTR_FUN_PTR_FACTORIES \
         VoidPtrFunVoidPtrFactory, \
@@ -137,8 +138,12 @@
         CppVoidFunVoidGenerateTypeFactory, \
         CppVoidFunIntFactory, \
         CppVoidFunIntGenerateTypeFactory, \
-        CppNamespaceIntFunIntFactory,     \
+        CppNamespaceIntFunIntFactory, \
         CppNamespaceIntFunIntGenerateTypeFactory
+
+#define CPP_CLASS_FACTORIES \
+        CppClassIntFunIntFactory, \
+        CppClassIntFunIntGenerateTypeFactory
 
 #define VOID_FUN_COMPOSABLE_TYPE_WITH_COMPOSABLE_TYPE_TYPES \
         VoidFunStructWithEmbeddedStructFactory, \
@@ -233,13 +238,19 @@
 typedef ::testing::Types
 <
         NON_PTR_FUN_FACTORIES,
-        PTR_FUN_PTR_FACTORIES
+        PTR_FUN_PTR_FACTORIES,
+        CPP_CLASS_FACTORIES
 > GenerateTestTypes;
 
 typedef ::testing::Types
 <
         NON_PTR_FUN_FACTORIES
 > NonPtrFunTypes;
+
+typedef ::testing::Types
+<
+        CPP_CLASS_FACTORIES
+> CppClassTypes;
 
 typedef ::testing::Types
 <
@@ -257,6 +268,7 @@ typedef ::testing::Types
         NON_PTR_FUN_FACTORIES,
         VOID_FUN_COMPOSABLE_TYPE_WITH_COMPOSABLE_TYPE_TYPES,
         COMPILE_ONLY_TYPES,
+        CPP_CLASS_FACTORIES,
         IntFunStructPtrIntCharPtrFactory,
         VoidFunIntArrayFactory,
         VoidFunIntArrayGenerateTypeFactory

@@ -1,8 +1,8 @@
 #include <UnsIntFunVoidFactory.h>
 
-FunctionDeclaration UnsIntFunVoidFactory::functionFactory()
+std::shared_ptr<FunctionDeclaration> UnsIntFunVoidFactory::functionFactory()
 {
-  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_UINT),{});
+  auto f = std::make_shared<FunctionDeclaration>(functionGetFunctionName(), TypedReturnValue(CTYPE_UINT), Parameter::Vector {});
   return f;
 }
 
@@ -20,10 +20,10 @@ void UnsIntFunVoidFactory::setupTestCase(EasyMockTestCase::TestCase tc)
 {
   switch(tc)
   {
-    case EasyMockTestCase::OneExpect:
+    case EasyMockTestCase::TestCase::OneExpect:
       m_rvContext.m_rv.push_back(5);
       break;
-    case EasyMockTestCase::ThreeExpects:
+    case EasyMockTestCase::TestCase::ThreeExpects:
     {
       int rvToExpect = 7;
       for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::ThreeExpects_NbExpects; expectIdx++)
@@ -32,15 +32,15 @@ void UnsIntFunVoidFactory::setupTestCase(EasyMockTestCase::TestCase tc)
       }
       break;
     }
-    case EasyMockTestCase::NotEnoughCall:
+    case EasyMockTestCase::TestCase::NotEnoughCall:
       for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::NotEnoughCall_NbExpects; expectIdx++)
       {
         m_rvContext.m_rv.push_back(5);
       }
       break;
-    case EasyMockTestCase::OneExpectArgIsBad: //Not tested
-    case EasyMockTestCase::SecondExpectArgIsBad: //Not tested
-    case EasyMockTestCase::NoExpect:
+    case EasyMockTestCase::TestCase::OneExpectArgIsBad: //Not tested
+    case EasyMockTestCase::TestCase::SecondExpectArgIsBad: //Not tested
+    case EasyMockTestCase::TestCase::NoExpect:
       break;
   }
 }

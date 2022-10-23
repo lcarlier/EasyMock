@@ -8,7 +8,7 @@
 class VoidFunMultilineFactory : public FunctionFactory<void, std::tuple<int, int>, std::tuple<EasyMock_Matcher, EasyMock_Matcher>>
 {
 public:
-FunctionDeclaration functionFactory() override;
+  std::shared_ptr<FunctionDeclaration> functionFactory() override;
 std::string functionGetFunctionName() override;
 std::string getFilename() override;
 

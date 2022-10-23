@@ -7,6 +7,6 @@
 
 std::shared_ptr<TypeItf> getPointerToFunToTest();
 
-FunctionDeclaration getFunPtrDeclaration(unsigned int n, const char* functionName, std::string&& structName = "", std::string&& typedefName = "");
+std::shared_ptr<FunctionDeclaration> getFunPtrDeclaration(unsigned int n, const char* functionName, std::string&& structName = "", std::string&& typedefName = "");
 
 #endif /* FUNPTRCOMMONHELPER_H */

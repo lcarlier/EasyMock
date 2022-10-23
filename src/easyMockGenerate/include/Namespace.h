@@ -4,6 +4,8 @@
 #ifndef EASYMOCK_NAMESPACE_H
 #define EASYMOCK_NAMESPACE_H
 
+#include <EasyMock_Hashable.h>
+
 #include <string>
 #include <memory>
 
@@ -12,7 +14,7 @@
  *
  * Namespace hierarchy can be representing by using the ::Namespace::m_parent member.
  */
-struct Namespace
+struct Namespace: EasyMock::Hashable
 {
   /*!
    * \brief Create a new namespace under the global namespace
@@ -36,6 +38,10 @@ struct Namespace
    */
   bool isGlobal() const;
 
+  [[nodiscard]] std::size_t getHash() const noexcept;
+
+  void cacheHash() noexcept;
+
   bool operator==(const Namespace& other) const;
   bool operator!=(const Namespace& other) const;
 
@@ -48,11 +54,18 @@ struct Namespace
    * \brief Pointer to the namespace containing this namespace.
    */
   std::shared_ptr<const Namespace> m_parent;
+
+  std::size_t m_cachedHash;
 };
 
 /*!
  * \brief Returns the object representing the shared global namespace
  */
 std::shared_ptr<const Namespace> getGlobalNamespace();
+
+namespace boost
+{
+  std::size_t hash_value(Namespace const& p_namespace);
+}
 
 #endif //EASYMOCK_NAMESPACE_H

@@ -2,6 +2,7 @@
 
 #include <ElementToMockContext.h>
 #include <StructType.h>
+#include <ClassType.h>
 #include <UnionType.h>
 #include <FunctionDeclaration.h>
 #include <FunctionType.h>
@@ -35,6 +36,30 @@
 #include <optional>
 #include <sstream>
 
+template<typename T>
+class UniqueStdSharePtrObjectSet
+{
+public:
+  UniqueStdSharePtrObjectSet() = default;
+  UniqueStdSharePtrObjectSet(const UniqueStdSharePtrObjectSet&) = delete;
+  UniqueStdSharePtrObjectSet(UniqueStdSharePtrObjectSet&&) = delete;
+
+  void addObject(std::shared_ptr<T> newObject)
+  {
+    auto newObjectHash = newObject->getHash();
+    for(const auto &obj : m_list)
+    {
+      if(obj->getHash() == newObjectHash)
+      {
+        return;
+      }
+    }
+    m_list.push_back(std::move(newObject));
+  }
+private:
+  std::vector<std::shared_ptr<T>> m_list;
+};
+
 namespace
 {
 std::string trim(const std::string &s) {
@@ -49,6 +74,16 @@ std::string trim(const std::string &s) {
   }
   return rs;
 }
+
+/*
+ * In order to represent the fact that a function belongs to an object,
+ * the ClassType objects are stored as weak references into Function object to break the circular dependency.
+ * We need to store its shared_ptr instance in a global list to keep the ClassType object alive.
+ *
+ * If we don't store the ClassType object in the function object as weak_ptr, this creates an
+ * indirect memory leak.
+ */
+UniqueStdSharePtrObjectSet<ClassType> globalListOfClasses;
 }
 
 struct ParserConfig
@@ -96,22 +131,22 @@ public:
     if(f)
     {
       f->cacheHash();
-      m_ctxt.addElementToMock(std::move(*f));
+      m_ctxt.addElementToMock(std::move(f));
     }
 
     return true;
   }
 
-  std::optional<FunctionDeclaration> getFunctionDeclaration(const clang::FunctionDecl* func)
+  std::shared_ptr<FunctionDeclaration> getFunctionDeclaration(const clang::FunctionDecl* func)
   {
     const std::string funName = getFunctionName(func);
     if(!m_mockOnlyList.empty() && std::find(std::begin(m_mockOnlyList), std::end(m_mockOnlyList), funName) == std::end(m_mockOnlyList))
     {
-      return std::nullopt;
+      return nullptr;
     }
     if(!m_ignoreFunList.empty() && std::find(std::begin(m_ignoreFunList), std::end(m_ignoreFunList), funName) != std::end(m_ignoreFunList))
     {
-      return std::nullopt;
+      return nullptr;
     }
     std::string originFileFullInfo = func->getLocation().printToString(*m_SM);
     size_t posColumn = originFileFullInfo.find_first_of(':');
@@ -121,24 +156,59 @@ public:
     bool isFromMainFile = m_mainFile == originCanon;
     if(!m_parseIncludedFunctions && !isFromMainFile)
     {
-      return std::nullopt;
+      return nullptr;
     }
 
     ReturnValue rv = getFunctionReturnValue(func);
     Parameter::Vector param = getFunctionParameters(func);
 
     auto enclosingNamespace = getNamespace(func->getDeclContext());
-    FunctionDeclaration f(funName, std::move(rv), std::move(param), std::move(enclosingNamespace));
+    std::shared_ptr<ComposableType> parentData{nullptr};
+    FunctionAccessSpecifier funAccessSpecifier{FunctionAccessSpecifier::NA};
+    if(func->isCXXClassMember())
+    {
+      auto parent = func->getParent();
+      const clang::QualType qualType = m_context->getRecordType(parent->getOuterLexicalRecordContext());
+      structKnownTypeMap structKnownType;
+      auto type = getEasyMocktype(qualType, structKnownType, false);
+      assert(type->isComposableType());
+      parentData = std::dynamic_pointer_cast<ComposableType>(type);
+      const clang::AccessSpecifier accessSpecifier = func->getAccess();
+      switch(accessSpecifier)
+      {
+        case clang::AccessSpecifier::AS_public:
+          funAccessSpecifier = FunctionAccessSpecifier::PUBLIC;
+          break;
+        case clang::AccessSpecifier::AS_private:
+          funAccessSpecifier = FunctionAccessSpecifier::PRIVATE;
+          break;
+        case clang::AccessSpecifier::AS_protected:
+          funAccessSpecifier = FunctionAccessSpecifier::PROTECTED;
+          break;
+        case clang::AccessSpecifier::AS_none:
+          fprintf(stderr, "The parser encountered a none access specifier class in a c++ class member context. Please check what does it means.");
+          func->dumpColor();
+          assert(false);
+          break;
+      }
+    }
+    auto f = std::make_shared<FunctionDeclaration>(funName, std::move(rv), std::move(param), std::move(enclosingNamespace), parentData);
+    f->setAccessSpecifier(std::move(funAccessSpecifier));
+    if(parentData)
+    {
+      parentData->addFunction(f);
+    }
     bool isInline = func->isInlined();
     bool doesThisDeclHasABody = func->doesThisDeclarationHaveABody();
     bool isStatic = func->isStatic();
-    f.setVariadic(func->isVariadic());
-    f.setInlined(isInline);
-    f.setIsStatic(isStatic);
-    f.setDoesThisDeclarationHasABody(doesThisDeclHasABody);
-    f.setOriginFile(originFileFullInfo);
-    setFunctionAttribute(func, f);
-    return std::make_optional<FunctionDeclaration>(std::move(f));
+    f->setVariadic(func->isVariadic());
+    f->setInlined(isInline);
+    f->setIsStatic(isStatic);
+    f->setDoesThisDeclarationHasABody(doesThisDeclHasABody);
+    f->setOriginFile(originFileFullInfo);
+    setFunctionAttribute(func, *f);
+
+    return f;
   }
 
   void setAstContext(const clang::ASTContext &ctx)
@@ -162,7 +232,8 @@ private:
 
   enum ContainerType {
     STRUCT,
-    UNION
+    UNION,
+    CLASS
   };
 
   void setFunctionAttribute(const clang::FunctionDecl* clangFunc, FunctionDeclaration& easyMockFun)
@@ -525,6 +596,10 @@ private:
     {
       type = getFromStructType(clangType, structKnownType, isEmbeddedInOtherType);
     }
+    else if(clangType.isClassType())
+    {
+      type = getFromClassType(clangType, structKnownType, isEmbeddedInOtherType);
+    }
     else if(clangType.isPointerType())
     {
       type = getFromPointerType(clangType, structKnownType, isEmbeddedInOtherType);
@@ -649,6 +724,11 @@ private:
     return getFromContainerType(type, STRUCT, structKnownType, isEmbeddedInOtherType);
   }
 
+  std::shared_ptr<TypeItf> getFromClassType(const clang::Type &type, structKnownTypeMap &structKnownType, bool isEmbeddedInOtherType)
+  {
+    return getFromContainerType(type, CLASS, structKnownType, isEmbeddedInOtherType);
+  }
+
   std::shared_ptr<TypeItf> getFromUnionType(const clang::Type &type, structKnownTypeMap &structKnownType, bool isEmbeddedInOtherType)
   {
     return getFromContainerType(type, UNION, structKnownType, isEmbeddedInOtherType);
@@ -709,21 +789,27 @@ private:
 
   std::shared_ptr<TypeItf> getFromContainerType(const clang::Type &p_type, ContainerType contType, structKnownTypeMap &structKnownType, bool p_isEmbeddedInOtherType)
   {
-    const clang::RecordType *RT = nullptr;
     std::string contTypeDecl;
+    clang::RecordDecl* RD = p_type.getAsRecordDecl();;
     switch(contType)
     {
       case STRUCT:
-        RT = p_type.getAsStructureType();
+      {
         contTypeDecl.append("struct ");
         break;
+      }
       case UNION:
-        RT = p_type.getAsUnionType();
+      {
         contTypeDecl.append("union ");
         break;
+      }
+      case CLASS:
+      {
+        contTypeDecl.append("class");
+        break;
+      }
     }
 
-    clang::RecordDecl* RD = RT->getDecl();
     std::string typeName = RD->getNameAsString();
     std::string typedDefName = getTypedefName(p_type);
 
@@ -774,6 +860,13 @@ private:
       case UNION:
         sType = std::make_shared<UnionType>(typeName, isEmbeddedInOtherType);
         incType = IncompleteType::Type::UNION;
+        break;
+      case CLASS:
+        auto classType = std::make_shared<ClassType>(typeName, isEmbeddedInOtherType);
+        incType = IncompleteType::Type::CLASS;
+        globalListOfClasses.addObject(classType);
+        sType = classType;
+        break;
     }
     if(!typedDefName.empty())
     {

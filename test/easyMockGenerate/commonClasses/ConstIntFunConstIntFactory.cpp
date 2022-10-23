@@ -4,7 +4,7 @@
 #include <EasyMock_CType.h>
 #include <ConstQualifiedType.h>
 
-FunctionDeclaration ConstIntFunConstIntFactory::functionFactory()
+std::shared_ptr<FunctionDeclaration> ConstIntFunConstIntFactory::functionFactory()
 {
   ReturnValue rv { std::make_shared<ConstQualifiedType>(std::make_shared<CType>(CTYPE_INT)) };
   /*
@@ -19,7 +19,7 @@ FunctionDeclaration ConstIntFunConstIntFactory::functionFactory()
 
   Parameter::Vector pv{};
   pv.emplace_back(std::move(param));
-  FunctionDeclaration f(functionGetFunctionName(), std::move(rv), std::move(pv));
+  auto f = std::make_shared<FunctionDeclaration>(functionGetFunctionName(), std::move(rv), std::move(pv));
   return f;
 }
 
@@ -39,13 +39,13 @@ void ConstIntFunConstIntFactory::setupTestCase(EasyMockTestCase::TestCase tc)
   const int rvToExpect = 84;
   switch(tc)
   {
-    case EasyMockTestCase::OneExpect:
+    case EasyMockTestCase::TestCase::OneExpect:
       m_rvContext.m_rv.push_back(rvToExpect);
       m_expects.push_back(std::make_tuple(aToExpect));
       m_params.push_back(std::make_tuple(aToExpect));
       m_compare.push_back(std::make_tuple(&cmp_int));
       break;
-    case EasyMockTestCase::ThreeExpects:
+    case EasyMockTestCase::TestCase::ThreeExpects:
     {
       for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::ThreeExpects_NbExpects; expectIdx++)
       {
@@ -56,13 +56,13 @@ void ConstIntFunConstIntFactory::setupTestCase(EasyMockTestCase::TestCase tc)
       }
       break;
     }
-    case EasyMockTestCase::OneExpectArgIsBad:
+    case EasyMockTestCase::TestCase::OneExpectArgIsBad:
       m_rvContext.m_rv.push_back(rvToExpect);
       m_expects.push_back(std::make_tuple(aToExpect));
       m_params.push_back(std::make_tuple(aToExpect + 1));
       m_compare.push_back(std::make_tuple(&cmp_int));
       break;
-    case EasyMockTestCase::SecondExpectArgIsBad:
+    case EasyMockTestCase::TestCase::SecondExpectArgIsBad:
       m_rvContext.m_rv.push_back(rvToExpect);
       m_expects.push_back(std::make_tuple(aToExpect));
       m_params.push_back(std::make_tuple(aToExpect));
@@ -73,7 +73,7 @@ void ConstIntFunConstIntFactory::setupTestCase(EasyMockTestCase::TestCase tc)
       m_params.push_back(std::make_tuple(aToExpect + 1)); //second call fails
       m_compare.push_back(std::make_tuple(&cmp_int));
       break;
-    case EasyMockTestCase::NotEnoughCall:
+    case EasyMockTestCase::TestCase::NotEnoughCall:
       for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::NotEnoughCall_NbExpects; expectIdx++)
       {
         m_rvContext.m_rv.push_back(rvToExpect + expectIdx);
@@ -82,7 +82,7 @@ void ConstIntFunConstIntFactory::setupTestCase(EasyMockTestCase::TestCase tc)
         m_compare.push_back(std::make_tuple(&cmp_int));
       }
       break;
-    case EasyMockTestCase::NoExpect:
+    case EasyMockTestCase::TestCase::NoExpect:
       break;
   }
 }

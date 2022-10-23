@@ -7,7 +7,7 @@
 class ConstVoidPtrFunConstVoidPtrFactory : public FunctionFactory<const void*, std::tuple<const void *>, std::tuple<EasyMock_Matcher>>
 {
 public:
-  FunctionDeclaration functionFactory() override;
+  std::shared_ptr<FunctionDeclaration> functionFactory() override;
   std::string functionGetFunctionName() override;
   std::string getFilename() override;
 };

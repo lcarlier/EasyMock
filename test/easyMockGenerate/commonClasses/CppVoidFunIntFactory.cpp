@@ -2,11 +2,11 @@
 
 #include <FunctionFactory.h>
 
-FunctionDeclaration CppVoidFunIntFactory::functionFactory()
+std::shared_ptr<FunctionDeclaration> CppVoidFunIntFactory::functionFactory()
 {
   Parameter::Vector params;
   params.emplace_back(NamedParameter(CTYPE_INT, "a"));
-  return FunctionDeclaration { functionGetFunctionName(), VoidReturnValue(), std::move(params) };
+  return std::make_shared<FunctionDeclaration>( functionGetFunctionName(), VoidReturnValue(), std::move(params) );
 }
 
 ElementToMockList CppVoidFunIntFactory::functionFactoryArray()
@@ -30,12 +30,12 @@ void CppVoidFunIntFactory::setupTestCase(EasyMockTestCase::TestCase tc)
 {
   switch(tc)
   {
-    case EasyMockTestCase::OneExpect:
+    case EasyMockTestCase::TestCase::OneExpect:
       m_expects.push_back(std::make_tuple(6));
       m_params.push_back(std::make_tuple(6));
       m_compare.push_back(std::make_tuple(EasyMock::cmp<int>));
       break;
-    case EasyMockTestCase::ThreeExpects:
+    case EasyMockTestCase::TestCase::ThreeExpects:
     {
       int aOneToExpect = 5;
       for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::ThreeExpects_NbExpects; expectIdx++)
@@ -46,12 +46,12 @@ void CppVoidFunIntFactory::setupTestCase(EasyMockTestCase::TestCase tc)
       }
       break;
     }
-    case EasyMockTestCase::OneExpectArgIsBad:
+    case EasyMockTestCase::TestCase::OneExpectArgIsBad:
       m_expects.push_back(std::make_tuple(6));
       m_params.push_back(std::make_tuple(7));
       m_compare.push_back(std::make_tuple(EasyMock::cmp<int>));
       break;
-    case EasyMockTestCase::SecondExpectArgIsBad:
+    case EasyMockTestCase::TestCase::SecondExpectArgIsBad:
       m_expects.push_back(std::make_tuple(6));
       m_params.push_back(std::make_tuple(6));
       m_compare.push_back(std::make_tuple(EasyMock::cmp<int>));
@@ -60,7 +60,7 @@ void CppVoidFunIntFactory::setupTestCase(EasyMockTestCase::TestCase tc)
       m_params.push_back(std::make_tuple(8)); //Second call fails
       m_compare.push_back(std::make_tuple(EasyMock::cmp<int>));
       break;
-    case EasyMockTestCase::NotEnoughCall:
+    case EasyMockTestCase::TestCase::NotEnoughCall:
       for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::NotEnoughCall_NbExpects; expectIdx++)
       {
         m_expects.push_back(std::make_tuple(6));
@@ -68,7 +68,7 @@ void CppVoidFunIntFactory::setupTestCase(EasyMockTestCase::TestCase tc)
         m_compare.push_back(std::make_tuple(EasyMock::cmp<int>));
       }
       break;
-    case EasyMockTestCase::NoExpect:
+    case EasyMockTestCase::TestCase::NoExpect:
       break;
   }
 }

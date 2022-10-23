@@ -7,7 +7,7 @@
 #include <IncompleteType.h>
 #include <TypedefType.h>
 
-FunctionDeclaration StructFileFromStdioFactory::functionFactory()
+std::shared_ptr<FunctionDeclaration> StructFileFromStdioFactory::functionFactory()
 {
   bool isEmbeddedInOtherType = false;
   auto tFILE_T = std::make_shared<TypedefType>("T_MY_IO_FILE", std::make_shared<StructType>("MY_IO_FILE", isEmbeddedInOtherType));
@@ -24,7 +24,7 @@ FunctionDeclaration StructFileFromStdioFactory::functionFactory()
   Parameter p{std::make_shared<Pointer>(std::move(tFILE_T)), "file"};
   Parameter::Vector pv{};
   pv.emplace_back(std::move(p));
-  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), std::move(pv));
+  auto f = std::make_shared<FunctionDeclaration>(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), std::move(pv));
 
   return f;
 }

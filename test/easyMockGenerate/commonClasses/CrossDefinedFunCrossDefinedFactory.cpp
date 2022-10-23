@@ -18,7 +18,7 @@ ElementToMockList CrossDefinedFunCrossDefinedFactory::functionFactoryArray()
     p.setDeclareString("DEF1");
     Parameter::Vector pv{};
     pv.emplace_back(std::move(p));
-    FunctionDeclaration fd(functionGetFunctionName(), std::move(rv), std::move(pv));
+    auto fd = std::make_shared<FunctionDeclaration>(functionGetFunctionName(), std::move(rv), std::move(pv));
     returnedList.push_back(std::move(fd));
   }
   return returnedList;

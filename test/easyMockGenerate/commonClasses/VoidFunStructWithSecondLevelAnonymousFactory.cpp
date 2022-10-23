@@ -9,7 +9,7 @@
 #include <IncompleteType.h>
 #include <TypedefType.h>
 
-FunctionDeclaration VoidFunStructWithSecondLevelAnonymousFactory::functionFactory()
+std::shared_ptr<FunctionDeclaration> VoidFunStructWithSecondLevelAnonymousFactory::functionFactory()
 {
   auto ttop = std::make_shared<TypedefType>("top_t", std::make_shared<StructType>("top", false));
   ComposableType *top = ttop->getTypee()->asComposableType();
@@ -48,7 +48,7 @@ FunctionDeclaration VoidFunStructWithSecondLevelAnonymousFactory::functionFactor
 
   Parameter::Vector pv{};
   pv.emplace_back(Parameter(std::move(ttop), "s"));
-  FunctionDeclaration f(functionGetFunctionName(), VoidReturnValue(), std::move(pv));
+  auto f = std::make_shared<FunctionDeclaration>(functionGetFunctionName(), VoidReturnValue(), std::move(pv));
 
   return f;
 }
@@ -99,12 +99,12 @@ void VoidFunStructWithSecondLevelAnonymousFactory::setupTestCase(EasyMockTestCas
 
   switch(tc)
   {
-    case EasyMockTestCase::OneExpect:
+    case EasyMockTestCase::TestCase::OneExpect:
       m_expects.push_back(std::make_tuple(aToExpect));
       m_params.push_back(std::make_tuple(aToExpect));
       m_compare.push_back(std::make_tuple(m_user_matcher));
       break;
-    case EasyMockTestCase::ThreeExpects:
+    case EasyMockTestCase::TestCase::ThreeExpects:
     {
       for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::ThreeExpects_NbExpects; expectIdx++)
       {
@@ -115,13 +115,13 @@ void VoidFunStructWithSecondLevelAnonymousFactory::setupTestCase(EasyMockTestCas
       }
       break;
     }
-    case EasyMockTestCase::OneExpectArgIsBad:
+    case EasyMockTestCase::TestCase::OneExpectArgIsBad:
       m_expects.push_back(std::make_tuple(aToExpect));
       aToExpect.l1.a++;
       m_params.push_back(std::make_tuple(aToExpect));
       m_compare.push_back(std::make_tuple(m_user_matcher));
       break;
-    case EasyMockTestCase::SecondExpectArgIsBad:
+    case EasyMockTestCase::TestCase::SecondExpectArgIsBad:
       m_expects.push_back(std::make_tuple(aToExpect));
       m_params.push_back(std::make_tuple(aToExpect));
       m_compare.push_back(std::make_tuple(m_user_matcher));
@@ -131,7 +131,7 @@ void VoidFunStructWithSecondLevelAnonymousFactory::setupTestCase(EasyMockTestCas
       m_params.push_back(std::make_tuple(aToExpect)); //second call fails
       m_compare.push_back(std::make_tuple(m_user_matcher));
       break;
-    case EasyMockTestCase::NotEnoughCall:
+    case EasyMockTestCase::TestCase::NotEnoughCall:
       for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::NotEnoughCall_NbExpects; expectIdx++)
       {
         aToExpect.l1.a++;
@@ -140,7 +140,7 @@ void VoidFunStructWithSecondLevelAnonymousFactory::setupTestCase(EasyMockTestCas
         m_compare.push_back(std::make_tuple(m_user_matcher));
       }
       break;
-    case EasyMockTestCase::NoExpect:
+    case EasyMockTestCase::TestCase::NoExpect:
       break;
   }
 }

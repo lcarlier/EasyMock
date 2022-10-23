@@ -140,6 +140,8 @@ public:
    */
   bool isStruct() const;
 
+  //bool isClass() const;
+
   /*!
    * \brief Returns if the type is an union.
    *
@@ -563,6 +565,8 @@ protected:
    * It is called by ::StructType objects
    */
   void setStruct(bool value);
+
+  //void setClass(bool value);
 
   /*!
    * \brief Specify that the type is a C union.

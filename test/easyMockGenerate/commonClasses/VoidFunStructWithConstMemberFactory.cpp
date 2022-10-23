@@ -19,7 +19,7 @@ ElementToMockList VoidFunStructWithConstMemberFactory::functionFactoryArray()
 
     Parameter::Vector pv{};
     pv.emplace_back(Parameter(std::move(structWithConstMember), "s"));
-    FunctionDeclaration fd(functionGetFunctionName(), VoidReturnValue(), std::move(pv));
+    auto fd = std::make_shared<FunctionDeclaration>(functionGetFunctionName(), VoidReturnValue(), std::move(pv));
 
     returnedList.push_back(std::move(fd));
 

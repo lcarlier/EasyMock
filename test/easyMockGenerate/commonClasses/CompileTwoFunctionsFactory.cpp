@@ -23,10 +23,10 @@ ElementToMockList CompileTwoFunctionsFactory::functionFactoryArray()
   };
   ElementToMockList returnedList;
 
-  FunctionDeclaration f1(functionGetFunctionName(), getRv(), getCommonParam());
+  auto f1 = std::make_shared<FunctionDeclaration>(functionGetFunctionName(), getRv(), getCommonParam());
   returnedList.push_back(std::move(f1));
 
-  FunctionDeclaration f2("f2", getRv(), getCommonParam());
+  auto f2 = std::make_shared<FunctionDeclaration>("f2", getRv(), getCommonParam());
   returnedList.push_back(std::move(f2));
 
   return returnedList;

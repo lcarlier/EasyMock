@@ -10,7 +10,7 @@ ElementToMockList MultipleDefinitionsFactory::functionFactoryArray()
 
     Parameter::Vector pv{};
     pv.emplace_back(Parameter(std::make_shared<CType>(CTYPE_INT), "a"));
-    FunctionDeclaration f1(functionName, std::move(rv), std::move(pv));
+    auto f1 = std::make_shared<FunctionDeclaration>(functionName, std::move(rv), std::move(pv));
     return f1;
   };
   ElementToMockList returnedList;

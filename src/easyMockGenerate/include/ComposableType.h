@@ -12,6 +12,9 @@
 
 #include <vector>
 #include <variant>
+#include <memory>
+
+class FunctionDeclaration;
 
 /*!
  * \brief Represents any types which are composed by other types such as
@@ -26,6 +29,8 @@ class ComposableType : public TypeItf
 public:
   using ComposableFieldType = std::variant<ComposableField, ComposableBitfield>;
   using ComposableFieldTypeVector = std::vector<ComposableFieldType>;
+  using ComposableMethodType = std::shared_ptr<const FunctionDeclaration>;
+  using ComposableMethodVector = std::vector<ComposableMethodType>;
   /*!
    * \brief Returns the fields contained by the type
    *
@@ -44,6 +49,10 @@ public:
    * A field is implement by a class inheriting from ::ComposableFieldItf interface.
    */
   void addField(ComposableType::ComposableFieldType newField);
+
+  void addFunction(ComposableType::ComposableMethodType newFunction);
+
+  const ComposableMethodVector& getFunctions() const;
 
   /*!
    * \return true if the type declaration is embedded in another type.
@@ -135,6 +144,12 @@ private:
   bool m_is_declaration_embedded_in_other_type;
   bool m_is_forward_declared;
   std::size_t m_cachedHash;
+  ComposableMethodVector m_functions;
 };
+
+namespace boost
+{
+  std::size_t hash_value(const ComposableType&);
+}
 
 #endif /* COMPOSABLETYPE_H */

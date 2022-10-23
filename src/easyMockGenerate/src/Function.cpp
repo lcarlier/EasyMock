@@ -2,17 +2,19 @@
 
 #include <boost/functional/hash.hpp>
 
-Function::Function(std::string p_functionName, ReturnValue p_functionReturnType, Parameter::Vector p_functionParameters):
-m_name{p_functionName},
-m_parameters{std::move(p_functionParameters)},
-m_returnType{std::move(p_functionReturnType)},
-m_attributes{},
-m_isVariadic{false},
-m_isInlined{false},
-m_isStatic{false},
-m_originFile{},
-m_cachedHash{0},
-m_cachedRawHash{0}
+Function::Function(std::string p_functionName, ReturnValue p_functionReturnType, Parameter::Vector p_functionParameters, std::weak_ptr<const ComposableType> p_parentData):
+    m_name{p_functionName},
+    m_parameters{std::move(p_functionParameters)},
+    m_returnType{std::move(p_functionReturnType)},
+    m_attributes{},
+    m_isVariadic{false},
+    m_isInlined{false},
+    m_isStatic{false},
+    m_originFile{},
+    m_parentData{std::move(p_parentData)},
+    m_accessSpecifier{FunctionAccessSpecifier::NA},
+    m_cachedHash{0},
+    m_cachedRawHash{0}
 { }
 
 const std::string* Function::getName() const
@@ -75,6 +77,39 @@ void Function::setInlined(bool value)
   m_isInlined = value;
 }
 
+FunctionAccessSpecifier Function::getAccessSpecifier() const noexcept
+{
+  return m_accessSpecifier;
+}
+
+const std::string &Function::getAccessSpecifierStr() const noexcept
+{
+  static std::string publicStr{"public"};
+  static std::string protectedStr{"protected"};
+  static std::string privateStr{"private"};
+  static std::string naStr{"na"};
+  switch (m_accessSpecifier)
+  {
+    case FunctionAccessSpecifier::NA:
+      return naStr;
+    case FunctionAccessSpecifier::PROTECTED:
+      return protectedStr;
+    case FunctionAccessSpecifier::PRIVATE:
+      return privateStr;
+    case FunctionAccessSpecifier::PUBLIC:
+      return publicStr;
+  }
+  // Gcc isn't seeing that this code is actually unreachable -_-'
+#ifdef __GNUC__
+  return naStr;
+#endif
+}
+
+void Function::setAccessSpecifier(FunctionAccessSpecifier p_accessSpecifier) noexcept
+{
+  m_accessSpecifier = std::move(p_accessSpecifier);
+}
+
 std::size_t Function::getHash() const noexcept
 {
   if(m_cachedHash != 0)
@@ -89,9 +124,25 @@ std::size_t Function::getHash() const noexcept
   boost::hash_combine(seed, m_returnType);
   boost::hash_combine(seed, m_attributes);
   boost::hash_combine(seed, m_isStatic);
+  /*if(m_parentData)
+  {
+    boost::hash_combine(seed, *m_parentData);
+  }*/
+  boost::hash_combine(seed, m_accessSpecifier);
 
   return seed;
 }
+
+std::shared_ptr<const ComposableType> Function::getParentData() const
+{
+  return m_parentData.lock();
+}
+
+bool Function::isMemberClass() const
+{
+  return m_parentData.lock() != nullptr;
+}
+
 
 void Function::cacheHash() noexcept
 {
@@ -149,8 +200,20 @@ bool Function::operator==(const Function& other) const
   const bool returnTypeEq = this->m_returnType == other.m_returnType;
   const bool attributesEq = this->m_attributes == other.m_attributes;
   const bool isStaticEq = this->m_isStatic == other.m_isStatic;
+  bool parentEqual = true;
+  auto thisLockedParent = m_parentData.lock();
+  auto otherLockedParent = other.m_parentData.lock();
+  if(thisLockedParent.operator bool() != otherLockedParent.operator bool())
+  {
+    parentEqual = false;
+  }
+  if(parentEqual && thisLockedParent)
+  {
+    parentEqual = *thisLockedParent == *otherLockedParent;
+  }
+  const bool visibilityEq = this->m_accessSpecifier == other.m_accessSpecifier;
 
-  return isInlineEq && isVariadicEq && nameEq && paramEq && returnTypeEq && attributesEq && isStaticEq;
+  return isInlineEq && isVariadicEq && nameEq && paramEq && returnTypeEq && attributesEq && isStaticEq && parentEqual && visibilityEq;
 }
 
 bool Function::operator!=(const Function& other) const
@@ -161,6 +224,12 @@ bool Function::operator!=(const Function& other) const
 std::string Function::getFunctionPrototype() const
 {
   std::string rv_funcProto;
+  /*if(m_accessSpecifier != FunctionAccessSpecifier::NA)
+  {
+    rv_funcProto.append(getAccessSpecifierStr());
+    rv_funcProto.push_back(':');
+    rv_funcProto.push_back(' ');
+  }*/
   if(m_isStatic)
   {
     rv_funcProto.append("static ");
@@ -193,6 +262,13 @@ std::string Function::getFunctionPrototype() const
   }
   rv_funcProto.append(m_returnType.getDeclareString());
   rv_funcProto.push_back(' ');
+  auto lockedParentData = m_parentData.lock();
+  if(lockedParentData)
+  {
+    rv_funcProto.append(lockedParentData->getName());
+    rv_funcProto.push_back(':');
+    rv_funcProto.push_back(':');
+  }
   rv_funcProto.append(m_name);
   rv_funcProto.push_back('(');
   bool firstElem = true;

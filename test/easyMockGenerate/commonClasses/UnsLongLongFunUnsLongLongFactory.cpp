@@ -1,11 +1,11 @@
 #include <UnsLongLongFunUnsLongLongFactory.h>
 #include <limits>
 
-FunctionDeclaration UnsLongLongFunUnsLongLongFactory::functionFactory()
+std::shared_ptr<FunctionDeclaration> UnsLongLongFunUnsLongLongFactory::functionFactory()
 {
   Parameter::Vector pv{};
   pv.emplace_back(NamedParameter(CTYPE_ULONG_LONG, "ull"));
-  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_ULONG_LONG), std::move(pv));
+  auto f = std::make_shared<FunctionDeclaration>(functionGetFunctionName(), TypedReturnValue(CTYPE_ULONG_LONG), std::move(pv));
   return f;
 }
 
@@ -25,13 +25,13 @@ void UnsLongLongFunUnsLongLongFactory::setupTestCase(EasyMockTestCase::TestCase 
   unsigned long long rvToExpect = std::numeric_limits<unsigned long long>::max() - 84;
   switch(tc)
   {
-    case EasyMockTestCase::OneExpect:
+    case EasyMockTestCase::TestCase::OneExpect:
       m_rvContext.m_rv.push_back(rvToExpect);
       m_expects.push_back(std::make_tuple(aToExpect));
       m_params.push_back(std::make_tuple(aToExpect));
       m_compare.push_back(std::make_tuple(&cmp_u_long_long));
       break;
-    case EasyMockTestCase::ThreeExpects:
+    case EasyMockTestCase::TestCase::ThreeExpects:
     {
       for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::ThreeExpects_NbExpects; expectIdx++)
       {
@@ -42,13 +42,13 @@ void UnsLongLongFunUnsLongLongFactory::setupTestCase(EasyMockTestCase::TestCase 
       }
       break;
     }
-    case EasyMockTestCase::OneExpectArgIsBad:
+    case EasyMockTestCase::TestCase::OneExpectArgIsBad:
       m_rvContext.m_rv.push_back(rvToExpect);
       m_expects.push_back(std::make_tuple(aToExpect));
       m_params.push_back(std::make_tuple(aToExpect + 1));
       m_compare.push_back(std::make_tuple(&cmp_u_long_long));
       break;
-    case EasyMockTestCase::SecondExpectArgIsBad:
+    case EasyMockTestCase::TestCase::SecondExpectArgIsBad:
       m_rvContext.m_rv.push_back(rvToExpect);
       m_expects.push_back(std::make_tuple(aToExpect));
       m_params.push_back(std::make_tuple(aToExpect));
@@ -59,7 +59,7 @@ void UnsLongLongFunUnsLongLongFactory::setupTestCase(EasyMockTestCase::TestCase 
       m_params.push_back(std::make_tuple(aToExpect + 1)); //second call fails
       m_compare.push_back(std::make_tuple(&cmp_u_long_long));
       break;
-    case EasyMockTestCase::NotEnoughCall:
+    case EasyMockTestCase::TestCase::NotEnoughCall:
       for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::NotEnoughCall_NbExpects; expectIdx++)
       {
         m_rvContext.m_rv.push_back(rvToExpect + expectIdx);
@@ -68,7 +68,7 @@ void UnsLongLongFunUnsLongLongFactory::setupTestCase(EasyMockTestCase::TestCase 
         m_compare.push_back(std::make_tuple(&cmp_u_long_long));
       }
       break;
-    case EasyMockTestCase::NoExpect:
+    case EasyMockTestCase::TestCase::NoExpect:
       break;
   }
 }

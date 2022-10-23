@@ -3,7 +3,7 @@
 #include <boost/functional/hash.hpp>
 
 FunctionType::FunctionType(ReturnValue p_functionReturnType, Parameter::Vector p_functionParameters):
-Function{"", std::move(p_functionReturnType), std::move(p_functionParameters)},
+Function{"", std::move(p_functionReturnType), std::move(p_functionParameters), {}},
 TypeItf{""},
 m_cachedHash{0}
 {

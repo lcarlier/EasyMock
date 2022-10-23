@@ -11,50 +11,50 @@ ElementToMockList VoidFunAttrFunFactory::functionFactoryArray()
   {
     Parameter::Vector pv{};
     pv.emplace_back(Parameter{std::make_shared<Pointer>(std::make_shared<ConstQualifiedType>(std::make_shared<CType>(CTYPE_CHAR))), "fmt"});
-    FunctionDeclaration f{functionGetFunctionName(), VoidReturnValue(), std::move(pv)};
-    f.setVariadic(true);
+    auto f = std::make_shared<FunctionDeclaration>(functionGetFunctionName(), VoidReturnValue(), std::move(pv));
+    f->setVariadic(true);
     FunctionAttribute fa{"format", FunctionAttribute::ParametersList{"printf", "1", "2"}};
-    f.addAttribute(std::move(fa));
+    f->addAttribute(std::move(fa));
     returnedList.push_back(std::move(f));
   }
   {
     Parameter::Vector pv{};
     pv.emplace_back(Parameter{std::make_shared<CType>(CTYPE_INT), "a"});
     pv.emplace_back(Parameter{std::make_shared<Pointer>(std::make_shared<ConstQualifiedType>(std::make_shared<CType>(CTYPE_CHAR))), "fmt"});
-    FunctionDeclaration f{"voidFunAttrFunMacro", VoidReturnValue(), std::move(pv)};
-    f.setVariadic(true);
+    auto f = std::make_shared<FunctionDeclaration>("voidFunAttrFunMacro", VoidReturnValue(), std::move(pv));
+    f->setVariadic(true);
     FunctionAttribute fa{"format", FunctionAttribute::ParametersList{"printf", "2", "3"}};
-    f.addAttribute(std::move(fa));
+    f->addAttribute(std::move(fa));
     returnedList.push_back(std::move(f));
   }
   {
     Parameter::Vector pv{};
     pv.emplace_back(Parameter{std::make_shared<Pointer>(std::make_shared<ConstQualifiedType>(std::make_shared<CType>(CTYPE_CHAR))), "fmt"});
-    FunctionDeclaration f{"voidFunAttrFunAlwaysInline", VoidReturnValue(), std::move(pv)};
-    f.setVariadic(true);
+    auto f = std::make_shared<FunctionDeclaration>("voidFunAttrFunAlwaysInline", VoidReturnValue(), std::move(pv));
+    f->setVariadic(true);
     FunctionAttribute fa1{"format", FunctionAttribute::ParametersList{"printf", "1", "2"}};
     FunctionAttribute fa2{"noinline"};
-    f.addAttribute(std::move(fa1));
-    f.addAttribute(std::move(fa2));
+    f->addAttribute(std::move(fa1));
+    f->addAttribute(std::move(fa2));
     returnedList.push_back(std::move(f));
   }
   {
-    FunctionDeclaration f{"voidFunAttrMultiAttr", VoidReturnValue(),
-                                                     {}};
+    auto f = std::make_shared<FunctionDeclaration>("voidFunAttrMultiAttr", VoidReturnValue(),
+                                                     Parameter::Vector {});
     FunctionAttribute fa1{"section", FunctionAttribute::ParametersList{"__DATA__,.multiAttr.text"}};
     FunctionAttribute fa2{"cold"};
-    f.addAttribute(std::move(fa1));
-    f.addAttribute(std::move(fa2));
+    f->addAttribute(std::move(fa1));
+    f->addAttribute(std::move(fa2));
     returnedList.push_back(std::move(f));
   }
   {
-    FunctionDeclaration f{"voidFunNoReturn", VoidReturnValue(), {}};
-    f.addAttribute(FunctionAttribute{"noreturn"});
+    auto f = std::make_shared<FunctionDeclaration>("voidFunNoReturn", VoidReturnValue(), Parameter::Vector {});
+    f->addAttribute(FunctionAttribute{"noreturn"});
 
     returnedList.push_back(std::move(f));
   }
   {
-    FunctionDeclaration f{ "__bad_copy_from", VoidReturnValue(), {}};
+    auto f = std::make_shared<FunctionDeclaration>( "__bad_copy_from", VoidReturnValue(), Parameter::Vector {});
 
     returnedList.push_back(std::move(f));
   }

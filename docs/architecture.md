@@ -301,7 +301,7 @@ The name of end-to-end tests directories corresponds to the test case name
 (e.g `FunctionAttributeGen`). End-to-end tests have a `runTest.sh` which is called
 by CMake. The validation of the test is done in `runTest.sh`.
 
-[intro]: #user-content-intro
+[arch-intro]: #user-content-intro
 [sotr]: #user-content-sotr
 [losa]: #user-content-losa
 [romtl]: #user-content-romtl

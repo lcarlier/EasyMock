@@ -13,6 +13,7 @@ add_executable(${EASYMOCK_GENERATE_TEST_BINARY}
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/generate/test_voidFunVoid.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/generate/test_intFunVoid.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/generate/test_genGenerate.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/generate/test_genGenerateClass.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/generate/test_genGenerateOutputPtr.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/generate/test_voidFunStructPtr.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/generate/test_intFunStructPtrIntCharPtr.cpp

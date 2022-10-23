@@ -23,7 +23,8 @@ public:
   enum class Type
   {
     STRUCT,
-    UNION
+    UNION,
+    CLASS
   };
 
   /*!

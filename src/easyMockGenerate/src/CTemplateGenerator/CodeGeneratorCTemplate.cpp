@@ -81,7 +81,13 @@
 #define FUNCTION_RETURN_VALUE_PARAM "FUNCTION_RETURN_VALUE_PARAM"
 #define FUNCTION_RETURN_VALUE "FUNCTION_RETURN_VALUE"
 #define FUNCTION_TO_RETURN_VALUE "FUNCTION_TO_RETURN_VALUE"
-#define FUNCTION_STACK_VARIABLE_NAME "FUNCTION_NAME"
+#define FUNCTION_NAME_VAR "FUNCTION_NAME_VAR"
+#define FUNCTION_ACCESS_SPECIFIER_VAR "FUNCTION_ACCESS_SPECIFIER"
+
+#define FUNCTION_CLASS_NAME_VAR "FUNCTION_CLASS_NAME_VAR"
+#define FUNCTION_CLASS_NAME TEMPLATE_VAR(FUNCTION_CLASS_NAME_VAR)
+#define IS_FUNCTION_CLASS_NAME "IS_FUNCTION_CLASS_NAME"
+
 #define FUNCTION_NAME_UPPER "FUNCTION_NAME_UPPER"
 #define FUNCTION_MATCHER_LIST_SECTION "FUNCTION_MATCHER_LIST_SECTION"
 #define FUNCTION_PARAM_LIST_SECTION "FUNCTION_PARAM_LIST_SECTION"
@@ -114,7 +120,6 @@
 #define COMPOSABLE_TYPE_INLINE_DECL_FIELD_NAME_TEMPLATE_VAR TEMPLATE_VAR(COMPOSABLE_TYPE_INLINE_DECL_FIELD_NAME_VAR)
 
 #define GENERATED_TYPE_SECTION "GENERATED_TYPE_SECTION"
-#define GENERATED_TYPE_DECLARE_TYPE_SECTION "GENERATED_TYPE_DECLARE_TYPE_SECTION"
 #define GENERATED_TYPE_DECLARE_TYPE_VAR "GENERATED_TYPE_DECLARE_TYPE_VAR"
 #define GENERATED_TYPE_DECLARE_TYPE_TEMPLATE_VAR TEMPLATE_VAR(GENERATED_TYPE_DECLARE_TYPE_VAR)
 #define GENERATED_TYPE_DECLARE_TYPENAME_VAR "GENERATED_TYPE_TYPENAME_VAR"
@@ -200,13 +205,15 @@
   "namespace EasyMock" CARRIAGE_RETURN \
   "{" CARRIAGE_RETURN \
   TEMPLATE_INCL_SECTION(NAMESPACE_BEGIN_SECTION) CARRIAGE_RETURN \
-  "namespace " TEMPLATE_VAR(FUNCTION_STACK_VARIABLE_NAME) CARRIAGE_RETURN \
+  IF_SECTION_EXISTS(IS_FUNCTION_CLASS_NAME, "namespace " FUNCTION_CLASS_NAME CARRIAGE_RETURN "{" CARRIAGE_RETURN ) \
+  "namespace " FUNCTION_NAME CARRIAGE_RETURN \
   "{" \
   )
 
 #define NAMESPACE_IF_CPP_END \
   IF_SECTION_EXISTS(CPP_ONLY_SECTION, \
-  "} // namespace " TEMPLATE_VAR(FUNCTION_STACK_VARIABLE_NAME) CARRIAGE_RETURN \
+  "} // namespace " FUNCTION_NAME CARRIAGE_RETURN \
+  IF_SECTION_EXISTS(IS_FUNCTION_CLASS_NAME, "} // namespace " FUNCTION_CLASS_NAME CARRIAGE_RETURN ) \
   TEMPLATE_INCL_SECTION(NAMESPACE_END_SECTION) CARRIAGE_RETURN \
   "} // namespace EasyMock" \
   )
@@ -242,6 +249,8 @@
 #define PARAMETER_NON_QUALIFIED_TYPE TEMPLATE_VAR(FUNCTION_PARAM_NON_QUALIFIED_TYPE)
 #define FUNCTION_RETURN_VALUE_TYPE TEMPLATE_VAR(FUNCTION_RETURN_VALUE)
 #define FUNCTION_TO_RETURN_VALUE_TYPE TEMPLATE_VAR(FUNCTION_TO_RETURN_VALUE)
+#define FUNCTION_NAME TEMPLATE_VAR(FUNCTION_NAME_VAR)
+#define FUNCTION_ACCESS_SPECIFIER TEMPLATE_VAR(FUNCTION_ACCESS_SPECIFIER_VAR)
 
 #define FUNCTION_NON_QUALIFIED_RETURN_VALUE "FUNCTION_NON_QUALIFIED_RETURN_VALUE"
 #define FUNCTION_NON_QUALIFIED_RETURN_VALUE_TYPE TEMPLATE_VAR(FUNCTION_NON_QUALIFIED_RETURN_VALUE)
@@ -300,7 +309,7 @@ PARAMETER_NON_QUALIFIED_TYPE " " PARAMETER_NAME(PREFIX) TEMPLATE_INCL_SECTION(EX
 
 /*!
  * \brief Helper macro to print the parameters of a call to a
- * *_expectReturnAndOutput function with harcoded output values.
+ * *_expectReturnAndOutput function with hardcoded output values.
  * function.
  */
 #define FUNCTION_HARDCODED_PARAM_CALL(SECTION, VALUE)\
@@ -336,19 +345,22 @@ PARAMETER_NON_QUALIFIED_TYPE " " PARAMETER_NAME(PREFIX) TEMPLATE_INCL_SECTION(EX
   TEMPLATE_END_SECTION(FUNCTION_PARAM_SECTION)
 
 #define FUNCTION_EXPECT_AND_RETURN_NAME \
-IF_SECTION_EXISTS(C_ONLY_SECTION, TEMPLATE_VAR(FUNCTION_STACK_VARIABLE_NAME) "_") "ExpectAndReturn("
+IF_SECTION_EXISTS(C_ONLY_SECTION, FUNCTION_NAME "_") "ExpectAndReturn("
 
 #define FUNCTION_EXPECT_RETURN_AND_OUTPUT_PARAM \
+IF_SECTION_EXISTS(IS_FUNCTION_CLASS_NAME, "::" FUNCTION_CLASS_NAME "* instance" \
+                  IF_SECTION_EXISTS(FUNCTION_PARAM_SECTION, ", ") \
+                  ) \
 FUNCTION_PARAM_LIST(FUNCTION_PARAM_SECTION, "") IF_RETURN_VALUE(IF_SECTION_EXISTS(FUNCTION_PARAM_LIST_SECTION, ", ") FUNCTION_TO_RETURN_VALUE_TYPE " to_return" TEMPLATE_INCL_SECTION(EXTRA_DECL_SECTION)) IF_SECTION_EXISTS(FUNCTION_PARAM_LIST_SECTION, ", ") FUNCTION_MATCHER_LIST
 
 #define FUNCTION_EXPECT_AND_RETURN_SIGNATURE \
 "void " FUNCTION_EXPECT_AND_RETURN_NAME FUNCTION_EXPECT_RETURN_AND_OUTPUT_PARAM ")"
 
 #define FUNCTION_EXPECT_RETURN_AND_OUTPUT_NAME \
-IF_SECTION_EXISTS(C_ONLY_SECTION, TEMPLATE_VAR(FUNCTION_STACK_VARIABLE_NAME) "_") "ExpectReturnAndOutput"
+IF_SECTION_EXISTS(C_ONLY_SECTION, FUNCTION_NAME "_") "ExpectReturnAndOutput"
 
 #define FUNCTION_EXPECT_RETURN_AND_OUTPUT_COMMON_NAME \
-TEMPLATE_VAR(FUNCTION_STACK_VARIABLE_NAME) "_ExpectReturnAndOutput_common"
+FUNCTION_NAME "_ExpectReturnAndOutput_common"
 
 #define FUNCTION_EXPECT_RETURN_AND_OUTPUT_SIGNATURE_PARAM \
 FUNCTION_EXPECT_RETURN_AND_OUTPUT_PARAM IF_SECTION_EXISTS(FUNCTION_PARAM_PTR_LIST_SECTION, ", ") FUNCTION_PARAM_LIST(FUNCTION_PARAM_PTR_SECTION, MOCK_OUT_PREFIX)
@@ -381,13 +393,13 @@ MOCK_FRAMEWORK_NAME "_verifyAllMocksInThisHeader"
 "static easyMock_bool " VERIFY_ALL_MOCK_FUNCTION_NAME "()"
 
 #define FUNCTION_MOCK_DATA_TYPE \
-TEMPLATE_VAR(FUNCTION_STACK_VARIABLE_NAME) "_data"
+FUNCTION_CLASS_NAME "_" FUNCTION_NAME "_data"
 
 #define FUNCTION_MOCK_DATA_RETURN_VALUE_VARIABLE \
-TEMPLATE_VAR(FUNCTION_STACK_VARIABLE_NAME) "_returnValue"
+FUNCTION_CLASS_NAME "_" FUNCTION_NAME "_returnValue"
 
 #define FUNCTION_MOCK_DATA_CUR_MATCH_VAR \
-TEMPLATE_VAR(FUNCTION_STACK_VARIABLE_NAME) "_match_" PARAMETER_NAME("")
+FUNCTION_CLASS_NAME "_" FUNCTION_NAME "_match_" PARAMETER_NAME("")
 
 #define CURRENT_DATA_CALL "currentDataCall"
 #define CURRENT_DATA_CALL_MEMBER(member) CURRENT_DATA_CALL "." member
@@ -396,10 +408,12 @@ TEMPLATE_VAR(FUNCTION_STACK_VARIABLE_NAME) "_match_" PARAMETER_NAME("")
 #define MOCKED_DATA "mockedData"
 #define MOCKED_DATA_MEMBER(member) MOCKED_DATA "." member
 
+#define INSIDE_CLASS_FUNCTION_DECLARATION FUNCTION_ACCESS_SPECIFIER ": " FUNCTION_RETURN_VALUE_TYPE " " FUNCTION_NAME FUNCTION_PARAMETERS ";"
+
 #define FUNCTION_PARAMETERS "("  FUNCTION_PARAM_LIST(FUNCTION_PARAM_SECTION, "") IF_SECTION_EXISTS(VARIADIC_SECTION, VARIADIC_TEMPLATE_VAR) ")"
-#define TEMPLATE_FUNCTION_TO_BE_MOCKED FUNCTION_ATTRIBUTE_DECLARATION_LIST FUNCTION_RETURN_VALUE_TYPE " " TEMPLATE_VAR(FUNCTION_STACK_VARIABLE_NAME) FUNCTION_PARAMETERS TEMPLATE_INCL_SECTION(EXTRA_TOP_LEVEL_DECL_SECTION)
+#define TEMPLATE_FUNCTION_TO_BE_MOCKED FUNCTION_ATTRIBUTE_DECLARATION_LIST FUNCTION_RETURN_VALUE_TYPE " " IF_SECTION_EXISTS(IS_FUNCTION_CLASS_NAME, FUNCTION_CLASS_NAME "::") FUNCTION_NAME FUNCTION_PARAMETERS TEMPLATE_INCL_SECTION(EXTRA_TOP_LEVEL_DECL_SECTION)
 #define MOCKED_FUN_CLASS(F_NAME) "mocked_" F_NAME
-#define TEMPLATE_MOCKED_FUN_CLASS MOCKED_FUN_CLASS(TEMPLATE_VAR(FUNCTION_STACK_VARIABLE_NAME))
+#define TEMPLATE_MOCKED_FUN_CLASS MOCKED_FUN_CLASS(FUNCTION_NAME)
 
 #define COMPOSED_TYPED_COMPARE_SECTION_DECL_NAME_VAR TEMPLATE_VAR(COMPOSED_TYPED_DECL_STRING)
 #define COMPOSED_TYPED_COMPARE_SECTION_UNIQUE_NAME_VAR TEMPLATE_VAR(COMPOSED_TYPED_UNIQUE_NAME)
@@ -530,6 +544,9 @@ const char templateText[] =
         TEMPLATE_BEG_SECTION(FUNCTION_SECTION)
         GENERATE_COMMENT CARRIAGE_RETURN
         "typedef struct {" CARRIAGE_RETURN
+        IF_SECTION_EXISTS(IS_FUNCTION_CLASS_NAME,
+        "    ::" FUNCTION_CLASS_NAME "* instance;" CARRIAGE_RETURN
+        )
         TEMPLATE_BEG_SECTION(FUNCTION_PARAM_SECTION)
         "    " DECLARE_NON_QUALIFIED_PARAMETER("") ";" CARRIAGE_RETURN
         IF_SECTION_EXISTS(C_ONLY_SECTION,
@@ -551,7 +568,7 @@ const char templateText[] =
         CARRIAGE_RETURN
         "static " FUNCTION_EXPECT_RETURN_AND_OUTPUT_COMMON_SIGNATURE ";" CARRIAGE_RETURN
         "static MockedFunction " TEMPLATE_MOCKED_FUN_CLASS ";" CARRIAGE_RETURN
-        IF_RETURN_VALUE("static " FUNCTION_NON_QUALIFIED_RETURN_VALUE_TYPE " dummyRes_" TEMPLATE_VAR(FUNCTION_STACK_VARIABLE_NAME) TEMPLATE_INCL_SECTION(EXTRA_DECL_SECTION) ";" CARRIAGE_RETURN)
+        IF_RETURN_VALUE("static " FUNCTION_NON_QUALIFIED_RETURN_VALUE_TYPE " dummyRes_" FUNCTION_NAME TEMPLATE_INCL_SECTION(EXTRA_DECL_SECTION) ";" CARRIAGE_RETURN)
         CARRIAGE_RETURN
         IF_SECTION_EXISTS(CPP_ONLY_SECTION, TEMPLATE_INCL_SECTION(NAMESPACE_BEGIN_SECTION) CARRIAGE_RETURN
         )
@@ -563,21 +580,30 @@ const char templateText[] =
         IF_RETURN_VALUE
         (
             "    " FUNCTION_NON_QUALIFIED_RETURN_VALUE_TYPE " default_res" TEMPLATE_INCL_SECTION(EXTRA_TOP_LEVEL_DECL_SECTION) ";" CARRIAGE_RETURN
-            "    easyMock_memcpy((void*)&default_res, (void*)&dummyRes_" TEMPLATE_VAR(FUNCTION_STACK_VARIABLE_NAME) ", sizeof(default_res));" CARRIAGE_RETURN
+            "    easyMock_memcpy((void*)&default_res, (void*)&dummyRes_" FUNCTION_NAME ", sizeof(default_res));" CARRIAGE_RETURN
             CARRIAGE_RETURN
         )
         "    if(!MockedFunction_addActualCall(&" TEMPLATE_MOCKED_FUN_CLASS "))" CARRIAGE_RETURN
         "    {" CARRIAGE_RETURN
-        "        easyMock_addError(printCallStack, \"Error : unexpected call of '%s'." IF_RETURN_VALUE(" " TEMPLATE_VAR(FUNCTION_STACK_VARIABLE_NAME) " is returning a random value.") "\", MockedFunction_getName(&" TEMPLATE_MOCKED_FUN_CLASS "));" CARRIAGE_RETURN
+        "        easyMock_addError(printCallStack, \"Error : unexpected call of '%s'." IF_RETURN_VALUE(" " FUNCTION_NAME " is returning a random value.") "\", MockedFunction_getName(&" TEMPLATE_MOCKED_FUN_CLASS "));" CARRIAGE_RETURN
         "        return" IF_RETURN_VALUE(" default_res") ";" CARRIAGE_RETURN
         "    }" CARRIAGE_RETURN
         CARRIAGE_RETURN
         "    " FUNCTION_MOCK_DATA_TYPE " " CURRENT_DATA_CALL ";" CARRIAGE_RETURN
         "    if (!MockedFunction_getCurrentCallParam(&" TEMPLATE_MOCKED_FUN_CLASS ", &" CURRENT_DATA_CALL "))" CARRIAGE_RETURN
         "    {" CARRIAGE_RETURN
-        "        easyMock_addError(printCallStack, \"BUG IN EASYMOCK: CONTACT DEVELOPPER TO FIX THIS\");" CARRIAGE_RETURN
+        "        easyMock_addError(printCallStack, \"BUG IN EASYMOCK: CONTACT THE DEVELOPER TO FIX THIS\");" CARRIAGE_RETURN
         "        return" IF_RETURN_VALUE(" default_res") ";" CARRIAGE_RETURN
         "    }" CARRIAGE_RETURN
+        CARRIAGE_RETURN
+        IF_SECTION_EXISTS(IS_FUNCTION_CLASS_NAME,
+        "    if(" CURRENT_DATA_CALL_MEMBER("instance") " && " CURRENT_DATA_CALL_MEMBER("instance") " != this)" CARRIAGE_RETURN
+        "    {" CARRIAGE_RETURN
+        "        std::ostringstream errorMessage{};" CARRIAGE_RETURN
+        "        errorMessage << \"Expecting this object being \" << " CURRENT_DATA_CALL_MEMBER("instance") " << \", got this = \" << this << std::endl" ";" CARRIAGE_RETURN
+        "        easyMock_addError(printCallStack, \"Error : at call %d of '%s': %s\", MockedFunction_getNbActualCall(&" TEMPLATE_MOCKED_FUN_CLASS "), MockedFunction_getName(&" TEMPLATE_MOCKED_FUN_CLASS "), errorMessage.str().c_str());" CARRIAGE_RETURN
+        "    }" CARRIAGE_RETURN
+        )
         CARRIAGE_RETURN
         TEMPLATE_BEG_SECTION(FUNCTION_PARAM_SECTION)
         IF_SECTION_EXISTS(C_ONLY_SECTION,
@@ -636,13 +662,19 @@ const char templateText[] =
         NAMESPACE_IF_CPP_BEGIN CARRIAGE_RETURN
         FUNCTION_EXPECT_AND_RETURN_SIGNATURE CARRIAGE_RETURN
         "{" CARRIAGE_RETURN
-        "    " FUNCTION_EXPECT_RETURN_AND_OUTPUT_COMMON_NAME "(" FUNCTION_EXPECT_RETURN_COMMON_CALL_PARAM IF_SECTION_EXISTS(FUNCTION_PARAM_PTR_LIST_SECTION, ", ") FUNCTION_HARDCODED_PARAM_CALL(FUNCTION_PARAM_PTR_SECTION, "easyMock_null") ");" CARRIAGE_RETURN
+        "    " FUNCTION_EXPECT_RETURN_AND_OUTPUT_COMMON_NAME "("
+                IF_SECTION_EXISTS(IS_FUNCTION_CLASS_NAME, "instance" IF_SECTION_EXISTS(FUNCTION_PARAM_SECTION, ", "))
+                FUNCTION_EXPECT_RETURN_COMMON_CALL_PARAM IF_SECTION_EXISTS(FUNCTION_PARAM_PTR_LIST_SECTION, ", ") FUNCTION_HARDCODED_PARAM_CALL(FUNCTION_PARAM_PTR_SECTION, "easyMock_null")
+              ");" CARRIAGE_RETURN
         "}" CARRIAGE_RETURN
         CARRIAGE_RETURN
         IF_SECTION_EXISTS(FUNCTION_PARAM_PTR_LIST_SECTION,
              FUNCTION_EXPECT_RETURN_AND_OUTPUT_SIGNATURE CARRIAGE_RETURN
              "{" CARRIAGE_RETURN
-             "    " FUNCTION_EXPECT_RETURN_AND_OUTPUT_COMMON_NAME "(" FUNCTION_EXPECT_RETURN_COMMON_CALL_PARAM IF_SECTION_EXISTS(FUNCTION_PARAM_PTR_LIST_SECTION, ", ") FUNCTION_PARAM_CALL(FUNCTION_PARAM_PTR_SECTION, MOCK_OUT_PREFIX) ");" CARRIAGE_RETURN
+             "    " FUNCTION_EXPECT_RETURN_AND_OUTPUT_COMMON_NAME "("
+                      IF_SECTION_EXISTS(IS_FUNCTION_CLASS_NAME, "instance" IF_SECTION_EXISTS(FUNCTION_PARAM_SECTION, ", "))
+                      FUNCTION_EXPECT_RETURN_COMMON_CALL_PARAM IF_SECTION_EXISTS(FUNCTION_PARAM_PTR_LIST_SECTION, ", ") FUNCTION_PARAM_CALL(FUNCTION_PARAM_PTR_SECTION, MOCK_OUT_PREFIX)
+                  ");" CARRIAGE_RETURN
              "}" CARRIAGE_RETURN
         ) CARRIAGE_RETURN
         NAMESPACE_IF_CPP_END CARRIAGE_RETURN
@@ -650,6 +682,9 @@ const char templateText[] =
         "{" CARRIAGE_RETURN
         "    " FUNCTION_MOCK_DATA_TYPE " " MOCKED_DATA ";" CARRIAGE_RETURN
         CARRIAGE_RETURN
+        IF_SECTION_EXISTS(IS_FUNCTION_CLASS_NAME,
+            "    " MOCKED_DATA_MEMBER("instance") " = instance;" CARRIAGE_RETURN
+        )
         TEMPLATE_BEG_SECTION(FUNCTION_PARAM_SECTION)
         "    easyMock_memcpy((void*)&" MOCKED_DATA_MEMBER(PARAMETER_NAME("")) ", (void*)&" PARAMETER_NAME("") ", sizeof(" MOCKED_DATA_MEMBER(PARAMETER_NAME("")) "));" CARRIAGE_RETURN
         "    " MOCKED_DATA_MEMBER(FUNCTION_MOCK_DATA_CUR_MATCH_VAR) " = " FUNCTION_PARAM_MATCH_VAR ";" CARRIAGE_RETURN
@@ -805,9 +840,6 @@ const char headerFileTemplate[] =
           "#ifndef " GENERATED_TYPE_DECLARE_MACRO_GUARD_NAME CARRIAGE_RETURN
           "#define " GENERATED_TYPE_DECLARE_MACRO_GUARD_NAME CARRIAGE_RETURN
           "//GENERATED_TYPE_SECTION" CARRIAGE_RETURN
-          IF_SECTION_EXISTS(GENERATED_TYPE_DECLARE_TYPE_SECTION,
-            GENERATED_TYPE_DECLARE_TYPE_TEMPLATE_VAR ";"
-          )
           TEMPLATE_INCL_SECTION(COMPOSABLE_TYPE_DECLARE_COMPOSABLE_TYPE_SECTION)
           CARRIAGE_RETURN
           "#endif //" GENERATED_TYPE_DECLARE_MACRO_GUARD_NAME CARRIAGE_RETURN
@@ -849,6 +881,9 @@ const char composableType_DeclareComposableType_template[] =
         IF_SECTION_EXISTS(COMPOSABLE_TYPE_BODY_SECTION,
         CARRIAGE_RETURN
         "{" CARRIAGE_RETURN
+             TEMPLATE_BEG_SECTION(FUNCTION_SECTION)
+        "    " INSIDE_CLASS_FUNCTION_DECLARATION CARRIAGE_RETURN
+             TEMPLATE_END_SECTION(FUNCTION_SECTION)
         "    " TEMPLATE_INCL_SECTION(COMPOSABLE_TYPE_DECLARE_TYPE_FIELD_OR_COMPOSABLE_TYPE_FIELD_SECTION) CARRIAGE_RETURN
         "}"
         )
@@ -1227,64 +1262,58 @@ void CodeGeneratorCTemplate::fillInTemplateVariables(const std::string &p_mocked
   std::replace( fileNameWithoutExtUpper.begin(), fileNameWithoutExtUpper.end(), '-', '_');
   m_rootDictionary->SetValue(MOCKED_FILE_NAME_WITHOUT_EXT_UPPER, fileNameWithoutExtUpper);
   std::unordered_set<std::size_t> generatedElements;
-  for (const auto& elemToMock: fList)
+  for (const auto& fun: fList)
   {
-    std::visit(overloaded
-    {
-      [this, &p_ctxt, &generatedElements](const FunctionDeclaration &functionDeclaration)
+
+      /*
+       * In the case where the used types are generated, it is ok to create a mock for the function
+       * since the original header is not used by the mock.
+       */
+      if((fun->isInlined() || fun->doesThisDeclarationHasABody() || fun->isStatic()) &&
+          !m_generateUsedType)
       {
-        const FunctionDeclaration *fun = &functionDeclaration;
-        /*
-         * In the case where the used types are generated, it is ok to create a mock for the function
-         * since the original header is not used by the mock.
-         */
-        if((fun->isInlined() || fun->doesThisDeclarationHasABody() || fun->isStatic()) &&
-            !m_generateUsedType)
-        {
-          return;
-        }
-        if(m_mockOnlyList.size() > 0 && m_mockOnlyList.find(*fun->getName()) == m_mockOnlyList.end())
-        {
-          return;
-        }
-        /*
-         * Sometimes, functions are aliased to other functions using macro. That creates double generation
-         * of function. This ignores the generation of the aliased function.
-         */
-        if(p_ctxt.hasMacroDefine(*fun->getName()))
-        {
-          return;
-        }
-        /*
-         * Abort the generation of the function if the used type aren't created.
-         *
-         * In the case of generated type, a dummy enum value is created.
-         */
-        if(doesFunctionUsesEmptyEnum(*fun) && !m_generateUsedType)
-        {
-          return;
-        }
-        /*
-         * Function with attribute "noreturn" cannot be mocked when using the original header.
-         * However, if the original header isn't used (m_generateUsedType == false), the mock can
-         * be generated because the mock remove all the attributes.
-         */
-        const auto& funAttr = fun->getAttributes();
-        const FunctionAttribute noReturnAttr{"noreturn"};
-        if ((std::find(funAttr.begin(), funAttr.end(), noReturnAttr) != std::end(funAttr)) &&
-            !m_generateUsedType)
-        {
-          return;
-        }
-        std::size_t rawHash = fun->getRawHash();
-        if(generatedElements.find(rawHash) != generatedElements.end())
-        {
-          return;
-        }
-        generatedElements.insert(rawHash);
-        generateFunctionSection(fun);
+        continue;
       }
-    }, elemToMock);
+      if(m_mockOnlyList.size() > 0 && m_mockOnlyList.find(*fun->getName()) == m_mockOnlyList.end())
+      {
+        continue;
+      }
+      /*
+       * Sometimes, functions are aliased to other functions using macro. That creates double generation
+       * of function. This ignores the generation of the aliased function.
+       */
+      if(p_ctxt.hasMacroDefine(*fun->getName()))
+      {
+        continue;
+      }
+      /*
+       * Abort the generation of the function if the used type isn't created.
+       *
+       * In the case of generated type, a dummy enum value is created.
+       */
+      if(doesFunctionUsesEmptyEnum(*fun) && !m_generateUsedType)
+      {
+        continue;
+      }
+      /*
+       * Function with attribute "noreturn" cannot be mocked when using the original header.
+       * However, if the original header isn't used (m_generateUsedType == false), the mock can
+       * be generated because the mock remove all the attributes.
+       */
+      const auto& funAttr = fun->getAttributes();
+      const FunctionAttribute noReturnAttr{"noreturn"};
+      if ((std::find(funAttr.begin(), funAttr.end(), noReturnAttr) != std::end(funAttr)) &&
+          !m_generateUsedType)
+      {
+        continue;
+      }
+      std::size_t rawHash = fun->getRawHash();
+      if(generatedElements.find(rawHash) != generatedElements.end())
+      {
+        continue;
+      }
+      generatedElements.insert(rawHash);
+      generateFunctionSection(m_rootDictionary, fun);
   }
 
   for(const auto composableType : m_lateDeclaration)
@@ -1293,7 +1322,7 @@ void CodeGeneratorCTemplate::fillInTemplateVariables(const std::string &p_mocked
   }
 }
 
-void CodeGeneratorCTemplate::generateFunctionAttributes(const FunctionDeclaration *f, ctemplate::TemplateDictionary *functionSectionDict)
+void CodeGeneratorCTemplate::generateFunctionAttributes(const std::shared_ptr<const FunctionDeclaration> &f, ctemplate::TemplateDictionary *functionSectionDict)
 {
   const auto& functionAttributeList = f->getAttributes();
   for(const FunctionAttribute& funAttr : functionAttributeList)
@@ -1318,9 +1347,9 @@ void CodeGeneratorCTemplate::generateFunctionAttributes(const FunctionDeclaratio
   }
 }
 
-void CodeGeneratorCTemplate::generateFunctionSection(const FunctionDeclaration *p_elemToMock)
+void CodeGeneratorCTemplate::generateFunctionSection(ctemplate::TemplateDictionary* p_parentDictionary, const std::shared_ptr<const FunctionDeclaration> &p_elemToMock)
 {
-  ctemplate::TemplateDictionary *functionSectionDict = m_rootDictionary->AddSectionDictionary(FUNCTION_SECTION);
+  ctemplate::TemplateDictionary *functionSectionDict = p_parentDictionary->AddSectionDictionary(FUNCTION_SECTION);
 
   auto fillNamespace = [](std::shared_ptr<const Namespace> p_curNamespace,
                           ctemplate::TemplateDictionary *p_currentBeginNamespace,
@@ -1353,7 +1382,12 @@ void CodeGeneratorCTemplate::generateFunctionSection(const FunctionDeclaration *
   };
   fillNamespace(p_elemToMock->getNamespace(), functionSectionDict, functionSectionDict);
 
-  if(m_generateUsedType)
+  bool mustDeclareFunction =
+      // The mock are used without using the original headers
+      m_generateUsedType &&
+      // Do do declare out of line member function declaration e.g. int CppClassIntfunInt::intFunInt(int a)
+      !p_elemToMock->isMemberClass() && (p_parentDictionary == m_rootDictionary);
+  if(mustDeclareFunction)
   {
     /*
      * We do not need to fill in any value in this section because the variable in this section are the same
@@ -1371,7 +1405,15 @@ void CodeGeneratorCTemplate::generateFunctionSection(const FunctionDeclaration *
   }
   functionSectionDict->SetValue(ORIGIN_FILE_VAR, p_elemToMock->getOriginFile());
   generateFunctionAttributes(p_elemToMock, functionSectionDict);
-  functionSectionDict->SetValue(FUNCTION_STACK_VARIABLE_NAME, *p_elemToMock->getName());
+  const auto& parentData = p_elemToMock->getParentData();
+  if(parentData)
+  {
+    functionSectionDict->AddSectionDictionary(IS_FUNCTION_CLASS_NAME);
+    functionSectionDict->SetValue(FUNCTION_CLASS_NAME_VAR, parentData->getName());
+    generateDeclarationOfUsedType(p_parentDictionary, parentData.get(), false);
+  }
+
+  functionSectionDict->SetValue(FUNCTION_NAME_VAR, *p_elemToMock->getName());
   std::string upperString(*p_elemToMock->getName());
   std::transform(upperString.begin(), upperString.end(), upperString.begin(), ::toupper);
   functionSectionDict->SetValue(FUNCTION_NAME_UPPER, upperString);
@@ -1387,7 +1429,7 @@ void CodeGeneratorCTemplate::generateFunctionSection(const FunctionDeclaration *
    * register a typedef whenever it encounters one.
    */
   registerTypeDef(rvType);
-  generateDeclarationOfUsedType(m_rootDictionary, rvType, false);
+  generateDeclarationOfUsedType(p_parentDictionary, rvType, false);
   const Pointer *nonQualifiedReturnValuePointer = rvType->unqualify()->asPointer();
   functionSectionDict->SetValue(FUNCTION_NON_QUALIFIED_RETURN_VALUE, nonQualRetTypeStr);
   if(nonQualifiedReturnValuePointer)
@@ -1396,7 +1438,7 @@ void CodeGeneratorCTemplate::generateFunctionSection(const FunctionDeclaration *
     const FunctionType *functionType = returnValuePointerPointedType->asFunctionType();
     if(functionType)
     {
-      generateDeclarationOfUsedType(m_rootDictionary, functionType, false);
+      generateDeclarationOfUsedType(p_parentDictionary, functionType, false);
       generateExtraDecl(functionSectionDict, EXTRA_TOP_LEVEL_DECL_SECTION, EXTRA_TOP_DECL_TEMPLATE_NAME, functionType);
     }
   }
@@ -1412,7 +1454,7 @@ void CodeGeneratorCTemplate::generateFunctionSection(const FunctionDeclaration *
       const FunctionType *functionType = returnValuePointerPointedType->asFunctionType();
       if(functionType)
       {
-        generateDeclarationOfUsedType(m_rootDictionary, functionType, false);
+        generateDeclarationOfUsedType(p_parentDictionary, functionType, false);
         generateExtraDecl(returnValParamDict, EXTRA_DECL_SECTION, EXTRA_DECL_TEMPLATE_NAME, functionType);
       }
       returnValParamDict->SetValue(FUNCTION_NON_QUALIFIED_RETURN_VALUE, nonQualRetTypeStr);
@@ -2117,6 +2159,12 @@ ctemplate::TemplateDictionary* CodeGeneratorCTemplate::generateDeclarationOfComp
       }
      },
      curFieldVar);
+  }
+  const auto& classFunctionMemberList = p_composedType->getFunctions();
+  for (const auto& classFunctionMember : classFunctionMemberList)
+  {
+    templateDictionary->SetValue(FUNCTION_ACCESS_SPECIFIER_VAR, classFunctionMember->getAccessSpecifierStr());
+    generateFunctionSection(templateDictionary, classFunctionMember);
   }
   return anonymousDeclDict;
 }

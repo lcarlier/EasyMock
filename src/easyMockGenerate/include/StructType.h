@@ -19,7 +19,7 @@ public:
    * \param p_name The name of the struct.
    * \param p_is_embedded_in_other_type Specifies whether the type is embedded in another type or not. See ::ComposableType::isDeclarationEmbeddedInOtherType().
    */
-  StructType(const std::string p_name, bool p_is_embedded_in_other_type);
+  StructType(std::string p_name, bool p_is_embedded_in_other_type);
 
    /*!
    * \brief Creates a new StructType.
@@ -28,13 +28,13 @@ public:
    * \param p_elem A ::ComposableType::ComposableFieldTypeVector which contains all the fields of the struct.
    * \param p_is_embedded_in_other_type See ::StructType::StructType(const std::string p_name,bool p_is_embedded_in_other_type).
    */
-  StructType(const std::string p_name, ComposableType::ComposableFieldTypeVector p_elem, bool p_is_embedded_in_other_type);
+  StructType(std::string p_name, ComposableType::ComposableFieldTypeVector p_elem, bool p_is_embedded_in_other_type);
 
   /*!
    * \copydoc ComposableType::getComposableTypeKeyword
    */
   const char* getComposableTypeKeyword() const override;
-  virtual ~StructType();
+  ~StructType() = default;
 
   StructType(const StructType& other) = delete;
   StructType& operator=(const StructType& other) = delete;

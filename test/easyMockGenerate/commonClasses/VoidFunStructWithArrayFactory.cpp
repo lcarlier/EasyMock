@@ -5,7 +5,7 @@
 #include <voidFunStructWithArray.h>
 #include <ComposableField.h>
 
-FunctionDeclaration VoidFunStructWithArrayFactory::functionFactory()
+std::shared_ptr<FunctionDeclaration> VoidFunStructWithArrayFactory::functionFactory()
 {
   bool isEmbeddedInOtherType = false;
   auto st = std::make_shared<StructType>("structWithArray", isEmbeddedInOtherType);
@@ -23,7 +23,7 @@ FunctionDeclaration VoidFunStructWithArrayFactory::functionFactory()
   st->addField(ComposableField(std::make_shared<CType>(CTYPE_INT), "b", { .arraySize = 0}));
   Parameter::Vector p{};
   p.emplace_back(Parameter(st, "param"));
-  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), std::move(p));
+  auto f = std::make_shared<FunctionDeclaration>(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), std::move(p));
   return f;
 }
 

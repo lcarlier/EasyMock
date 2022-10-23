@@ -1,11 +1,11 @@
 #include <IntFunIntIntFactory.h>
 
-FunctionDeclaration IntFunIntIntFactory::functionFactory()
+std::shared_ptr<FunctionDeclaration> IntFunIntIntFactory::functionFactory()
 {
   Parameter::Vector funParam{};
   funParam.emplace_back(NamedParameter(CTYPE_INT, "a"));
   funParam.emplace_back(NamedParameter(CTYPE_INT, "b"));
-  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_INT), std::move(funParam));
+  auto f = std::make_shared<FunctionDeclaration>(functionGetFunctionName(), TypedReturnValue(CTYPE_INT), std::move(funParam));
   return f;
 }
 
@@ -23,13 +23,13 @@ void IntFunIntIntFactory::setupTestCase(EasyMockTestCase::TestCase tc)
 {
   switch(tc)
   {
-    case EasyMockTestCase::OneExpect:
+    case EasyMockTestCase::TestCase::OneExpect:
       m_rvContext.m_rv.push_back(5);
       m_expects.push_back(std::make_tuple(6, 7));
       m_params.push_back(std::make_tuple(6, 7));
       m_compare.push_back(std::make_tuple(&cmp_int, &cmp_int));
       break;
-    case EasyMockTestCase::ThreeExpects:
+    case EasyMockTestCase::TestCase::ThreeExpects:
     {
       int aOneToExpect = 5;
       int aTwoToExpect = 6;
@@ -43,13 +43,13 @@ void IntFunIntIntFactory::setupTestCase(EasyMockTestCase::TestCase tc)
       }
       break;
     }
-    case EasyMockTestCase::OneExpectArgIsBad:
+    case EasyMockTestCase::TestCase::OneExpectArgIsBad:
       m_rvContext.m_rv.push_back(5);
       m_expects.push_back(std::make_tuple(6, 7));
       m_params.push_back(std::make_tuple(7, 7));
       m_compare.push_back(std::make_tuple(&cmp_int, &cmp_int));
       break;
-    case EasyMockTestCase::SecondExpectArgIsBad:
+    case EasyMockTestCase::TestCase::SecondExpectArgIsBad:
       m_rvContext.m_rv.push_back(5);
       m_expects.push_back(std::make_tuple(6, 7));
       m_params.push_back(std::make_tuple(6, 7));
@@ -60,7 +60,7 @@ void IntFunIntIntFactory::setupTestCase(EasyMockTestCase::TestCase tc)
       m_params.push_back(std::make_tuple(8, 8)); //Second call fails
       m_compare.push_back(std::make_tuple(&cmp_int, &cmp_int));
       break;
-    case EasyMockTestCase::NotEnoughCall:
+    case EasyMockTestCase::TestCase::NotEnoughCall:
       for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::NotEnoughCall_NbExpects; expectIdx++)
       {
         m_rvContext.m_rv.push_back(5);
@@ -69,7 +69,7 @@ void IntFunIntIntFactory::setupTestCase(EasyMockTestCase::TestCase tc)
         m_compare.push_back(std::make_tuple(&cmp_int, &cmp_int));
       }
       break;
-    case EasyMockTestCase::NoExpect:
+    case EasyMockTestCase::TestCase::NoExpect:
       break;
   }
 }

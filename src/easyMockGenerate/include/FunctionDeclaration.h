@@ -24,12 +24,13 @@ public:
    * This construction set the function declaration object inside the global namespace.
    */
   FunctionDeclaration(std::string p_functionName, ReturnValue p_functionReturnType, Parameter::Vector p_functionParameters);
+
   /*!
    * \brief Creates a new function declaration object.
    * \copydetails Function
    * \param p_namespace A shared_ptr to the direct parent namespace.
    */
-  FunctionDeclaration(std::string p_functionName, ReturnValue p_functionReturnType, Parameter::Vector p_functionParameters, std::shared_ptr<const Namespace> p_namespace);
+  FunctionDeclaration(std::string p_functionName, ReturnValue p_functionReturnType, Parameter::Vector p_functionParameters, std::shared_ptr<const Namespace> p_namespace, std::weak_ptr<const ComposableType> p_parentData = {});
 
   /*!
    * \copybrief Function

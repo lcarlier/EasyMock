@@ -25,6 +25,8 @@ const char* IncompleteType::getComposableTypeKeyword() const
       return "struct";
     case Type::UNION:
       return "union";
+    case Type::CLASS:
+      return "class";
   }
   return "error IncompleteType::getComposableTypeKeyword()";
 }

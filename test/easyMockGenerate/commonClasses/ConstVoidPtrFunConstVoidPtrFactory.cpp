@@ -5,7 +5,7 @@
 #include <ConstQualifiedType.h>
 #include <Pointer.h>
 
-FunctionDeclaration ConstVoidPtrFunConstVoidPtrFactory::functionFactory()
+std::shared_ptr<FunctionDeclaration> ConstVoidPtrFunConstVoidPtrFactory::functionFactory()
 {
   auto getPointerToConstVoid=[]()
   {
@@ -15,7 +15,7 @@ FunctionDeclaration ConstVoidPtrFunConstVoidPtrFactory::functionFactory()
 
   Parameter::Vector pv{};
   pv.emplace_back(Parameter(getPointerToConstVoid(), "p"));
-  FunctionDeclaration f(functionGetFunctionName(), std::move(rv), std::move(pv));
+  auto f = std::make_shared<FunctionDeclaration>(functionGetFunctionName(), std::move(rv), std::move(pv));
   return f;
 }
 

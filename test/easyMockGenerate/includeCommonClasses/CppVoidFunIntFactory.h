@@ -7,7 +7,7 @@
 class CppVoidFunIntFactory : public CppFunctionFactory<void, std::tuple<int>, std::tuple<EasyMock::EasyMock_Matcher_Cpp<int>>>
 {
 public:
-  FunctionDeclaration functionFactory() override;
+  std::shared_ptr<FunctionDeclaration> functionFactory() override;
   ElementToMockList functionFactoryArray() override;
   std::string functionGetFunctionName() override;
   std::string getFilename() override;
@@ -18,7 +18,7 @@ public:
 class CppVoidFunIntGenerateTypeFactory : public CppVoidFunIntFactory
 {
 public:
-  CppVoidFunIntGenerateTypeFactory() { m_generate_types = true; }
+  CppVoidFunIntGenerateTypeFactory() { m_generate_types = true; m_rm_dir = false;}
 };
 
 #endif //EASYMOCK_CPPVOIDFUNVOIDINT_H

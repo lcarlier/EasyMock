@@ -8,7 +8,7 @@
 #include <UnionType.h>
 #include <ComposableField.h>
 
-FunctionDeclaration VoidFunStructWithAnonymousUnionFieldWithStructFactory::functionFactory()
+std::shared_ptr<FunctionDeclaration> VoidFunStructWithAnonymousUnionFieldWithStructFactory::functionFactory()
 {
   auto ss1 = std::make_shared<StructType>("subAnonUnion1", false);
   ss1->addField(ComposableField{CTYPE_INT, "a"});
@@ -33,7 +33,7 @@ FunctionDeclaration VoidFunStructWithAnonymousUnionFieldWithStructFactory::funct
 
   Parameter::Vector pv{};
   pv.emplace_back(Parameter{std::move(st), "t"});
-  FunctionDeclaration f{functionGetFunctionName(), VoidReturnValue(), std::move(pv)};
+  auto f = std::make_shared<FunctionDeclaration>(functionGetFunctionName(), VoidReturnValue(), std::move(pv));
   return f;
 }
 
@@ -87,12 +87,12 @@ void VoidFunStructWithAnonymousUnionFieldWithStructFactory::setupTestCase(EasyMo
 
   switch(tc)
   {
-    case EasyMockTestCase::OneExpect:
+    case EasyMockTestCase::TestCase::OneExpect:
       m_expects.push_back(std::make_tuple(aToExpect));
       m_params.push_back(std::make_tuple(aToExpect));
       m_compare.push_back(std::make_tuple(m_user_matcher));
       break;
-      case EasyMockTestCase::ThreeExpects:
+      case EasyMockTestCase::TestCase::ThreeExpects:
       {
         for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::ThreeExpects_NbExpects; expectIdx++)
         {
@@ -103,13 +103,13 @@ void VoidFunStructWithAnonymousUnionFieldWithStructFactory::setupTestCase(EasyMo
         }
         break;
       }
-      case EasyMockTestCase::OneExpectArgIsBad:
+      case EasyMockTestCase::TestCase::OneExpectArgIsBad:
         m_expects.push_back(std::make_tuple(aToExpect));
         aToExpect.f2.s1++;
         m_params.push_back(std::make_tuple(aToExpect));
         m_compare.push_back(std::make_tuple(m_user_matcher));
         break;
-        case EasyMockTestCase::SecondExpectArgIsBad:
+        case EasyMockTestCase::TestCase::SecondExpectArgIsBad:
           m_expects.push_back(std::make_tuple(aToExpect));
           m_params.push_back(std::make_tuple(aToExpect));
           m_compare.push_back(std::make_tuple(m_user_matcher));
@@ -119,7 +119,7 @@ void VoidFunStructWithAnonymousUnionFieldWithStructFactory::setupTestCase(EasyMo
           m_params.push_back(std::make_tuple(aToExpect)); //second call fails
           m_compare.push_back(std::make_tuple(m_user_matcher));
           break;
-          case EasyMockTestCase::NotEnoughCall:
+          case EasyMockTestCase::TestCase::NotEnoughCall:
             for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::NotEnoughCall_NbExpects; expectIdx++)
             {
               aToExpect.f2.s1++;
@@ -128,7 +128,7 @@ void VoidFunStructWithAnonymousUnionFieldWithStructFactory::setupTestCase(EasyMo
               m_compare.push_back(std::make_tuple(m_user_matcher));
             }
             break;
-            case EasyMockTestCase::NoExpect:
+            case EasyMockTestCase::TestCase::NoExpect:
               break;
   }
 }

@@ -3,12 +3,12 @@
 #include <Namespace.h>
 #include <EasyMock_CType.h>
 
-FunctionDeclaration CppNamespaceIntFunIntFactory::functionFactory()
+std::shared_ptr<FunctionDeclaration> CppNamespaceIntFunIntFactory::functionFactory()
 {
   Parameter::Vector params;
   params.emplace_back(NamedParameter(CTYPE_INT, "a"));
   auto funNamespace = std::make_shared<const Namespace>("L2", std::make_shared<const Namespace>("L1"));
-  return FunctionDeclaration { "intFunInt", ReturnValue{std::make_shared<CType>(CTYPE_INT)}, std::move(params), std::move(funNamespace) };
+  return std::make_shared<FunctionDeclaration>("intFunInt", ReturnValue{std::make_shared<CType>(CTYPE_INT)}, std::move(params), std::move(funNamespace));
 }
 
 ElementToMockList CppNamespaceIntFunIntFactory::functionFactoryArray()
@@ -32,13 +32,13 @@ void CppNamespaceIntFunIntFactory::setupTestCase(EasyMockTestCase::TestCase tc)
 {
   switch(tc)
   {
-    case EasyMockTestCase::OneExpect:
+    case EasyMockTestCase::TestCase::OneExpect:
       m_rvContext.m_rv.push_back(5);
       m_expects.push_back(std::make_tuple(6));
       m_params.push_back(std::make_tuple(6));
       m_compare.push_back(std::make_tuple(EasyMock::cmp<int>));
       break;
-    case EasyMockTestCase::ThreeExpects:
+    case EasyMockTestCase::TestCase::ThreeExpects:
     {
       int aOneToExpect = 5;
       int rvToExpect = 7;
@@ -51,13 +51,13 @@ void CppNamespaceIntFunIntFactory::setupTestCase(EasyMockTestCase::TestCase tc)
       }
       break;
     }
-    case EasyMockTestCase::OneExpectArgIsBad:
+    case EasyMockTestCase::TestCase::OneExpectArgIsBad:
       m_rvContext.m_rv.push_back(5);
       m_expects.push_back(std::make_tuple(6));
       m_params.push_back(std::make_tuple(7));
       m_compare.push_back(std::make_tuple(EasyMock::cmp<int>));
       break;
-    case EasyMockTestCase::SecondExpectArgIsBad:
+    case EasyMockTestCase::TestCase::SecondExpectArgIsBad:
       m_rvContext.m_rv.push_back(5);
       m_expects.push_back(std::make_tuple(6));
       m_params.push_back(std::make_tuple(6));
@@ -68,7 +68,7 @@ void CppNamespaceIntFunIntFactory::setupTestCase(EasyMockTestCase::TestCase tc)
       m_params.push_back(std::make_tuple(8)); //Second call fails
       m_compare.push_back(std::make_tuple(EasyMock::cmp<int>));
       break;
-    case EasyMockTestCase::NotEnoughCall:
+    case EasyMockTestCase::TestCase::NotEnoughCall:
       for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::NotEnoughCall_NbExpects; expectIdx++)
       {
         m_rvContext.m_rv.push_back(5);
@@ -77,7 +77,7 @@ void CppNamespaceIntFunIntFactory::setupTestCase(EasyMockTestCase::TestCase tc)
         m_compare.push_back(std::make_tuple(EasyMock::cmp<int>));
       }
       break;
-    case EasyMockTestCase::NoExpect:
+    case EasyMockTestCase::TestCase::NoExpect:
       break;
   }
 }

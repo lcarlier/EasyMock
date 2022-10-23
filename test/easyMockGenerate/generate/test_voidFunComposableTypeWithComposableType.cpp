@@ -40,7 +40,7 @@ TYPED_TEST(voidFunComposableTypeWithComposableType_testCase, OneExpect)
   ASSERT_NE(fptr, nullptr);
   ASSERT_NE(fptr_expect, nullptr);
   ASSERT_NE(fptr_matcher, nullptr);
-  genGenerate_testCase<TypeParam>::m_factory.setupTestCaseAndMatcher(EasyMockTestCase::OneExpect, fptr_matcher);
+  genGenerate_testCase<TypeParam>::m_factory.setupTestCaseAndMatcher(EasyMockTestCase::TestCase::OneExpect, fptr_matcher);
 
   genGenerate_testCase<TypeParam>::m_factory.call_fptr_expect(fptr_expect);
 
@@ -66,7 +66,7 @@ TYPED_TEST(voidFunComposableTypeWithComposableType_testCase, OneExpectFieldOfSub
   ASSERT_NE(fptr, nullptr);
   ASSERT_NE(fptr_expect, nullptr);
   ASSERT_NE(fptr_matcher, nullptr);
-  genGenerate_testCase<TypeParam>::m_factory.setupTestCaseAndMatcher(EasyMockTestCase::OneExpectArgIsBad, fptr_matcher);
+  genGenerate_testCase<TypeParam>::m_factory.setupTestCaseAndMatcher(EasyMockTestCase::TestCase::OneExpectArgIsBad, fptr_matcher);
 
   genGenerate_testCase<TypeParam>::m_factory.call_fptr_expect(fptr_expect);
 
@@ -78,9 +78,9 @@ TYPED_TEST(voidFunComposableTypeWithComposableType_testCase, OneExpectFieldOfSub
   int check = easyMock_check();
   EXPECT_EQ(check, 0);
 
-  Function curElem = genGenerate_testCase<TypeParam>::m_factory.functionFactory();
+  auto curElem = genGenerate_testCase<TypeParam>::m_factory.functionFactory();
   std::string errorToExpect("Error : at call 1 of '");
-  errorToExpect.append(curElem.getFunctionPrototype());
+  errorToExpect.append(curElem->getFunctionPrototype());
   errorToExpect.append("': Parameter '");
   errorToExpect.append(genGenerate_testCase<TypeParam>::m_factory.getFieldWrongName());
   errorToExpect.append("' which is a");

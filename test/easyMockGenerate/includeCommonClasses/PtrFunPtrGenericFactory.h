@@ -19,7 +19,7 @@ class PtrFunPtrGenericFactory : public FunctionFactory<PTR_TYPE *, std::tuple<PT
     return filename;
   }
 
-  FunctionDeclaration functionFactory() override
+  std::shared_ptr<FunctionDeclaration> functionFactory() override
   {
     auto getRvType = []()
     {
@@ -48,7 +48,7 @@ class PtrFunPtrGenericFactory : public FunctionFactory<PTR_TYPE *, std::tuple<PT
     rv.setDeclareString(std::move(declString));
     Parameter::Vector pv{};
     pv.emplace_back(Parameter(getRvType(), "ptr"));
-    FunctionDeclaration f(functionGetFunctionName(), std::move(rv), std::move(pv));
+    auto f = std::make_shared<FunctionDeclaration>(functionGetFunctionName(), std::move(rv), std::move(pv));
 
     return f;
   }
@@ -100,13 +100,13 @@ class PtrFunPtrGenericFactory : public FunctionFactory<PTR_TYPE *, std::tuple<PT
     unsigned char* rvToExpect = (unsigned char *) 0xdeadbead;
     switch (tc)
     {
-      case EasyMockTestCase::OneExpect:
+      case EasyMockTestCase::TestCase::OneExpect:
         this->m_rvContext.m_rv.push_back((PTR_TYPE *) rvToExpect);
         this->m_expects.push_back(std::make_tuple((PTR_TYPE *) aToExpect));
         this->m_params.push_back(std::make_tuple((PTR_TYPE *) aToExpect));
         this->m_compare.push_back(std::make_tuple(&cmp_pointer));
         break;
-      case EasyMockTestCase::ThreeExpects:
+      case EasyMockTestCase::TestCase::ThreeExpects:
       {
         for (unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::ThreeExpects_NbExpects; expectIdx++)
         {
@@ -118,7 +118,7 @@ class PtrFunPtrGenericFactory : public FunctionFactory<PTR_TYPE *, std::tuple<PT
         }
         break;
       }
-      case EasyMockTestCase::OneExpectArgIsBad:
+      case EasyMockTestCase::TestCase::OneExpectArgIsBad:
       {
         unsigned char *wrongPointer = aToExpect + 1;
         this->m_rvContext.m_rv.push_back((PTR_TYPE *) rvToExpect);
@@ -127,7 +127,7 @@ class PtrFunPtrGenericFactory : public FunctionFactory<PTR_TYPE *, std::tuple<PT
         this->m_compare.push_back(std::make_tuple(&cmp_pointer));
         break;
       }
-      case EasyMockTestCase::SecondExpectArgIsBad:
+      case EasyMockTestCase::TestCase::SecondExpectArgIsBad:
       {
         unsigned char *wrongPointer = aToExpect + 1;
         this->m_rvContext.m_rv.push_back((PTR_TYPE *) rvToExpect);
@@ -141,7 +141,7 @@ class PtrFunPtrGenericFactory : public FunctionFactory<PTR_TYPE *, std::tuple<PT
         this->m_compare.push_back(std::make_tuple(&cmp_pointer));
       }
         break;
-      case EasyMockTestCase::NotEnoughCall:
+      case EasyMockTestCase::TestCase::NotEnoughCall:
         for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::NotEnoughCall_NbExpects; expectIdx++)
         {
           unsigned char* ptrToExpect = aToExpect + expectIdx;
@@ -150,7 +150,7 @@ class PtrFunPtrGenericFactory : public FunctionFactory<PTR_TYPE *, std::tuple<PT
           this->m_params.push_back(std::make_tuple((PTR_TYPE *) ptrToExpect));
           this->m_compare.push_back(std::make_tuple(&cmp_pointer));
         }
-      case EasyMockTestCase::NoExpect:
+      case EasyMockTestCase::TestCase::NoExpect:
         break;
     }
   }

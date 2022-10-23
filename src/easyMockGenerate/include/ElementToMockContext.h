@@ -13,12 +13,12 @@
 #include <unordered_map>
 #include <string>
 #include <vector>
-#include <variant>
+#include <memory>
 
 /*!
  * \brief A variant type containing all the possible element to mock classes.
  */
-using ElementToMockContextElement = std::variant<FunctionDeclaration>;
+using ElementToMockContextElement = std::shared_ptr<const FunctionDeclaration>;
 
 /*!
  * \brief A vector of ::ElementToMockContextElement.

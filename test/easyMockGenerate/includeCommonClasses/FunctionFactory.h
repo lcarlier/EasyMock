@@ -18,6 +18,7 @@
 #include <easyMock.h>
 #include <type_traits>
 #include <unordered_map>
+#include <memory>
 
 #undef NDEBUG
 #include <cassert>
@@ -33,7 +34,7 @@ namespace EasyMockTestCase
    * The value of the enum is given to the factory so that the factory
    * can configure the correct amount of expect and return.
    */
-  typedef enum
+  enum class TestCase
   {
     /*!
      * \brief Test case expecting 1 call to the mocked function without error.
@@ -63,7 +64,25 @@ namespace EasyMockTestCase
      * second call of the mock is not as expected.
      */
     SecondExpectArgIsBad,
-  } TestCase;
+  };
+
+  /*!
+   * \brief Represents test cases focusing on testing mocked classes
+   *
+   * The value of the enum is given to the factory so that the factory
+   * can configure the correct amount of expect and return.
+   */
+  enum class TestCaseClass
+  {
+    /*!
+     * \brief Test case expecting 1 call to the mocked class function without error.
+     */
+    OneExpectRightClassInstance,
+    /*!
+     * \brief Test case testing that the wrong class instance is given to the mock.
+     */
+    OneExpectWrongClassInstance
+  };
 
   const unsigned int ThreeExpects_NbExpects = 3;
   const unsigned int NotEnoughCall_NbExpects = 3;
@@ -136,7 +155,7 @@ std::tuple<Formats...> as_tuple(std::array<T, N> const& arr) {
 template<typename ...>
 class FunctionFactory;
 
-using ElementToMockList = std::vector<FunctionDeclaration>;
+using ElementToMockList = std::vector<std::shared_ptr<FunctionDeclaration>>;
 
 // Specialisation of the template. Out of the n parameters, the first is RV, second is std::tuple<Params...>, and third is std::tuple<Compare ...>
 /*!
@@ -151,7 +170,7 @@ public:
   /*!
    * \brief Returns the function to be mocked.
    */
-  virtual FunctionDeclaration functionFactory() {fprintf(stderr, "Function %s must be overriden\n\r", __FUNCTION__); assert(false);}
+  virtual std::shared_ptr<FunctionDeclaration> functionFactory() {fprintf(stderr, "Function %s must be overriden\n\r", __FUNCTION__); assert(false);}
   /*!
    * \brief Returns all the functions to be mocked within a header file.
    *
@@ -220,6 +239,9 @@ public:
    * \brief Returns the filename containing the function to be tested.
    */
   virtual std::string getFilename() = 0;
+
+  // This constexpr function is actually "overriden" by CppFunctionClassFactory
+  constexpr bool isClassMember() { return false; }
 
   /*!
    * \brief Returns if the factory is for C++

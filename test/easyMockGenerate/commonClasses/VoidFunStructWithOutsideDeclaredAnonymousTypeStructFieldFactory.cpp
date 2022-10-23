@@ -28,12 +28,12 @@ ElementToMockList VoidFunStructWithOutsideDeclaredAnonymousTypeStructFieldFactor
   {
     Parameter::Vector pv{};
     pv.emplace_back(Parameter{getSwo(), "s"});
-    FunctionDeclaration f{functionGetFunctionName(), VoidReturnValue(), std::move(pv)};
+    auto f = std::make_shared<FunctionDeclaration>(functionGetFunctionName(), VoidReturnValue(), std::move(pv));
     returnedList.push_back(std::move(f));
   }
   {
-    FunctionDeclaration f{"structWithOutsideAnonymousDeclaredStructFunVoid", ReturnValue(getSwo()),
-                                                     {}};
+    auto f = std::make_shared<FunctionDeclaration>("structWithOutsideAnonymousDeclaredStructFunVoid", ReturnValue(getSwo()),
+                                                     Parameter::Vector {});
     returnedList.push_back(std::move(f));
   }
   return returnedList;

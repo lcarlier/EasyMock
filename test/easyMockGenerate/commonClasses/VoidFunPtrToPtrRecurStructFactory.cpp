@@ -25,12 +25,12 @@ ElementToMockList VoidFunPtrToPtrRecurStructFactory::functionFactoryArray()
   {
     Parameter::Vector pv{};
     pv.emplace_back(Parameter(getp2pType(), "s"));
-    FunctionDeclaration fd("voidFunPtrToPtrRecurStruct", VoidReturnValue(), std::move(pv));
+    auto fd = std::make_shared<FunctionDeclaration>("voidFunPtrToPtrRecurStruct", VoidReturnValue(), std::move(pv));
     returnedList.push_back(std::move(fd));
   }
 
   {
-    FunctionDeclaration fd("ptrToPtrRecurStructFunVoid", ReturnValue(getp2pType()), {});
+    auto fd = std::make_shared<FunctionDeclaration>("ptrToPtrRecurStructFunVoid", ReturnValue(getp2pType()), Parameter::Vector {});
     returnedList.push_back(std::move(fd));
   }
   {
@@ -39,7 +39,7 @@ ElementToMockList VoidFunPtrToPtrRecurStructFactory::functionFactoryArray()
 
     Parameter::Vector pv{};
     pv.emplace_back(Parameter(std::move(topS), "s"));
-    FunctionDeclaration fd("voidFunStructFieldptrToPtrStructRecur", VoidReturnValue(), std::move(pv));
+    auto fd = std::make_shared<FunctionDeclaration>("voidFunStructFieldptrToPtrStructRecur", VoidReturnValue(), std::move(pv));
     returnedList.push_back(std::move(fd));
   }
   {
@@ -51,7 +51,7 @@ ElementToMockList VoidFunPtrToPtrRecurStructFactory::functionFactoryArray()
 
     Parameter::Vector pv{};
     pv.emplace_back(Parameter(std::move(topS), "s"));
-    FunctionDeclaration fd("voidFunStructAnonStructFieldptrToPtrStructRecur", VoidReturnValue(), std::move(pv));
+    auto fd = std::make_shared<FunctionDeclaration>("voidFunStructAnonStructFieldptrToPtrStructRecur", VoidReturnValue(), std::move(pv));
 
     returnedList.push_back(std::move(fd));
   }

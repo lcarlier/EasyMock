@@ -30,8 +30,8 @@ TYPED_TEST(genGenerateOutputPtr_testCase, TestOutputPtrGenerated)
   void *fptr_output_ptr;
   easyMockGenerate_baseTestCase::getFunPtr(&fptr, &fptr_expect, &fptr_matcher, &fptr_output_ptr);
 
-  Function f = this->m_factory.functionFactory();
-  const Parameter::Vector &parameters = f.getFunctionsParameters();
+  auto f = this->m_factory.functionFactory();
+  const Parameter::Vector &parameters = f->getFunctionsParameters();
   const Parameter &firstParam = parameters[0];
   const TypeItf* firstParamType = firstParam.getType();
   const TypeItf* pointedType = dynamic_cast<const Pointer *>(firstParamType)->getPointedType();

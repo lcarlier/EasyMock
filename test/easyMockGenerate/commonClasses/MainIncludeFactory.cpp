@@ -6,7 +6,7 @@ ElementToMockList MainIncludeFactory::functionFactoryArray()
 {
   ElementToMockList returnedList;
   {
-    FunctionDeclaration f{ "mainIncludeToBeTaken", VoidReturnValue(), {}};
+    auto f = std::make_shared<FunctionDeclaration>( "mainIncludeToBeTaken", VoidReturnValue(), Parameter::Vector {});
 
     returnedList.push_back(std::move(f));
   }

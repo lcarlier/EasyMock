@@ -5,9 +5,9 @@ std::string VoidFunVoidFactory::getFilename()
    return "voidFunVoid.h";
 }
 
-FunctionDeclaration VoidFunVoidFactory::functionFactory()
+std::shared_ptr<FunctionDeclaration> VoidFunVoidFactory::functionFactory()
 {
-  FunctionDeclaration f(functionGetFunctionName(), VoidReturnValue(),{});
+  auto f = std::make_shared<FunctionDeclaration>(functionGetFunctionName(), VoidReturnValue(), Parameter::Vector {});
   return f;
 }
 

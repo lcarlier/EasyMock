@@ -2,9 +2,9 @@
 
 #include <FunctionFactory.h>
 
-FunctionDeclaration CppVoidFunVoidFactory::functionFactory()
+std::shared_ptr<FunctionDeclaration> CppVoidFunVoidFactory::functionFactory()
 {
-  return FunctionDeclaration { functionGetFunctionName(), VoidReturnValue(), Parameter::Vector{}};
+  return std::make_shared<FunctionDeclaration>( functionGetFunctionName(), VoidReturnValue(), Parameter::Vector{});
 }
 
 ElementToMockList CppVoidFunVoidFactory::functionFactoryArray()

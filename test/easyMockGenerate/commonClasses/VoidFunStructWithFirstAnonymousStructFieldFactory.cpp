@@ -3,7 +3,7 @@
 #include <StructType.h>
 #include <ComposableField.h>
 
-FunctionDeclaration VoidFunStructWithFirstAnonymousStructFieldFactory::functionFactory()
+std::shared_ptr<FunctionDeclaration> VoidFunStructWithFirstAnonymousStructFieldFactory::functionFactory()
 {
   bool isEmbeddedStruct = true;
   auto top = std::make_shared<StructType>("topAnonymousFirstStructField", !isEmbeddedStruct); //NOT EMBEDDED
@@ -15,7 +15,7 @@ FunctionDeclaration VoidFunStructWithFirstAnonymousStructFieldFactory::functionF
 
   Parameter::Vector pv{};
   pv.emplace_back(Parameter(std::move(top), "t"));
-  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), std::move(pv));
+  auto f = std::make_shared<FunctionDeclaration>(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), std::move(pv));
 
   return f;
 }
@@ -64,18 +64,18 @@ void VoidFunStructWithFirstAnonymousStructFieldFactory::setupTestCase(EasyMockTe
   aToExpect.s2 = 6.;
   switch(tc)
   {
-    case EasyMockTestCase::OneExpect:
+    case EasyMockTestCase::TestCase::OneExpect:
       m_expects.push_back(std::make_tuple(aToExpect));
       m_params.push_back(std::make_tuple(aToExpect));
       m_compare.push_back(std::make_tuple(m_user_matcher));
       break;
-    case EasyMockTestCase::OneExpectArgIsBad:
+    case EasyMockTestCase::TestCase::OneExpectArgIsBad:
       m_expects.push_back(std::make_tuple(aToExpect));
       aToExpect.s2+=1;
       m_params.push_back(std::make_tuple(aToExpect));
       m_compare.push_back(std::make_tuple(m_user_matcher));
       break;
-    case EasyMockTestCase::ThreeExpects:
+    case EasyMockTestCase::TestCase::ThreeExpects:
       for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::ThreeExpects_NbExpects; expectIdx++)
       {
         m_expects.push_back(std::make_tuple(aToExpect));
@@ -83,7 +83,7 @@ void VoidFunStructWithFirstAnonymousStructFieldFactory::setupTestCase(EasyMockTe
         m_compare.push_back(std::make_tuple(m_user_matcher));
       }
       break;
-    case EasyMockTestCase::NotEnoughCall:
+    case EasyMockTestCase::TestCase::NotEnoughCall:
       for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::NotEnoughCall_NbExpects; expectIdx++)
       {
         m_expects.push_back(std::make_tuple(aToExpect));
@@ -91,8 +91,8 @@ void VoidFunStructWithFirstAnonymousStructFieldFactory::setupTestCase(EasyMockTe
         m_compare.push_back(std::make_tuple(m_user_matcher));
       }
       break;
-    case EasyMockTestCase::SecondExpectArgIsBad:
-    case EasyMockTestCase::NoExpect:
+    case EasyMockTestCase::TestCase::SecondExpectArgIsBad:
+    case EasyMockTestCase::TestCase::NoExpect:
       break;
   }
 }

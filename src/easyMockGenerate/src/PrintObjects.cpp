@@ -6,6 +6,7 @@
 #include <EasyMock_CType.h>
 #include <ComposableField.h>
 #include <StructType.h>
+#include <ClassType.h>
 #include <UnionType.h>
 #include <Pointer.h>
 #include <FunctionType.h>
@@ -17,6 +18,8 @@
 #include <Namespace.h>
 
 #include "TypedefType.h"
+
+#include <cassert>
 
 static std::string gs_indentation;
 
@@ -63,7 +66,7 @@ namespace {
     }
 
     template<class T>
-    static void printComposableTypeToOstream(std::ostream &os, const T &composableType, std::string &&classname) {
+    static void printComposableTypeToOstream(std::ostream &os, const T &composableType, std::string classname) {
         os << classname << "(";
         os << "name: '" << composableType.getName() << "'" << ", ";
         os << "anonymous: " << (composableType.isAnonymous() ? "yes" : " no") << ", ";
@@ -81,6 +84,16 @@ namespace {
                 os << gs_indentation << "Field: " << fieldIdx << ": " << curField << std::endl;
             }, curFieldVariant);
             gs_indentation.pop_back();
+        }
+        for(const auto& fun : composableType.getFunctions())
+        {
+          gs_indentation.push_back('\t');
+          auto useCount = fun.use_count();
+
+          assert(useCount > 0);
+          os << gs_indentation << useCount << "Function: " << fun->getFunctionPrototype() << std::endl;
+
+          gs_indentation.pop_back();
         }
     }
 
@@ -102,6 +115,26 @@ namespace std {
         return printFunction(os, fun);
     }
 
+    ostream &operator<<(ostream &os, const FunctionAccessSpecifier& visibility)
+    {
+      switch(visibility)
+      {
+        case FunctionAccessSpecifier::NA:
+          os << "Not applicable";
+          break;
+        case FunctionAccessSpecifier::PUBLIC:
+          os << "public";
+          break;
+        case FunctionAccessSpecifier::PRIVATE:
+          os << "private";
+          break;
+        case FunctionAccessSpecifier::PROTECTED:
+          os << "protected";
+          break;
+      }
+      return os;
+    }
+
     ostream &operator<<(ostream &os, const FunctionType &fun) {
         gs_indentation.push_back('\t');
         ostream &tos = printFunction(os, fun);
@@ -112,8 +145,15 @@ namespace std {
     ostream &operator<<(ostream &os, const FunctionDeclaration &fun) {
         gs_indentation.push_back('\t');
       os << std::endl << gs_indentation << "Namespace: " << *fun.getNamespace();
-      os << std::endl << gs_indentation << "HasThisDeclABody: " << (fun.doesThisDeclarationHasABody() ? "yes" : "no")
+      os << std::endl << gs_indentation << "HasThisDeclABody: " << (fun.doesThisDeclarationHasABody() ? "yes" : "no");
+      os << std::endl << gs_indentation << "isMemberClass: " << (fun.isMemberClass() ? "yes" : "no");
+      os << std::endl << gs_indentation << "Visbility: " << fun.getAccessSpecifier()
            << std::endl;
+      if(fun.isMemberClass())
+      {
+        auto parentData = fun.getParentData();
+        printComposableTypeToOstream(os, *parentData, parentData->getComposableTypeKeyword());
+      }
         gs_indentation.pop_back();
         return printFunction(os, fun);
     }
@@ -175,6 +215,11 @@ namespace std {
     ostream &operator<<(ostream &os, const StructType &structType) {
         printComposableTypeToOstream(os, structType, "StructType");
         return os;
+    }
+
+    ostream &operator<<(ostream &os, const ClassType &classType) {
+      printComposableTypeToOstream(os, classType, "ClassType");
+      return os;
     }
 
     ostream &operator<<(ostream &os, const Parameter &param) {

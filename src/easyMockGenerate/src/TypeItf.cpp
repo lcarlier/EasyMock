@@ -72,11 +72,21 @@ bool TypeItf::isStruct() const
   return !m_isIncompleteType && m_isStruct;
 }
 
+/*bool TypeItf::isClass() const
+{
+  return !m_isIncompleteType && m_isClass;
+}
+*/
 //Protected
 void TypeItf::setStruct(bool value)
 {
   m_isStruct = value;
 }
+
+/*void TypeItf::setClass(bool value)
+{
+  m_isClass = value;
+}*/
 
 bool TypeItf::isUnion() const
 {

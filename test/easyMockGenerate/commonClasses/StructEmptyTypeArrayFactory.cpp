@@ -21,7 +21,7 @@ ElementToMockList StructEmptyTypeArrayFactory::functionFactoryArray()
     Parameter::Vector pv{};
     pv.emplace_back(std::move(emptyTypeArray), "p");
 
-    FunctionDeclaration f{ "funStructEmptyTypeArray", VoidReturnValue(), std::move(pv)};
+    auto f = std::make_shared<FunctionDeclaration>( "funStructEmptyTypeArray", VoidReturnValue(), std::move(pv));
 
     returnedList.push_back(std::move(f));
   }

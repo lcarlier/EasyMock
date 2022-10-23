@@ -7,7 +7,7 @@
 class VoidFunStructWithAnonymousUnionFieldWithStructFactory : public FunctionFactory<void, std::tuple<structWithUnionFieldWithStruct>, std::tuple<EasyMock_Matcher>>
 {
 public:
-  FunctionDeclaration functionFactory() override;
+  std::shared_ptr<FunctionDeclaration> functionFactory() override;
   ElementToMockList functionFactoryArray() override;
   std::string functionGetFunctionName() override;
   std::string getFilename() override;

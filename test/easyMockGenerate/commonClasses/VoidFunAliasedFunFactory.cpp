@@ -6,13 +6,13 @@ ElementToMockList VoidFunAliasedFunFactory::functionFactoryArray()
 {
   ElementToMockList returnedList;
   {
-    FunctionDeclaration f{"funToBeAliased", TypedReturnValue(CTYPE_VOID),
-                                                     {}};
+    auto f = std::make_shared<FunctionDeclaration>("funToBeAliased", TypedReturnValue(CTYPE_VOID),
+                                                     Parameter::Vector {});
     returnedList.push_back(std::move(f));
   }
   {
-    FunctionDeclaration f{functionGetFunctionName(), TypedReturnValue(CTYPE_VOID),
-                                                     {}};
+    auto f = std::make_shared<FunctionDeclaration>(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID),
+                                                     Parameter::Vector {});
     returnedList.push_back(std::move(f));
   }
   return returnedList;

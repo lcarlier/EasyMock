@@ -6,13 +6,13 @@
 #include <Pointer.h>
 #include <ConstQualifiedType.h>
 
-FunctionDeclaration VoidFunMultilineFactory::functionFactory()
+std::shared_ptr<FunctionDeclaration> VoidFunMultilineFactory::functionFactory()
 {
   Parameter::Vector pv{};
   pv.emplace_back(Parameter{std::make_shared<Pointer>( std::make_shared<ConstQualifiedType>(std::make_shared<CType>(CTYPE_ULONG))), "a"});
   pv.emplace_back(Parameter{std::make_shared<CType>(CTYPE_ULONG), "b"});
   pv.emplace_back(Parameter{std::make_shared<CType>(CTYPE_ULONG), "c"});
-  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), std::move(pv));
+  auto f = std::make_shared<FunctionDeclaration>(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), std::move(pv));
   return f;
 }
 

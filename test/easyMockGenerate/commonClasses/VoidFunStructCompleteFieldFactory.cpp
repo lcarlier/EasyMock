@@ -10,7 +10,7 @@
 #include <FunctionType.h>
 #include <ConstQualifiedType.h>
 
-FunctionDeclaration VoidFunStructCompleteFieldFactory::functionFactory()
+std::shared_ptr<FunctionDeclaration> VoidFunStructCompleteFieldFactory::functionFactory()
 {
   auto forwardDecl2 = std::make_shared<StructType>("forwardDecl2", false);
   auto completeStruct = std::make_shared<StructType>("completeStruct", false);
@@ -27,7 +27,7 @@ FunctionDeclaration VoidFunStructCompleteFieldFactory::functionFactory()
   Parameter::Vector pv{};
   pv.emplace_back(Parameter { std::make_shared<Pointer>(std::make_shared<ConstQualifiedType>(std::move(completeStruct))), "fp"});
 
-  FunctionDeclaration f(functionGetFunctionName(), VoidReturnValue(), std::move(pv));
+  auto f = std::make_shared<FunctionDeclaration>(functionGetFunctionName(), VoidReturnValue(), std::move(pv));
   return f;
 }
 

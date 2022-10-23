@@ -11,6 +11,7 @@
 #include <string>
 #include <unordered_set>
 #include <unordered_map>
+#include <memory>
 
 #include <EasyMock_Hashable.h>
 
@@ -72,8 +73,8 @@ protected:
 private:
   void fillInTemplateVariables(const std::string &mockedHeader, const ElementToMockContext &p_ctxt);
   void fillInMacroDefinition(const ElementToMockContext& p_elem);
-  void generateFunctionSection(const FunctionDeclaration *f);
-  void generateFunctionAttributes(const FunctionDeclaration *f, ctemplate::TemplateDictionary *functionSectionDict);
+  void generateFunctionSection(ctemplate::TemplateDictionary* p_parentDictionary, const std::shared_ptr<const FunctionDeclaration> &f);
+  void generateFunctionAttributes(const std::shared_ptr<const FunctionDeclaration> &f, ctemplate::TemplateDictionary *functionSectionDict);
   void generateFunctionParamSection(ctemplate::TemplateDictionary *dict, const Parameter::Vector& functionParam);
   //p_uniquePrepend and p_declPrepend must never become a reference because the string appended in recursive calls must reverted when the recursive call returns
   void generateAllFieldStructCompare(ctemplate::TemplateDictionary *p_compareFunDict, const ComposableType *p_composedType, std::string p_uniquePrepend, std::string p_declPrepend);

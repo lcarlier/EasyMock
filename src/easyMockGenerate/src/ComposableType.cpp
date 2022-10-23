@@ -1,4 +1,5 @@
 #include "ComposableType.h"
+#include "FunctionDeclaration.h"
 
 #include <boost/functional/hash.hpp>
 
@@ -38,9 +39,15 @@ std::size_t ComposableType::getHash() const noexcept
     return m_cachedHash;
   }
   std::size_t seed { TypeItf::getHash() };
+  boost::hash_combine(seed, *getComposableTypeKeyword());
   boost::hash_combine(seed, m_elem);
   boost::hash_combine(seed, m_is_declaration_embedded_in_other_type);
   boost::hash_combine(seed, m_is_forward_declared);
+  for(const auto& function : m_functions)
+  {
+    //const auto f_ptr = function.lock();
+    boost::hash_combine(seed, *function);
+  }
 
   return seed;
 }
@@ -73,10 +80,25 @@ bool ComposableType::isEqual(const TypeItf& p_other) const
   {
     return false;
   }
+  // The composable type keyword is a static const char* so it is correct to just compare their addresses
+  bool typeEq = this->getComposableTypeKeyword() == other->getComposableTypeKeyword();
   bool elemEq = this->m_elem == other->m_elem;
   bool embedEq = this->m_is_declaration_embedded_in_other_type == other->m_is_declaration_embedded_in_other_type;
   bool isForwardDecl = this->m_is_forward_declared == other->m_is_forward_declared;
-  return parentEq && elemEq && embedEq && isForwardDecl;
+  if(m_functions.size() != other->m_functions.size())
+  {
+    return false;
+  }
+  for(size_t funIdx = 0; funIdx < m_functions.size(); ++funIdx)
+  {
+    auto f1 = m_functions[funIdx];
+    auto f2 = other->m_functions[funIdx];
+    if(f1->getFunctionPrototype() != f2->getFunctionPrototype())
+    {
+      return false;
+    }
+  }
+  return typeEq && parentEq && elemEq && embedEq && isForwardDecl;
 }
 
 std::string ComposableType::getDeclarationPrefix(bool p_naked) const
@@ -106,7 +128,25 @@ const ComposableType::ComposableFieldTypeVector& ComposableType::getContainedFie
 
 void ComposableType::addField(ComposableType::ComposableFieldType newField)
 {
-  m_elem.push_back(std::move(newField));
+  m_elem.emplace_back(std::move(newField));
+}
+
+void ComposableType::addFunction(ComposableType::ComposableMethodType newFunction)
+{
+  m_functions.emplace_back(std::move(newFunction));
+}
+
+const ComposableType::ComposableMethodVector &ComposableType::getFunctions() const
+{
+  return m_functions;
 }
 
 ComposableType::~ComposableType() { }
+
+namespace boost
+{
+  std::size_t hash_value(const ComposableType& p_composableType)
+  {
+    return p_composableType.getHash();
+  }
+}

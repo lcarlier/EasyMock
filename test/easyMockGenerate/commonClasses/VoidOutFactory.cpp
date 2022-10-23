@@ -13,7 +13,7 @@ ElementToMockList VoidOutFactory::functionFactoryArray()
   {
     Parameter::Vector pv{};
     pv.emplace_back(Parameter(std::make_shared<Pointer>(std::make_shared<CType>(CTYPE_VOID)), ""));
-    FunctionDeclaration f1("voidOut", VoidReturnValue(), std::move(pv));
+    auto f1 = std::make_shared<FunctionDeclaration>("voidOut", VoidReturnValue(), std::move(pv));
 
     returnedList.push_back(std::move(f1));
   }
@@ -25,7 +25,7 @@ ElementToMockList VoidOutFactory::functionFactoryArray()
     pv.emplace_back(Parameter{std::make_shared<Pointer>(std::make_shared<CType>(CTYPE_VOID)), ""});
     pv.emplace_back(Parameter{std::make_shared<CType>(CTYPE_FLOAT), ""});
 
-    FunctionDeclaration f2("voidOutFirst", VoidReturnValue(), std::move(pv));
+    auto f2 = std::make_shared<FunctionDeclaration>("voidOutFirst", VoidReturnValue(), std::move(pv));
 
     returnedList.push_back(std::move(f2));
   }
@@ -37,7 +37,7 @@ ElementToMockList VoidOutFactory::functionFactoryArray()
     pv.emplace_back(Parameter{std::make_shared<CType>(CTYPE_FLOAT), ""});
     pv.emplace_back(Parameter{std::make_shared<Pointer>(std::make_shared<CType>(CTYPE_VOID)), ""});
 
-    FunctionDeclaration f3 = FunctionDeclaration("voidOutSecond", VoidReturnValue(), std::move(pv));
+    auto f3 = std::make_shared<FunctionDeclaration>("voidOutSecond", VoidReturnValue(), std::move(pv));
     returnedList.push_back(std::move(f3));
   }
 

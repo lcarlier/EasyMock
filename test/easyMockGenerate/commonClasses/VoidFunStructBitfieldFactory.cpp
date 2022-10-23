@@ -8,7 +8,7 @@
 #include <ComposableBitfield.h>
 #include <TypedefType.h>
 
-FunctionDeclaration VoidFunStructBitfieldFactory::functionFactory()
+std::shared_ptr<FunctionDeclaration> VoidFunStructBitfieldFactory::functionFactory()
 {
   auto s = std::make_shared<StructType>("BoxProps", false);
   s->addField(ComposableBitfield(CTYPE_UINT, "opaque", 1));
@@ -47,7 +47,7 @@ FunctionDeclaration VoidFunStructBitfieldFactory::functionFactory()
 
   Parameter::Vector pv{};
   pv.emplace_back(Parameter(std::move(sContainer), "s"));
-  FunctionDeclaration f(functionGetFunctionName(), VoidReturnValue(), std::move(pv));
+  auto f = std::make_shared<FunctionDeclaration>(functionGetFunctionName(), VoidReturnValue(), std::move(pv));
   return f;
 }
 
@@ -111,12 +111,12 @@ void VoidFunStructBitfieldFactory::setupTestCase(EasyMockTestCase::TestCase tc)
 
   switch(tc)
   {
-    case EasyMockTestCase::OneExpect:
+    case EasyMockTestCase::TestCase::OneExpect:
       m_expects.push_back(std::make_tuple(aToExpect));
       m_params.push_back(std::make_tuple(aToExpect));
       m_compare.push_back(std::make_tuple(m_user_matcher));
       break;
-    case EasyMockTestCase::ThreeExpects:
+    case EasyMockTestCase::TestCase::ThreeExpects:
     {
       for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::ThreeExpects_NbExpects; expectIdx++)
       {
@@ -127,13 +127,13 @@ void VoidFunStructBitfieldFactory::setupTestCase(EasyMockTestCase::TestCase tc)
       }
       break;
     }
-    case EasyMockTestCase::OneExpectArgIsBad:
+    case EasyMockTestCase::TestCase::OneExpectArgIsBad:
       m_expects.push_back(std::make_tuple(aToExpect));
       aToExpect.b.border_color++;
       m_params.push_back(std::make_tuple(aToExpect));
       m_compare.push_back(std::make_tuple(m_user_matcher));
       break;
-    case EasyMockTestCase::SecondExpectArgIsBad:
+    case EasyMockTestCase::TestCase::SecondExpectArgIsBad:
       m_expects.push_back(std::make_tuple(aToExpect));
       m_params.push_back(std::make_tuple(aToExpect));
       m_compare.push_back(std::make_tuple(m_user_matcher));
@@ -143,7 +143,7 @@ void VoidFunStructBitfieldFactory::setupTestCase(EasyMockTestCase::TestCase tc)
       m_params.push_back(std::make_tuple(aToExpect)); //second call fails
       m_compare.push_back(std::make_tuple(m_user_matcher));
       break;
-    case EasyMockTestCase::NotEnoughCall:
+    case EasyMockTestCase::TestCase::NotEnoughCall:
       for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::NotEnoughCall_NbExpects; expectIdx++)
       {
         aToExpect.b.border_color++;
@@ -152,7 +152,7 @@ void VoidFunStructBitfieldFactory::setupTestCase(EasyMockTestCase::TestCase tc)
         m_compare.push_back(std::make_tuple(m_user_matcher));
       }
       break;
-    case EasyMockTestCase::NoExpect:
+    case EasyMockTestCase::TestCase::NoExpect:
       break;
   }
 }

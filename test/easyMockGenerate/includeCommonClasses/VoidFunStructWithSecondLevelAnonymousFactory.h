@@ -8,7 +8,7 @@
 class VoidFunStructWithSecondLevelAnonymousFactory : public FunctionFactory<void, std::tuple<top_t>, std::tuple<EasyMock_Matcher>>
 {
 public:
-  FunctionDeclaration functionFactory() override;
+  std::shared_ptr<FunctionDeclaration> functionFactory() override;
   std::string functionGetFunctionName() override;
   std::string getFilename() override;
   std::string getMatcherFunctionName() override;

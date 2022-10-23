@@ -4,7 +4,7 @@
 #include <ComposableField.h>
 #include <TypedefType.h>
 
-FunctionDeclaration StructAnonymousTypedDefFunStructAnonymousTypedDefFactory::functionFactory()
+std::shared_ptr<FunctionDeclaration> StructAnonymousTypedDefFunStructAnonymousTypedDefFactory::functionFactory()
 {
   auto getTypedDefAnonymousStruct= []()
   {
@@ -23,7 +23,7 @@ FunctionDeclaration StructAnonymousTypedDefFunStructAnonymousTypedDefFactory::fu
   Parameter::Vector pv{};
   pv.emplace_back(Parameter(tst1, "s1"));
   pv.emplace_back(Parameter(std::move(tst2), "s2"));
-  FunctionDeclaration f(functionGetFunctionName(), ReturnValue(std::move(tst1)), std::move(pv));
+  auto f = std::make_shared<FunctionDeclaration>(functionGetFunctionName(), ReturnValue(std::move(tst1)), std::move(pv));
 
   return f;
 }
@@ -46,13 +46,13 @@ void StructAnonymousTypedDefFunStructAnonymousTypedDefFactory::setupTestCase(Eas
   t2.a = 43;
   switch(tc)
   {
-    case EasyMockTestCase::OneExpect:
+    case EasyMockTestCase::TestCase::OneExpect:
       m_rvContext.m_rv.push_back(t);
       m_expects.push_back(std::make_tuple(t, t2));
       m_params.push_back(std::make_tuple(t, t2));
       m_compare.push_back(std::make_tuple(nullptr, nullptr)); //Separate dedicated UT are written to test the generation and function of the comparators for structs
       break;
-    case EasyMockTestCase::ThreeExpects:
+    case EasyMockTestCase::TestCase::ThreeExpects:
       for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::ThreeExpects_NbExpects; expectIdx++)
       {
         m_rvContext.m_rv.push_back(t);
@@ -61,7 +61,7 @@ void StructAnonymousTypedDefFunStructAnonymousTypedDefFactory::setupTestCase(Eas
         m_compare.push_back(std::make_tuple(nullptr, nullptr)); //Separate dedicated UT are written to test the generation and function of the comparators for structs
       }
       break;
-    case EasyMockTestCase::NotEnoughCall:
+    case EasyMockTestCase::TestCase::NotEnoughCall:
       for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::NotEnoughCall_NbExpects; expectIdx++)
       {
         m_rvContext.m_rv.push_back(t);
@@ -70,9 +70,9 @@ void StructAnonymousTypedDefFunStructAnonymousTypedDefFactory::setupTestCase(Eas
         m_compare.push_back(std::make_tuple(nullptr, nullptr)); //Separate dedicated UT are written to test the generation and function of the comparators for structs
       }
       break;
-    case EasyMockTestCase::OneExpectArgIsBad: //Not tested in a generic way
-    case EasyMockTestCase::SecondExpectArgIsBad: //Not tested in a generic way
-    case EasyMockTestCase::NoExpect:
+    case EasyMockTestCase::TestCase::OneExpectArgIsBad: //Not tested in a generic way
+    case EasyMockTestCase::TestCase::SecondExpectArgIsBad: //Not tested in a generic way
+    case EasyMockTestCase::TestCase::NoExpect:
       break;
   }
 }

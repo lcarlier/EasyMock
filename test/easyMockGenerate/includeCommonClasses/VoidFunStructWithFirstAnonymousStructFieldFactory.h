@@ -7,7 +7,7 @@
 class VoidFunStructWithFirstAnonymousStructFieldFactory : public FunctionFactory<void, std::tuple<struct topAnonymousFirstStructField>, std::tuple<EasyMock_Matcher>>
 {
 public:
-  FunctionDeclaration functionFactory() override;
+  std::shared_ptr<FunctionDeclaration> functionFactory() override;
   std::string functionGetFunctionName() override;
   std::string getFilename() override;
   std::string getMatcherFunctionName() override;

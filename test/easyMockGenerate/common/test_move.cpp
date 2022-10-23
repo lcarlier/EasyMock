@@ -4,6 +4,7 @@
 #include <Parameter.h>
 #include <ComposableField.h>
 #include <StructType.h>
+#include <ClassType.h>
 #include <UnionType.h>
 #include <Pointer.h>
 #include <FunctionDeclaration.h>
@@ -63,7 +64,7 @@ void funName() \
 }
 }
 
-TEST(moveCopy, CType)
+TEST(move, CType)
 {
   CType ctype1(CTYPE_CHAR);
   CType ctype2(CTYPE_CHAR);
@@ -90,7 +91,7 @@ static void testMovePointer(Pointer &p1, Pointer &p2)
   ASSERT_EQ(p4, p1);
 }
 
-TEST(moveCopy, Pointer)
+TEST(move, Pointer)
 {
   Pointer p1(std::make_shared<CType>(CTYPE_INT));
   Pointer p2(std::make_shared<CType>(CTYPE_INT));
@@ -98,7 +99,7 @@ TEST(moveCopy, Pointer)
   testMovePointer(p1, p2);
 }
 
-TEST(moveCopy, PointerToConst)
+TEST(move, PointerToConst)
 {
   Pointer p1 { std::make_shared<ConstQualifiedType>(std::make_shared<CType>(CTYPE_INT)) };
   Pointer p2 { std::make_shared<ConstQualifiedType>(std::make_shared<CType>(CTYPE_INT)) };
@@ -118,7 +119,7 @@ static void testMoveConstPointer(ConstQualifiedType &p1, ConstQualifiedType &p2)
   ASSERT_EQ(p4, p1);
 }
 
-TEST(moveCopy, ConstPointer)
+TEST(move, ConstPointer)
 {
   ConstQualifiedType ctp1 { std::make_shared<Pointer>(std::make_shared<CType>(CTYPE_INT)) };
   ConstQualifiedType ctp2 { std::make_shared<Pointer>(std::make_shared<CType>(CTYPE_INT)) };
@@ -126,7 +127,7 @@ TEST(moveCopy, ConstPointer)
   testMoveConstPointer(ctp1, ctp2);
 }
 
-TEST(moveCopy, PointerWithRecursField)
+TEST(move, PointerWithRecursField)
 {
   auto getStructToTest = []()
   {
@@ -164,7 +165,7 @@ static void testMoveComposableField(ComposableField &f1, ComposableField &f2)
   ASSERT_EQ(f4, f1);
 }
 
-TEST(moveCopy, ComposableField)
+TEST(move, ComposableField)
 {
   ComposableField f1(CTYPE_INT, "a");
   ComposableField f2(CTYPE_INT, "a");
@@ -172,7 +173,7 @@ TEST(moveCopy, ComposableField)
   testMoveComposableField(f1, f2);
 }
 
-TEST(moveCopy, StructFieldPtr)
+TEST(move, StructFieldPtr)
 {
   ComposableField f1(std::make_shared<Pointer>(std::make_shared<CType>(CTYPE_INT)), "a");
   ComposableField f2(std::make_shared<Pointer>(std::make_shared<CType>(CTYPE_INT)), "a");
@@ -180,7 +181,7 @@ TEST(moveCopy, StructFieldPtr)
   testMoveComposableField(f1, f2);
 }
 
-TEST(moveCopy, StructFieldBoundedArray)
+TEST(move, StructFieldBoundedArray)
 {
   ComposableField::attributes composableFieldParam(
   {
@@ -193,7 +194,7 @@ TEST(moveCopy, StructFieldBoundedArray)
   testMoveComposableField(f1, f2);
 }
 
-TEST(moveCopy, StructFieldUnBoundedArray)
+TEST(move, StructFieldUnBoundedArray)
 {
   ComposableField::attributes composableFieldParam(
   {
@@ -206,7 +207,7 @@ TEST(moveCopy, StructFieldUnBoundedArray)
   testMoveComposableField(f1, f2);
 }
 
-TEST(moveCopy, ComposableFieldConst)
+TEST(move, ComposableFieldConst)
 {
   ComposableField f1 { std::make_shared<ConstQualifiedType>(std::make_shared<CType>(CTYPE_INT)), "a" };
   ComposableField f2 { std::make_shared<ConstQualifiedType>(std::make_shared<CType>(CTYPE_INT)), "a" };
@@ -214,7 +215,7 @@ TEST(moveCopy, ComposableFieldConst)
   testMoveComposableField(f1, f2);
 }
 
-TEST(moveCopy, ComposableFieldDeclString)
+TEST(move, ComposableFieldDeclString)
 {
   ComposableField f1(std::make_shared<CType>(CTYPE_INT), "a");
   f1.setDeclareString("fromDefine");
@@ -252,7 +253,7 @@ namespace
     return fieldTypeVector;
   }
 }
-TEST(moveCopy, StructType)
+TEST(move, StructType)
 {
   bool isEmbeddedInOtherType = false;
   
@@ -262,7 +263,7 @@ TEST(moveCopy, StructType)
   testComposableType(st1, st2);
 }
 
-TEST(moveCopy, UnionType)
+TEST(move, UnionType)
 {
   bool isEmbeddedInOtherType = false;
   UnionType st1("s", getVectorFieldTestType(), isEmbeddedInOtherType);
@@ -271,7 +272,7 @@ TEST(moveCopy, UnionType)
   testComposableType(st1, st2);
 }
 
-TEST(moveCopy, StructTypeRecursive)
+TEST(move, StructTypeRecursive)
 {
   bool isEmbeddedInOtherType = false;
   auto getStructToTest = [&isEmbeddedInOtherType]()
@@ -313,7 +314,7 @@ TEST(moveCopy, StructTypeRecursive)
   ASSERT_TRUE(pointedType->isIncompleteType());
 }
 
-TEST(moveCopy, StructTypeSubFieldRecursive)
+TEST(move, StructTypeSubFieldRecursive)
 {
   bool isEmbeddedInOtherType = true;
   auto getStructToTest = [&isEmbeddedInOtherType]()
@@ -376,7 +377,7 @@ TEST(moveCopy, StructTypeSubFieldRecursive)
  *    struct s1 s2SubS1;
  * }
  *
- * test moveCopy(si1);
+ * test move(si1);
  */
 
 template <class T>
@@ -400,7 +401,7 @@ static void runTypeTwoRecursiveTypes(T &si1, T &si2)
   testComposableType(si1, si2);
 }
 
-TEST(moveCopy, StructTypeTwoRecursiveTypes)
+TEST(move, StructTypeTwoRecursiveTypes)
 {
   bool isEmbeddedInOtherType = false;
   StructType s1("s2", isEmbeddedInOtherType);
@@ -409,7 +410,7 @@ TEST(moveCopy, StructTypeTwoRecursiveTypes)
   runTypeTwoRecursiveTypes(s1, s2);
 }
 
-TEST(moveCopy, UnionTypeTwoRecursiveTypes)
+TEST(move, UnionTypeTwoRecursiveTypes)
 {
   bool isEmbeddedInOtherType = false;
   UnionType u1("u2", isEmbeddedInOtherType);
@@ -429,7 +430,7 @@ static void testTypedefType(TypedefType& p1, TypedefType& p2)
   ASSERT_EQ(p4, p1);
 }
 
-TEST(moveCopy, StructTypedAnonymousTypedDef)
+TEST(move, StructTypedAnonymousTypedDef)
 {
   bool isEmbeddedInOtherType = false;
 
@@ -439,7 +440,7 @@ TEST(moveCopy, StructTypedAnonymousTypedDef)
   testTypedefType(s1, s2);
 }
 
-TEST(moveCopy, UnionTypedAnonymousTypedDef)
+TEST(move, UnionTypedAnonymousTypedDef)
 {
   bool isEmbeddedInOtherType = false;
 
@@ -450,7 +451,7 @@ TEST(moveCopy, UnionTypedAnonymousTypedDef)
 }
 
 
-TEST(moveCopy, StructTypedTypedDef)
+TEST(move, StructTypedTypedDef)
 {
   bool isEmbeddedInOtherType = false;
 
@@ -460,7 +461,7 @@ TEST(moveCopy, StructTypedTypedDef)
   testTypedefType(s1, s2);
 }
 
-TEST(moveCopy, UnionTypedTypedDef)
+TEST(move, UnionTypedTypedDef)
 {
   bool isEmbeddedInOtherType = false;
 
@@ -470,7 +471,7 @@ TEST(moveCopy, UnionTypedTypedDef)
   testTypedefType(u1, u2);
 }
 
-TEST(moveCopy, StructEmbeddedInOtherType)
+TEST(move, StructEmbeddedInOtherType)
 {
   bool isEmbeddedInOtherType = true;
 
@@ -480,7 +481,7 @@ TEST(moveCopy, StructEmbeddedInOtherType)
   testTypedefType(s1, s2);
 }
 
-TEST(moveCopy, UnionEmbeddedInOtherType)
+TEST(move, UnionEmbeddedInOtherType)
 {
   bool isEmbeddedInOtherType = true;
 
@@ -490,7 +491,7 @@ TEST(moveCopy, UnionEmbeddedInOtherType)
   testTypedefType(u1, u2);
 }
 
-TEST(moveCopy, fromSTDIO)
+TEST(move, fromSTDIO)
 {
   auto getFuntoTest = []()
   {
@@ -535,7 +536,7 @@ static void testMoveCopyParameter(Parameter &p1, Parameter &p2)
   ASSERT_EQ(p4, p1);
 }
 
-TEST(moveCopy, Parameter)
+TEST(move, Parameter)
 {
   Parameter p1(std::make_shared<CType>(CTYPE_VOID), "v");
   Parameter p2(std::make_shared<CType>(CTYPE_VOID), "v");
@@ -543,7 +544,7 @@ TEST(moveCopy, Parameter)
   testMoveCopyParameter(p1, p2);
 }
 
-TEST(moveCopy, ParameterPointer)
+TEST(move, ParameterPointer)
 {
   Parameter p1(std::make_shared<Pointer>(std::make_shared<CType>(CTYPE_VOID)), "v");
   Parameter p2(std::make_shared<Pointer>(std::make_shared<CType>(CTYPE_VOID)), "v");
@@ -551,7 +552,7 @@ TEST(moveCopy, ParameterPointer)
   testMoveCopyParameter(p1, p2);
 }
 
-TEST(moveCopy, ParameterPointerConst)
+TEST(move, ParameterPointerConst)
 {
   Parameter p1 { std::make_shared<Pointer>(std::make_shared<ConstQualifiedType>(std::make_shared<CType>(CTYPE_INT))), "v" };
   Parameter p2 { std::make_shared<Pointer>(std::make_shared<ConstQualifiedType>(std::make_shared<CType>(CTYPE_INT))), "v" };
@@ -559,7 +560,7 @@ TEST(moveCopy, ParameterPointerConst)
   testMoveCopyParameter(p1, p2);
 }
 
-TEST(moveCopy, ParameterPointerDeclareString)
+TEST(move, ParameterPointerDeclareString)
 {
   Parameter p1(std::make_shared<Pointer>(std::make_shared<CType>(CTYPE_INT)), "v");
   p1.setDeclareString("fromDefine");
@@ -569,7 +570,7 @@ TEST(moveCopy, ParameterPointerDeclareString)
   testMoveCopyParameter(p1, p2);
 }
 
-TEST(moveCopy, ParameterWithStructSubRecursive)
+TEST(move, ParameterWithStructSubRecursive)
 {
   auto getParamToTest = []()
   {
@@ -590,7 +591,7 @@ TEST(moveCopy, ParameterWithStructSubRecursive)
   testMoveCopyParameter(p1, p2);
 }
 
-TEST(moveCopy, ParameterWithPointerToStructSubRecursive)
+TEST(move, ParameterWithPointerToStructSubRecursive)
 {
   auto getParamToTest = []()
   {
@@ -628,7 +629,7 @@ static void testMoveCopyReturnValue(ReturnValue& rv1, ReturnValue& rv2)
   ASSERT_EQ(rv4, rv1);
 }
 
-TEST(moveCopy, ReturnValue)
+TEST(move, ReturnValue)
 {
   ReturnValue rv1 = VoidReturnValue();
   ReturnValue rv2 = VoidReturnValue();
@@ -636,7 +637,7 @@ TEST(moveCopy, ReturnValue)
   testMoveCopyReturnValue(rv1, rv2);
 }
 
-TEST(moveCopy, ReturnValuePointer)
+TEST(move, ReturnValuePointer)
 {
   bool isPointer = true;
   ReturnValue rv1 = VoidReturnValue(isPointer);
@@ -645,7 +646,7 @@ TEST(moveCopy, ReturnValuePointer)
   testMoveCopyReturnValue(rv1, rv2);
 }
 
-TEST(moveCopy, ReturnValueConst)
+TEST(move, ReturnValueConst)
 {
   ReturnValue rv1 { std::make_shared<ConstQualifiedType>(std::make_shared<CType>(CTYPE_INT)) };
   ReturnValue rv2 { std::make_shared<ConstQualifiedType>(std::make_shared<CType>(CTYPE_INT)) };
@@ -653,7 +654,7 @@ TEST(moveCopy, ReturnValueConst)
   testMoveCopyReturnValue(rv1, rv2);
 }
 
-TEST(moveCopy, ReturnValueDeclareString)
+TEST(move, ReturnValueDeclareString)
 {
   ReturnValue rv1(std::make_shared<CType>(CTYPE_INT));
   rv1.setDeclareString("fromDefine");
@@ -671,22 +672,22 @@ TEST(moveCopy, ReturnValueDeclareString)
 #undef f1Param
 #undef f2Param
 
-TEST(moveCopy, Function)
+TEST(move, Function)
 {
     testFunction<Function, functionTuple>();
 }
 
-TEST(moveCopy, FunctionDeclaration)
+TEST(move, FunctionDeclaration)
 {
     testFunction<FunctionDeclaration, functionTuple>();
 }
 
-TEST(moveCopy, FunctionType)
+TEST(move, FunctionType)
 {
     testFunction<FunctionType, functionTypeTuple>();
 }
 
-TEST(moveCopy, Enum)
+TEST(move, Enum)
 {
   Enum etype1("e1");
   etype1.addEnumValue(0, "ZERO");
@@ -719,7 +720,7 @@ void testComposableField(ComposableBitfield& bf1, ComposableBitfield &bf2)
 
 }
 
-TEST(moveCopy, ComposableBitfield)
+TEST(move, ComposableBitfield)
 {
   ComposableBitfield bf1(CTYPE_UCHAR, "foo", 3);
   ComposableBitfield bf2(CTYPE_UCHAR, "foo", 3);
@@ -727,7 +728,7 @@ TEST(moveCopy, ComposableBitfield)
   testComposableField(bf1, bf2);
 }
 
-TEST(moveCopy, ComposableBitfieldTypedef)
+TEST(move, ComposableBitfieldTypedef)
 {
   auto typedefType1 = std::make_shared<TypedefType>("t_uint", std::make_shared<CType>(CTYPE_UINT) );
   ComposableBitfield bf1{std::move(typedefType1), "foo", 3 };
@@ -736,7 +737,7 @@ TEST(moveCopy, ComposableBitfieldTypedef)
   testComposableField(bf1, bf2);
 }
 
-TEST(moveCopy, ConstQualifiedType)
+TEST(move, ConstQualifiedType)
 {
   auto uChar1 = std::make_shared<TypedefType>("foo", std::make_shared<CType>(CTYPE_UCHAR));
   ConstQualifiedType cc1 {std::move(uChar1)};
@@ -752,4 +753,24 @@ TEST(moveCopy, ConstQualifiedType)
   ASSERT_NE(cc4, cc3);
   cc4 = std::move(cc3);
   ASSERT_EQ(cc4, cc1);
+}
+
+TEST(move, ClassType)
+{
+  ClassType c1{"c1", false};
+  c1.addFunction(getF1());
+  c1.addFunction(getF2());
+  ClassType c2{"c1", false};
+  c2.addFunction(getF1());
+  c2.addFunction(getF2());
+
+  ASSERT_EQ(c1, c2);
+
+  ClassType c3 = std::move(c2);
+  ASSERT_EQ(c3, c1);
+
+  ClassType c4{"c4", false};
+  ASSERT_NE(c4, c3);
+  c4 = std::move(c3);
+  ASSERT_EQ(c4,c1);
 }

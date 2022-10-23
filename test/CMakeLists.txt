@@ -138,6 +138,7 @@ add_library(${TEST_FACTORIES_COMMON_OBJ}
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/CppVoidFunVoidFactory.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/CppVoidFunIntFactory.cpp
     ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/CppNamespaceIntFunIntFactory.cpp
+    ${EasyMock_SOURCE_DIR}/test/easyMockGenerate/commonClasses/CppClassIntFunIntFactory.cpp
 )
 
 set(EASYMOCK_TEST_LIBRARY easyMockTestLibrary)

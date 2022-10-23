@@ -35,4 +35,5 @@ runs:
           **/*.h
           **/*.hpp
           **/*.txt
+          **/*.sh
           **/Kbuild

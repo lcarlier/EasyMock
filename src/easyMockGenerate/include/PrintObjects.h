@@ -3,6 +3,7 @@
 
 #include <ostream>
 class Function;
+enum class FunctionAccessSpecifier;
 class ReturnValue;
 class TypeItf;
 class StructType;
@@ -20,12 +21,15 @@ class ComposableBitfield;
 class ConstQualifiedType;
 class TypedefType;
 struct Namespace;
+class ClassType;
 
 namespace std {
     ostream &operator<<(ostream &os, const Function &fun);
+    ostream &operator<<(ostream &os, const FunctionAccessSpecifier& visibility);
     ostream &operator<<(ostream &os, const ReturnValue &rv);
     ostream &operator<<(ostream &os, const TypeItf &typeItf);
     ostream &operator<<(ostream &os, const StructType &structType);
+    ostream &operator<<(ostream &os, const ClassType &classType);
     ostream &operator<<(ostream &os, const Parameter &param);
     ostream &operator<<(ostream &os, const CType &ctype);
     ostream &operator<<(ostream &os, const ComposableField &composableField);

@@ -22,13 +22,13 @@ ElementToMockList VoidFunTypeDefFactory::functionFactoryArray()
     pv.emplace_back(Parameter(std::move(floatType2), "p3"));
     pv.emplace_back(Parameter(p, "p4")); //!! dont move this one! it is used by the second function !!
     pv.emplace_back(Parameter(std::move(myType4Type), "p5"));
-    FunctionDeclaration fd(functionGetFunctionName(), VoidReturnValue(false), std::move(pv));
+    auto fd = std::make_shared<FunctionDeclaration>(functionGetFunctionName(), VoidReturnValue(false), std::move(pv));
     returnedList.push_back(std::move(fd));
   }
 
   {
     ReturnValue rv(p);
-    FunctionDeclaration fd("ptypedefFunVoid", std::move(rv), {});
+    auto fd = std::make_shared<FunctionDeclaration>("ptypedefFunVoid", std::move(rv), Parameter::Vector {});
     returnedList.push_back(std::move(fd));
   }
   return returnedList;

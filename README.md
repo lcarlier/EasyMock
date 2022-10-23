@@ -30,8 +30,15 @@ the [simple FIFO kernel module project](https://github.com/lcarlier/simpleFifoKe
     * [Compilation steps][compilationSteps]
 * [libEasyMockFramework's API][libEasyAPI]
 * [Create a mock][createAMock]
-* [Generated functions][genFun]
+* [Generated mocks][genFun]
+    * [C functions][genFunC]
+    * [C++ functions][genFunCpp]
+      * [Free functions][genFunCppFf]
+      * [Class member functions][genFunCppCmf]
+      * [Comparators][genFunCppCmp]
 * [Using the mocks][usingMock]
+  * [C functions and C++ free functions][usingMockCff]
+  * [C++ member functions][usingMockCppmf]
 * [Unit tested][ut]
 * [I want to participate in the development of EasyMock][participate]
 * [Restriction][restriction]
@@ -258,6 +265,8 @@ OPTIONS are:
 
 	-o <directory>                 Output directory.
 
+	--mock-cpp                     Mock C++ header.
+
 	--cwd <directory>              Change to the directory passed on this parameter before running the parser.
 	                               Relative paths given to '-i' and '-o' will be taken from the path given to '--cwd'.
 
@@ -284,6 +293,14 @@ OPTIONS are:
 	                               x, y and z are the parameters given to the format attribute.
 	                               Can be used several times.
 
+	--ignore-parser-error          Ignore parser error.
+	                               This option ignores the errors that the parser is returning but won't prevent
+	                               the generation of the mocks of the function that the parser can parse.
+	                               Depending on the error encountered by the parser, it can be that the generated
+	                               mock will not compile.
+	                               This option isn't recommended and it is better to give the right compile flag
+	                               to EasyMock instead of ignoring the errors.
+
 	--ignore-generation-of         Ignore the parsing and the generation of the given function.
 	                               Can be used several times.
 
@@ -305,7 +322,12 @@ production code should be given as extra parameters to EasyMock.
 When using the `cwd` parameter, any relative parameter given to `-i` or `-o` will
 be used after EasyMock has changed his current working directory.
 
-## <a name="user-content-gf"></a>Generated functions
+## <a name="user-content-gf"></a>Generated mocks
+
+Depending on whether EasyMock is mocking C or C++ header, the generated mocks
+are slightly different but yet follow the same strategy
+
+### <a name="user-content-gf-c"></a>C functions
 
 To configure the generated mocks, EasyMock generates 2 function families
 1. `*_ExpectAndReturn`
@@ -418,7 +440,86 @@ types are available.
 A user can implement its own version of EasyMock matchers by creating
 functions that match the `EasyMock_Matcher` type.
 
+### <a name="user-content-gf-cpp"></a>C++ functions
+
+When mocks are generated for C++, the same family of functions to configure the mocks
+are generated as when mocks are generated for [C functions][genFunC] i.e.:
+1. `*_ExpectAndReturn`
+2. `*_ExpectReturnAndOutput`
+
+#### <a name="user-content-mff"></a>Free functions
+
+When mocking a C++ free function, the functions to configure the mocks
+are generated under a namespace that has the name of the free function
+being mocked under the `EasyMock` namespace.
+
+For instance, when mocking the following free function
+```c++
+void cppVoidFunInt(int a);
+```
+
+EasyMock will generate the following configuration functions
+```c++
+namespace EasyMock
+{
+namespace cppVoidFunInt
+{
+void ExpectAndReturn(int a, ::EasyMock::EasyMock_Matcher_Cpp<int> easyMock_match_a);
+} // namespace cppVoidFunInt
+} // namespace EasyMock
+```
+
+#### <a name="user-content-cmf"></a>Class member functions
+
+When mocking class member functions, the functions to configure the mocks
+are generated under a namespace that has the name of the class being mocked then
+under a namespace that has the name of the free function
+being mocked under the `EasyMock` namespace.
+
+For instance, when mocking the following class
+```c++
+class ClassIntFunInt
+{
+public:
+  int intFunInt(int a);
+};
+```
+
+EasyMock will generate the following configuration functions
+```c++
+namespace EasyMock
+{
+namespace ClassIntFunInt
+{
+namespace intFunInt
+{
+void ExpectAndReturn(::ClassIntFunInt* instance, int a, int to_return, ::EasyMock::EasyMock_Matcher_Cpp<int> easyMock_match_a);
+} // namespace intFunInt
+} // namespace ClassIntFunInt
+} // namespace EasyMock
+```
+
+It is to be noted that if the class was part of a namespace, then that namespace is also part of the
+namespace nesting just in between the namespace `EasyMock` and the namespace with the name of the class
+being mocked.
+
+#### <a name="user-content-cmp"></a>Comparators
+
+EasyMock provides a convenience templated comparator which uses the `operator==` of its templated
+argument.
+```c++
+template<typename T>
+bool cmp(const T& currentCall, const T& expectedCall, std::string paramName, std::ostringstream& errorMessage)
+```
+That comparator function is to be used when configuring the mocks.
+
+When this comparator is used, the user must also implement an ostream operator because it is used
+in the error reporting mechanism.
+
 ## <a name="user-content-utm"></a>Using the mocks
+
+### <a name="user-content-utm-cff"></a>C functions and C++ free functions
+
 Once the mocks have been generated, the unit test must call the
 `*_ExpectAndReturn` and/or `*_ExpectReturnAndOutput` function family to
 configure the behaviour of the mock. For each time the function to be
@@ -435,6 +536,21 @@ how the mock will be behaving when the mock is call the second time.
 
 A complete example on how to use the mock is present in the
 [hello world example][helloWorldExample].
+
+### <a name="user-content-utm-cppmf"></a>C++ member functions 
+
+The usage of the `*_ExpectAndReturn` and `*_ExpectReturnAndOutput` functions remains the same
+as for the [C functions and C++ free functions][usingMockCff].
+
+However, those configuration functions take also an extra first parameter which is the address 
+of the class instance on which the member class is expected to be called. 
+
+If a `nullptr` is given to this parameter, then any instance will be allowed to call the mocked
+member function.
+
+If an address is given to this parameter, then only that specific instance located at the given
+address will be allowed to call the mocked member function. If another instance calls the mocked
+function, then an error is returned.
 
 ## <a name="user-content-ut"></a>Unit tested
 Because EasyMock's main usage is to be used for writing unit tests,
@@ -462,8 +578,7 @@ See all the badges:
 That's great! A good place to start is by reading the [architecture][arch] of EasyMock.
 
 ## <a name="user-content-restriction"></a> Restriction
-Currently, EasyMock only supports mocking of C functions.
-Mocking of C++ functions and classes is planned.
+No restriction reported to this day.
 
 ## <a name="user-content-br"></a> Bug report
 If you find a bug, it is very appreciated creating a [bug report](issues).
@@ -520,7 +635,14 @@ implemented it from scratch without looking at the source code of opmock.
 [libEasyAPI]: #user-content-libeasyapi
 [createAMock]: #user-content-cam
 [genFun]: #user-content-gf
+[genFunC]: #user-content-gf-c
+[genFunCpp]: #user-content-gf-cpp
+[genFunCppFf]: #user-content-mff
+[genFunCppCmf]: #user-content-cmf
+[genFunCppCmp]: #user-content-cmp
 [usingMock]: #user-content-utm
+[usingMockCff]: #user-content-utm-cff
+[usingMockCppmf]: #user-content-utm-cppmf
 [ut]: #user-content-ut
 [participate]: #user-content-iwtpttdoe
 [restriction]: #user-content-restriction

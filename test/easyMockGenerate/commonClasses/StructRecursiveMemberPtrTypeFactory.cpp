@@ -5,7 +5,7 @@
 #include <Pointer.h>
 #include <IncompleteType.h>
 
-FunctionDeclaration StructRecursiveMemberPtrTypeFactory::functionFactory()
+std::shared_ptr<FunctionDeclaration> StructRecursiveMemberPtrTypeFactory::functionFactory()
 {
   bool isEmbeddedInOtherType = false;
   auto recurStruct = std::make_shared<StructType>("recurs", isEmbeddedInOtherType);
@@ -14,7 +14,7 @@ FunctionDeclaration StructRecursiveMemberPtrTypeFactory::functionFactory()
 
   Parameter::Vector pv;
   pv.emplace_back(Parameter(std::move(recurStruct), "rec"));
-  FunctionDeclaration f(functionGetFunctionName(), VoidReturnValue(), std::move(pv));
+  auto f = std::make_shared<FunctionDeclaration>(functionGetFunctionName(), VoidReturnValue(), std::move(pv));
   return f;
 }
 

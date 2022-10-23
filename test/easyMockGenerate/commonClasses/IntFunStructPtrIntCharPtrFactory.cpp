@@ -5,7 +5,7 @@
 #include <EasyMock_CType.h>
 #include <Pointer.h>
 
-FunctionDeclaration IntFunStructPtrIntCharPtrFactory::functionFactory()
+std::shared_ptr<FunctionDeclaration> IntFunStructPtrIntCharPtrFactory::functionFactory()
 {
   std::shared_ptr<TypeItf> s2 = newStructS2Type();
   Parameter structParam{std::make_shared<Pointer>(std::move(s2)), "s"};
@@ -14,7 +14,7 @@ FunctionDeclaration IntFunStructPtrIntCharPtrFactory::functionFactory()
   p.emplace_back(Parameter(std::make_shared<CType>(CTYPE_INT), "a"));
 
   p.emplace_back(Parameter(std::make_shared<Pointer>(std::make_shared<CType>(CTYPE_CHAR)), "c"));
-  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_INT), std::move(p));
+  auto  f = std::make_shared<FunctionDeclaration>(functionGetFunctionName(), TypedReturnValue(CTYPE_INT), std::move(p));
   return f;
 }
 

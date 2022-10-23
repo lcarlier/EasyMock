@@ -9,21 +9,13 @@ ElementToMockList VoidFunEmbeddedCommentsFactory::functionFactoryArray()
 {
   ElementToMockList returnedList;
   {
-    FunctionDeclaration f{functionGetFunctionName(), TypedReturnValue(CTYPE_VOID),
-                                                     {}};
+    auto f = std::make_shared<FunctionDeclaration>(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID),
+                                                     Parameter::Vector {});
     returnedList.push_back(std::move(f));
   }
   {
-    FunctionDeclaration f{"voidFunEmbeddedComments2", TypedReturnValue(CTYPE_VOID),
-                                                     {}};
-    returnedList.push_back(std::move(f));
-  }
-  {
-    Parameter p{std::make_shared<CType>(CTYPE_INT), "a"};
-    p.setDeclareString("myInt");
-    Parameter::Vector pv{};
-    pv.emplace_back(std::move(p));
-    FunctionDeclaration f{"voidFunEmbeddedComments3", VoidReturnValue(), std::move(pv)};
+    auto f = std::make_shared<FunctionDeclaration>("voidFunEmbeddedComments2", TypedReturnValue(CTYPE_VOID),
+                                                     Parameter::Vector {});
     returnedList.push_back(std::move(f));
   }
   {
@@ -31,11 +23,7 @@ ElementToMockList VoidFunEmbeddedCommentsFactory::functionFactoryArray()
     p.setDeclareString("myInt");
     Parameter::Vector pv{};
     pv.emplace_back(std::move(p));
-    FunctionDeclaration f{"voidFunEmbeddedComments4", VoidReturnValue(), std::move(pv)};
-    returnedList.push_back(std::move(f));
-  }
-  {
-    FunctionDeclaration f{"voidFunEmbeddedOneLineComments", VoidReturnValue(), {}};
+    auto f = std::make_shared<FunctionDeclaration>("voidFunEmbeddedComments3", VoidReturnValue(), std::move(pv));
     returnedList.push_back(std::move(f));
   }
   {
@@ -43,7 +31,19 @@ ElementToMockList VoidFunEmbeddedCommentsFactory::functionFactoryArray()
     p.setDeclareString("myInt");
     Parameter::Vector pv{};
     pv.emplace_back(std::move(p));
-    FunctionDeclaration f{"voidFunEmbeddedOneLineComments2", VoidReturnValue(), std::move(pv)};
+    auto f = std::make_shared<FunctionDeclaration>("voidFunEmbeddedComments4", VoidReturnValue(), std::move(pv));
+    returnedList.push_back(std::move(f));
+  }
+  {
+    auto f = std::make_shared<FunctionDeclaration>("voidFunEmbeddedOneLineComments", VoidReturnValue(), Parameter::Vector {});
+    returnedList.push_back(std::move(f));
+  }
+  {
+    Parameter p{std::make_shared<CType>(CTYPE_INT), "a"};
+    p.setDeclareString("myInt");
+    Parameter::Vector pv{};
+    pv.emplace_back(std::move(p));
+    auto f = std::make_shared<FunctionDeclaration>("voidFunEmbeddedOneLineComments2", VoidReturnValue(), std::move(pv));
     returnedList.push_back(std::move(f));
   }
   return returnedList;

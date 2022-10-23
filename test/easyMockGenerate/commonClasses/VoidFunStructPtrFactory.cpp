@@ -4,13 +4,13 @@
 
 #include <Pointer.h>
 
-FunctionDeclaration VoidFunStructPtrFactory::functionFactory()
+std::shared_ptr<FunctionDeclaration> VoidFunStructPtrFactory::functionFactory()
 {
   auto s2 = newStructS2Type();
   Parameter p{std::make_shared<Pointer>(std::move(s2)), "s"};
   Parameter::Vector pv{};
   pv.emplace_back(std::move(p));
-  FunctionDeclaration f(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), std::move(pv));
+  auto f = std::make_shared<FunctionDeclaration>(functionGetFunctionName(), TypedReturnValue(CTYPE_VOID), std::move(pv));
 
   return f;
 }

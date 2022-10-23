@@ -38,6 +38,22 @@ TEST_F(voidFunStrucWithArray_testCase, OneCallOk)
   {
     toExpect.a[arrayIdx] = arrayIdx;
   }
+  for(unsigned int arrayIdx = 0; arrayIdx < ARRAY_SIZE(toExpect.c); ++arrayIdx)
+  {
+    toExpect.c[arrayIdx] = arrayIdx + 1;
+  }
+  for(unsigned int arrayIdx = 0; arrayIdx < ARRAY_SIZE(toExpect.d); ++arrayIdx)
+  {
+    toExpect.d[arrayIdx] = arrayIdx + 2;
+  }
+  for(unsigned int arrayIdx = 0; arrayIdx < ARRAY_SIZE(toExpect.e); ++arrayIdx)
+  {
+    toExpect.e[arrayIdx] = arrayIdx + 3;
+  }
+  for(unsigned int arrayIdx = 0; arrayIdx < ARRAY_SIZE(toExpect.g); ++arrayIdx)
+  {
+    toExpect.g[arrayIdx] = arrayIdx + 4;
+  }
   //Do not use b field because cmpStruct doesn't support it
 
   funExpect(toExpect, cmpStruct);
@@ -45,7 +61,7 @@ TEST_F(voidFunStrucWithArray_testCase, OneCallOk)
   fun(toExpect);
 
   int check = easyMock_check();
-  ASSERT_EQ(check, 1);
+  EXPECT_EQ(check, 1);
 
   EASYMOCK_ASSERT_NO_ERROR;
 }
@@ -78,7 +94,7 @@ TEST_F(voidFunStrucWithArray_testCase, OneCallArrayNOk)
   fun(actual);
 
   int check = easyMock_check();
-  ASSERT_EQ(check, 0);
+  EXPECT_EQ(check, 0);
 
   const char *err = easyMock_getErrorStr();
   std::string errorMessageToExpect = ("Error : at call 1 of 'void voidFunStructWithArray(struct structWithArray param)': Parameter 'param' which is a struct of type 'structWithArray' has field array 'a[idx]' at idx == 2 with value '42', was expecting '2'");
@@ -115,7 +131,7 @@ TEST_F(voidFunStrucWithArray_testCase, OneCallFieldNOk)
   fun(actual);
 
   int check = easyMock_check();
-  ASSERT_EQ(check, 0);
+  EXPECT_EQ(check, 0);
 
   const char *err = easyMock_getErrorStr();
   std::string errorMessageToExpect("Error : at call 1 of 'void voidFunStructWithArray(struct structWithArray param)': Parameter 'param' which is a struct of type 'structWithArray' has field 'f' with value '7.000000', was expecting '6.000000'");

@@ -13,7 +13,7 @@ ElementToMockList VoidFunUnnamedPtrParamFactory::functionFactoryArray()
     pv.emplace_back(Parameter{std::make_shared<CType>(CTYPE_INT), "a"});
     pv.emplace_back(Parameter{std::make_shared<Pointer>(std::make_shared<ConstQualifiedType>(std::make_shared<CType>(CTYPE_CHAR))), ""});
     pv.emplace_back(Parameter{std::make_shared<CType>(CTYPE_INT), "b"});
-    FunctionDeclaration f{functionGetFunctionName(), VoidReturnValue(), std::move(pv)};
+    auto f = std::make_shared<FunctionDeclaration>(functionGetFunctionName(), VoidReturnValue(), std::move(pv));
     returnedList.push_back(std::move(f));
   }
   return returnedList;

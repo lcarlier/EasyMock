@@ -21,13 +21,13 @@ ElementToMockList VoidFunTypeAndTypeDefUsedFactory::functionFactoryArray()
     auto t = std::make_shared<TypedefType>("typedefUsed", std::make_shared<Pointer>(getNotTypedefUsed()));
     Parameter::Vector pv{};
     pv.emplace_back(Parameter{std::move(t), "t"});
-    FunctionDeclaration fd("voidFunTypeDefUsed", VoidReturnValue(), std::move(pv));
+    auto fd = std::make_shared<FunctionDeclaration>("voidFunTypeDefUsed", VoidReturnValue(), std::move(pv));
     returnedList.push_back(std::move(fd));
   }
   {
     Parameter::Vector pv{};
     pv.emplace_back(Parameter(getNotTypedefUsed(), "s"));
-    FunctionDeclaration fd(functionGetFunctionName(), VoidReturnValue(), std::move(pv));
+    auto fd = std::make_shared<FunctionDeclaration>(functionGetFunctionName(), VoidReturnValue(), std::move(pv));
     returnedList.push_back(std::move(fd));
   }
   return returnedList;

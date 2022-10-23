@@ -7,7 +7,7 @@
 class Int128FunUint128Factory: public FunctionFactory<__int128, std::tuple<unsigned __int128, __uint128_t, __int128_t>, std::tuple<EasyMock_Matcher, EasyMock_Matcher, EasyMock_Matcher>>
 {
 public:
-  FunctionDeclaration functionFactory() override;
+  std::shared_ptr<FunctionDeclaration> functionFactory() override;
   ElementToMockList functionFactoryArray() override;
   std::string functionGetFunctionName() override;
   std::string getFilename() override;

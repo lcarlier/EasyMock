@@ -15,24 +15,24 @@ ElementToMockList VoidFunTypedefFunPtrFactory::functionFactoryArray()
   ElementToMockList returnedList;
 
   {
-    FunctionDeclaration fd = getFunPtrDeclaration(0, functionGetFunctionName().c_str(), "", "funPtrType");
+    auto fd = getFunPtrDeclaration(0, functionGetFunctionName().c_str(), "", "funPtrType");
     returnedList.push_back(std::move(fd));
   }
 
   {
     ReturnValue rv{std::make_shared<TypedefType>("funPtrType", getPointerToFunToTest())};
-    FunctionDeclaration fd("TypedefFunPtrVoid", std::move(rv), {});
+    auto fd = std::make_shared<FunctionDeclaration>("TypedefFunPtrVoid", std::move(rv), Parameter::Vector {});
     returnedList.push_back(std::move(fd));
   }
 
   {
-    FunctionDeclaration fd = getFunPtrDeclaration(4, "intFunStructTypeDefPtrFunField", "typeDefPtrFunField",
+    auto fd = getFunPtrDeclaration(4, "intFunStructTypeDefPtrFunField", "typeDefPtrFunField",
                                                   "funPtrType");
     returnedList.push_back(std::move(fd));
   }
 
   {
-    FunctionDeclaration fd = getFunPtrDeclaration(5, "intFunStructTypeDefPtrAnonFunField",
+    auto fd = getFunPtrDeclaration(5, "intFunStructTypeDefPtrAnonFunField",
                                                   "topAnonymousStructTypeDefPtrFunField", "funPtrType");
     returnedList.push_back(std::move(fd));
   }
@@ -48,7 +48,7 @@ ElementToMockList VoidFunTypedefFunPtrFactory::functionFactoryArray()
     auto forwardDeclParamFunPtrTypeDef = std::make_shared<TypedefType>("forwardDeclParamFunPtr", forwardDeclParamFunPtr);
     Parameter::Vector pv{};
     pv.emplace_back(Parameter{std::move(forwardDeclParamFunPtrTypeDef), "ptr"});
-    FunctionDeclaration fd5{"voidFunForwardDecl", VoidReturnValue(), std::move(pv)};
+    auto fd5 = std::make_shared<FunctionDeclaration>("voidFunForwardDecl", VoidReturnValue(), std::move(pv));
     returnedList.push_back(std::move(fd5));
   }
 

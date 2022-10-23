@@ -14,7 +14,7 @@ public:
     ElementToMockList elementToMockList = m_factory.functionFactoryArray();
     for(auto& f : elementToMockList)
     {
-      f.cacheHash();
+      f->cacheHash();
       m_ctxt.addElementToMock(std::move(f));
     }
     for(const auto& p : m_factory.getDefinedMacroList())

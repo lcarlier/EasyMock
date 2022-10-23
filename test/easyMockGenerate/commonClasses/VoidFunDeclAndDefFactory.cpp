@@ -10,22 +10,22 @@ ElementToMockList VoidFunDeclAndDefFactory::functionFactoryArray()
     Parameter::Vector pv{};
     pv.emplace_back(Parameter{std::make_shared<CType>(CTYPE_CHAR), ""});
     pv.emplace_back(Parameter{std::make_shared<CType>(CTYPE_CHAR), ""});
-    FunctionDeclaration f{functionGetFunctionName(), VoidReturnValue(), std::move(pv)};
+    auto f = std::make_shared<FunctionDeclaration>(functionGetFunctionName(), VoidReturnValue(), std::move(pv));
     FunctionAttribute fa{"unused"};
-    f.addAttribute(std::move(fa));
-    f.setDoesThisDeclarationHasABody(false);
-    f.setIsStatic(true);
+    f->addAttribute(std::move(fa));
+    f->setDoesThisDeclarationHasABody(false);
+    f->setIsStatic(true);
     returnedList.push_back(std::move(f));
   }
   {
     Parameter::Vector pv{};
     pv.emplace_back(Parameter{std::make_shared<CType>(CTYPE_CHAR), "a"});
     pv.emplace_back(Parameter{std::make_shared<CType>(CTYPE_CHAR), "b"});
-    FunctionDeclaration f{functionGetFunctionName(), VoidReturnValue(), std::move(pv)};
+    auto f = std::make_shared<FunctionDeclaration>(functionGetFunctionName(), VoidReturnValue(), std::move(pv));
     FunctionAttribute fa{"unused"};
-    f.addAttribute(std::move(fa));
-    f.setDoesThisDeclarationHasABody(true);
-    f.setIsStatic(true);
+    f->addAttribute(std::move(fa));
+    f->setDoesThisDeclarationHasABody(true);
+    f->setIsStatic(true);
     returnedList.push_back(std::move(f));
   }
   return returnedList;

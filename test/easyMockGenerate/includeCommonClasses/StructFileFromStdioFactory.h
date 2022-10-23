@@ -7,7 +7,7 @@
 class StructFileFromStdioFactory : public FunctionFactory<int, std::tuple<T_MY_IO_FILE>, std::tuple<EasyMock_Matcher>>
 {
 public:
-  FunctionDeclaration functionFactory() override;
+  std::shared_ptr<FunctionDeclaration> functionFactory() override;
   std::string functionGetFunctionName() override;
   std::string getFilename() override;
 

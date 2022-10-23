@@ -14,12 +14,22 @@
 #include <memory>
 #include <vector>
 
+class ComposableType;
+
 /*!
  * \brief Represents a function.
  *
  * The goal of this class is to provide a common interface to the
  * ::FunctionDeclaration and ::FunctionType classes.
  */
+enum class FunctionAccessSpecifier
+{
+  NA, // e.g. for C function
+  PUBLIC,
+  PRIVATE,
+  PROTECTED
+};
+
 class Function : virtual public EasyMock::Hashable
 {
 public:
@@ -30,8 +40,9 @@ public:
    * \param p_functionName The name of the function
    * \param p_functionReturnType The return value of the function
    * \param p_functionParameters A Parameter::Vector containing the parameters
+   * \param p_parentData A weak_ptr to the composable type (i.e the struct or class) containing this function. If the reference counter goes to 0, the function will not belong to the class anymore.
    */
-  Function(std::string p_functionName, ReturnValue p_functionReturnType, Parameter::Vector p_functionParameters);
+  Function(std::string p_functionName, ReturnValue p_functionReturnType, Parameter::Vector p_functionParameters, std::weak_ptr<const ComposableType> p_parentData = {});
 
   Function(const Function &other) = delete;
   Function& operator=(const Function &other) = delete;
@@ -124,6 +135,11 @@ public:
    */
   void setOriginFile(std::string originFile) noexcept;
 
+  FunctionAccessSpecifier getAccessSpecifier() const noexcept;
+  const std::string& getAccessSpecifierStr() const noexcept;
+
+  void setAccessSpecifier(FunctionAccessSpecifier p_accessSpecifier) noexcept;
+
   bool operator==(const Function &other) const;
   bool operator!=(const Function &other) const;
 
@@ -168,6 +184,14 @@ public:
    */
   const AttributesList& getAttributes() const;
 
+  /*!
+   * \brief Returns the "parent data" i.e. the struct or class in which this function belongs to
+   */
+  std::shared_ptr<const ComposableType> getParentData() const;
+
+  bool isMemberClass() const;
+
+
 protected:
   std::string m_name;
   Parameter::Vector m_parameters;
@@ -177,6 +201,11 @@ protected:
   bool m_isInlined;
   bool m_isStatic;
   std::string m_originFile;
+  /*!
+   * \brief Contains the "parent data" i.e. the struct or class in which this function belongs to
+   */
+  std::weak_ptr<const ComposableType> m_parentData;
+  FunctionAccessSpecifier m_accessSpecifier;
 private:
   std::size_t m_cachedHash;
   std::size_t m_cachedRawHash;

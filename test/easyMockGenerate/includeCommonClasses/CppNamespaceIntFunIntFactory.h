@@ -7,7 +7,7 @@
 class CppNamespaceIntFunIntFactory : public CppFunctionFactory<int, std::tuple<int>, std::tuple<EasyMock::EasyMock_Matcher_Cpp<int>>>
 {
 public:
-  FunctionDeclaration functionFactory() override;
+  std::shared_ptr<FunctionDeclaration> functionFactory() override;
   ElementToMockList functionFactoryArray() override;
   std::string functionGetFunctionName() override;
   std::string getFilename() override;
