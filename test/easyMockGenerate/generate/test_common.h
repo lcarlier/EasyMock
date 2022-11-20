@@ -49,7 +49,7 @@ protected:
   const std::string m_functionToMock;
   std::string m_comparatorToMatch;
   const std::string m_pathToFileToMock;
-  const std::string m_mockDir;
+  std::string m_mockDir;
   ElementToMockContext m_ctxt;
   bool m_rmDir;
 

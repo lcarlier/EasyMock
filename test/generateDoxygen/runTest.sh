@@ -28,14 +28,17 @@ echo $BASH
 EXPECTED_WARNING=9
 doxygen --version
 doxygen docs/doxygen/Doxyfile 2>&1 | tee out.log
-grep ":.*warning" out.log
+set +e
 NB_WARNING=$(grep -c ":.*warning" out.log)
+set -e
 
 # NB_WARNING can be 0 or 4 depending on the doxygen's version
 if [ $((NB_WARNING)) -gt $((EXPECTED_WARNING)) ];
 then
+  #grep ":.*warning" out.log
   echo "${NB_WARNING} warnings were found. ${EXPECTED_WARNING} expected"
   exit 1
 else
+  echo "No warning were found."
   exit 0
 fi

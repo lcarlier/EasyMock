@@ -19,9 +19,7 @@ class FunctionDeclaration : public Function, public ElementToMock {
 public:
   /*!
    * \brief Creates a new function declaration object.
-   * \copydetails Function
-   *
-   * This construction set the function declaration object inside the global namespace.
+   * \see FunctionDeclaration(std::string, ReturnValue, Parameter::Vector, td::shared_ptr<const Namespace>, std::weak_ptr<const ComposableType>)
    */
   FunctionDeclaration(std::string p_functionName, ReturnValue p_functionReturnType, Parameter::Vector p_functionParameters);
 
@@ -29,6 +27,8 @@ public:
    * \brief Creates a new function declaration object.
    * \copydetails Function
    * \param p_namespace A shared_ptr to the direct parent namespace.
+   *
+   * This construction set the function declaration object inside the global namespace.
    */
   FunctionDeclaration(std::string p_functionName, ReturnValue p_functionReturnType, Parameter::Vector p_functionParameters, std::shared_ptr<const Namespace> p_namespace, std::weak_ptr<const ComposableType> p_parentData = {});
 

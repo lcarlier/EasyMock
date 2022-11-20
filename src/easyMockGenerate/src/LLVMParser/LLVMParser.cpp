@@ -165,6 +165,7 @@ public:
     auto enclosingNamespace = getNamespace(func->getDeclContext());
     std::shared_ptr<ComposableType> parentData{nullptr};
     FunctionAccessSpecifier funAccessSpecifier{FunctionAccessSpecifier::NA};
+    bool isClassConst = false;
     if(func->isCXXClassMember())
     {
       auto parent = func->getParent();
@@ -191,6 +192,7 @@ public:
           assert(false);
           break;
       }
+      isClassConst = func->getType()->getAs<clang::FunctionProtoType>()->isConst();
     }
     auto f = std::make_shared<FunctionDeclaration>(funName, std::move(rv), std::move(param), std::move(enclosingNamespace), parentData);
     f->setAccessSpecifier(std::move(funAccessSpecifier));
@@ -206,6 +208,7 @@ public:
     f->setIsStatic(isStatic);
     f->setDoesThisDeclarationHasABody(doesThisDeclHasABody);
     f->setOriginFile(originFileFullInfo);
+    f->setClassConst(isClassConst);
     setFunctionAttribute(func, *f);
 
     return f;

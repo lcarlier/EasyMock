@@ -45,6 +45,7 @@ m_load_function {loadFunction },
 m_finalMockDir { "" },
 m_isCpp{isCpp}
 {
+  std::replace(m_mockDir.begin(), m_mockDir.end(), ':', '_');
 }
 
 void easyMockGenerate_baseTestCase::setComparatorToMatch(const std::string comparatorToMatch)
@@ -153,7 +154,6 @@ void easyMockGenerate_baseTestCase::prepareTest(const ElementToMockContext &elem
   std::string pathAndfileNameToMock = boost::filesystem::path(fullPathToFileToMock).stem().string();
   std::string fileNameToMock = boost::filesystem::path(pathAndfileNameToMock).filename().string();
   m_finalMockDir = mockDir;
-  std::replace(m_finalMockDir.begin(), m_finalMockDir.end(), ':', '_');
   if (m_generate_types)
   {
     m_finalMockDir.append("/typeGenerate");
@@ -209,7 +209,6 @@ void easyMockGenerate_baseTestCase::prepareTest(const ElementToMockContext &elem
 #else
 #error "OS not supported"
 #endif
-  std::replace(pathToLib.begin(), pathToLib.end(), ':', '_');
   std::vector<const char *> compileLibCmd =
   {
     cCompiler,

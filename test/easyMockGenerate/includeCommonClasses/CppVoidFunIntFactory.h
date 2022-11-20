@@ -18,7 +18,7 @@ public:
 class CppVoidFunIntGenerateTypeFactory : public CppVoidFunIntFactory
 {
 public:
-  CppVoidFunIntGenerateTypeFactory() { m_generate_types = true; m_rm_dir = false;}
+  CppVoidFunIntGenerateTypeFactory() { m_generate_types = true;}
 };
 
 #endif //EASYMOCK_CPPVOIDFUNVOIDINT_H

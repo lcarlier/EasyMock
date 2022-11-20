@@ -1043,3 +1043,20 @@ TEST(equality, cpp_class_different_name)
   ASSERT_NE(c1, c2);
   ASSERT_NE(c1.getHash(), c2.getHash());
 }
+
+TEST(equality, cpp_function_class_const)
+{
+  auto c1 = std::make_shared<ClassType>("c1", false);
+  FunctionDeclaration f1_1{"f1", VoidReturnValue(), Parameter::Vector {}, getGlobalNamespace(), c1};
+  f1_1.setClassConst(true);
+
+  FunctionDeclaration f1_2{"f1", VoidReturnValue(), Parameter::Vector {}, getGlobalNamespace(), c1};
+  f1_2.setClassConst(true);
+
+  EXPECT_EQ(f1_1, f1_2);
+  EXPECT_EQ(f1_1.getHash(), f1_2.getHash());
+
+  FunctionDeclaration f1_3{"f1", VoidReturnValue(), Parameter::Vector {}, getGlobalNamespace(), c1};
+  EXPECT_NE(f1_1, f1_3);
+  EXPECT_NE(f1_1.getHash(), f1_3.getHash());
+}

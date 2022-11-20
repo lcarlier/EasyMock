@@ -135,10 +135,35 @@ public:
    */
   void setOriginFile(std::string originFile) noexcept;
 
+  /*!
+   * \brief Get the access specifier of the function (i.e. public, protected, private)
+   *
+   * \return The enum representing the access specifier
+   */
   FunctionAccessSpecifier getAccessSpecifier() const noexcept;
+
+  /*!
+   * \copydoc getAccessSpecifier() const
+   */
   const std::string& getAccessSpecifierStr() const noexcept;
 
+  /*!
+   * \brief Set the access specifier of the function within its class
+   * @param p_accessSpecifier The enum representing the access specifier
+   */
   void setAccessSpecifier(FunctionAccessSpecifier p_accessSpecifier) noexcept;
+
+  /*!
+   * \brief Set whether a function is const qualified in a class
+   * \param p_value True if the class is cons qualified, false instead
+   */
+  void setClassConst(bool p_value) noexcept;
+
+  /*!
+   * \brief Get whether a function is const qualified in a class
+   * \return True if the class is cons qualified, false instead
+   */
+  bool isClassConst() const noexcept;
 
   bool operator==(const Function &other) const;
   bool operator!=(const Function &other) const;
@@ -206,6 +231,7 @@ protected:
    */
   std::weak_ptr<const ComposableType> m_parentData;
   FunctionAccessSpecifier m_accessSpecifier;
+  bool m_isClassConst;
 private:
   std::size_t m_cachedHash;
   std::size_t m_cachedRawHash;

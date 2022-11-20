@@ -82,6 +82,7 @@
 #include <CppVoidFunIntFactory.h>
 #include <CppNamespaceIntFunIntFactory.h>
 #include <CppClassIntFunIntFactory.h>
+#include <CppClassVoidFunVoidConstFactory.h>
 
 #define PTR_FUN_PTR_FACTORIES \
         VoidPtrFunVoidPtrFactory, \
@@ -143,7 +144,9 @@
 
 #define CPP_CLASS_FACTORIES \
         CppClassIntFunIntFactory, \
-        CppClassIntFunIntGenerateTypeFactory
+        CppClassIntFunIntGenerateTypeFactory, \
+        CppClassVoidFunVoidConstFactory, \
+        CppClassVoidFunVoidConstGenerateTypeFactory
 
 #define VOID_FUN_COMPOSABLE_TYPE_WITH_COMPOSABLE_TYPE_TYPES \
         VoidFunStructWithEmbeddedStructFactory, \

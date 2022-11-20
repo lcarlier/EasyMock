@@ -29,7 +29,8 @@ namespace {
         os << "funPrototype: " << fun.getFunctionPrototype() << ", ";
         os << "isVariadic: " << (fun.isVariadic() ? "yes" : "no") << ", ";
         os << "isInline: " << (fun.isInlined() ? "yes" : "no") << ", ";
-        os << "isInline: " << (fun.isStatic() ? "yes" : "no") << std::endl;
+        os << "isInline: " << (fun.isStatic() ? "yes" : "no") << ", ";
+        os << "isClassConst: " << (fun.isClassConst() ? "yes" : "no") << std::endl;
 
         const Function::AttributesList &attributesList = fun.getAttributes();
         os << gs_indentation << "Attributes:" << std::endl;

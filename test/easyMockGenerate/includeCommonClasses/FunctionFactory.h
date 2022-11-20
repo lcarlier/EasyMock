@@ -443,6 +443,11 @@ public:
 
   virtual ~FunctionFactory() {}
 
+  constexpr size_t getNbParams()
+  {
+    return sizeof...(Params);
+  }
+
 protected:
   FunctionFactory() :
       m_generate_types(false),

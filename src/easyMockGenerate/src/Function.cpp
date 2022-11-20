@@ -13,6 +13,7 @@ Function::Function(std::string p_functionName, ReturnValue p_functionReturnType,
     m_originFile{},
     m_parentData{std::move(p_parentData)},
     m_accessSpecifier{FunctionAccessSpecifier::NA},
+    m_isClassConst{false},
     m_cachedHash{0},
     m_cachedRawHash{0}
 { }
@@ -110,6 +111,16 @@ void Function::setAccessSpecifier(FunctionAccessSpecifier p_accessSpecifier) noe
   m_accessSpecifier = std::move(p_accessSpecifier);
 }
 
+void Function::setClassConst(bool value) noexcept
+{
+  m_isClassConst = value;
+}
+
+bool Function::isClassConst() const noexcept
+{
+  return m_isClassConst;
+}
+
 std::size_t Function::getHash() const noexcept
 {
   if(m_cachedHash != 0)
@@ -129,6 +140,7 @@ std::size_t Function::getHash() const noexcept
     boost::hash_combine(seed, *m_parentData);
   }*/
   boost::hash_combine(seed, m_accessSpecifier);
+  boost::hash_combine(seed, m_isClassConst);
 
   return seed;
 }
@@ -212,8 +224,9 @@ bool Function::operator==(const Function& other) const
     parentEqual = *thisLockedParent == *otherLockedParent;
   }
   const bool visibilityEq = this->m_accessSpecifier == other.m_accessSpecifier;
+  const bool isConstEq = this->m_isClassConst == other.m_isClassConst;
 
-  return isInlineEq && isVariadicEq && nameEq && paramEq && returnTypeEq && attributesEq && isStaticEq && parentEqual && visibilityEq;
+  return isInlineEq && isVariadicEq && nameEq && paramEq && returnTypeEq && attributesEq && isStaticEq && parentEqual && visibilityEq && isConstEq;
 }
 
 bool Function::operator!=(const Function& other) const
@@ -224,13 +237,7 @@ bool Function::operator!=(const Function& other) const
 std::string Function::getFunctionPrototype() const
 {
   std::string rv_funcProto;
-  /*if(m_accessSpecifier != FunctionAccessSpecifier::NA)
-  {
-    rv_funcProto.append(getAccessSpecifierStr());
-    rv_funcProto.push_back(':');
-    rv_funcProto.push_back(' ');
-  }*/
-  if(m_isStatic)
+   if(m_isStatic)
   {
     rv_funcProto.append("static ");
   }
@@ -292,6 +299,11 @@ std::string Function::getFunctionPrototype() const
     rv_funcProto.append("...");
   }
   rv_funcProto.push_back(')');
+
+  if(m_isClassConst)
+  {
+    rv_funcProto.append(" const");
+  }
 
   return rv_funcProto;
 }

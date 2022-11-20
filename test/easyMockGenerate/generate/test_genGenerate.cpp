@@ -224,10 +224,18 @@ TYPED_TEST(genGenerate_testCase, OneExpectArgIsBad)
   std::string givenParameter, expectedParameter;
   if constexpr (genGenerate_testCase<TypeParam>::m_factory.isClassMember())
   {
-    // Whenever the function is a member class, the first argument is a pointer to this
-    givenParameter = getElementOfTupleInsideQueue<1>(0, genGenerate_testCase<TypeParam>::m_factory.get_params_queue());
-    expectedParameter = getElementOfTupleInsideQueue<1>(0,
-                                                        genGenerate_testCase<TypeParam>::m_factory.get_expects_queue());
+    if constexpr (genGenerate_testCase<TypeParam>::m_factory.getNbParams() == 1)
+    {
+      return;
+    }
+    else
+    {
+      // Whenever the function is a member class, the first argument is a pointer to this
+      givenParameter = getElementOfTupleInsideQueue<1>(0,
+                                                       genGenerate_testCase<TypeParam>::m_factory.get_params_queue());
+      expectedParameter = getElementOfTupleInsideQueue<1>(0,
+                                                          genGenerate_testCase<TypeParam>::m_factory.get_expects_queue());
+    }
   }
   else
   {
@@ -301,9 +309,18 @@ TYPED_TEST(genGenerate_testCase, SecondExpectArgIsBad)
   std::string givenParameter, expectedParameter;
   if constexpr (genGenerate_testCase<TypeParam>::m_factory.isClassMember())
   {
-    // Whenever the function is a member class, the first argument is a pointer to this
-    givenParameter = getElementOfTupleInsideQueue<1>(1, genGenerate_testCase<TypeParam>::m_factory.get_params_queue());
-    expectedParameter = getElementOfTupleInsideQueue<1>(1, genGenerate_testCase<TypeParam>::m_factory.get_expects_queue());
+    if constexpr (genGenerate_testCase<TypeParam>::m_factory.getNbParams() == 1)
+    {
+      return;
+    }
+    else
+    {
+      // Whenever the function is a member class, the first argument is a pointer to this
+      givenParameter = getElementOfTupleInsideQueue<1>(1,
+                                                       genGenerate_testCase<TypeParam>::m_factory.get_params_queue());
+      expectedParameter = getElementOfTupleInsideQueue<1>(1,
+                                                          genGenerate_testCase<TypeParam>::m_factory.get_expects_queue());
+    }
   }
   else
   {
