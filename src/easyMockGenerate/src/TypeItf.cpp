@@ -1,5 +1,6 @@
 #include "TypeItf.h"
 #include "Pointer.h"
+#include "Reference.h"
 #include "FunctionType.h"
 #include "QualifiedType.h"
 #include "ConstQualifiedType.h"
@@ -27,6 +28,7 @@ TypeItf{{.name = std::move(p_name),
         .isStruct = false,
         .isUnion = false,
         .isPointer = false,
+        .isReference = false,
         .isFunctionType = false,
         .isEnum = false,
         .isImplicit = false,
@@ -44,6 +46,7 @@ TypeItf::TypeItf(TypeItf::attributes attrib)
   m_isStruct = attrib.isStruct;
   m_isUnion = attrib.isUnion;
   m_isPointer = attrib.isPointer;
+  m_isReference = attrib.isReference;
   m_isFunctionType = attrib.isFunctionType;
   m_isEnum = attrib.isEnum;
   m_isImplicit = attrib.isImplicit;
@@ -178,6 +181,10 @@ bool TypeItf::containsTypeDef() const
   {
     return static_cast<const Pointer*>(this)->getPointedType()->containsTypeDef();
   }
+  if(this->m_isReference)
+  {
+    return static_cast<const Reference*>(this)->getPointedType()->containsTypeDef();
+  }
   if(this->m_isQualifiedType)
   {
     return static_cast<const QualifiedType*>(this)->getUnqualifiedType()->containsTypeDef();
@@ -194,6 +201,11 @@ void TypeItf::setCType(bool value)
 void TypeItf::setPointer(bool value)
 {
   m_isPointer = value;
+}
+
+void TypeItf::setReference(bool value)
+{
+  m_isReference = value;
 }
 
 void TypeItf::setFunction(bool value)
@@ -255,6 +267,11 @@ bool TypeItf::isPointer() const
   return !m_isIncompleteType && m_isPointer;
 }
 
+bool TypeItf::isReference() const
+{
+  return !m_isIncompleteType && m_isReference;
+}
+
 const Pointer* TypeItf::asPointer() const
 {
   if(!isPointer())
@@ -262,6 +279,15 @@ const Pointer* TypeItf::asPointer() const
     return nullptr;
   }
   return static_cast<const Pointer*>(this);
+}
+
+const Reference* TypeItf::asReference() const
+{
+  if(!isReference())
+  {
+    return nullptr;
+  }
+  return static_cast<const Reference*>(this);
 }
 
 Pointer* TypeItf::asPointer()
@@ -378,6 +404,12 @@ const TypeItf* TypeItf::getRawType() const
     return pointerType->getPointedType()->getRawType();
   }
 
+  const Reference* referenceType = asReference();
+  if(referenceType)
+  {
+    return referenceType->getPointedType()->getRawType();
+  }
+
   const QualifiedType* qualifiedType = asQualifiedType();
   if(qualifiedType)
   {
@@ -415,6 +447,7 @@ std::size_t TypeItf::getHash() const noexcept
   boost::hash_combine(seed, m_isStruct);
   boost::hash_combine(seed, m_isUnion);
   boost::hash_combine(seed, m_isPointer);
+  boost::hash_combine(seed, m_isReference);
   boost::hash_combine(seed, m_isFunctionType);
   boost::hash_combine(seed, m_isEnum);
   boost::hash_combine(seed, m_isImplicit);
@@ -451,6 +484,7 @@ bool TypeItf::isEqual(const TypeItf& other) const
           this->m_isStruct == other.m_isStruct &&
           this->m_isUnion == other.m_isUnion &&
           this->m_isPointer == other.m_isPointer &&
+          this->m_isReference == other.m_isReference &&
           this->m_isFunctionType == other.m_isFunctionType &&
           this->m_isEnum == other.m_isEnum &&
           this->m_isImplicit == other.m_isImplicit &&

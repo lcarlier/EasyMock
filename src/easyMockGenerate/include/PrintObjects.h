@@ -12,6 +12,7 @@ class CType;
 class ComposableField;
 class UnionType;
 class Pointer;
+class Reference;
 class FunctionType;
 class FunctionDeclaration;
 class Enum;
@@ -35,6 +36,7 @@ namespace std {
     ostream &operator<<(ostream &os, const ComposableField &composableField);
     ostream &operator<<(ostream &os, const UnionType &unionType);
     ostream &operator<<(ostream &os, const Pointer &pointer);
+    ostream &operator<<(ostream &os, const Reference &referenceType);
     ostream &operator<<(ostream &os, const FunctionType &pointer);
     ostream &operator<<(ostream &os, const FunctionDeclaration &pointer);
     ostream &operator<<(ostream &os, const Enum &e);

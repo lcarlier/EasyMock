@@ -84,7 +84,8 @@ private:
   void generateDeclarationOfUsedType(ctemplate::TemplateDictionary* p_parentDict, const TypeItf* p_type, bool p_generateIncomplete);
   bool generateCodeToFile(const std::string &outDir, const std::string &filename, const std::string &extension, const std::string &generatedCode);
   std::string getDeclaratorString(const Declarator& p_decl);
-  std::string getNonQualifiedDeclaratorString(const Declarator& p_decl);
+  std::string getNonQualifiedDereferencedDeclaratorString(const Declarator& p_decl);
+  const TypeItf& getDereferencedType(const TypeItf& p_decl);
   void generateBasicTypeField(const ComposableFieldItf *curField, ctemplate::TemplateDictionary *paramSectDict, const ComposableType *p_composedType, std::string p_declPrepend);
   void generateExtraDecl(ctemplate::TemplateDictionary *dict, const char *sectionName, const char *templateFileName, const FunctionType *ft);
   void generateFieldCmp(std::string &p_condition, const ComposableType *p_composedType, const ComposableFieldItf *p_curField, const ComposableFieldItf *p_previousField, std::string p_varName);

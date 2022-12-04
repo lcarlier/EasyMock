@@ -16,6 +16,7 @@ class TypedefType;
 class Enum;
 class ComposableType;
 class Pointer;
+class Reference;
 class QualifiedType;
 class IncompleteType;
 class CType;
@@ -346,6 +347,35 @@ public:
   Pointer* asPointer();
 
   /*!
+   * \brief Returns if the type is a Reference.
+   *
+   * When this function return true, a pointer or reference holding this type
+   * can be safely downcasted to a ::Reference instance using ::TypeItf::asReference only.
+   *
+   * Use the function ::Pointer::getPointedType() to know the type on which
+   * the reference points
+   *
+   * \return True if the type is a reference
+   * \return False instead.
+   */
+  bool isReference() const;
+
+  /*!
+   * \brief Cast a ::TypeItf pointer to a ::Reference pointer.
+   *
+   * \warning This function unqualifies the reference under the hood.
+   *
+   * \return If this is a pointer to ::Reference, returns the casted pointed
+   * \return Else returns nullptr
+   */
+  const Reference* asReference() const;
+
+  /*!
+   * \copydoc ::TypeItf::asReference() const
+   */
+  Reference* asReference();
+
+  /*!
    * \brief Returns if the type is a function.
    *
    * When this function returns true, a pointer or reference holding this
@@ -547,6 +577,7 @@ public:
   bool prefix ## isStruct; \
   bool prefix ## isUnion; \
   bool prefix ## isPointer; \
+  bool prefix ## isReference; \
   bool prefix ## isFunctionType; \
   bool prefix ## isEnum; \
   bool prefix ## isImplicit; \
@@ -588,6 +619,13 @@ protected:
    * It is called by ::Pointer objects
    */
   void setPointer(bool value);
+
+  /*!
+   * \brief Specify that the type is a reference.
+   *
+   * It is called by ::Reference objects
+   */
+  void setReference(bool value);
 
   /*!
    * \brief Specify that the type is a function.

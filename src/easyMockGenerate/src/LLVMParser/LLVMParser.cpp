@@ -9,6 +9,7 @@
 #include <TypeItf.h>
 #include <EasyMock_CType.h>
 #include <Pointer.h>
+#include <Reference.h>
 #include <Enum.h>
 #include <IncompleteType.h>
 #include <ComposableField.h>
@@ -605,7 +606,11 @@ private:
     }
     else if(clangType.isPointerType())
     {
-      type = getFromPointerType(clangType, structKnownType, isEmbeddedInOtherType);
+      type = getFromPointerOrReferenceType<Pointer>(clangType, structKnownType, isEmbeddedInOtherType);
+    }
+    else if(clangType.isReferenceType())
+    {
+      type = getFromPointerOrReferenceType<Reference>(clangType, structKnownType, isEmbeddedInOtherType);
     }
     else if (clangType.isArrayType())
     {
@@ -940,12 +945,13 @@ private:
     return toReturn;
   }
 
-  std::shared_ptr<TypeItf> getFromPointerType(const clang::Type &type, structKnownTypeMap &structKnownType, bool isEmbeddedInOtherType)
+  template<typename T>
+  std::shared_ptr<TypeItf> getFromPointerOrReferenceType(const clang::Type &type, structKnownTypeMap &structKnownType, bool isEmbeddedInOtherType)
   {
     const clang::QualType &pointeeQualType = type.getPointeeType();
     auto rv = getEasyMocktype(pointeeQualType, structKnownType, isEmbeddedInOtherType);
 
-    std::shared_ptr<TypeItf> returnedTyped = std::make_shared<Pointer>(std::move(rv));
+    std::shared_ptr<TypeItf> returnedTyped = std::make_shared<T>(std::move(rv));
     std::string typedDefName = getTypedefName(type);
     if(!typedDefName.empty())
     {

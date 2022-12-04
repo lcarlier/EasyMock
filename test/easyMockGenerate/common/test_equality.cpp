@@ -8,6 +8,7 @@
 #include <ClassType.h>
 #include <ComposableField.h>
 #include <Pointer.h>
+#include <Reference.h>
 #include <FunctionType.h>
 #include <FunctionDeclaration.h>
 #include <Enum.h>
@@ -1059,4 +1060,27 @@ TEST(equality, cpp_function_class_const)
   FunctionDeclaration f1_3{"f1", VoidReturnValue(), Parameter::Vector {}, getGlobalNamespace(), c1};
   EXPECT_NE(f1_1, f1_3);
   EXPECT_NE(f1_1.getHash(), f1_3.getHash());
+}
+
+TEST(equality, cpp_reference)
+{
+  Reference r1 {std::make_shared<CType>(CTYPE_INT)};
+  Reference r2{std::make_shared<CType>(CTYPE_INT)};
+
+  EXPECT_EQ(r1, r2);
+  EXPECT_EQ(r1.getHash(), r2.getHash());
+
+  Reference r3 {std::make_shared<CType>(CTYPE_FLOAT)};
+  EXPECT_NE(r1, r3);
+  EXPECT_NE(r1.getHash(), r3.getHash());
+}
+
+TEST(equality, cpp_reference_vs_pointer)
+{
+  Reference r1 {std::make_shared<CType>(CTYPE_INT)};
+  Pointer p2{std::make_shared<CType>(CTYPE_INT)};
+
+  EXPECT_NE(r1, p2);
+  EXPECT_NE(p2, r1);
+  EXPECT_NE(r1.getHash(), p2.getHash());
 }

@@ -9,6 +9,7 @@
 #include <ClassType.h>
 #include <UnionType.h>
 #include <Pointer.h>
+#include <Reference.h>
 #include <FunctionType.h>
 #include <FunctionDeclaration.h>
 #include <Enum.h>
@@ -175,6 +176,7 @@ namespace std {
         os << "isTypeDef:" << (typeItf.isTypedDef() ? "yes" : "no") << ", ";
         os << "isAnonymous:" << (typeItf.isAnonymous() ? "yes" : "no") << ", ";
         os << "isPointer:" << (typeItf.isPointer() ? "yes" : "no") << ", ";
+        os << "isReference:" << (typeItf.isReference() ? "yes" : "no") << ", ";
         os << "isCType:" << (typeItf.isCType() ? "yes" : "no") << ", ";
         os << "isStruct:" << (typeItf.isStruct() ? "yes" : "no") << ", ";
         os << "isUnion:" << (typeItf.isUnion() ? "yes" : "no") << ", ";
@@ -193,6 +195,8 @@ namespace std {
             os << static_cast<const UnionType &>(typeItf);
         } else if (typeItf.isPointer()) {
             os << static_cast<const Pointer &>(typeItf);
+        } else if (typeItf.isReference()) {
+            os << static_cast<const Reference &>(typeItf);
         } else if (typeItf.isEnum()) {
             os << static_cast<const Enum &>(typeItf);
         } else if (typeItf.isIncompleteType()) {
@@ -260,6 +264,15 @@ namespace std {
         os << "pointedType pointer: " << *pointerType.getPointedType();
         gs_indentation.pop_back();
         return os;
+    }
+
+    ostream &operator<<(ostream &os, const Reference &referenceType) {
+      os << "Reference: ";
+      gs_indentation.push_back('\t');
+      os << std::endl << gs_indentation;
+      os << "pointedType reference: " << *referenceType.getPointedType();
+      gs_indentation.pop_back();
+      return os;
     }
 
     ostream &operator<<(ostream &os, const Enum &etype) {

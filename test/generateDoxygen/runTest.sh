@@ -7,6 +7,16 @@ set -x
 
 echo $PWD
 echo $BASH
+
+doxygen --version
+
+DOXYGEN_VERSION=$(doxygen --version)
+function ver { printf "%03d%03d%03d" $(echo "$1" | tr '.' ' '); }
+if [ $(ver $DOXYGEN_VERSION) -ge $(ver "1.9.5") ];
+then
+  EXPECTED_WARNING=0
+else
+
 # In a perfect world, WARN_AS_ERROR should be set in the Doxyfile and this script shouldn't never exists.
 # However, there is a bug in doxygen in which linking variables located inside an anonymous namespace via a \copydoc
 # command in the documentation of another variable fails. There are some workaround to make doxygen happy however
@@ -25,8 +35,8 @@ echo $BASH
 # /EasyMockToTest/src/easyMockGenerate/include/StructType.h:25: warning: explicit link request to 'ComposableType::ComposableFieldTypeVector' could not be resolved
 # /EasyMockToTest/src/easyMockGenerate/include/UnionType.h:24: warning: explicit link request to 'ComposableType::ComposableFieldTypeVector' could not be resolved
 
-EXPECTED_WARNING=9
-doxygen --version
+  EXPECTED_WARNING=9
+fi
 doxygen docs/doxygen/Doxyfile 2>&1 | tee out.log
 set +e
 NB_WARNING=$(grep -c ":.*warning" out.log)

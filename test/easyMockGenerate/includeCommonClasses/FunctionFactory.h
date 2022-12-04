@@ -342,14 +342,13 @@ public:
   >
   F_RV get_expected_rv()
   {
-    F_RV expected_rv;
-    std::memset(&expected_rv, 0, sizeof(expected_rv));
     if(!m_rvContext.m_expect_rv_cur_call.empty())
     {
-      expected_rv = m_rvContext.m_expect_rv_cur_call.front();
+      F_RV expected_rv = m_rvContext.m_expect_rv_cur_call.front();
       m_rvContext.m_expect_rv_cur_call.pop_front();
+      return expected_rv;
     }
-    return expected_rv;
+    return F_RV{};
   }
 
   template<typename F_RV=RV,
@@ -481,11 +480,9 @@ private:
     {
       m_rvContext.m_expect_rv_cur_call.push_back(m_rvContext.m_rv.front());
     }
-    F_RV rv;
-    std::memset(&rv, 0, sizeof(rv));
     if(!m_rvContext.m_rv.empty())
     {
-      rv = m_rvContext.m_rv.front();
+      F_RV rv = m_rvContext.m_rv.front();
       auto allParam = std::tuple_cat(p, std::make_tuple(rv), comparator_fptr_tuple);
       std::apply(fWithReturn, allParam);
     }

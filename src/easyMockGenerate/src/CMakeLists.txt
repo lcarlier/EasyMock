@@ -29,6 +29,7 @@ add_library(${EASYMOCK_COMMON_OBJ}
   ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/FunctionAttribute.cpp
   ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/Namespace.cpp
   ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/ClassType.cpp
+  ${EasyMock_SOURCE_DIR}/src/easyMockGenerate/src/Reference.cpp
 )
 
 set(EASYMOCK_GEN_SOURCE_FILE

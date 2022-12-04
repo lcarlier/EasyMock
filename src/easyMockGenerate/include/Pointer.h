@@ -93,7 +93,6 @@ protected:
    * \copydoc TypeItf::isEqual
    */
   bool isEqual(const TypeItf& p_other) const override;
-private:
   std::shared_ptr<TypeItf> m_pointedType;
   std::size_t m_cachedHash;
 };
