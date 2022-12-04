@@ -84,6 +84,7 @@
 #include <CppClassIntFunIntFactory.h>
 #include <CppClassVoidFunVoidConstFactory.h>
 #include <CppRefIntFunRefIntFactory.h>
+#include <CppConstRefIntFunConstRefIntFactory.h>
 
 #define PTR_FUN_PTR_FACTORIES \
         VoidPtrFunVoidPtrFactory, \
@@ -143,7 +144,9 @@
         CppNamespaceIntFunIntFactory, \
         CppNamespaceIntFunIntGenerateTypeFactory, \
         CppRefIntFunRefIntFactory, \
-        CppRefIntFunRefIntGenerateTypeFactory
+        CppRefIntFunRefIntGenerateTypeFactory, \
+        CppConstRefIntFunConstRefIntFactory, \
+        CppConstRefIntFunConstRefIntGenerateTypeFactory
 
 #define CPP_CLASS_FACTORIES \
         CppClassIntFunIntFactory, \

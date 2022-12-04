@@ -13,7 +13,7 @@ struct DefaultConstructibleReferenceWrapper: public std::reference_wrapper<T>
 };
 
 template<typename T>
-T DefaultConstructibleReferenceWrapper<T>::a;
+T DefaultConstructibleReferenceWrapper<T>::a{};
 
 template<typename RV, typename Params, typename Compare>
 class CppFunctionFactory: public FunctionFactory<RV, Params, Compare>

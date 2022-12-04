@@ -76,6 +76,7 @@
 #define FUNCTION_PARAM_PTR_SECTION_SEPARATOR FUNCTION_PARAM_PTR_SECTION "_separator"
 #define FUNCTION_PARAM_TYPE "FUNCTION_PARAM_TYPE"
 #define FUNCTION_PARAM_NON_QUALIFIED_TYPE "FUNCTION_PARAM_NON_QUALIFIED_TYPE"
+#define FUNCTION_PARAM_DEREFERENCED_TYPE "FUNCTION_PARAM_DEREFERENCED_TYPE"
 #define PARAMETER_RAW_TYPE "PARAMETER_RAW_TYPE"
 #define FUNCTION_PARAM_NAME "TYPEDEF_PARAM_NAME"
 #define FUNCTION_MATCHER_PARAM_NAME "FUNCTION_MATCHER_PARAM_NAME"
@@ -91,7 +92,7 @@
 #define IS_FUNCTION_CLASS_NAME "IS_FUNCTION_CLASS_NAME"
 
 #define REFERENCE_MEMBER_SECTION "REFERENCE_MEMBER_SECTION"
-#define NORMAL_MEMBER_SECTION "NORMAL_MEMBER_SECTION"
+#define REGULAR_MEMBER_SECTION "REGULAR_MEMBER_SECTION"
 #define REFERENCE_RETURN_SECTION "REFERENCE_RETURN_SECTION"
 #define REGULAR_RETURN_SECTION "REGULAR_RETURN_SECTION"
 
@@ -256,6 +257,7 @@
 #define PARAMETER_OUT_SIZE_VAR PARAMETER_NAME(MOCK_OUT_PREFIX) "_size"
 #define PARAMETER_TYPE TEMPLATE_VAR(FUNCTION_PARAM_TYPE)
 #define PARAMETER_NON_QUALIFIED_TYPE TEMPLATE_VAR(FUNCTION_PARAM_NON_QUALIFIED_TYPE)
+#define PARAMETER_DEREFERENCED_TYPE TEMPLATE_VAR(FUNCTION_PARAM_DEREFERENCED_TYPE)
 #define TEMPLATE_PARAMETER_RAW_TYPE TEMPLATE_VAR(PARAMETER_RAW_TYPE)
 #define FUNCTION_RETURN_VALUE_TYPE TEMPLATE_VAR(FUNCTION_RETURN_VALUE)
 #define FUNCTION_TO_RETURN_VALUE_TYPE TEMPLATE_VAR(FUNCTION_TO_RETURN_VALUE)
@@ -264,6 +266,9 @@
 
 #define FUNCTION_NON_QUALIFIED_RETURN_VALUE "FUNCTION_NON_QUALIFIED_RETURN_VALUE"
 #define FUNCTION_NON_QUALIFIED_RETURN_VALUE_TYPE TEMPLATE_VAR(FUNCTION_NON_QUALIFIED_RETURN_VALUE)
+
+#define FUNCTION_DEREFERENCED_RETURN_VALUE "FUNCTION_DEREFERENCED_RETURN_VALUE"
+#define FUNCTION_DEREFERENCED_RETURN_VALUE_TYPE TEMPLATE_VAR(FUNCTION_DEREFERENCED_RETURN_VALUE)
 
 #define PRINT_CMP_ARRAY_IDX \
   IF_SECTION_EXISTS(STRUCT_PRINT_IDX_SECTION, "at idx == %d")
@@ -277,9 +282,9 @@ PARAMETER_TYPE " " PARAMETER_NAME(PREFIX) TEMPLATE_INCL_SECTION(EXTRA_DECL_SECTI
 #define DECLARE_NON_QUALIFIED_PARAMETER(PREFIX) \
 PARAMETER_NON_QUALIFIED_TYPE " " PARAMETER_NAME(PREFIX) TEMPLATE_INCL_SECTION(EXTRA_DECL_SECTION)
 
-#define DECLARE_REFERENCE_MEMBERS(SPACES, PARAM_NAME, PARAM_TYPE) \
-PARAM_TYPE " default_" PARAM_NAME ";" CARRIAGE_RETURN \
-SPACES "std::reference_wrapper<" PARAM_TYPE "> " PARAM_NAME "{ default_" PARAM_NAME " };"
+#define DECLARE_REFERENCE_MEMBERS(SPACES, PARAM_NAME, DEREFERENCED_PARAM_TYPE, UNQUALIFIED_DEREFERENCED_PARAM_TYPE) \
+UNQUALIFIED_DEREFERENCED_PARAM_TYPE " default_" PARAM_NAME ";" CARRIAGE_RETURN \
+SPACES "std::reference_wrapper<" DEREFERENCED_PARAM_TYPE "> " PARAM_NAME "{ default_" PARAM_NAME " }"
 
 /*!
  * \brief Helper macro to print all declaration of the parameters of a
@@ -560,26 +565,26 @@ const char templateText[] =
         IF_SECTION_EXISTS(C_ONLY_SECTION, "typedef ")
         "struct " IF_SECTION_EXISTS(CPP_ONLY_SECTION, FUNCTION_MOCK_DATA_TYPE) " {" CARRIAGE_RETURN
         IF_SECTION_EXISTS(IS_FUNCTION_CLASS_NAME,
-        "    ::" FUNCTION_CLASS_NAME "* instance;" CARRIAGE_RETURN
+          "    ::" FUNCTION_CLASS_NAME "* instance;" CARRIAGE_RETURN
         )
         TEMPLATE_BEG_SECTION(FUNCTION_PARAM_SECTION)
         IF_SECTION_EXISTS(REFERENCE_MEMBER_SECTION,
-        "    " DECLARE_REFERENCE_MEMBERS("    ", PARAMETER_NAME(""), TEMPLATE_PARAMETER_RAW_TYPE) CARRIAGE_RETURN
+          "    " DECLARE_REFERENCE_MEMBERS("    ", PARAMETER_NAME(""), PARAMETER_DEREFERENCED_TYPE, TEMPLATE_PARAMETER_RAW_TYPE) "; // Reference member section" CARRIAGE_RETURN
         )
-        IF_SECTION_EXISTS(NORMAL_MEMBER_SECTION,
-        "    " DECLARE_NON_QUALIFIED_PARAMETER("") ";" CARRIAGE_RETURN
+        IF_SECTION_EXISTS(REGULAR_MEMBER_SECTION,
+          "    " DECLARE_NON_QUALIFIED_PARAMETER("") "; // Regular member section" CARRIAGE_RETURN
         )
         IF_SECTION_EXISTS(C_ONLY_SECTION,
-        "    EasyMock_Matcher " FUNCTION_MOCK_DATA_CUR_MATCH_VAR ";"
+          "    EasyMock_Matcher " FUNCTION_MOCK_DATA_CUR_MATCH_VAR ";"
         )
         IF_SECTION_EXISTS(CPP_ONLY_SECTION,
-        "    ::EasyMock::EasyMock_Matcher_Cpp<" PARAMETER_TYPE "> " FUNCTION_MOCK_DATA_CUR_MATCH_VAR ";"
+          "    ::EasyMock::EasyMock_Matcher_Cpp<" PARAMETER_TYPE "> " FUNCTION_MOCK_DATA_CUR_MATCH_VAR ";"
         )
         CARRIAGE_RETURN
         TEMPLATE_END_SECTION(FUNCTION_PARAM_SECTION)
         IF_RETURN_VALUE(
-          IF_SECTION_EXISTS(REFERENCE_RETURN_SECTION, "    " DECLARE_REFERENCE_MEMBERS("    ", FUNCTION_MOCK_DATA_RETURN_VALUE_VARIABLE, FUNCTION_NON_QUALIFIED_RETURN_VALUE_TYPE))
-          IF_SECTION_EXISTS(REGULAR_RETURN_SECTION, "    " FUNCTION_NON_QUALIFIED_RETURN_VALUE_TYPE " " FUNCTION_MOCK_DATA_RETURN_VALUE_VARIABLE TEMPLATE_INCL_SECTION(EXTRA_DECL_SECTION) ";")
+          IF_SECTION_EXISTS(REFERENCE_RETURN_SECTION, "    " DECLARE_REFERENCE_MEMBERS("    ", FUNCTION_MOCK_DATA_RETURN_VALUE_VARIABLE, FUNCTION_DEREFERENCED_RETURN_VALUE_TYPE, FUNCTION_NON_QUALIFIED_RETURN_VALUE_TYPE)  "; // Reference return section")
+          IF_SECTION_EXISTS(REGULAR_RETURN_SECTION, "    " FUNCTION_NON_QUALIFIED_RETURN_VALUE_TYPE " " FUNCTION_MOCK_DATA_RETURN_VALUE_VARIABLE TEMPLATE_INCL_SECTION(EXTRA_DECL_SECTION) "; // Regular return section")
           CARRIAGE_RETURN
         )
         TEMPLATE_BEG_SECTION(FUNCTION_PARAM_PTR_SECTION)
@@ -593,25 +598,28 @@ const char templateText[] =
         "static " FUNCTION_EXPECT_RETURN_AND_OUTPUT_COMMON_SIGNATURE ";" CARRIAGE_RETURN
         IF_SECTION_EXISTS(C_ONLY_SECTION, "static MockedFunction " TEMPLATE_MOCKED_FUN_CLASS ";" CARRIAGE_RETURN)
         IF_SECTION_EXISTS(CPP_ONLY_SECTION, "static MockedCppFunction<" FUNCTION_MOCK_DATA_TYPE "> " TEMPLATE_MOCKED_FUN_CLASS ";" CARRIAGE_RETURN)
-        IF_RETURN_VALUE("static " FUNCTION_NON_QUALIFIED_RETURN_VALUE_TYPE " dummyRes_" FUNCTION_NAME TEMPLATE_INCL_SECTION(EXTRA_DECL_SECTION) ";" CARRIAGE_RETURN)
-        CARRIAGE_RETURN
-        IF_SECTION_EXISTS(CPP_ONLY_SECTION, TEMPLATE_INCL_SECTION(NAMESPACE_BEGIN_SECTION) CARRIAGE_RETURN
+        IF_RETURN_VALUE(
+          "static " FUNCTION_NON_QUALIFIED_RETURN_VALUE_TYPE " dummyRes_" FUNCTION_NAME TEMPLATE_INCL_SECTION(EXTRA_DECL_SECTION)
+          IF_SECTION_EXISTS(CPP_ONLY_SECTION, "{}")
+          ";"
+          CARRIAGE_RETURN
         )
+        CARRIAGE_RETURN
+        IF_SECTION_EXISTS(CPP_ONLY_SECTION, TEMPLATE_INCL_SECTION(NAMESPACE_BEGIN_SECTION) CARRIAGE_RETURN)
         TEMPLATE_FUNCTION_TO_BE_MOCKED CARRIAGE_RETURN
         "{" CARRIAGE_RETURN
         "    easyMock_bool printCallStack = easyMock_printCallStack();" CARRIAGE_RETURN
         "    easyMock_bool checkCallsOrder = easyMock_checkCallsOrder();" CARRIAGE_RETURN
         CARRIAGE_RETURN
-        IF_RETURN_VALUE
-        (
-            IF_SECTION_EXISTS(REFERENCE_RETURN_SECTION,
-                "    std::reference_wrapper<" FUNCTION_NON_QUALIFIED_RETURN_VALUE_TYPE "> default_res { dummyRes_" FUNCTION_NAME " };" CARRIAGE_RETURN
-            )
-            IF_SECTION_EXISTS(REGULAR_RETURN_SECTION,
-                "    " FUNCTION_NON_QUALIFIED_RETURN_VALUE_TYPE " default_res" TEMPLATE_INCL_SECTION(EXTRA_TOP_LEVEL_DECL_SECTION) ";" CARRIAGE_RETURN
-                "    easyMock_memcpy((void*)&default_res, (void*)&dummyRes_" FUNCTION_NAME ", sizeof(default_res));" CARRIAGE_RETURN
-            )
-            CARRIAGE_RETURN
+        IF_RETURN_VALUE(
+          IF_SECTION_EXISTS(REFERENCE_RETURN_SECTION,
+              "    std::reference_wrapper<" FUNCTION_DEREFERENCED_RETURN_VALUE_TYPE "> default_res { dummyRes_" FUNCTION_NAME " };" CARRIAGE_RETURN
+          )
+          IF_SECTION_EXISTS(REGULAR_RETURN_SECTION,
+              "    " FUNCTION_NON_QUALIFIED_RETURN_VALUE_TYPE " default_res" TEMPLATE_INCL_SECTION(EXTRA_TOP_LEVEL_DECL_SECTION) ";" CARRIAGE_RETURN
+              "    easyMock_memcpy((void*)&default_res, (void*)&dummyRes_" FUNCTION_NAME ", sizeof(default_res));" CARRIAGE_RETURN
+          )
+          CARRIAGE_RETURN
         )
         "    if(!MockedFunction_addActualCall(&" TEMPLATE_MOCKED_FUN_CLASS "))" CARRIAGE_RETURN
         "    {" CARRIAGE_RETURN
@@ -716,8 +724,8 @@ const char templateText[] =
             "    " MOCKED_DATA_MEMBER("instance") " = instance;" CARRIAGE_RETURN
         )
         TEMPLATE_BEG_SECTION(FUNCTION_PARAM_SECTION)
-        IF_SECTION_EXISTS(NORMAL_MEMBER_SECTION,"    easyMock_memcpy((void*)&" MOCKED_DATA_MEMBER(PARAMETER_NAME("")) ", (void*)&" PARAMETER_NAME("") ", sizeof(" MOCKED_DATA_MEMBER(PARAMETER_NAME("")) "));")
-        IF_SECTION_EXISTS(REFERENCE_MEMBER_SECTION, "    " MOCKED_DATA_MEMBER(PARAMETER_NAME("")) " = " PARAMETER_NAME("") ";")
+        IF_SECTION_EXISTS(REGULAR_MEMBER_SECTION, "    easyMock_memcpy((void*)&" MOCKED_DATA_MEMBER(PARAMETER_NAME("")) ", (void*)&" PARAMETER_NAME("") ", sizeof(" MOCKED_DATA_MEMBER(PARAMETER_NAME("")) ")); // normal member section")
+        IF_SECTION_EXISTS(REFERENCE_MEMBER_SECTION, "    " MOCKED_DATA_MEMBER(PARAMETER_NAME("")) " = " PARAMETER_NAME("") "; // Reference member section")
         CARRIAGE_RETURN
         "    " MOCKED_DATA_MEMBER(FUNCTION_MOCK_DATA_CUR_MATCH_VAR) " = " FUNCTION_PARAM_MATCH_VAR ";" CARRIAGE_RETURN
         CARRIAGE_RETURN
@@ -1464,7 +1472,7 @@ void CodeGeneratorCTemplate::generateFunctionSection(ctemplate::TemplateDictiona
 
   const ReturnValue& returnValue = *p_elemToMock->getReturnValue();
   const std::string returnTypeStr = getDeclaratorString(returnValue);
-  std::string nonQualRetTypeStr = getNonQualifiedDereferencedDeclaratorString(returnValue);
+  std::string nonQualDereferencedRetTypeStr = getNonQualifiedDereferencedDeclaratorString(returnValue);
   functionSectionDict->SetValue(FUNCTION_RETURN_VALUE, returnTypeStr);
   functionSectionDict->SetValue(FUNCTION_TO_RETURN_VALUE, returnTypeStr);
   const TypeItf* rvType = returnValue.getType();
@@ -1475,7 +1483,7 @@ void CodeGeneratorCTemplate::generateFunctionSection(ctemplate::TemplateDictiona
   registerTypeDef(rvType);
   generateDeclarationOfUsedType(p_parentDictionary, rvType, false);
   const Pointer *nonQualifiedReturnValuePointer = rvType->unqualify()->asPointer();
-  functionSectionDict->SetValue(FUNCTION_NON_QUALIFIED_RETURN_VALUE, nonQualRetTypeStr);
+  functionSectionDict->SetValue(FUNCTION_NON_QUALIFIED_RETURN_VALUE, nonQualDereferencedRetTypeStr);
   if(nonQualifiedReturnValuePointer)
   {
     const TypeItf *returnValuePointerPointedType = getRawType(nonQualifiedReturnValuePointer);
@@ -1500,7 +1508,7 @@ void CodeGeneratorCTemplate::generateFunctionSection(ctemplate::TemplateDictiona
       returnValParamDict->AddSectionDictionary(REGULAR_RETURN_SECTION);
     }
 
-    returnValParamDict->SetValue(FUNCTION_NON_QUALIFIED_RETURN_VALUE, nonQualRetTypeStr);
+    returnValParamDict->SetValue(FUNCTION_DEREFERENCED_RETURN_VALUE, getDereferencedType(*rvType).getFullDeclarationName());
     if(nonQualifiedReturnValuePointer)
     {
       const TypeItf *returnValuePointerPointedType = getRawType(nonQualifiedReturnValuePointer);
@@ -1510,7 +1518,6 @@ void CodeGeneratorCTemplate::generateFunctionSection(ctemplate::TemplateDictiona
         generateDeclarationOfUsedType(p_parentDictionary, functionType, false);
         generateExtraDecl(returnValParamDict, EXTRA_DECL_SECTION, EXTRA_DECL_TEMPLATE_NAME, functionType);
       }
-      returnValParamDict->SetValue(FUNCTION_NON_QUALIFIED_RETURN_VALUE, nonQualRetTypeStr);
     }
   }
   const Parameter::Vector& funParams = p_elemToMock->getFunctionsParameters();
@@ -1567,7 +1574,7 @@ void CodeGeneratorCTemplate::generateFunctionParamSection(ctemplate::TemplateDic
     generateDeclarationOfUsedType(m_rootDictionary, paramType, false);
     //For the rest of this function nonQualifiedParamPtrType tells whether we are dealing with a pointer parameter or not
     const std::string argType = getDeclaratorString(fParam);
-    const std::string nonQualifiedArgType = getNonQualifiedDereferencedDeclaratorString(fParam);
+    const std::string dereferencedNonQualifiedArgType = getNonQualifiedDereferencedDeclaratorString(fParam);
     const TypeItf* rawType = getRawType(paramType);
     const Pointer* nonQualifiedParamPtrType = paramType->unqualify()->asPointer();
     const Reference* nonQualifiedParamRefType = paramType->unqualify()->asReference();
@@ -1579,6 +1586,7 @@ void CodeGeneratorCTemplate::generateFunctionParamSection(ctemplate::TemplateDic
       generateComposedTypedCompareSection(composableType, prepend, declare);
     }
     functionParamSection->SetValue(FUNCTION_PARAM_TYPE, argType);
+    functionParamSection->SetValue(FUNCTION_PARAM_DEREFERENCED_TYPE, getDereferencedType(*paramType).getFullDeclarationName());
     if(nonQualifiedParamRefType)
     {
       functionParamSection->AddSectionDictionary(REFERENCE_MEMBER_SECTION);
@@ -1586,11 +1594,11 @@ void CodeGeneratorCTemplate::generateFunctionParamSection(ctemplate::TemplateDic
     }
     else
     {
-      functionParamSection->AddSectionDictionary(NORMAL_MEMBER_SECTION);
+      functionParamSection->AddSectionDictionary(REGULAR_MEMBER_SECTION);
     }
     if(!nonQualifiedParamPtrType)
     {
-      functionParamSection->SetValue(FUNCTION_PARAM_NON_QUALIFIED_TYPE, nonQualifiedArgType);
+      functionParamSection->SetValue(FUNCTION_PARAM_NON_QUALIFIED_TYPE, dereferencedNonQualifiedArgType);
     }
     else
     {
@@ -2412,8 +2420,8 @@ closeFile:
 
 std::string CodeGeneratorCTemplate::getNonQualifiedDereferencedDeclaratorString(const Declarator& p_decl)
 {
-  const TypeItf& typeToDeclare = getDereferencedType(*p_decl.getType()->unqualify());
-  return typeToDeclare.getFullDeclarationName();
+  const TypeItf& typeToDeclare = getDereferencedType(*p_decl.getType());
+  return typeToDeclare.unqualify()->getFullDeclarationName();
 }
 
 const TypeItf& CodeGeneratorCTemplate::getDereferencedType(const TypeItf& p_decl)
