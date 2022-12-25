@@ -492,3 +492,25 @@ TYPED_TEST(CommandLineParser_testCase, IgnoreParser)
   ASSERT_FALSE(opt.m_mockCpp);
   ASSERT_TRUE(opt.m_ignoreParserError);
 }
+
+TYPED_TEST(CommandLineParser_testCase, minusIGivenOnlyOnce)
+{
+  TypeParam parser;
+  CommandLineParserItf& parserItf = parser;
+  const char * parsedArgs[] = {"./test", "-i", "foo", "-o", "bar", "-i", "foo2", NULL};
+  EasyMockOptions opt = parserItf.getParsedArguments(ARRAY_SIZE(parsedArgs) - 1, parsedArgs);
+
+  EXPECT_FALSE(opt.m_errorMessage.empty());
+  EXPECT_STREQ(opt.m_errorMessage.c_str(), g_minusIParameterGivenTwice.c_str());
+}
+
+TYPED_TEST(CommandLineParser_testCase, minusOGivenOnlyOnce)
+{
+  TypeParam parser;
+  CommandLineParserItf& parserItf = parser;
+  const char * parsedArgs[] = {"./test", "-i", "foo", "-o", "bar", "-o", "bar2", NULL};
+  EasyMockOptions opt = parserItf.getParsedArguments(ARRAY_SIZE(parsedArgs) - 1, parsedArgs);
+
+  EXPECT_FALSE(opt.m_errorMessage.empty());
+  EXPECT_STREQ(opt.m_errorMessage.c_str(), g_minusOParameterGivenTwice.c_str());
+}

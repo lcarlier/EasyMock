@@ -29,6 +29,11 @@ EasyMockOptions CmdLineParser::getParsedArguments(int argc,const char* argv[]) c
     const std::string currentParam(argv[argIdx]);
     if(currentParam == g_inputHeaderParam && hasOneMoreArgument(argIdx, argc))
     {
+      if(!opt.m_inputHeaderFile.empty())
+      {
+        opt.m_errorMessage = g_minusIParameterGivenTwice;
+        return opt;
+      }
       opt.m_inputHeaderFile = std::string(argv[argIdx+1]);
       if(opt.m_inputHeaderFile[0] == '-')
       {
@@ -41,6 +46,11 @@ EasyMockOptions CmdLineParser::getParsedArguments(int argc,const char* argv[]) c
     }
     else if(currentParam == g_outputDirParam && hasOneMoreArgument(argIdx, argc))
     {
+      if(!opt.m_outputDir.empty())
+      {
+        opt.m_errorMessage = g_minusOParameterGivenTwice;
+        return opt;
+      }
       opt.m_outputDir = std::string(argv[argIdx+1]);
       if(opt.m_outputDir[0] == '-')
       {

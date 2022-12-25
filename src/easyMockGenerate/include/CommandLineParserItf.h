@@ -35,6 +35,8 @@ const std::string g_errorGenerateAttrAttrMissing("Error: Argument --generate-att
 const std::string g_errorIgnoreFieldGenerationOfArgumentMissing("Error: Argument --ignore-field-generation-of needs a value");
 const std::string g_errorIgnoreGenerationOfArgumentMissing("Error: Argument --ignore-generation-of needs a value");
 const std::string g_errorGenerateComparatorOfArgumentMissing("Error: Argument --generate-comparator-of needs a value");
+const std::string g_minusIParameterGivenTwice("Error: -i argument can be used only once");
+const std::string g_minusOParameterGivenTwice("Error: -o argument can be used only once");
 
 const std::string g_helpMessage =
   "Generate mocks to be used into unit tests.\n\r"
