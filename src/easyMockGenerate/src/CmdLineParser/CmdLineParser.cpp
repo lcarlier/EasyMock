@@ -2,6 +2,16 @@
 
 #include <string>
 
+#if __has_include(<filesystem>)
+#include <filesystem>
+namespace fs = std::filesystem;
+#elif __has_include(<experimental/filesystem>)
+#include <experimental/filesystem>
+  namespace fs = std::experimental::filesystem;
+#else
+  error "Missing the <filesystem> header."
+#endif
+
 namespace
 {
 bool hasOneMoreArgument(int argIdx, int argc)
@@ -41,6 +51,12 @@ EasyMockOptions CmdLineParser::getParsedArguments(int argc,const char* argv[]) c
       }
       else
       {
+        if(!fs::is_regular_file(opt.m_inputHeaderFile))
+        {
+          opt.m_errorMessage = g_inputFileIsntRegular;
+          opt.m_inputHeaderFile.clear();
+          return opt;
+        }
         argIdx++;
       }
     }
@@ -58,6 +74,12 @@ EasyMockOptions CmdLineParser::getParsedArguments(int argc,const char* argv[]) c
       }
       else
       {
+        if(!fs::is_directory(opt.m_outputDir))
+        {
+          opt.m_errorMessage = g_outputDirIsntDir;
+          opt.m_outputDir.clear();
+          return opt;
+        }
         argIdx++;
       }
     }

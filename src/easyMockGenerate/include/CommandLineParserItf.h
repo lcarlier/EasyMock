@@ -37,6 +37,8 @@ const std::string g_errorIgnoreGenerationOfArgumentMissing("Error: Argument --ig
 const std::string g_errorGenerateComparatorOfArgumentMissing("Error: Argument --generate-comparator-of needs a value");
 const std::string g_minusIParameterGivenTwice("Error: -i argument can be used only once");
 const std::string g_minusOParameterGivenTwice("Error: -o argument can be used only once");
+const std::string g_inputFileIsntRegular("Error: Path given to -i isn't a regular file");
+const std::string g_outputDirIsntDir("Error: Path given to -o isn't a directory");
 
 const std::string g_helpMessage =
   "Generate mocks to be used into unit tests.\n\r"

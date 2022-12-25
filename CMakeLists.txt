@@ -229,6 +229,13 @@ if(${BACKTRACE_SUPPORT})
 )
 endif()
 
+include(CheckIncludeFileCXX)
+CHECK_INCLUDE_FILE_CXX(filesystem IS_FILE_SYSTEM_PRESENT)
+if(IS_FILE_SYSTEM_PRESENT STREQUAL "")
+    message("Filesystem isn't available. Adding extra link to be able to use the experimental version.")
+    set (LINK_LIB ${LINK_LIB} stdc++fs)
+endif()
+
 execute_process(COMMAND ${LLVM_CONFIG} --version COMMAND cut -d "." -f 1 OUTPUT_VARIABLE LLVM_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
 execute_process(COMMAND ${LLVM_CONFIG} --includedir COMMAND tr -d "\n" OUTPUT_VARIABLE LLVM_INCLUDEDIR OUTPUT_STRIP_TRAILING_WHITESPACE)
 set(LLVM_CXXFLAGS -I${LLVM_INCLUDEDIR})
