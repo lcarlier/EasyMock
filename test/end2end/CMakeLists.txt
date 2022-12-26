@@ -20,6 +20,9 @@ add_test(NAME test_end2endIntFunIntInt COMMAND
         ${CMAKE_CXX_COMPILER}
         ${CMAKE_CXX_STANDARD}
         )
+set_tests_properties(test_end2endIntFunIntInt PROPERTIES TIMEOUT 7200
+        FAIL_REGULAR_EXPRESSION "ERROR;runtime error"
+        ENVIRONMENT UBSAN_OPTIONS=print_stacktrace=1)
 
 #TEST STDIO
 
@@ -38,3 +41,6 @@ add_test(NAME test_end2endStdio COMMAND
         ${CMAKE_CXX_COMPILER}
         ${CMAKE_CXX_STANDARD}
         )
+set_tests_properties(test_end2endStdio PROPERTIES TIMEOUT 7200
+        FAIL_REGULAR_EXPRESSION "ERROR;runtime error"
+        ENVIRONMENT UBSAN_OPTIONS=print_stacktrace=1)

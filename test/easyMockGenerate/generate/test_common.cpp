@@ -95,6 +95,7 @@ void easyMockGenerate_baseTestCase::TearDown()
     m_rmDir = false;
   }
   cleanTest(&handle, m_mockDir, m_rmDir);
+
   ExtraTearDown();
 }
 

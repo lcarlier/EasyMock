@@ -31,7 +31,7 @@ std::string UnsIntFunUnsIntIntFactory::getFilename()
 void UnsIntFunUnsIntIntFactory::setupTestCase(EasyMockTestCase::TestCase tc)
 {
   unsigned int aToExpect = 0xcafebabe;
-  unsigned int bToExpect = 0xf000baa3;
+  int bToExpect = 0xbaa3;
   unsigned int rvToExpect = 0xdeadbeaf;
   switch(tc)
   {
@@ -45,9 +45,10 @@ void UnsIntFunUnsIntIntFactory::setupTestCase(EasyMockTestCase::TestCase tc)
     {
       for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::ThreeExpects_NbExpects; expectIdx++)
       {
+        int bToExpectIdx = expectIdx;
         m_rvContext.m_rv.push_back(rvToExpect + expectIdx);
-        m_expects.push_back(std::make_tuple(aToExpect + expectIdx, bToExpect + expectIdx));
-        m_params.push_back(std::make_tuple(aToExpect + expectIdx, bToExpect + expectIdx));
+        m_expects.push_back(std::make_tuple(aToExpect + expectIdx, bToExpect + bToExpectIdx));
+        m_params.push_back(std::make_tuple(aToExpect + expectIdx, bToExpect + bToExpectIdx));
         m_compare.push_back(std::make_tuple(&cmp_u_int, &cmp_int));
       }
       break;
@@ -72,9 +73,10 @@ void UnsIntFunUnsIntIntFactory::setupTestCase(EasyMockTestCase::TestCase tc)
     case EasyMockTestCase::TestCase::NotEnoughCall:
       for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::NotEnoughCall_NbExpects; expectIdx++)
       {
+        int bToExpectIdx = expectIdx;
         m_rvContext.m_rv.push_back(rvToExpect + expectIdx);
-        m_expects.push_back(std::make_tuple(aToExpect + expectIdx, bToExpect));
-        m_params.push_back(std::make_tuple(aToExpect + expectIdx, bToExpect));
+        m_expects.push_back(std::make_tuple(aToExpect + expectIdx, bToExpectIdx));
+        m_params.push_back(std::make_tuple(aToExpect + expectIdx, bToExpectIdx));
         m_compare.push_back(std::make_tuple(&cmp_u_int, &cmp_int));
       }
       break;

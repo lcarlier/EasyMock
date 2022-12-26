@@ -21,7 +21,7 @@ std::string UnsCharFunUnsCharFactory::getFilename()
 void UnsCharFunUnsCharFactory::setupTestCase(EasyMockTestCase::TestCase tc)
 {
   unsigned char aToExpect = 0xca;
-  unsigned char rvToExpect = 0xfe;
+  unsigned char rvToExpect = 0xba;
   switch(tc)
   {
     case EasyMockTestCase::TestCase::OneExpect:

@@ -26,7 +26,8 @@ void IntFunVoidFactory::setupTestCase(EasyMockTestCase::TestCase tc)
     case EasyMockTestCase::TestCase::ThreeExpects:
     {
       int rvToExpect = -7;
-      for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::ThreeExpects_NbExpects; expectIdx++)
+      int nbThreeExpect = EasyMockTestCase::ThreeExpects_NbExpects;
+      for(int expectIdx = 0; expectIdx < nbThreeExpect; expectIdx++)
       {
         m_rvContext.m_rv.push_back(rvToExpect + expectIdx);
       }

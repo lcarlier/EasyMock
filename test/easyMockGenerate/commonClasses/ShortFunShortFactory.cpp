@@ -22,10 +22,8 @@ std::string ShortFunShortFactory::getFilename()
 
 void ShortFunShortFactory::setupTestCase(EasyMockTestCase::TestCase tc)
 {
-  short aToExpect = 0xcafe;
-  short rvToExpect = 0xbabe;
-  aToExpect = -aToExpect;
-  rvToExpect = -rvToExpect;
+  short aToExpect = -5;
+  short rvToExpect = -7;
   switch(tc)
   {
     case EasyMockTestCase::TestCase::OneExpect:
@@ -36,7 +34,8 @@ void ShortFunShortFactory::setupTestCase(EasyMockTestCase::TestCase tc)
       break;
     case EasyMockTestCase::TestCase::ThreeExpects:
     {
-      for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::ThreeExpects_NbExpects; expectIdx++)
+      short nbThreeExpects = EasyMockTestCase::ThreeExpects_NbExpects;
+      for(short expectIdx = 0; expectIdx < nbThreeExpects; expectIdx++)
       {
         m_rvContext.m_rv.push_back(rvToExpect + expectIdx);
         m_expects.push_back(std::make_tuple(aToExpect + expectIdx));
@@ -63,7 +62,9 @@ void ShortFunShortFactory::setupTestCase(EasyMockTestCase::TestCase tc)
       m_compare.push_back(std::make_tuple(&cmp_short));
       break;
     case EasyMockTestCase::TestCase::NotEnoughCall:
-      for(unsigned int expectIdx = 0; expectIdx < EasyMockTestCase::NotEnoughCall_NbExpects; expectIdx++)
+    {
+      short nbNotEnoughCallExpects = EasyMockTestCase::ThreeExpects_NbExpects;
+      for (short expectIdx = 0; expectIdx < nbNotEnoughCallExpects; expectIdx++)
       {
         m_rvContext.m_rv.push_back(rvToExpect + expectIdx);
         m_expects.push_back(std::make_tuple(aToExpect + expectIdx));
@@ -71,6 +72,7 @@ void ShortFunShortFactory::setupTestCase(EasyMockTestCase::TestCase tc)
         m_compare.push_back(std::make_tuple(&cmp_short));
       }
       break;
+    }
     case EasyMockTestCase::TestCase::NoExpect:
       break;
   }
