@@ -88,9 +88,9 @@ sudo apt install \
     cmake \
     pkg-config \
     libunwind-dev \
-    llvm-10-dev \
-    libclang-10-dev \
-    libclang-cpp10-dev \
+    llvm-dev \
+    libclang-dev \
+    libclang-cpp-dev \
     libncurses-dev \
     libboost-system-dev \
     libboost-filesystem-dev \

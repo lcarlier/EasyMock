@@ -1,4 +1,4 @@
-name: Linux Ubuntu 18.04 x86 GCC
+name: Linux Ubuntu 22.04 arm64 GCC
 
 on:
   push:
@@ -16,8 +16,8 @@ on:
         default: false
 
 jobs:
-  ubuntu-18-04-x86-gcc:
-    runs-on: ubuntu-18.04
+  ubuntu-22-04-arm-gcc:
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         build_type: [Debug, ReleaseWithTest]
@@ -26,8 +26,9 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Validate
-        uses: ./.github/actions/validate-native
+        uses: ./.github/actions/validate-arm64
         with:
           c_compiler: gcc
           cxx_compiler: g++
           build_type: ${{ matrix.build_type }}
+          docker_image: ubuntu:22.04

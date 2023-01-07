@@ -17,7 +17,7 @@ on:
 
 jobs:
   ubuntu-20-04-arm-gcc:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         build_type: [Debug, ReleaseWithTest]
