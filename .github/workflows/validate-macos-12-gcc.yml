@@ -1,4 +1,4 @@
-name: MacOS 10.15 GCC
+name: MacOS 12 GCC
 
 on:
   push:
@@ -16,8 +16,8 @@ on:
         default: false
 
 jobs:
-  macos-10-15-gcc:
-    runs-on: macos-10.15
+  macos-12-gcc:
+    runs-on: macos-12
     strategy:
       matrix:
         # Debug isn't yet tested because it failed with ASAN
