@@ -1,10 +1,11 @@
 #ifndef EASYMOCK_TEST_GENGENERATECOMMON_H
 #define EASYMOCK_TEST_GENGENERATECOMMON_H
 
+#include <sstream>
+#include <iomanip>
+
 #include "genGenerate_testCase.h"
 #include "test_common.h"
-
-#include <sstream>
 
 template<int v, class T>
 static std::string getElementOfTupleInsideQueue(const unsigned int idx, const T &theQueue);

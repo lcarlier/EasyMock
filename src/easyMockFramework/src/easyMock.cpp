@@ -14,7 +14,9 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <boost/core/demangle.hpp>
+#if __cplusplus < 201703L
 #include <cstdbool>
+#endif
 
 #undef NDEBUG
 #include <cassert>

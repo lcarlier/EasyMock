@@ -1,22 +1,3 @@
-#include <LLVMParser.h>
-
-#include <ElementToMockContext.h>
-#include <StructType.h>
-#include <ClassType.h>
-#include <UnionType.h>
-#include <FunctionDeclaration.h>
-#include <FunctionType.h>
-#include <TypeItf.h>
-#include <EasyMock_CType.h>
-#include <Pointer.h>
-#include <Reference.h>
-#include <Enum.h>
-#include <IncompleteType.h>
-#include <ComposableField.h>
-#include <ComposableBitfield.h>
-#include <ConstQualifiedType.h>
-#include <TypedefType.h>
-#include <Namespace.h>
 
 #include <clang/AST/RecursiveASTVisitor.h>
 #include <clang/AST/DeclBase.h>
@@ -36,6 +17,27 @@
 #include <memory>
 #include <optional>
 #include <sstream>
+#include <type_traits>
+
+#include <LLVMParser.h>
+
+#include <ElementToMockContext.h>
+#include <StructType.h>
+#include <ClassType.h>
+#include <UnionType.h>
+#include <FunctionDeclaration.h>
+#include <FunctionType.h>
+#include <TypeItf.h>
+#include <EasyMock_CType.h>
+#include <Pointer.h>
+#include <Reference.h>
+#include <Enum.h>
+#include <IncompleteType.h>
+#include <ComposableField.h>
+#include <ComposableBitfield.h>
+#include <ConstQualifiedType.h>
+#include <TypedefType.h>
+#include <Namespace.h>
 
 template<typename T>
 class UniqueStdSharePtrObjectSet

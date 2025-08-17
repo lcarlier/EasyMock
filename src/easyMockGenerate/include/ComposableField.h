@@ -5,10 +5,11 @@
 #ifndef COMPOSABLEFIELD_H
 #define COMPOSABLEFIELD_H
 
+#include <string>
+#include <cstdint>
+
 #include "EasyMockGenerateTypes.h"
 #include "ComposableFieldItf.h"
-
-#include <string>
 
 //Forward declare TypeItf to avoid circular include dependencies
 class TypeItf;
