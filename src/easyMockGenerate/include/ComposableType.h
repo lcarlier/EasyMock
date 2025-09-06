@@ -6,15 +6,16 @@
 #ifndef COMPOSABLETYPE_H
 #define COMPOSABLETYPE_H
 
-#include "TypeItf.h"
-#include "ComposableField.h"
-#include "ComposableBitfield.h"
-
 #include <vector>
 #include <variant>
 #include <memory>
 
+#include "TypeItf.h"
+#include "ComposableField.h"
+#include "ComposableBitfield.h"
+
 class FunctionDeclaration;
+struct Namespace;
 
 /*!
  * \brief Represents any types which are composed by other types such as
@@ -128,6 +129,7 @@ public:
 protected:
   ComposableType(std::string p_name, bool p_is_embedded_in_other_type);
   ComposableType(std::string p_name, ComposableFieldTypeVector p_elem, bool p_is_embedded_in_other_type);
+  ComposableType(std::string p_name, ComposableFieldTypeVector p_elem, bool p_is_embedded_in_other_type, std::shared_ptr<const Namespace> p_namespace);
 
   ComposableType(const ComposableType& other) = delete;
   ComposableType& operator=(const ComposableType& other) = delete;

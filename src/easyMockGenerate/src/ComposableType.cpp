@@ -1,15 +1,21 @@
+#include <boost/functional/hash.hpp>
+
 #include "ComposableType.h"
 #include "FunctionDeclaration.h"
-
-#include <boost/functional/hash.hpp>
+#include "Namespace.h"
 
 ComposableType::ComposableType(std::string p_name, bool p_is_embedded_in_other_type) :
 ComposableType{std::move(p_name), {}, p_is_embedded_in_other_type}
 {
 }
 
-ComposableType::ComposableType(std::string p_name, ComposableFieldTypeVector p_elem, bool p_is_embedded_in_other_type) :
-TypeItf{std::move(p_name)},
+ComposableType::ComposableType(std::string p_name, ComposableFieldTypeVector p_elem, bool p_is_embedded_in_other_type):
+ComposableType{std::move(p_name), std::move(p_elem), p_is_embedded_in_other_type, getGlobalNamespace()}
+{
+}
+
+ComposableType::ComposableType(std::string p_name, ComposableFieldTypeVector p_elem, bool p_is_embedded_in_other_type, std::shared_ptr<const Namespace> p_namespace) :
+TypeItf{std::move(p_name), std::move(p_namespace)},
 m_elem{std::move(p_elem)},
 m_is_declaration_embedded_in_other_type{p_is_embedded_in_other_type},
 m_is_forward_declared{false},

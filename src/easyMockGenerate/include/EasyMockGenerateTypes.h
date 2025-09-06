@@ -80,6 +80,7 @@ typedef enum
   /*!
    * \brief An invalid C type
    */
+  CTYPE_BOOL,
   CTYPE_INVALID
 } easyMock_cTypes_t;
 

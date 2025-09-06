@@ -23,13 +23,13 @@ public:
    *
    * \param p_outDir Directory into which the mocks must be generated
    * \param p_fullPathToHeaderToMock Path to the header to be mocked
-   * \param p_elem Vector containing the EasyMock internal object representation
+   * \param p_ctxt Vector containing the EasyMock internal object representation
    * of the element to be mocked
    *
    * \return true if the generation of the mocks is successful
    * \return false instead.
    */
-  bool generateCode(const std::string& p_outDir, const std::string &p_fullPathToHeaderToMock, const ElementToMockContext& p_elem);
+  bool generateCode(const std::string& p_outDir, const std::string &p_fullPathToHeaderToMock, const ElementToMockContext& p_ctxt);
   /*!
    * \brief Sets the list of functions to be mocked.
    * \param p_list The list of function to mock.
@@ -72,7 +72,7 @@ protected:
    *
    * \copydetails ::CodeGeneratorItf::generateCode
    */
-  virtual bool generateCodeImplementation(const std::string& p_outDir, const std::string &p_fullPathToHeaderToMock, const ElementToMockContext& p_elem) = 0;
+  virtual bool generateCodeImplementation(const std::string& p_outDir, const std::string &p_fullPathToHeaderToMock, const ElementToMockContext& p_ctxt) = 0;
   MockOnlyList m_mockOnlyList = {};
   GenerateAttrList m_generateAttrList = {};
   bool m_generateUsedType = false;

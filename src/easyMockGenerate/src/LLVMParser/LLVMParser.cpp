@@ -38,6 +38,7 @@
 #include <ConstQualifiedType.h>
 #include <TypedefType.h>
 #include <Namespace.h>
+#include <PrintObjects.h>
 
 template<typename T>
 class UniqueStdSharePtrObjectSet
@@ -116,7 +117,8 @@ public:
   m_ignoreTypeFieldList{parserConfig.ignoreTypeFieldList},
   m_mainFile{parserConfig.mainFile},
   m_ignoreFunList{parserConfig.ignoreFunList},
-  m_parseIncludedFunctions{parserConfig.parseIncludedFunctions}
+  m_parseIncludedFunctions{parserConfig.parseIncludedFunctions},
+  m_forceCpp{parserConfig.forceCpp}
   {
     (void)m_sourceManager;
     m_cachedStruct.clear();
@@ -235,6 +237,7 @@ private:
   const boost::filesystem::path& m_mainFile;
   const IgnoreFunList& m_ignoreFunList;
   bool m_parseIncludedFunctions;
+  bool m_forceCpp;
 
   enum ContainerType {
     STRUCT,
@@ -410,59 +413,67 @@ private:
     auto type = getEasyMocktype(rvQualType, structKnownType, false);
     ReturnValue rv(std::move(type));
 
-    /*
-     * clang::QualType doesn't have any SourceRange information. The source range is approximated by taking
-     * the very beginning of the function declaration and the beginning position of the function name.
-     */
-    clang::SourceLocation beginSourceLocation = func->getBeginLoc();
-    clang::SourceLocation startOfFunNameLocation = func->getNameInfo().getBeginLoc();
-    std::string declString = getDeclareString(beginSourceLocation, startOfFunNameLocation, false);
-    /*
-     * Loop through all the function attributes and determine whether they are declared using a macro.
-     * If they are declared using a macro, just remove the macro call from the declString.
-     */
-    for(const auto& attr : func->attrs())
+    if (func->getLanguageLinkage() == clang::CXXLanguageLinkage)
     {
-      removeAttr(declString, attr);
+      auto paramType = rv.getType();
+      setDeclaratorDeclareString(rvQualType, &rv, paramType->getCxxFullDeclarationName());
     }
-    static std::regex removeAttrRegex{"__attribute__[[:space:]]*\\([[:space:]]*\\(.*\\)[[:space:]]*\\)"};
-
-    /*
-     * Loop through all the token of the declaration and verifies if it expands to __attribute((<something>)).
-     * If so, remove the token.
-     * This is needed because some attribute like "noreturn" aren't part of the function attribute list for
-     * LLVM.
-     */
-    clang::SourceLocation itrSource = beginSourceLocation;
-    while(m_SM->isBeforeInTranslationUnit(itrSource,startOfFunNameLocation))
+    else // Legacy C handling. Maybe to be refactored...
     {
-      //itrSource = clang::Lexer::GetBeginningOfToken(itrSource, *m_SM, *m_LO);
-      clang::Token rawToken;
-      clang::Lexer::getRawToken(itrSource, rawToken, *m_SM, *m_LO, true);
-
-      clang::CharSourceRange dumpSourceRange = clang::Lexer::getAsCharRange(rawToken.getLocation(), *m_SM, *m_LO);
-      dumpSourceRange.setEnd(rawToken.getEndLoc());
-      clang::StringRef dumpStrRef = clang::Lexer::getSourceText(dumpSourceRange, *m_SM, *m_LO);
-      const std::string currentTokenStr{dumpStrRef.str()};
-      if(m_ctxt.hasMacroDefine(currentTokenStr))
+      /*
+       * clang::QualType doesn't have any SourceRange information. The source range is approximated by taking
+       * the very beginning of the function declaration and the beginning position of the function name.
+       */
+      clang::SourceLocation beginSourceLocation = func->getBeginLoc();
+      clang::SourceLocation startOfFunNameLocation = func->getNameInfo().getBeginLoc();
+      std::string declString = getDeclareString(beginSourceLocation, startOfFunNameLocation, false);
+      /*
+       * Loop through all the function attributes and determine whether they are declared using a macro.
+       * If they are declared using a macro, just remove the macro call from the declString.
+       */
+      for(const auto& attr : func->attrs())
       {
-        const MacroDefinition& md = m_ctxt.getMacroDefinition(currentTokenStr);
-        std::string macroStr = md.getDefinition();
-        std::smatch match;
-        if(macroStr.empty() || std::regex_match(macroStr, match, removeAttrRegex))
-        {
-          removeFromString(declString, std::move(currentTokenStr), md.hasParameters());
-        }
+        removeAttr(declString, attr);
       }
-      itrSource = itrSource.getLocWithOffset(currentTokenStr.length());
-    }
+      static std::regex removeAttrRegex{"__attribute__[[:space:]]*\\([[:space:]]*\\(.*\\)[[:space:]]*\\)"};
 
-    declString = std::regex_replace(declString, removeAttrRegex, "");
-    eraseInString(declString, "inline ");
-    eraseInString(declString, "extern ");
-    eraseInString(declString, "static ");
-    declString = trim(declString);
-    setDeclaratorDeclareString(rvQualType, &rv, declString);
+      /*
+       * Loop through all the token of the declaration and verifies if it expands to __attribute((<something>)).
+       * If so, remove the token.
+       * This is needed because some attribute like "noreturn" aren't part of the function attribute list for
+       * LLVM.
+       */
+      clang::SourceLocation itrSource = beginSourceLocation;
+      while(m_SM->isBeforeInTranslationUnit(itrSource,startOfFunNameLocation))
+      {
+        //itrSource = clang::Lexer::GetBeginningOfToken(itrSource, *m_SM, *m_LO);
+        clang::Token rawToken;
+        clang::Lexer::getRawToken(itrSource, rawToken, *m_SM, *m_LO, true);
+
+        clang::CharSourceRange dumpSourceRange = clang::Lexer::getAsCharRange(rawToken.getLocation(), *m_SM, *m_LO);
+        dumpSourceRange.setEnd(rawToken.getEndLoc());
+        clang::StringRef dumpStrRef = clang::Lexer::getSourceText(dumpSourceRange, *m_SM, *m_LO);
+        const std::string currentTokenStr{dumpStrRef.str()};
+        if(m_ctxt.hasMacroDefine(currentTokenStr))
+        {
+          const MacroDefinition& md = m_ctxt.getMacroDefinition(currentTokenStr);
+          std::string macroStr = md.getDefinition();
+          std::smatch match;
+          if(macroStr.empty() || std::regex_match(macroStr, match, removeAttrRegex))
+          {
+            removeFromString(declString, std::move(currentTokenStr), md.hasParameters());
+          }
+        }
+        itrSource = itrSource.getLocWithOffset(currentTokenStr.length());
+      }
+
+      declString = std::regex_replace(declString, removeAttrRegex, "");
+      eraseInString(declString, "inline ");
+      eraseInString(declString, "extern ");
+      eraseInString(declString, "static ");
+      declString = trim(declString);
+      setDeclaratorDeclareString(rvQualType, &rv, declString);
+    }
 
     return rv;
   }
@@ -474,15 +485,10 @@ private:
       return getGlobalNamespace();
     }
     const clang::DeclContext* parentContext = declContext->getParent();
-    for(auto lookup : declContext->lookups())
-    {
-      for (auto namedDecl: lookup)
-      {
-        if(namedDecl->getKind() == clang::Decl::Kind::Namespace)
-        {
-          const auto enclosingNamespace = getNamespace(parentContext);
-          return std::make_shared<const Namespace>(namedDecl->getNameAsString(), enclosingNamespace);
-        }
+    if (const auto* nsDecl = llvm::dyn_cast<clang::NamespaceDecl>(declContext)) {
+      if (!nsDecl->isAnonymousNamespace() && !nsDecl->isInline()) {
+        const auto enclosingNamespace = getNamespace(parentContext);
+        return std::make_shared<const Namespace>(nsDecl->getNameAsString(), enclosingNamespace);
       }
     }
     return getNamespace(parentContext);
@@ -518,6 +524,10 @@ private:
       {
         std::string declareString = getDeclareString(beginLoc, param->getEndLoc(), false);
         setDeclaratorDeclareString(paramQualType, &p, declareString);
+      } else if (func->getLanguageLinkage() == clang::CXXLanguageLinkage)
+      {
+        auto paramType = p.getType();
+        setDeclaratorDeclareString(paramQualType, &p, paramType->getCxxFullDeclarationName());
       }
       vectParam.push_back(std::move(p));
     }
@@ -594,17 +604,18 @@ private:
     const clang::Type &clangType = *clangQualType.getTypePtr();
     const std::string& nakedDeclString = clangQualType.getCanonicalType().getAsString();
     std::shared_ptr<TypeItf> type;
+    auto enclosing_namespace = getNamespace(clangType.getAsCXXRecordDecl());
     if(clangType.isBuiltinType())
     {
       type = getFromBuiltinType(clangType, nakedDeclString);
     }
     else if(clangType.isStructureType())
     {
-      type = getFromStructType(clangType, structKnownType, isEmbeddedInOtherType);
+      type = getFromStructType(clangType, structKnownType, isEmbeddedInOtherType, std::move(enclosing_namespace));
     }
     else if(clangType.isClassType())
     {
-      type = getFromClassType(clangType, structKnownType, isEmbeddedInOtherType);
+      type = getFromClassType(clangType, structKnownType, isEmbeddedInOtherType, std::move(enclosing_namespace));
     }
     else if(clangType.isPointerType())
     {
@@ -620,7 +631,7 @@ private:
     }
     else if (clangType.isUnionType())
     {
-      type = getFromUnionType(clangType, structKnownType, isEmbeddedInOtherType);
+      type = getFromUnionType(clangType, structKnownType, isEmbeddedInOtherType, std::move(enclosing_namespace));
     }
     else if (clangType.isFunctionProtoType())
     {
@@ -701,7 +712,14 @@ private:
     }
     else if(isBoolType(type))
     {
-      cType = std::make_shared<CType>(CTYPE_INT);
+      if (m_forceCpp)
+      {
+        cType = std::make_shared<CType>(CTYPE_BOOL);
+      }
+      else
+      {
+        cType = std::make_shared<CType>(CTYPE_INT);
+      }
     }
     else if(isInt128Type(type))
     {
@@ -729,19 +747,19 @@ private:
     return returnedType;
   }
 
-  std::shared_ptr<TypeItf> getFromStructType(const clang::Type &type, structKnownTypeMap &structKnownType, bool isEmbeddedInOtherType)
+  std::shared_ptr<TypeItf> getFromStructType(const clang::Type &type, structKnownTypeMap &structKnownType, bool isEmbeddedInOtherType, std::shared_ptr<const Namespace> enclosing_namespace)
   {
-    return getFromContainerType(type, STRUCT, structKnownType, isEmbeddedInOtherType);
+    return getFromContainerType(type, STRUCT, structKnownType, isEmbeddedInOtherType, std::move(enclosing_namespace));
   }
 
-  std::shared_ptr<TypeItf> getFromClassType(const clang::Type &type, structKnownTypeMap &structKnownType, bool isEmbeddedInOtherType)
+  std::shared_ptr<TypeItf> getFromClassType(const clang::Type &type, structKnownTypeMap &structKnownType, bool isEmbeddedInOtherType, std::shared_ptr<const Namespace> enclosing_namespace)
   {
-    return getFromContainerType(type, CLASS, structKnownType, isEmbeddedInOtherType);
+    return getFromContainerType(type, CLASS, structKnownType, isEmbeddedInOtherType, std::move(enclosing_namespace));
   }
 
-  std::shared_ptr<TypeItf> getFromUnionType(const clang::Type &type, structKnownTypeMap &structKnownType, bool isEmbeddedInOtherType)
+  std::shared_ptr<TypeItf> getFromUnionType(const clang::Type &type, structKnownTypeMap &structKnownType, bool isEmbeddedInOtherType, std::shared_ptr<const Namespace> enclosing_namespace)
   {
-    return getFromContainerType(type, UNION, structKnownType, isEmbeddedInOtherType);
+    return getFromContainerType(type, UNION, structKnownType, isEmbeddedInOtherType, std::move(enclosing_namespace));
   }
 
   /*
@@ -797,7 +815,7 @@ private:
     return toReturn;
   }
 
-  std::shared_ptr<TypeItf> getFromContainerType(const clang::Type &p_type, ContainerType contType, structKnownTypeMap &structKnownType, bool p_isEmbeddedInOtherType)
+  std::shared_ptr<TypeItf> getFromContainerType(const clang::Type &p_type, ContainerType contType, structKnownTypeMap &structKnownType, bool p_isEmbeddedInOtherType, std::shared_ptr<const Namespace> enclosing_namespace)
   {
     std::string contTypeDecl;
     clang::RecordDecl* RD = p_type.getAsRecordDecl();;
@@ -864,15 +882,15 @@ private:
     switch(contType)
     {
       case STRUCT:
-        sType = std::make_shared<StructType>(typeName, isEmbeddedInOtherType);
+        sType = std::make_shared<StructType>(typeName, isEmbeddedInOtherType, enclosing_namespace);
         incType = IncompleteType::Type::STRUCT;
         break;
       case UNION:
-        sType = std::make_shared<UnionType>(typeName, isEmbeddedInOtherType);
+        sType = std::make_shared<UnionType>(typeName, isEmbeddedInOtherType, enclosing_namespace);
         incType = IncompleteType::Type::UNION;
         break;
       case CLASS:
-        auto classType = std::make_shared<ClassType>(typeName, isEmbeddedInOtherType);
+        auto classType = std::make_shared<ClassType>(typeName, isEmbeddedInOtherType, enclosing_namespace);
         incType = IncompleteType::Type::CLASS;
         globalListOfClasses.addObject(classType);
         sType = classType;
@@ -909,7 +927,12 @@ private:
             typePtr->dump();
             assert(false);
           }
-          unsigned bitWidth = FD->getBitWidthValue(*m_context);
+	  unsigned bitWidth;
+#if LOCAL_LIBLLVM_VERSION >= 20
+          bitWidth = FD->getBitWidthValue();
+#else
+          bitWidth = FD->getBitWidthValue(*m_context);
+#endif
           assert(bitWidth < 256);
           sType->addField(ComposableBitfield{std::move(fieldType), fName, static_cast<uint8_t>(bitWidth)});
         } else
@@ -1234,7 +1257,7 @@ public:
   {
   }
 
-  virtual bool PrepareToExecuteAction(clang::CompilerInstance &CI) override
+  bool PrepareToExecuteAction(clang::CompilerInstance &CI) override
   {
     if(m_parserConfig.forceCpp)
     {
@@ -1243,7 +1266,7 @@ public:
     return true;
   }
 
-  virtual std::unique_ptr<clang::ASTConsumer> CreateASTConsumer(clang::CompilerInstance& CI, clang::StringRef file) override
+  std::unique_ptr<clang::ASTConsumer> CreateASTConsumer(clang::CompilerInstance& CI, clang::StringRef file) override
   {
     clang::Preprocessor& PP = CI.getPreprocessor();
     clang::SourceManager& sm = CI.getSourceManager();

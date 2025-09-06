@@ -13,7 +13,6 @@ std::shared_ptr<FunctionDeclaration> CppConstRefIntFunConstRefIntFactory::functi
     params.push_back(std::move(p));
   }
   ReturnValue rv{std::make_shared<Reference>(std::make_shared<ConstQualifiedType>(std::make_shared<CType>(CTYPE_INT)))};
-  rv.setDeclareString("const int&");
   return std::make_shared<FunctionDeclaration>( functionGetFunctionName(), std::move(rv), std::move(params) );
 }
 

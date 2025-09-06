@@ -20,9 +20,9 @@ void CodeGeneratorItf::setGenerateStructComparator(ComparatorList p_value)
   this->m_comparatorList = std::move(p_value);
 }
 
-bool CodeGeneratorItf::generateCode(const std::string& p_outDir, const std::string &p_fullPathToHeaderToMock, const ElementToMockContext& p_elem)
+bool CodeGeneratorItf::generateCode(const std::string& p_outDir, const std::string &p_fullPathToHeaderToMock, const ElementToMockContext& p_ctxt)
 {
-  return generateCodeImplementation(p_outDir, p_fullPathToHeaderToMock, p_elem);
+  return generateCodeImplementation(p_outDir, p_fullPathToHeaderToMock, p_ctxt);
 }
 
 void CodeGeneratorItf::setCpp(bool p_isCpp)

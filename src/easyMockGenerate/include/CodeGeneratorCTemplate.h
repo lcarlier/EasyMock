@@ -69,7 +69,7 @@ protected:
   /*!
    * \copydoc ::CodeGeneratorItf::generateCodeImplementation
    */
-  bool generateCodeImplementation(const std::string& p_outDir, const std::string &p_fullPathToHeaderToMock, const ElementToMockContext& p_elem) override;
+  bool generateCodeImplementation(const std::string& p_outDir, const std::string &p_fullPathToHeaderToMock, const ElementToMockContext& p_ctxt) override;
 private:
   void fillInTemplateVariables(const std::string &mockedHeader, const ElementToMockContext &p_ctxt);
   void fillInMacroDefinition(const ElementToMockContext& p_elem);

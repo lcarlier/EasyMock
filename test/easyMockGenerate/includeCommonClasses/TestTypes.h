@@ -1,5 +1,4 @@
-#ifndef TESTTYPES_H
-#define TESTTYPES_H
+#pragma once
 
 #include <gtest/gtest.h>
 
@@ -85,6 +84,7 @@
 #include <CppClassVoidFunVoidConstFactory.h>
 #include <CppRefIntFunRefIntFactory.h>
 #include <CppConstRefIntFunConstRefIntFactory.h>
+#include <CppNamespaceParamFactory.h>
 
 #define PTR_FUN_PTR_FACTORIES \
         VoidPtrFunVoidPtrFactory, \
@@ -146,7 +146,8 @@
         CppRefIntFunRefIntFactory, \
         CppRefIntFunRefIntGenerateTypeFactory, \
         CppConstRefIntFunConstRefIntFactory, \
-        CppConstRefIntFunConstRefIntGenerateTypeFactory
+        CppConstRefIntFunConstRefIntGenerateTypeFactory, \
+        CppNamespaceParamFactory
 
 #define CPP_CLASS_FACTORIES \
         CppClassIntFunIntFactory, \
@@ -289,5 +290,3 @@ typedef ::testing::Types
 > CompileOnlyTypes;
 
 using HashTestTypes = ParserTestTypes;
-
-#endif /* TESTTYPES_H */

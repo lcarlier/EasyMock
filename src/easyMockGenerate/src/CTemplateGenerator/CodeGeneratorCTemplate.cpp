@@ -490,6 +490,13 @@ const char templateText[] =
         IF_SECTION_EXISTS(CPP_ONLY_SECTION,
         "#include <sstream>" CARRIAGE_RETURN
         "#include <tuple>" CARRIAGE_RETURN
+        "#include <cstdlib>" CARRIAGE_RETURN
+        "#include <atomic>" CARRIAGE_RETURN
+        CARRIAGE_RETURN
+        "static std::atomic<bool> program_is_exiting{false};" CARRIAGE_RETURN
+        "static void mark_program_exit() {" CARRIAGE_RETURN
+        "    program_is_exiting = true;" CARRIAGE_RETURN
+        "}" CARRIAGE_RETURN
         )
         CARRIAGE_RETURN
         "#include \"" MOCK_FRAMEWORK_NAME "_" TEMPLATE_VAR(MOCKED_HEADER_FILENAME) "\"" CARRIAGE_RETURN
@@ -617,7 +624,8 @@ const char templateText[] =
           )
           IF_SECTION_EXISTS(REGULAR_RETURN_SECTION,
               "    " FUNCTION_NON_QUALIFIED_RETURN_VALUE_TYPE " default_res" TEMPLATE_INCL_SECTION(EXTRA_TOP_LEVEL_DECL_SECTION) ";" CARRIAGE_RETURN
-              "    easyMock_memcpy((void*)&default_res, (void*)&dummyRes_" FUNCTION_NAME ", sizeof(default_res));" CARRIAGE_RETURN
+              IF_SECTION_EXISTS(C_ONLY_SECTION, "    easyMock_memcpy((void*)&default_res, (void*)&dummyRes_" FUNCTION_NAME ", sizeof(default_res));" CARRIAGE_RETURN)
+              IF_SECTION_EXISTS(CPP_ONLY_SECTION, "    default_res = dummyRes_" FUNCTION_NAME ";" CARRIAGE_RETURN)
           )
           CARRIAGE_RETURN
         )
@@ -724,7 +732,10 @@ const char templateText[] =
             "    " MOCKED_DATA_MEMBER("instance") " = instance;" CARRIAGE_RETURN
         )
         TEMPLATE_BEG_SECTION(FUNCTION_PARAM_SECTION)
-        IF_SECTION_EXISTS(REGULAR_MEMBER_SECTION, "    easyMock_memcpy((void*)&" MOCKED_DATA_MEMBER(PARAMETER_NAME("")) ", (void*)&" PARAMETER_NAME("") ", sizeof(" MOCKED_DATA_MEMBER(PARAMETER_NAME("")) ")); // normal member section")
+        IF_SECTION_EXISTS(REGULAR_MEMBER_SECTION,
+          IF_SECTION_EXISTS(C_ONLY_SECTION, "    easyMock_memcpy((void*)&" MOCKED_DATA_MEMBER(PARAMETER_NAME("")) ", (void*)&" PARAMETER_NAME("") ", sizeof(" MOCKED_DATA_MEMBER(PARAMETER_NAME("")) ")); // normal member section")
+          IF_SECTION_EXISTS(CPP_ONLY_SECTION, "    " MOCKED_DATA_MEMBER(PARAMETER_NAME("")) " = " PARAMETER_NAME("") "; // Cpp regular member section" CARRIAGE_RETURN)
+        )
         IF_SECTION_EXISTS(REFERENCE_MEMBER_SECTION, "    " MOCKED_DATA_MEMBER(PARAMETER_NAME("")) " = " PARAMETER_NAME("") "; // Reference member section")
         CARRIAGE_RETURN
         "    " MOCKED_DATA_MEMBER(FUNCTION_MOCK_DATA_CUR_MATCH_VAR) " = " FUNCTION_PARAM_MATCH_VAR ";" CARRIAGE_RETURN
@@ -782,12 +793,25 @@ const char templateText[] =
         "{" CARRIAGE_RETURN
         "    " INIT_ALL_MOCK_FUNCTION_NAME "();" CARRIAGE_RETURN
         "    " MOCK_FRAMEWORK_NAME "_registerMockedFile(&mockedRegister);" CARRIAGE_RETURN
+        IF_SECTION_EXISTS(CPP_ONLY_SECTION,
+        "    std::atexit(mark_program_exit);" CARRIAGE_RETURN
+        )
         "}" CARRIAGE_RETURN
+        "static void clean_all() {" CARRIAGE_RETURN
+        "    " RESET_ALL_MOCK_FUNCTION_NAME "();" CARRIAGE_RETURN
+        "    " MOCK_FRAMEWORK_NAME "_unregisterMockedFile(&mockedRegister);" CARRIAGE_RETURN
+        "}"
         CARRIAGE_RETURN
         "static void __attribute__((destructor)) " MOCK_FRAMEWORK_NAME "_unregister_this_header()" CARRIAGE_RETURN
         "{" CARRIAGE_RETURN
-        "    " RESET_ALL_MOCK_FUNCTION_NAME "();" CARRIAGE_RETURN
-        "    " MOCK_FRAMEWORK_NAME "_unregisterMockedFile(&mockedRegister);" CARRIAGE_RETURN
+        IF_SECTION_EXISTS(C_ONLY_SECTION,
+        "    clean_all();" CARRIAGE_RETURN
+        )
+        IF_SECTION_EXISTS(CPP_ONLY_SECTION,
+        "    if(!program_is_exiting.load()) { // We exit from dlclose" CARRIAGE_RETURN
+        "        clean_all();" CARRIAGE_RETURN
+        "    }" CARRIAGE_RETURN
+        )
         "}" CARRIAGE_RETURN;
 
 /*!
@@ -1043,6 +1067,15 @@ bool doesFunctionUsesEmptyEnum(const FunctionDeclaration& fd)
   return false;
 }
 
+std::string getExtension(const std::string& filename) {
+  size_t pos = filename.find_last_of('.');
+  if (pos == std::string::npos || pos == 0 || pos == filename.length() - 1) {
+    // No dot, dot is first char (hidden file), or dot is last char
+    return "";
+  }
+  return filename.substr(pos + 1);
+}
+
 } //namespace
 
 bool CodeGeneratorCTemplate::hasTypeNonZeroSize(const TypeItf* p_type)
@@ -1246,7 +1279,7 @@ bool CodeGeneratorCTemplate::generateCodeImplementation(const std::string& p_out
 
   generatedCode.clear();
   ctemplate::ExpandTemplate(HFILE_TEMPLATE, ctemplate::DO_NOT_STRIP, &dict, &generatedCode);
-  if (!generateCodeToFile(p_outDir, filenameToMock, "h", generatedCode))
+  if (!generateCodeToFile(p_outDir, filenameToMock, getExtension(filenameToMock), generatedCode))
   {
     return false;
   }
@@ -1508,7 +1541,15 @@ void CodeGeneratorCTemplate::generateFunctionSection(ctemplate::TemplateDictiona
       returnValParamDict->AddSectionDictionary(REGULAR_RETURN_SECTION);
     }
 
-    returnValParamDict->SetValue(FUNCTION_DEREFERENCED_RETURN_VALUE, getDereferencedType(*rvType).getFullDeclarationName());
+    /*if (m_isCpp)
+    {
+      returnValParamDict->SetValue(FUNCTION_DEREFERENCED_RETURN_VALUE, getDereferencedType(*rvType).getCxxFullDeclarationName());
+    }
+    else
+    {*/
+      returnValParamDict->SetValue(FUNCTION_DEREFERENCED_RETURN_VALUE, getDereferencedType(*rvType).getFullDeclarationName());
+    //}
+
     if(nonQualifiedReturnValuePointer)
     {
       const TypeItf *returnValuePointerPointedType = getRawType(nonQualifiedReturnValuePointer);
@@ -1586,7 +1627,14 @@ void CodeGeneratorCTemplate::generateFunctionParamSection(ctemplate::TemplateDic
       generateComposedTypedCompareSection(composableType, prepend, declare);
     }
     functionParamSection->SetValue(FUNCTION_PARAM_TYPE, argType);
-    functionParamSection->SetValue(FUNCTION_PARAM_DEREFERENCED_TYPE, getDereferencedType(*paramType).getFullDeclarationName());
+    /*if (m_isCpp)
+    {
+      functionParamSection->SetValue(FUNCTION_PARAM_DEREFERENCED_TYPE, getDereferencedType(*paramType).getCxxFullDeclarationName());
+    }
+    else
+    {*/
+      functionParamSection->SetValue(FUNCTION_PARAM_DEREFERENCED_TYPE, getDereferencedType(*paramType).getFullDeclarationName());
+    //}
     if(nonQualifiedParamRefType)
     {
       functionParamSection->AddSectionDictionary(REFERENCE_MEMBER_SECTION);
@@ -1858,7 +1906,7 @@ void CodeGeneratorCTemplate::generateBodyStructCompare(ctemplate::TemplateDictio
   }
   else
   {
-    std::fprintf(stderr, "%s: Type '%s' unexpected here. Contact owner for bug fixing\n\r", __FUNCTION__, rawCurFieldType->getFullDeclarationName().c_str());
+    std::fprintf(stderr, "%s: Type '%s' unexpected here. Contact owner for bug fixing\n\r", __FUNCTION__, m_isCpp ? rawCurFieldType->getCxxFullDeclarationName().c_str(): rawCurFieldType->getFullDeclarationName().c_str());
     assert(false);
   }
 }
@@ -1937,7 +1985,14 @@ void CodeGeneratorCTemplate::generateBasicTypeField(const ComposableFieldItf *p_
   if(p_curField->isComposableBitfield())
   {
     ctemplate::TemplateDictionary* castSection = errorDict->AddSectionDictionary(ERROR_PRINTF_VAL_SPECIFIC_CAST_SECTION);
-    castSection->SetValue(ERROR_PRINTF_VAL_SPECIFIC_CAST_VAR, p_curField->getType()->getFullDeclarationName());
+    if (m_isCpp)
+    {
+      castSection->SetValue(ERROR_PRINTF_VAL_SPECIFIC_CAST_VAR, p_curField->getType()->getCxxFullDeclarationName());
+    }
+    else
+    {
+      castSection->SetValue(ERROR_PRINTF_VAL_SPECIFIC_CAST_VAR, p_curField->getType()->getFullDeclarationName());
+    }
   }
   setStructCompareStringFormat(errorDict, curFieldType);
 
@@ -2315,7 +2370,13 @@ void CodeGeneratorCTemplate::generateComposedTypedCompareSection(const Composabl
     }
     else
     {
-      declarationString.append(p_composedType->getFullDeclarationName());
+      if (m_isCpp)
+      {
+        declarationString.append(p_composedType->getCxxFullDeclarationName());
+      } else
+      {
+        declarationString.append(p_composedType->getFullDeclarationName());
+      }
     }
   }
   std::string constDeclString { "const "};
@@ -2421,7 +2482,12 @@ closeFile:
 std::string CodeGeneratorCTemplate::getNonQualifiedDereferencedDeclaratorString(const Declarator& p_decl)
 {
   const TypeItf& typeToDeclare = getDereferencedType(*p_decl.getType());
+  if (m_isCpp)
+  {
+    return typeToDeclare.unqualify()->getCxxFullDeclarationName();
+  }
   return typeToDeclare.unqualify()->getFullDeclarationName();
+
 }
 
 const TypeItf& CodeGeneratorCTemplate::getDereferencedType(const TypeItf& p_decl)
@@ -2505,10 +2571,18 @@ void CodeGeneratorCTemplate::generateSimpleTypeDef(const TypeItf* p_type)
   const TypeItf* typeeType = typedefType->getTypee();
   const std::string& typedefName = typedefType->getName();
   /*
-   * getFullDeclarationName gives all all the necessary qualifiers without the
+   * getFullDeclarationName gives all the necessary qualifiers without the
    * typedef (p_naked == true).
    */
-  std::string localType { typeeType->getFullDeclarationName(true) };
+  auto localTypeLambda = [](const TypeItf* typeeType, bool isCpp) -> std::string
+  {
+    if (isCpp)
+    {
+      return typeeType->getCxxFullDeclarationName();
+    }
+    return typeeType->getFullDeclarationName(true);
+  };
+  std::string localType { localTypeLambda(typeeType, m_isCpp) };
   const TypeItf *rawType = getRawType(typeeType);
   const FunctionType *functionType = rawType->asFunctionType();
   bool isRawTypeFunctionType = functionType != nullptr;

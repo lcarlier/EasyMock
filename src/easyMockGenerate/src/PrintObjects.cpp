@@ -68,7 +68,7 @@ namespace {
     }
 
     template<class T>
-    static void printComposableTypeToOstream(std::ostream &os, const T &composableType, std::string classname) {
+    void printComposableTypeToOstream(std::ostream &os, const T &composableType, std::string classname) {
         os << classname << "(";
         os << "name: '" << composableType.getName() << "'" << ", ";
         os << "anonymous: " << (composableType.isAnonymous() ? "yes" : " no") << ", ";
@@ -173,6 +173,7 @@ namespace std {
     ostream &operator<<(ostream &os, const TypeItf &typeItf) {
         bool isConst = typeItf.isConst();
         os << "TypeItf:" << typeItf.getName() << ", ";
+        os << "Namespace: " << *typeItf.getNamespace() << ", ";;
         os << "isTypeDef:" << (typeItf.isTypedDef() ? "yes" : "no") << ", ";
         os << "isAnonymous:" << (typeItf.isAnonymous() ? "yes" : "no") << ", ";
         os << "isPointer:" << (typeItf.isPointer() ? "yes" : "no") << ", ";

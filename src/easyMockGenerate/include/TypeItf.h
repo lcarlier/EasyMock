@@ -20,6 +20,7 @@ class Reference;
 class QualifiedType;
 class IncompleteType;
 class CType;
+struct Namespace;
 
 /*!
  * \brief Base class of all types related classes
@@ -59,6 +60,9 @@ public:
    * putting a space in between
    */
   std::string getFullDeclarationName(bool p_naked = false) const;
+
+  [[nodiscard]]
+  std::string getCxxFullDeclarationName() const;
 
   /*!
    * \brief Generates the string to be put before a variable name when being declared.
@@ -533,6 +537,12 @@ public:
   void cacheHash() noexcept override;
 
   /*!
+   * \brief Return the namespace in which the type belong to
+   */
+  [[nodiscard]]
+  std::shared_ptr<const Namespace> getNamespace() const noexcept;
+
+  /*!
    * \brief Returns the hash of the type where all typedefs have been removed.
    *
    * For example:
@@ -583,10 +593,12 @@ public:
   bool prefix ## isImplicit; \
   bool prefix ## isIncompleteType; \
   bool prefix ## isTypedefType; \
-  bool prefix ## isQualifiedType;
+  bool prefix ## isQualifiedType; \
+  std::shared_ptr<const Namespace> prefix ## type_namespace;
 protected:
   TypeItf();
   explicit TypeItf(std::string p_name);
+  TypeItf(std::string p_name, std::shared_ptr<const Namespace> p_type_namespace);
 
   TYPEITF_COMMON_CLASS_MEMBERS(m_)
 

@@ -1,3 +1,8 @@
+#include <cassert>
+#include <sstream>
+
+#include <boost/functional/hash.hpp>
+
 #include "TypeItf.h"
 #include "Pointer.h"
 #include "Reference.h"
@@ -9,20 +14,20 @@
 #include "ComposableType.h"
 #include "IncompleteType.h"
 #include "EasyMock_CType.h"
-
-#include <boost/algorithm/string/replace.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/functional/hash.hpp>
-
-#undef NDEBUG
-#include <cassert>
+#include "Namespace.h"
+#include "PrintObjects.h"
 
 TypeItf::TypeItf():
 TypeItf{""}
 {
 }
 
-TypeItf::TypeItf(std::string p_name) :
+TypeItf::TypeItf(std::string p_name):
+TypeItf(std::move(p_name), getGlobalNamespace())
+{
+}
+
+TypeItf::TypeItf(std::string p_name, std::shared_ptr<const Namespace> p_type_namespace) :
 TypeItf{{.name = std::move(p_name),
         .isCType = false,
         .isStruct = false,
@@ -35,6 +40,7 @@ TypeItf{{.name = std::move(p_name),
         .isIncompleteType = false,
         .isTypedefType = false,
         .isQualifiedType = false,
+        .type_namespace = std::move(p_type_namespace)
         }}
 {
 }
@@ -53,6 +59,7 @@ TypeItf::TypeItf(TypeItf::attributes attrib)
   m_isIncompleteType = attrib.isIncompleteType;
   m_isTypedefType = attrib.isTypedefType;
   m_isQualifiedType = attrib.isQualifiedType;
+  m_type_namespace = attrib.type_namespace;
 
   m_cachedHash = 0;
 }
@@ -390,6 +397,18 @@ std::string TypeItf::getFullDeclarationName(bool p_naked) const
   return toReturn;
 }
 
+std::string TypeItf::getCxxFullDeclarationName() const
+{
+  std::stringstream ss;
+  if (m_type_namespace->m_parent)
+  {
+    ss << *m_type_namespace << "::";
+  }
+  ss << m_name;
+  return ss.str();
+}
+
+
 easyMock_cTypes_t TypeItf::getCType() const
 {
   return CTYPE_INVALID;
@@ -464,6 +483,11 @@ void TypeItf::cacheHash() noexcept
   m_cachedHash = TypeItf::getHash();
 }
 
+std::shared_ptr<const Namespace> TypeItf::getNamespace() const noexcept
+{
+  return m_type_namespace;
+}
+
 std::size_t TypeItf::getRawHash() const noexcept
 {
   //No need to introduce a cache mechanism for the raw hash since this is the same as normal hash
@@ -490,7 +514,8 @@ bool TypeItf::isEqual(const TypeItf& other) const
           this->m_isImplicit == other.m_isImplicit &&
           this->m_isIncompleteType == other.m_isIncompleteType &&
           this->m_isTypedefType == other.m_isTypedefType &&
-          this->m_isQualifiedType == other.m_isQualifiedType;
+          this->m_isQualifiedType == other.m_isQualifiedType &&
+          *this->m_type_namespace == *other.m_type_namespace;
 }
 
 bool TypeItf::operator!=(const TypeItf& other) const

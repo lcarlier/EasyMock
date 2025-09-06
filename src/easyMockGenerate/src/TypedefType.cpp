@@ -4,7 +4,7 @@
 #include <boost/functional/hash.hpp>
 
 TypedefType::TypedefType(std::string p_typedefName, std::shared_ptr<TypeItf> p_typeeType) :
-TypeItf { std::move(p_typedefName) },
+TypeItf { std::move(p_typedefName), p_typeeType->getNamespace() },
 m_typeeType { std::move(p_typeeType) },
 m_cachedHash{0},
 m_cachedRawHash{0}
