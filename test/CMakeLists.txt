@@ -157,7 +157,7 @@ target_include_directories(${EASYMOCK_TEST_LIBRARY} PRIVATE ${TEST_INCLUDE_DIR})
 target_compile_options(${TEST_FACTORIES_COMMON_OBJ} PRIVATE ${TEST_COMPILE_FLAGS})
 target_include_directories(${TEST_FACTORIES_COMMON_OBJ} PRIVATE ${TEST_INCLUDE_DIR})
 
-add_subdirectory(generateDoxygen)
+# add_subdirectory(generateDoxygen)
 add_subdirectory(cstring)
 add_subdirectory(CType)
 add_subdirectory(Enum)

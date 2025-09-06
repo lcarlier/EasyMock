@@ -1,4 +1,4 @@
-name: Linux Ubuntu 20.04 x86 Clang
+name: MacOS 15 Clang
 
 on:
   push:
@@ -16,14 +16,16 @@ on:
         default: false
 
 jobs:
-  ubuntu-20-04-x86-clang:
-    runs-on: ubuntu-20.04
+  macos-15-clang:
+    runs-on: macos-15
     strategy:
       matrix:
+        # Debug isn't yet tested because it failed with ASAN
+        # The first analysis is that it is a bug in ASAN itself
         build_type: [Debug, ReleaseWithTest]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Validate
         uses: ./.github/actions/validate-native

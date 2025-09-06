@@ -1,4 +1,4 @@
-name: Linux Ubuntu 20.04 arm64 Clang
+name: Linux Ubuntu 24.04 arm64 GCC
 
 on:
   push:
@@ -16,19 +16,19 @@ on:
         default: false
 
 jobs:
-  ubuntu-20-04-arm-clang:
-    runs-on: ubuntu-22.04
+  ubuntu-24-04-arm-gcc:
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         build_type: [Debug, ReleaseWithTest]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Validate
         uses: ./.github/actions/validate-arm64
         with:
-          c_compiler: clang
-          cxx_compiler: clang++
+          c_compiler: gcc
+          cxx_compiler: g++
           build_type: ${{ matrix.build_type }}
-          docker_image: ubuntu:20.04
+          docker_image: ubuntu:24.04

@@ -27,51 +27,25 @@ fi
 if [ "$OS" = "Linux" ]; then
 
   sudo apt update -y
-  sudo apt install -y lsb-release
-
-  if [[ $(lsb_release -rs) == "20.04" ]]; then
-    # "file" is for running the UTs as they use that tool
-    sudo apt install -y \
-      ${C_COMPILER} \
-      g++ \
-      clang \
-      cmake \
-      pkg-config \
-      libunwind-dev \
-      llvm-10-dev \
-      libclang-10-dev \
-      libclang-cpp10-dev \
-      libncurses-dev \
-      libboost-system-dev \
-      libboost-filesystem-dev \
-      libctemplate-dev \
-      libdw-dev \
-      doxygen \
-      graphviz \
-      file
-  fi
-
-  if [[ $(lsb_release -rs) == "22.04" ]]; then
-    # "file" is for running the UTs as they use that tool
-    sudo apt install -y \
-      ${C_COMPILER} \
-      g++ \
-      clang \
-      cmake \
-      pkg-config \
-      libunwind-dev \
-      llvm-dev \
-      libclang-dev \
-      libclang-cpp-dev \
-      libncurses-dev \
-      libboost-system-dev \
-      libboost-filesystem-dev \
-      libctemplate-dev \
-      libdw-dev \
-      doxygen \
-      graphviz \
-      file
-  fi
+  # "file" is for running the UTs as they use that tool
+  sudo apt install -y \
+    ${C_COMPILER} \
+    g++ \
+    clang \
+    cmake \
+    pkg-config \
+    libunwind-dev \
+    llvm-dev \
+    libclang-dev \
+    libclang-cpp-dev \
+    libncurses-dev \
+    libboost-system-dev \
+    libboost-filesystem-dev \
+    libctemplate-dev \
+    libdw-dev \
+    doxygen \
+    graphviz \
+    file
 
 elif [ "$OS" = "Darwin" ]; then
   # Latest version of doxygen (1.9.3)has a regression
@@ -79,7 +53,6 @@ elif [ "$OS" = "Darwin" ]; then
   brew tap-new $USER/local-doxygen
   brew extract --version=1.8.13 doxygen $USER/local-doxygen
   brew install \
-    cmake \
     pkgconfig \
     ncurses \
     gcc \

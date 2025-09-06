@@ -1,4 +1,4 @@
-name: Linux Ubuntu 20.04 x86 GCC
+name: Linux Ubuntu 24.04 x86 Clang
 
 on:
   push:
@@ -16,18 +16,18 @@ on:
         default: false
 
 jobs:
-  ubuntu-20-04-x86-gcc:
-    runs-on: ubuntu-20.04
+  ubuntu-24-04-x86-clang:
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         build_type: [Debug, ReleaseWithTest]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Validate
         uses: ./.github/actions/validate-native
         with:
-          c_compiler: gcc
-          cxx_compiler: g++
+          c_compiler: clang
+          cxx_compiler: clang++
           build_type: ${{ matrix.build_type }}

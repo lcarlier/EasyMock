@@ -1,4 +1,4 @@
-name: MacOS 12 GCC
+name: Linux Ubuntu 24.04 x86 GCC
 
 on:
   push:
@@ -16,16 +16,14 @@ on:
         default: false
 
 jobs:
-  macos-12-gcc:
-    runs-on: macos-12
+  ubuntu-24-04-x86-gcc:
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
-        # Debug isn't yet tested because it failed with ASAN
-        # The first analysis is that it is a bug in ASAN itself
         build_type: [Debug, ReleaseWithTest]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Validate
         uses: ./.github/actions/validate-native
